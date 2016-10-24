@@ -3,14 +3,17 @@ class Tile(object):
         self.type=type
         self.tid=tid
         self.effciency=effciency
-        self.blocked=False
+        self.blocked=blocked
         self.neighbors=None
         self.marked=0
 
 class TileMap(object):
-    def __init__(self,size=(30,30)):
+    def __init__(self,size=(30,30),data=None):
         self.size=size
-        self.data=[[Tile() for i in range(size[1])] for j in range(size[0])]
+        if data:
+            self.data=data
+        else:
+            self.data=[[Tile() for i in range(size[1])] for j in range(size[0])]
     def __getitem__(self,pos):
         return self.data[pos[0]][pos[1]]
     def __contains__(self,pos):
@@ -28,9 +31,19 @@ class TileMap(object):
         tile=self[pos]
         if not tile.neighbors:
             tile.neighbors=[]
-            for p in self.get_around(pos):
-                if not self[p].blocked:
-                    tile.neighbors.append(p)
+            for x,y in [(1,0),(-1,0),(0,1),(0,-1)]:
+                p=(x+pos[0],y+pos[1])
+                if p in self:
+                    if not self[p].blocked:
+                        tile.neighbors.append(p)
+            for x,y in [(1,1),(-1,-1),(-1,1),(1,-1)]:
+                p=(x+pos[0],y+pos[1])
+                if p in self:
+                    p1=(pos[0],y+pos[1])
+                    p2=(x+pos[0],pos[1])
+                    if p1 in tile.neighbors and p2 in tile.neighbors and not self[p].blocked:
+                        tile.neighbors.append(p)
+
         return tile.neighbors
             
 
