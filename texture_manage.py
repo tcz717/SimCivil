@@ -27,7 +27,31 @@ class DefaultTexture(TextureManage):
     @staticmethod
     def get_grass(key,size):
         tile= pygame.surface.Surface(size)
-        tile.fill((0,255,0))
+        tile.fill((50,255,50))
+        return tile
+
+    @staticmethod
+    def get_stone(key,size):
+        tile= pygame.surface.Surface(size)
+        tile.fill((100,100,100))
+        return tile
+
+    @staticmethod
+    def get_dirty(key,size):
+        tile= pygame.surface.Surface(size)
+        tile.fill((150,150,100))
+        return tile
+
+    @staticmethod
+    def get_shallow(key,size):
+        tile= pygame.surface.Surface(size)
+        tile.fill((90,150,200))
+        return tile
+
+    @staticmethod
+    def get_water(key,size):
+        tile= pygame.surface.Surface(size)
+        tile.fill((0,0,100))
         return tile
 
     @staticmethod
