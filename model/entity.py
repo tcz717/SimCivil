@@ -14,7 +14,7 @@ class GameEntity(object):
     @property
     def position(self):
         x,y=self.precise_position
-        return vector2((int(x+0.5),int(y+0.5)))
+        return vector2((int(x),int(y)))
 
     def get_tile(self):
         return self.world[self.position]
@@ -47,12 +47,14 @@ class Human(GameEntity):
 
     def update(self, time_passed):
         x,y=self[HumanStatus.position]
-        i,j=self.position
-        if i != self.__target[0] or j != self.__target[1]:
-            dir=vector2(self.__target)-self.position
-            dx,dy=dir
-            norm=math.sqrt(dx*dx+dy*dy)
-            dir=dir/norm*time_passed*self.__speed
+        dir=vector2(self.__target)-self.precise_position
+        dx,dy=dir
+        norm=math.sqrt(dx*dx+dy*dy)
+        if norm>0:
+            dl=time_passed*self.__speed
+            if norm<dl:
+                dl=norm
+            dir=dir/norm*dl
             x,y=(x,y)+dir
             self[HumanStatus.position]=(x,y)
             self.precise_position=(x,y)
@@ -63,6 +65,7 @@ class Human(GameEntity):
     def move(self,target,speed):
         self.__speed=speed
         self.__target=target
-        if tuple(self.position) == target:
-            return True
-        return False
+        dir=vector2(self.__target)-self.precise_position
+        dx,dy=dir
+        norm=math.sqrt(dx*dx+dy*dy)
+        return norm<0.01 and self.__target==tuple(self.position)

@@ -23,6 +23,5 @@ class MapRender():
         screen.blit(self.map_cache,start_pos)
 
     def render_entity(self,screen,entity,start_pos=(0,0)):
-        center=(entity.precise_position[0]-0.5,entity.precise_position[1]-0.5)
-        pos =vector2(self.block_size+self.space)*center
+        pos =vector2(self.block_size+self.space)*entity.precise_position
         entity.render(screen,pos,self.block_size)

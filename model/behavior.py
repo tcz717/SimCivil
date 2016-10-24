@@ -68,11 +68,16 @@ class MoveHandle(BehaviorHandle):
         if tuple(self.entity.position)==self.target:
             self.state=BehaviorResult.finished
             return
+        if not self.index<len(self.path):
+            self.state=self.state=BehaviorResult.finished
+            return
+
         node=self.path[self.index]
-        speed=self.entity[HumanStatus.walk_speed]*self.entity.world[node].effciency
+        cur_node=self.entity.world[self.entity.position]
+        speed=self.entity[HumanStatus.walk_speed]*cur_node.effciency
         if self.entity.move(node,speed):
             self.index=self.index+1
-        self.state=BehaviorResult.running
+            self.state=BehaviorResult.running
         
 class BehaviorInterface(object):
     def __init__(self,entity):
@@ -83,7 +88,6 @@ class BehaviorInterface(object):
         self.current=MoveHandle(self.entity,position)
         self.current.calculate_path()
         return self.current
-
     def idle(self,timespan=1,**args):
         return IdleHandle(self.entity,timespan)
     def use(self,object,**args):
@@ -92,7 +96,11 @@ class BehaviorInterface(object):
         return BehaviorHandle()
     def pick(self,object,**args):
         return BehaviorHandle()
+    def talk(self,target,**args):
+        return BehaviorHandle()
 
+    def get_bag(self,**args):
+        return []
     def get_around(self,**args):
         return []
     def get_status(self,**args):
