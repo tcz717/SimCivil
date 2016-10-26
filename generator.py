@@ -1,7 +1,17 @@
 import random
+import sys
 import noise
+from model.behavior import BehaviorInterface
+from model.entity import *
 from model.tile import *
 from model.tilemap import *
+
+# heath=0,
+# walk_speed=1,
+# hunger=2,
+# vision_range=3,
+# position=4,
+STDWALKSPEED=2.0
 
 class TileGenerator(object):
     @staticmethod
@@ -9,7 +19,7 @@ class TileGenerator(object):
         tile=Tile(
             type=0,
             tid='grass',
-            effciency=0.8,
+            effciency=0.9,
             blocked=False
         )
         return tile
@@ -50,24 +60,52 @@ class TileGenerator(object):
         )
         return tile
 
-class MapGenerator(object):
-    def __init__(self,size):
-        self.size=size
-        self.max=10000
+class EntityGenerator(object):
+    def __init__(self,tmap):
+        self.tmap=tmap
+    def get_std_human(self,name=None,position=None):
+        rand=random.Random()
+        if not position:
+            position=(0,0)
+            w,h=self.tmap.size
+            for i in xrange(w*h):
+                x,y=rand.randint(0,w-1),rand.randint(0,h-1)
+                if not self.tmap[x,y].blocked:
+                        position=(x,y)
+                        break
 
-    def generate(self,seed=None):
-        rand=random.Random(seed) if seed else random.Random()
-        w,h=self.size
+        man = Human(self.tmap,position,name)
+        man.behavior=BehaviorInterface(man)
+        man[HumanStatus.walk_speed]=STDWALKSPEED
+        return man
+
+class MapGenerator(object):
+    def __init__(self,seed=None):
+        self.max=10000
+        if seed:
+            self.rand=random.Random(seed)
+        else:
+            rand=random.Random()
+            self.seed=rand.randint(-sys.maxint+1,sys.maxint)
+            self.rand=random.Random(self.seed)
+
+        self.hx=self.rand.randint(-self.max,self.max)
+        self.hy=self.rand.randint(-self.max,self.max)
+        self.rx=self.rand.randint(-self.max,self.max)
+        self.ry=self.rand.randint(-self.max,self.max)
+
+    def generate(self,size,offset=(0,0)):
+        w,h=size
         scale=20.0
-        tmap=TileMap(self.size)
-        hx=rand.randint(-self.max,self.max)
-        hy=rand.randint(-self.max,self.max)
-        rx=rand.randint(-self.max,self.max)
-        ry=rand.randint(-self.max,self.max)
+        tmap=TileMap(size)
+
+        tmap.height_center=(self.hx,self.hy)
+        tmap.rain_center=(self.rx,self.ry)
+
         for i in range(w):
             for j in range(h):
-                height=noise.pnoise2((i+hx)/scale,(j+hy)/scale,octaves=4,persistence=0.25)*3+0.5
-                rain=noise.pnoise2((i+rx)/scale,(j+ry)/scale,octaves=4,persistence=0.25)
+                height=noise.pnoise2((i+self.hx)/scale,(j+self.hy)/scale,octaves=4,persistence=0.25)*3+0.5
+                rain=noise.pnoise2((i+self.rx)/scale,(j+self.ry)/scale,octaves=4,persistence=0.25)
                 if height>1.2:
                     tile=TileGenerator.get_stone()
                 elif height<-0.5:
