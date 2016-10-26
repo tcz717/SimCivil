@@ -5,9 +5,12 @@ class TextureManage(object):
         self.cache={}
         self.loaders={}
 
-    def load(self, key, size):
+    def load(self, key, size, ignore_fault=True):
         if key not in self.loaders:
-            raise ValueError("Texture key %s not find."%(key))
+            if ignore_fault:
+                return self.cache['default'][size]
+            else:
+                raise ValueError("Texture key %s not find."%(key))
         
         if key in self.cache and size in self.cache[key]:
             return self.cache[key][size]
