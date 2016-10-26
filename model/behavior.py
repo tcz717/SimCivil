@@ -16,7 +16,7 @@ class BehaviorHandle(object):
         self.cancel=False
         self.entity=entity
 
-    def handler(self,time_passed):
+    def handler(self):
         return True
 
 class IdleHandle(BehaviorHandle): 
@@ -24,12 +24,12 @@ class IdleHandle(BehaviorHandle):
         BehaviorHandle.__init__(self,entity,state)
         self.timespan=timespan
 
-    def handler(self,time_passed):
+    def handler(self):
         self.state=BehaviorResult.running
         if self.timespan==None:
             return
         elif self.timespan>0:
-            self.timespan=self.timespan-time_passed
+            self.timespan=self.timespan-1
         else:
             self.state=BehaviorResult.finished
 
@@ -61,7 +61,7 @@ class MoveHandle(BehaviorHandle):
         )
         self.state=BehaviorResult.running
 
-    def handler(self,time_passed):
+    def handler(self):
         if self.cancel:
             self.state=BehaviorResult.canceled
             return 
@@ -106,9 +106,9 @@ class BehaviorInterface(object):
     def get_status(self,**args):
         return dict(self.entity.status)
 
-    def update(self,time_passed):
+    def update(self):
         if self.current:
-            self.current.handler(time_passed)
+            self.current.handler()
             if self.current.state!=BehaviorResult.running:
                 self.current=None
     

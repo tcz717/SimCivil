@@ -60,7 +60,7 @@ class Human(GameEntity):
             self.precise_position=(x,y)
 
         if self.behavior:
-            self.behavior.update(time_passed)
+            self.behavior.update()
 
     def move(self,target,speed):
         self.__speed=speed
