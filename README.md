@@ -16,4 +16,4 @@ SimCivil合作开发说明
 
 ## 主要概念
 
-[参考wiki](/../../wikis/home#核心概念)
+[参考wiki](/../wikis/home#核心概念)
