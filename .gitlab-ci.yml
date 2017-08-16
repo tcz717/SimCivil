@@ -1,0 +1,17 @@
+image: microsoft/dotnet:latest
+
+stages:
+  - build
+  - test
+  - deploy
+
+server:
+  stage: build
+  script:
+    - dotnet restore
+    - dotnet build
+  only:
+    - master
+    - dev
+  tags:
+    - docker
