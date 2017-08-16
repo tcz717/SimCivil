@@ -51,12 +51,12 @@ namespace SimCivil.Net
 
         public static int Size { get; internal set; }
 
-        public static Head Frombytes(byte[] buffer)
+        public static Head FromBytes(byte[] buffer)
         {
             throw new NotImplementedException();
         }
 
-        internal byte[] ToBytes()
+        public byte[] ToBytes()
         {
             throw new NotImplementedException();
         }

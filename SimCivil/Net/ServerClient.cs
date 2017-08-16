@@ -49,7 +49,7 @@ namespace SimCivil.Net
                 {
                     byte[] buffer = new byte[Packet.MaxSize];
                     int size = clientStream.Read(buffer, 0, Head.Size);
-                    Head head = Head.Frombytes(buffer);
+                    Head head = Head.FromBytes(buffer);
                     size = clientStream.Read(buffer, 0, head.length);
                     Packet pkt = PacketFactory.Create(this, head, buffer);
 
