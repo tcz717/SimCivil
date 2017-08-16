@@ -4,17 +4,31 @@ using System.Text;
 
 namespace SimCivil.Net
 {
-    public class Packet
+    public abstract class Packet
     {
+        public const int MaxSize = 4096; //单个数据包最大限制
+
         public Dictionary<string,object> Data { get; set; }
         public Head Head { get; set; }
+        public ServerClient Client { get; set; }
 
-        public Packet(Dictionary<string, object> data) : this(new Head(0), data) { }
-
-        public Packet(Head head, Dictionary<string, object> data)
+        public Packet(Dictionary<string, object> data, Head head = default(Head), ServerClient client = null)
         {
             Head = head;
             Data = data;
+            Client = client;
+        }
+
+        public virtual void Send()
+        {
+            Client.SendPacket(this);
+        }
+
+        public abstract void Handle();
+
+        public virtual byte[] ToBytes()
+        {
+            throw new NotImplementedException();
         }
     }
 
@@ -33,6 +47,18 @@ namespace SimCivil.Net
             this.packageID = packageID;
             this.length = length;
             this.type = type;
+        }
+
+        public static int Size { get; internal set; }
+
+        public static Head Frombytes(byte[] buffer)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal byte[] ToBytes()
+        {
+            throw new NotImplementedException();
         }
     }
 }
