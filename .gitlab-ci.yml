@@ -14,9 +14,6 @@ server:
   script:
     - dotnet restore
     - dotnet build
-  only:
-    - master
-    - dev
   tags:
     - docker
 
@@ -26,8 +23,5 @@ xunit:
     - cd SimCivil.Test
     - dotnet restore
     - dotnet test
-  only:
-    - master
-    - dev
   tags:
     - docker
