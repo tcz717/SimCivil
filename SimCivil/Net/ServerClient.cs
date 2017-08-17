@@ -12,16 +12,23 @@ namespace SimCivil.Net
     /// </summary>
     public class ServerClient
     {
-        TcpClient client;
         private ServerListener serverListener;
         private TcpClient currentClient;
         private NetworkStream clientStream;
+
+        public bool stopFlag = false;
+
+        public TcpClient TcpClt
+        {
+            get { return currentClient; }
+            private set { }
+        }
 
         public ServerClient(ServerListener serverListener, TcpClient currentClient)
         {
             this.serverListener = serverListener;
             this.currentClient = currentClient;
-            clientStream = client.GetStream();
+            clientStream = currentClient.GetStream();
         }
 
 
@@ -45,15 +52,26 @@ namespace SimCivil.Net
         {
             Task.Run(() =>
             {
-                while (true)
+                try
                 {
-                    byte[] buffer = new byte[Packet.MaxSize];
-                    int size = clientStream.Read(buffer, 0, Head.Size);
-                    Head head = Head.FromBytes(buffer);
-                    size = clientStream.Read(buffer, 0, head.length);
-                    Packet pkt = PacketFactory.Create(this, head, buffer);
+                    while (true)
+                    {
+                        if (stopFlag)
+                            break;
 
-                    serverListener.PushPacket(pkt);
+                        byte[] buffer = new byte[Packet.MaxSize];
+                        int size = clientStream.Read(buffer, 0, Head.Size);
+                        Head head = Head.FromBytes(buffer);
+                        size = clientStream.Read(buffer, 0, head.length);
+                        Packet pkt = PacketFactory.Create(this, head, buffer);
+
+                        serverListener.PushPacket(pkt);
+                    }
+                }
+                catch(Exception e)
+                {
+                    Console.WriteLine("A connection lost. Client running exception: " + e.Message);
+                    serverListener.StopAndRemoveClient(this);
                 }
             });
         }

@@ -19,6 +19,7 @@ namespace SimCivil.Net
         public Queue<Packet> PacketReadQueue { get; set; }
         public Queue<Packet> PacketSendQueue { get; set; }
         public Dictionary<EndPoint, ServerClient> Clients { get; private set; } = new Dictionary<EndPoint, ServerClient>();
+        public Dictionary<ServerClient,EndPoint> EndPoints { get; private set; } = new Dictionary<ServerClient, EndPoint>();
 
         /// <summary>
         /// Construct a serverlistener
@@ -39,6 +40,16 @@ namespace SimCivil.Net
         {
             Task.Run(new Action(ListeningHandle));
             Task.Run(new Action(PushAndPollHandle));
+        }
+
+        public bool StopAndRemoveClient(ServerClient client)
+        {
+            if (Clients.ContainsValue(client))
+            {
+                client.stopFlag = true;
+                return DeleteClientFromDict(client);
+            }
+            return false;
         }
 
         public void SendPacket(Packet pkt)
@@ -94,7 +105,7 @@ namespace SimCivil.Net
                 {
                     TcpClient currentClient = Task.Run(async () => await listener.AcceptTcpClientAsync()).Result;
                     ServerClient serverClient = new ServerClient(this, currentClient);
-                    Clients.Add(currentClient.Client.RemoteEndPoint, serverClient);
+                    AddClientToDict(serverClient);
                     serverClient.Start();
                     Console.WriteLine("A Connection Established");
                 }
@@ -111,6 +122,25 @@ namespace SimCivil.Net
             {
                 listener?.Stop();
             }
+        }
+
+        private void AddClientToDict(ServerClient serverClient)
+        {
+            Clients.Add(serverClient.TcpClt.Client.RemoteEndPoint, serverClient);
+            EndPoints.Add(serverClient, serverClient.TcpClt.Client.RemoteEndPoint);
+        }
+
+        private bool DeleteClientFromDict(ServerClient serverClient)
+        {
+            bool result = false;
+            result |= Clients.Remove(serverClient.TcpClt.Client.RemoteEndPoint);
+            result |= EndPoints.Remove(serverClient);
+            return result;
+        }
+
+        private bool DeleteClientFromDict(EndPoint endPoint)
+        {
+            return DeleteClientFromDict(Clients[endPoint]);
         }
     }
 }
