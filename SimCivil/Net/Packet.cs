@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
+using System.IO;
+using Newtonsoft.Json;
 
 namespace SimCivil.Net
 {
@@ -26,14 +27,24 @@ namespace SimCivil.Net
 
         public abstract void Handle();
 
+        // Not tested
         public virtual byte[] ToBytes()
         {
-            throw new NotImplementedException();
+            JsonSerializer ser = new JsonSerializer();
+            MemoryStream stream = new MemoryStream();
+            byte[] bytes;
+            using (TextWriter tw = new StreamWriter(stream))
+            {
+                ser.Serialize(tw, Data, typeof(Dictionary<string, object>));
+                bytes = stream.ToArray();
+            }
+            return bytes;
         }
     }
 
     public struct Head
     {
+        public const int HeadLength = 12;
         public int packageID;
         public PacketType type;
         public int length;
@@ -49,16 +60,20 @@ namespace SimCivil.Net
             this.type = type;
         }
 
-        public static int Size { get; internal set; }
-
         public static Head FromBytes(byte[] buffer)
         {
+            //TODO
             throw new NotImplementedException();
         }
 
         public byte[] ToBytes()
         {
-            throw new NotImplementedException();
+            List<byte> bytes = new List<byte>();
+            bytes.AddRange(BitConverter.GetBytes(packageID));
+            bytes.AddRange(BitConverter.GetBytes((int)type));
+            bytes.AddRange(BitConverter.GetBytes(length));
+
+            return bytes.ToArray();
         }
     }
 }
