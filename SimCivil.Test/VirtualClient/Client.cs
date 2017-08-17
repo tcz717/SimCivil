@@ -13,8 +13,9 @@ namespace SimCivil.Test.VirtualClient
         private static NetworkStream clientStream;
         public static int port;
 
-        static void Start()
+        public static void Start(int pt)
         {
+            port = pt;
             Task.Run(() =>
             {
                 TcpClient client = new TcpClient();

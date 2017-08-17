@@ -28,6 +28,7 @@ namespace SimCivil.Net
 
         public virtual byte[] ToBytes()
         {
+            //TODO
             throw new NotImplementedException();
         }
     }
@@ -49,16 +50,23 @@ namespace SimCivil.Net
             this.type = type;
         }
 
+        // Is there any use?
         public static int Size { get; internal set; }
 
         public static Head FromBytes(byte[] buffer)
         {
+            //TODO
             throw new NotImplementedException();
         }
 
         public byte[] ToBytes()
         {
-            throw new NotImplementedException();
+            List<byte> bytes = new List<byte>();
+            bytes.AddRange(BitConverter.GetBytes(packageID));
+            bytes.AddRange(BitConverter.GetBytes((int)type));
+            bytes.AddRange(BitConverter.GetBytes(length));
+
+            return bytes.ToArray();
         }
     }
 }
