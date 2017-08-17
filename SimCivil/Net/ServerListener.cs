@@ -12,7 +12,7 @@ namespace SimCivil.Net
     /// <summary>
     /// Control TcpListener and a Listener Thread
     /// </summary>
-    public class ServerListener
+    public class ServerListener : IServerListener
     {
         TcpListener listener;
         public int Port { get; set; }

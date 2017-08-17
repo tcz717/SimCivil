@@ -6,7 +6,8 @@ namespace SimCivil
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+            SimCivil game = new SimCivil();
+            game.Run();
             Console.Read();
         }
     }
