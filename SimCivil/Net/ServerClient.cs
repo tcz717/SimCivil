@@ -60,7 +60,7 @@ namespace SimCivil.Net
                             break;
 
                         byte[] buffer = new byte[Packet.MaxSize];
-                        int size = clientStream.Read(buffer, 0, Head.Size);
+                        int size = clientStream.Read(buffer, 0, Head.HeadLength);
                         Head head = Head.FromBytes(buffer);
                         size = clientStream.Read(buffer, 0, head.length);
                         Packet pkt = PacketFactory.Create(this, head, buffer);

@@ -30,6 +30,7 @@ namespace SimCivil.Test
             var data = ToData(id, type, size);
 
             Assert.Equal(data, head.ToBytes());
+            Assert.Equal(12, data.Length);
         }
         [Theory]
         [InlineData(1, PacketType.Ping, 3)]
