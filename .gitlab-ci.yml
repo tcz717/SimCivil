@@ -24,6 +24,7 @@ xunit:
   stage: test
   script:
     - cd SimCivil.Test
+    - dotnet restore
     - dotnet test
   only:
     - master
