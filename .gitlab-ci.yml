@@ -5,6 +5,10 @@ stages:
   - test
   - deploy
 
+cache:
+  key: ${CI_BUILD_REF_NAME}
+  untracked: true
+
 server:
   stage: build
   script:
@@ -15,8 +19,6 @@ server:
     - dev
   tags:
     - docker
-  cache:
-    untracked: true
 
 xunit:
   stage: test
