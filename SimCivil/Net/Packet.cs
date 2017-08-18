@@ -29,9 +29,11 @@ namespace SimCivil.Net
             client.SendPacket(this);
         }
 
+        /// <summary>
+        /// The method executed after clients received and pushed in the PacketReadQueue
+        /// </summary>
         public abstract void Handle();
-
-        // Not tested
+        
         /// <summary>
         /// Update length stored in head and convert Packet, including head, to bytes
         /// </summary>
@@ -74,6 +76,11 @@ namespace SimCivil.Net
             this.type = type;
         }
 
+        /// <summary>
+        /// Build head from bytes
+        /// </summary>
+        /// <param name="buffer">buffer to build head</param>
+        /// <returns>a brand new head</returns>
         public static Head FromBytes(byte[] buffer)
         {
             int packageID = BitConverter.ToInt32(buffer, 0);
@@ -83,6 +90,10 @@ namespace SimCivil.Net
             return new Head(packageID, type, length);
         }
 
+        /// <summary>
+        /// Convert head to bytes for sending, Note: this method has been used in Head.ToBytes() for building packet bytes
+        /// </summary>
+        /// <returns>bytes converted from head</returns>
         public byte[] ToBytes()
         {
             List<byte> bytes = new List<byte>();

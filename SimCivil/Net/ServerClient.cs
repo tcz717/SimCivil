@@ -33,7 +33,7 @@ namespace SimCivil.Net
 
 
         /// <summary>
-        /// A method for sending thread
+        /// A method for send
         /// </summary>
         public void SendPacket(Packet pkt)
         {
