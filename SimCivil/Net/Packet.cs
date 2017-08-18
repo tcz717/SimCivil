@@ -59,11 +59,14 @@ namespace SimCivil.Net
             this.length = length;
             this.type = type;
         }
-
+        
         public static Head FromBytes(byte[] buffer)
         {
-            //TODO
-            throw new NotImplementedException();
+            int packageID = BitConverter.ToInt32(buffer, 0);
+            PacketType type = (PacketType)BitConverter.ToInt32(buffer, 4);
+            int length = BitConverter.ToInt32(buffer, 8);
+
+            return new Head(packageID, type, length);
         }
 
         public byte[] ToBytes()
