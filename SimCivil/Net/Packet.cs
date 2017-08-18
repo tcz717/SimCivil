@@ -31,10 +31,10 @@ namespace SimCivil.Net
         public virtual byte[] ToBytes()
         {
             JsonSerializer ser = new JsonSerializer();
-            MemoryStream stream = new MemoryStream();
             byte[] bytes;
-            using (TextWriter tw = new StreamWriter(stream))
+            using (MemoryStream stream = new MemoryStream())
             {
+                TextWriter tw = new StreamWriter(stream);
                 ser.Serialize(tw, Data, typeof(Dictionary<string, object>));
                 bytes = stream.ToArray();
             }
