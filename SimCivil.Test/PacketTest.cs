@@ -5,11 +5,16 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace SimCivil.Test
 {
+
     public class PacketTest
     {
+        // How to use this? https://xunit.github.io/docs/capturing-output.html#output-in-tests
+        private readonly ITestOutputHelper output;
+        
         private byte[] ToData(int id, PacketType type, int size)
         {
             MemoryStream stream = new MemoryStream();
@@ -45,10 +50,51 @@ namespace SimCivil.Test
         }
 
         [Fact]
-        public void PacketToBytes()
+        public void PacketToAndFromBytes()
         {
-            //TODO
-            throw new NotImplementedException();
+            // Init a Packet
+            Dictionary<String, object> dataSend = new Dictionary<String, object> { { "int", 1 }, { "float", 1.22f } };
+            Head headSend = new Head(1, PacketType.Ping);
+            Packet packetSend = new Ping(dataSend, headSend);
+
+            // Convert Packet to bytes
+            byte[] bufferSend = packetSend.ToBytes();
+
+            #region transmit as stream
+            //// Transmit data
+            //MemoryStream stream = new MemoryStream();
+            //stream.Write(bufferSend, 0, bufferSend.Length);
+
+            //// Receive Head bytes from stream
+            //byte[] bufferRead = new byte[Packet.MaxSize];
+            //int lengthOfHead = stream.Read(bufferRead, 0, Head.HeadLength);
+
+            //// Build Head
+            //Head head = Head.FromBytes(bufferRead);
+
+            //// Build Packet
+            //int lengthOfBody = stream.Read(bufferRead, 0, head.length);
+            //Packet packetRcv = PacketFactory.Create(null , head, bufferRead);
+            #endregion
+
+            #region directly read
+            // Receive Head bytes
+            byte[] bufferRead = bufferSend;
+            byte[] bufferHead = new byte[12];
+            Array.Copy(bufferRead, bufferHead, 12);
+
+            // Build Head
+            Head head = Head.FromBytes(bufferHead);
+
+            // Build Packet
+            byte[] bufferBody = new byte[4096];
+            Array.Copy(bufferRead, 12, bufferBody, 0, head.length);
+            Packet packetRcv = PacketFactory.Create(null, head, bufferBody);
+            #endregion
+
+            // Compare result
+            Assert.Equal<PacketType>(packetRcv.Head.type, packetSend.Head.type);
+            Assert.Equal(packetRcv.Data["int"], packetSend.Data["int"]);
         }
 
         [Theory]

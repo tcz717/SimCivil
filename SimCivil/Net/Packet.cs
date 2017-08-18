@@ -9,36 +9,49 @@ namespace SimCivil.Net
     {
         public const int MaxSize = 4096; //单个数据包最大限制
 
-        public Dictionary<string,object> Data { get; set; }
-        public Head Head { get; set; }
-        public ServerClient Client { get; set; }
+        Dictionary<string, object> data;
+        Head head;
+        ServerClient client;
+
+        public Dictionary<string,object> Data { get { return data; } set { data = value; } }
+        public Head Head { get { return head; } set { head = value; } }
+        public ServerClient Client { get { return client; } set { client = value; } }
 
         public Packet(Dictionary<string, object> data, Head head = default(Head), ServerClient client = null)
         {
-            Head = head;
-            Data = data;
-            Client = client;
+            this.head = head;
+            this.data = data;
+            this.client = client;
         }
 
         public virtual void Send()
         {
-            Client.SendPacket(this);
+            client.SendPacket(this);
         }
 
         public abstract void Handle();
 
         // Not tested
+        /// <summary>
+        /// Update length stored in head and convert Packet, including head, to bytes
+        /// </summary>
+        /// <returns>bytes converted from Packet</returns>
         public virtual byte[] ToBytes()
         {
             JsonSerializer ser = new JsonSerializer();
-            byte[] bytes;
+            byte[] dataBytes;
+            List<byte> bytes = new List<byte>();
             using (MemoryStream stream = new MemoryStream())
             {
                 TextWriter tw = new StreamWriter(stream);
-                ser.Serialize(tw, Data, typeof(Dictionary<string, object>));
-                bytes = stream.ToArray();
+                ser.Serialize(tw, data, typeof(Dictionary<string, object>));
+                dataBytes = stream.ToArray();
             }
-            return bytes;
+            head.length = dataBytes.Length;
+            bytes.AddRange(head.ToBytes());
+            bytes.AddRange(dataBytes);
+
+            return bytes.ToArray();
         }
     }
 

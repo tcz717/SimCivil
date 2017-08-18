@@ -57,12 +57,15 @@ namespace SimCivil.Net
                     while (true)
                     {
                         if (stopFlag)
+                        {
+                            clientStream.Dispose();
                             break;
+                        }
 
                         byte[] buffer = new byte[Packet.MaxSize];
-                        int size = clientStream.Read(buffer, 0, Head.HeadLength);
+                        int lengthOfHead = clientStream.Read(buffer, 0, Head.HeadLength);
                         Head head = Head.FromBytes(buffer);
-                        size = clientStream.Read(buffer, 0, head.length);
+                        int lengthOfBody = clientStream.Read(buffer, 0, head.length);
                         Packet pkt = PacketFactory.Create(this, head, buffer);
 
                         serverListener.PushPacket(pkt);
