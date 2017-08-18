@@ -13,7 +13,7 @@ namespace SimCivil.Net
         Head head;
         ServerClient client;
 
-        public Dictionary<string,object> Data { get { return data; } set { data = value; } }
+        public Dictionary<string, object> Data { get { return data; } set { data = value; } }
         public Head Head { get { return head; } set { head = value; } }
         public ServerClient Client { get { return client; } set { client = value; } }
 
@@ -41,12 +41,13 @@ namespace SimCivil.Net
             JsonSerializer ser = new JsonSerializer();
             byte[] dataBytes;
             List<byte> bytes = new List<byte>();
-            using (MemoryStream stream = new MemoryStream())
+            MemoryStream stream = new MemoryStream();
+            using (StreamWriter tw = new StreamWriter(stream))
             {
-                TextWriter tw = new StreamWriter(stream);
                 ser.Serialize(tw, data, typeof(Dictionary<string, object>));
-                dataBytes = stream.ToArray();
             }
+            dataBytes = stream.ToArray();
+
             head.length = dataBytes.Length;
             bytes.AddRange(head.ToBytes());
             bytes.AddRange(dataBytes);
@@ -72,7 +73,7 @@ namespace SimCivil.Net
             this.length = length;
             this.type = type;
         }
-        
+
         public static Head FromBytes(byte[] buffer)
         {
             int packageID = BitConverter.ToInt32(buffer, 0);

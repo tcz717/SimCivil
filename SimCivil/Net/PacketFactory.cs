@@ -14,10 +14,11 @@ namespace SimCivil.Net
             Packet packet;
             using (MemoryStream stream = new MemoryStream())
             {
-                TextReader tw = new StreamReader(stream);
+                StreamReader sr = new StreamReader(stream);
                 stream.Write(data, 0, head.length);
+                // Something wrong here
                 Dictionary<string, object> dataDict 
-                    = (Dictionary<string, object>)ser.Deserialize(tw, typeof(Dictionary<string, object>));
+                    = (Dictionary<string, object>)ser.Deserialize(sr, typeof(Dictionary<string, object>));
 
                 // Check this point, I'm not sure if it's the best way to instantialize a specific type of Packet, 
                 // I cannot instan it as base class because the base class is abstract

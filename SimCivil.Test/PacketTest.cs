@@ -6,6 +6,7 @@ using System.IO;
 using System.Text;
 using Xunit;
 using Xunit.Abstractions;
+using Newtonsoft.Json;
 
 namespace SimCivil.Test
 {
@@ -14,7 +15,7 @@ namespace SimCivil.Test
     {
         // How to use this? https://xunit.github.io/docs/capturing-output.html#output-in-tests
         private readonly ITestOutputHelper output;
-        
+
         private byte[] ToData(int id, PacketType type, int size)
         {
             MemoryStream stream = new MemoryStream();
@@ -91,6 +92,8 @@ namespace SimCivil.Test
             Array.Copy(bufferRead, 12, bufferBody, 0, head.length);
             Packet packetRcv = PacketFactory.Create(null, head, bufferBody);
             #endregion
+
+            string rcvString = System.Text.Encoding.UTF8.GetString(bufferBody);
 
             // Compare result
             Assert.Equal<PacketType>(packetRcv.Head.type, packetSend.Head.type);
