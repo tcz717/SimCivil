@@ -12,23 +12,22 @@ namespace SimCivil.Net
         {
             JsonSerializer ser = new JsonSerializer();
             Packet packet;
-            using (MemoryStream stream = new MemoryStream())
-            {
-                StreamReader sr = new StreamReader(stream);
-                stream.Write(data, 0, head.length);
-                // Something wrong here
-                Dictionary<string, object> dataDict 
-                    = (Dictionary<string, object>)ser.Deserialize(sr, typeof(Dictionary<string, object>));
+            MemoryStream stream = new MemoryStream();
+            StreamReader sr = new StreamReader(stream);
+            stream.Write(data, 0, head.length);
+            stream.Position = 0;
+            // Something wrong here
+            Dictionary<string, object> dataDict
+                = (Dictionary<string, object>)ser.Deserialize(sr, typeof(Dictionary<string, object>));
 
-                // Check this point, I'm not sure if it's the best way to instantialize a specific type of Packet, 
-                // I cannot instan it as base class because the base class is abstract
-                switch (head.type)
-                {
-                    case PacketType.Ping:
-                        packet = new Ping(dataDict, head, serverClient); break;
-                    default:
-                        packet = null; break;
-                }
+            // Check this point, I'm not sure if it's the best way to instantialize a specific type of Packet, 
+            // I cannot instan it as base class because the base class is abstract
+            switch (head.type)
+            {
+                case PacketType.Ping:
+                    packet = new Ping(dataDict, head, serverClient); break;
+                default:
+                    packet = null; break;
             }
             return packet;
         }

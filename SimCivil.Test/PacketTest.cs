@@ -54,7 +54,9 @@ namespace SimCivil.Test
         public void PacketToAndFromBytes()
         {
             // Init a Packet
-            Dictionary<String, object> dataSend = new Dictionary<String, object> { { "int", 1 }, { "float", 1.22f } };
+            int a = 1; long a1 = 100; float b = 3.141592f; double c = 3.1415926535;
+            Dictionary<String, object> dataSend = 
+                new Dictionary<String, object> { { "int", a }, { "long", a1 }, { "float", b }, { "double", c } };
             Head headSend = new Head(1, PacketType.Ping);
             Packet packetSend = new Ping(dataSend, headSend);
 
@@ -62,42 +64,29 @@ namespace SimCivil.Test
             byte[] bufferSend = packetSend.ToBytes();
 
             #region transmit as stream
-            //// Transmit data
-            //MemoryStream stream = new MemoryStream();
-            //stream.Write(bufferSend, 0, bufferSend.Length);
+            // Transmit data
+            MemoryStream stream = new MemoryStream();
+            stream.Write(bufferSend, 0, bufferSend.Length);
 
-            //// Receive Head bytes from stream
-            //byte[] bufferRead = new byte[Packet.MaxSize];
-            //int lengthOfHead = stream.Read(bufferRead, 0, Head.HeadLength);
-
-            //// Build Head
-            //Head head = Head.FromBytes(bufferRead);
-
-            //// Build Packet
-            //int lengthOfBody = stream.Read(bufferRead, 0, head.length);
-            //Packet packetRcv = PacketFactory.Create(null , head, bufferRead);
-            #endregion
-
-            #region directly read
-            // Receive Head bytes
-            byte[] bufferRead = bufferSend;
-            byte[] bufferHead = new byte[12];
-            Array.Copy(bufferRead, bufferHead, 12);
+            // Receive Head bytes from stream
+            byte[] bufferRead = new byte[Packet.MaxSize];
+            stream.Position = 0;
+            int lengthOfHead = stream.Read(bufferRead, 0, Head.HeadLength);
 
             // Build Head
-            Head head = Head.FromBytes(bufferHead);
+            Head head = Head.FromBytes(bufferRead);
 
             // Build Packet
-            byte[] bufferBody = new byte[4096];
-            Array.Copy(bufferRead, 12, bufferBody, 0, head.length);
-            Packet packetRcv = PacketFactory.Create(null, head, bufferBody);
+            int lengthOfBody = stream.Read(bufferRead, 0, head.length);
+            Packet packetRcv = PacketFactory.Create(null, head, bufferRead);
             #endregion
-
-            string rcvString = System.Text.Encoding.UTF8.GetString(bufferBody);
 
             // Compare result
             Assert.Equal<PacketType>(packetRcv.Head.type, packetSend.Head.type);
-            Assert.Equal(packetRcv.Data["int"], packetSend.Data["int"]);
+            Assert.Equal(Convert.ToInt32(packetRcv.Data["int"]), packetSend.Data["int"]);
+            Assert.Equal(packetRcv.Data["long"], packetSend.Data["long"]);
+            Assert.Equal(Convert.ToSingle(packetRcv.Data["float"]), packetSend.Data["float"]);
+            Assert.Equal(packetRcv.Data["double"], packetSend.Data["double"]);
         }
 
         [Theory]
