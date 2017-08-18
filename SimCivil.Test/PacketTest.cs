@@ -45,20 +45,21 @@ namespace SimCivil.Test
         }
 
         [Fact]
-        public void ToBytes()
+        public void PacketToBytes()
         {
             //TODO
             throw new NotImplementedException();
         }
 
         [Theory]
-        [InlineData(1, PacketType.Ping, 0)]
-        public void PacketCreate(int id, PacketType type, int size)
+        [InlineData(1, PacketType.Ping, 100)]
+        public void PacketCreate_Shallow(int id, PacketType type, int size)
         {
+            Head head = new Head(id, type, size);
             var pkt = PacketFactory.Create(
-                new ServerClient(null, null),
-                new Head(id, type, size),
-                new byte[0]
+                null,
+                head,
+                new byte[head.length]
                 );
             Assert.IsType<Ping>(pkt);
         }
