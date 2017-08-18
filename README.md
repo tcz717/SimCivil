@@ -1,5 +1,5 @@
 SimCivil合作开发说明
----------------------
+=======================
 [![build status](http://gitlab.tancoder.com/TPDT/sim-civil/badges/master/build.svg)](http://gitlab.tancoder.com/TPDT/sim-civil/commits/master)
 
 此项目主要是游戏的服务端，负责核心逻辑处理
@@ -22,3 +22,10 @@ SimCivil合作开发说明
 ## 主要概念
 
 [参考wiki](/../wikis/home#核心概念)
+
+## 项目依赖
+
+- [.net core 1.1.3](https://github.com/dotnet/core/blob/master/release-notes/1.1/1.1.1.md)
+- [Newtonsoft.Json 10.0.3](https://www.newtonsoft.com/json)
+- [Autofac 4.6.1](http://docs.autofac.org/en/latest/index.html)
+- System.ValueType 4.4.0
