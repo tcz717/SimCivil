@@ -3,16 +3,19 @@ using SimCivil.Net;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using SimCivil.Map;
+using static SimCivil.Config;
 
 namespace SimCivil
 {
     public class SimCivil
     {
+        public MapData Map { get; private set; }
         public SimCivil()
         {
             var builder = new ContainerBuilder();
             builder.RegisterType<ServerListener>()
-                .WithParameter("port", 20170)
+                .WithParameter("port", DefaultPort)
                 .AsImplementedInterfaces()
                 .SingleInstance();
 

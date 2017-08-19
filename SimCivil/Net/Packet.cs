@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 using Newtonsoft.Json;
+using System.Text;
+using System.Linq;
 
 namespace SimCivil.Net
 {
@@ -40,21 +42,11 @@ namespace SimCivil.Net
         /// <returns>bytes converted from Packet</returns>
         public virtual byte[] ToBytes()
         {
-            JsonSerializer ser = new JsonSerializer();
-            byte[] dataBytes;
-            List<byte> bytes = new List<byte>();
-            MemoryStream stream = new MemoryStream();
-            using (StreamWriter tw = new StreamWriter(stream))
-            {
-                ser.Serialize(tw, data, typeof(Dictionary<string, object>));
-            }
-            dataBytes = stream.ToArray();
+            byte[] dataBytes = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(Data));
 
             head.length = dataBytes.Length;
-            bytes.AddRange(head.ToBytes());
-            bytes.AddRange(dataBytes);
 
-            return bytes.ToArray();
+            return head.ToBytes().Concat(dataBytes).ToArray();
         }
     }
 
