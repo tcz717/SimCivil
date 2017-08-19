@@ -25,7 +25,7 @@ SimCivil合作开发说明
 
 ## 项目依赖
 
-- [.net core 1.1.3](https://github.com/dotnet/core/blob/master/release-notes/1.1/1.1.1.md)
+- [.net core 2.0](https://github.com/dotnet/core/blob/master/release-notes/2.0/2.0.0.md)
 - [Newtonsoft.Json 10.0.3](https://www.newtonsoft.com/json)
 - [Autofac 4.6.1](http://docs.autofac.org/en/latest/index.html)
 - System.ValueType 4.4.0
