@@ -10,11 +10,8 @@ namespace SimCivil.Map
         public Side[] Sides { get; set; }
         public string Surface { get; set; }
         public dynamic Meta { get; set; }
-
-        [JsonIgnore]
+        
         public (int X, int Y) Position { get; set; }
-
-        public (int X, int Y) GetPos() => Position;
 
         public static Tile Create((int X, int Y) pos, string surface = "", int height = SeaLevel)
         {
@@ -26,6 +23,7 @@ namespace SimCivil.Map
                 Surface = surface,
             };
             e.Slots = new Slot[5];
+            e.Sides = new Side[4];
             return e;
         }
     }
