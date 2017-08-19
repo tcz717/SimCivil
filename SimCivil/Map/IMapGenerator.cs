@@ -11,7 +11,7 @@ namespace SimCivil.Map
         /// <summary>
         /// Magic number used to generating atlas.
         /// </summary>
-        int Seed { get; set; }
+        int Seed { get; }
 
         /// <summary>
         /// Generate new Atlas
