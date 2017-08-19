@@ -9,8 +9,14 @@ using System.Linq;
 
 namespace SimCivil.Net
 {
-    public class PacketFactory
+    /// <summary>
+    /// Static class used to create Packet from binary data.
+    /// </summary>
+    public static class PacketFactory
     {
+        /// <summary>
+        /// Packet types allowed to construct in Factory.
+        /// </summary>
         public static Dictionary<PacketType, Type> LegalPackets { get; }
 
         /// <summary>

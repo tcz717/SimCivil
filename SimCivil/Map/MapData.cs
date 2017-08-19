@@ -1,34 +1,53 @@
-﻿using System;
+﻿using SimCivil.Store;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using static SimCivil.Config;
 
 namespace SimCivil.Map
 {
+    /// <summary>
+    /// Map consists of Atlas.
+    /// </summary>
     public class MapData
     {
         public Dictionary<(int X, int Y), Atlas> AtlasCollection { get; private set; }
         public IMapGenerator MapGenerator { get; private set; }
+        public IMapRepository MapRepository { get; }
+
+        /// <summary>
+        /// Whether allowing expanding when tile not exsists.
+        /// </summary>
         public bool AllowExpanding { get; set; } = true;
 
+        /// <summary>
+        /// Get tile by position.
+        /// </summary>
+        /// <param name="x">Tile's X position</param>
+        /// <param name="y">Tile's Y position</param>
+        /// <returns>Tile you want.</returns>
+        /// <exception cref="IndexOutOfRangeException">Tile isn't exsist and expanding is not allowed.</exception>
         public Tile this[int x, int y]
         {
             get
             {
-                foreach (var atlas in AtlasCollection.Values)
-                {
-                    if (x >= atlas.Left && x >= atlas.Top &&
-                        x < atlas.Right && x < atlas.Bottom)
-                    {
-                        return atlas.Tiles[x, y];
-                    }
-                }
+                var atlasIndex = (X: x % DefaultAtlasWidth, Y: y % DefaultAtlasHeight);
 
-                if(AllowExpanding)
+                if (AtlasCollection.ContainsKey(atlasIndex))
                 {
-                    var atlasIndex = (X: x % DefaultAtlasWidth, Y: y % DefaultAtlasHeight);
+                    return AtlasCollection[atlasIndex].Tiles[x, y];
+                }
+                else if(MapRepository.Contains(atlasIndex))
+                {
+                    var exsistAtlas = MapRepository.GetAtlas(atlasIndex);
+                    AtlasCollection[atlasIndex] = exsistAtlas;
+                    return exsistAtlas.Tiles[x, y];
+                }
+                else if(AllowExpanding)
+                {
                     var newAtlas = MapGenerator.Generate(atlasIndex.X, atlasIndex.Y);
                     AtlasCollection[atlasIndex] = newAtlas;
+                    MapRepository.PutAtlas(atlasIndex, newAtlas);
                     return newAtlas.Tiles[x, y];
 
                 }
@@ -36,11 +55,23 @@ namespace SimCivil.Map
             }
         }
 
+        /// <summary>
+        /// Get tile by position.
+        /// </summary>
+        /// <param name="pos">Tile's position</param>
+        /// <returns>Tile you want.</returns>
+        /// <exception cref="IndexOutOfRangeException">Tile isn't exsist and expanding is not allowed.</exception>
         public Tile this[(int X, int Y) pos] { get => this[pos.X, pos.Y]; }
 
-        public MapData(IMapGenerator mapGenerator)
+        /// <summary>
+        /// Config a map data container.
+        /// </summary>
+        /// <param name="mapGenerator">Object to generate new atlas.</param>
+        /// <param name="mapRepository">Object to generate load exsisted atlas.</param>
+        public MapData(IMapGenerator mapGenerator, IMapRepository mapRepository)
         {
             MapGenerator = mapGenerator;
+            MapRepository = mapRepository;
         }
     }
 }

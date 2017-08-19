@@ -1,4 +1,4 @@
-image: microsoft/dotnet:1.1.2-sdk
+image: microsoft/dotnet:2.0.0-sdk
 
 stages:
   - build
