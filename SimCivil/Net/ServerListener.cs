@@ -42,6 +42,11 @@ namespace SimCivil.Net
             Task.Run(new Action(PushAndPollHandle));
         }
 
+        /// <summary>
+        /// Stop the client thread and remove it from storage
+        /// </summary>
+        /// <param name="client">the client to be removed</param>
+        /// <returns></returns>
         public bool StopAndRemoveClient(ServerClient client)
         {
             if (Clients.ContainsValue(client))
@@ -52,6 +57,10 @@ namespace SimCivil.Net
             return false;
         }
 
+        /// <summary>
+        /// Enqueue the packet and wait for sending
+        /// </summary>
+        /// <param name="pkt">the packet to send</param>
         public void SendPacket(Packet pkt)
         {
             lock (PacketSendQueue)
@@ -60,6 +69,10 @@ namespace SimCivil.Net
             }
         }
 
+        /// <summary>
+        /// Enqueue the packet and wait for handling
+        /// </summary>
+        /// <param name="pkt">the packet to handle</param>
         internal void PushPacket(Packet pkt)
         {
             lock (PacketReadQueue)

@@ -9,36 +9,52 @@ namespace SimCivil.Net
     {
         public const int MaxSize = 4096; //单个数据包最大限制
 
-        public Dictionary<string,object> Data { get; set; }
-        public Head Head { get; set; }
-        public ServerClient Client { get; set; }
+        Dictionary<string, object> data;
+        Head head;
+        ServerClient client;
+
+        public Dictionary<string, object> Data { get { return data; } set { data = value; } }
+        public Head Head { get { return head; } set { head = value; } }
+        public ServerClient Client { get { return client; } set { client = value; } }
 
         public Packet(Dictionary<string, object> data, Head head = default(Head), ServerClient client = null)
         {
-            Head = head;
-            Data = data;
-            Client = client;
+            this.head = head;
+            this.data = data;
+            this.client = client;
         }
 
         public virtual void Send()
         {
-            Client.SendPacket(this);
+            client.SendPacket(this);
         }
 
+        /// <summary>
+        /// The method executed after clients received and pushed in the PacketReadQueue
+        /// </summary>
         public abstract void Handle();
-
-        // Not tested
+        
+        /// <summary>
+        /// Update length stored in head and convert Packet, including head, to bytes
+        /// </summary>
+        /// <returns>bytes converted from Packet</returns>
         public virtual byte[] ToBytes()
         {
             JsonSerializer ser = new JsonSerializer();
+            byte[] dataBytes;
+            List<byte> bytes = new List<byte>();
             MemoryStream stream = new MemoryStream();
-            byte[] bytes;
-            using (TextWriter tw = new StreamWriter(stream))
+            using (StreamWriter tw = new StreamWriter(stream))
             {
-                ser.Serialize(tw, Data, typeof(Dictionary<string, object>));
-                bytes = stream.ToArray();
+                ser.Serialize(tw, data, typeof(Dictionary<string, object>));
             }
-            return bytes;
+            dataBytes = stream.ToArray();
+
+            head.length = dataBytes.Length;
+            bytes.AddRange(head.ToBytes());
+            bytes.AddRange(dataBytes);
+
+            return bytes.ToArray();
         }
     }
 
@@ -60,12 +76,24 @@ namespace SimCivil.Net
             this.type = type;
         }
 
+        /// <summary>
+        /// Build head from bytes
+        /// </summary>
+        /// <param name="buffer">buffer to build head</param>
+        /// <returns>a brand new head</returns>
         public static Head FromBytes(byte[] buffer)
         {
-            //TODO
-            throw new NotImplementedException();
+            int packageID = BitConverter.ToInt32(buffer, 0);
+            PacketType type = (PacketType)BitConverter.ToInt32(buffer, 4);
+            int length = BitConverter.ToInt32(buffer, 8);
+
+            return new Head(packageID, type, length);
         }
 
+        /// <summary>
+        /// Convert head to bytes for sending, Note: this method has been used in Head.ToBytes() for building packet bytes
+        /// </summary>
+        /// <returns>bytes converted from head</returns>
         public byte[] ToBytes()
         {
             List<byte> bytes = new List<byte>();
