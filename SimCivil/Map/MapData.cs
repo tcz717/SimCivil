@@ -5,6 +5,9 @@ using static SimCivil.Config;
 
 namespace SimCivil.Map
 {
+    /// <summary>
+    /// Map consists of Atlas.
+    /// </summary>
     public class MapData
     {
         public Dictionary<(int X, int Y), Atlas> AtlasCollection { get; private set; }

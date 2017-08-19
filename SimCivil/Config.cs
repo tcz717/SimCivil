@@ -2,6 +2,13 @@
 
 namespace SimCivil
 {
+    /// <summary>
+    /// Save all Configs include constant value and variable value.
+    /// It's recommend to put 
+    /// <code>
+    /// using static SimCivil.Config;
+    /// </code>
+    /// </summary>
     public class Config
     {
         public static Config Cfg { get; set; }

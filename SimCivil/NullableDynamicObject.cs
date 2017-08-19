@@ -3,6 +3,9 @@ using System.Dynamic;
 
 namespace SimCivil.Map
 {
+    /// <summary>
+    /// DynamicObject that will return null if member not exsist.
+    /// </summary>
     public class NullableDynamicObject : DynamicObject
     {
         public Dictionary<string, object> Data { get; set; } = new Dictionary<string, object>();

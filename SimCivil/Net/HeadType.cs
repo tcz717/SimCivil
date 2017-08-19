@@ -2,6 +2,9 @@
 
 namespace SimCivil.Net
 {
+    /// <summary>
+    /// Attribute to Mark a Packet class's ParketType
+    /// </summary>
     [AttributeUsage(AttributeTargets.Class)]
     public class HeadTypeAttribute : Attribute
     {
