@@ -14,10 +14,10 @@ namespace SimCivil.Test
         {
             SimCivil game = new SimCivil();
 
-            var first = game.Container.Resolve<IServerListener>();
+            var first = game.Services.Resolve<IServerListener>();
             Assert.NotNull(first);
 
-            var second = game.Container.Resolve<IServerListener>();
+            var second = game.Services.Resolve<IServerListener>();
             Assert.NotNull(second);
 
             Assert.Equal(first, second);
