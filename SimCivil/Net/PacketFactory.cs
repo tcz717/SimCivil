@@ -3,11 +3,16 @@ using Newtonsoft.Json;
 using System.IO;
 using System.Collections.Generic;
 using SimCivil.Net.Packets;
+using System.Text;
+using System.Reflection;
+using System.Linq;
 
 namespace SimCivil.Net
 {
     public class PacketFactory
     {
+        public static Dictionary<PacketType, Type> LegalPackets { get; }
+
         /// <summary>
         /// Build a Packet object from a given head and data, and add serverclient info in it
         /// </summary>
@@ -17,27 +22,22 @@ namespace SimCivil.Net
         /// <returns></returns>
         public static Packet Create(ServerClient serverClient, Head head, byte[] data)
         {
-            JsonSerializer ser = new JsonSerializer();
-            Packet packet;
-            MemoryStream stream = new MemoryStream();
-            Dictionary<string, object> dataDict;
-            using (StreamReader sr = new StreamReader(stream))
+            Dictionary<string, object> dataDict = JsonConvert.DeserializeObject<Dictionary<string, object>>(Encoding.UTF8.GetString(data));
+
+            return Activator.CreateInstance(LegalPackets[head.type], dataDict, head, serverClient) as Packet;
+        }
+
+        static PacketFactory()
+        {
+            var dict = new Dictionary<PacketType, Type>();
+            var types = typeof(Packet).GetTypeInfo().Assembly.GetTypes()
+                .Where(t => t.GetTypeInfo().GetCustomAttribute<HeadTypeAttribute>() != null);
+            foreach (var t in types)
             {
-                stream.Write(data, 0, head.length);
-                stream.Position = 0;
-                dataDict = (Dictionary<string, object>)ser.Deserialize(sr, typeof(Dictionary<string, object>));
+                dict[t.GetTypeInfo().GetCustomAttribute<HeadTypeAttribute>().PacketType] = t;
             }
 
-            // Check this point, I'm not sure if it's the best way to instantialize a specific type of Packet, 
-            // I cannot instan it as base class because the base class is abstract
-            switch (head.type)
-            {
-                case PacketType.Ping:
-                    packet = new Ping(dataDict, head, serverClient); break;
-                default:
-                    packet = null; break;
-            }
-            return packet;
+            LegalPackets = dict;    
         }
     }
 }
