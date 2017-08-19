@@ -1,9 +1,8 @@
 ﻿using Autofac;
-using SimCivil.Net;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using SimCivil.Map;
+using SimCivil.Net;
+using SimCivil.Store;
+using System.Collections.Generic;
 using static SimCivil.Config;
 
 namespace SimCivil
@@ -30,7 +29,7 @@ namespace SimCivil
 
             builder.RegisterInstance(this);
 
-            Initialization(builder.Build());
+            Services = builder.Build();
         }
 
         /// <summary>
@@ -39,17 +38,53 @@ namespace SimCivil
         /// <param name="container"></param>
         public SimCivil(IContainer container)
         {
-            Initialization(container);
+            Services = container;
         }
 
         /// <summary>
         /// A container used for denpendencies injecting.
         /// </summary>
-        public IContainer Container { get; private set; }
+        public IContainer Services { get; private set; }
+        /// <summary>
+        /// Basic game infomation.
+        /// </summary>
+        public GameInfo Info { get; private set; }
 
-        private void Initialization(IContainer container)
+        /// <summary>
+        /// Initialize a new game.
+        /// </summary>
+        /// <param name="info">Game's infomation.</param>
+        public void Initialize(GameInfo info)
         {
-            Container = container;
+            Info = info;
+            var persistableSeriveces = Services.Resolve<IEnumerable<IPersistable>>();
+            foreach (var service in persistableSeriveces)
+            {
+                service.Initialize(info);
+            }
+        }
+        /// <summary>
+        /// Load a game.
+        /// </summary>
+        /// <param name="path">Directory path to store all data.</param>
+        public void Load(string path)
+        {
+            var persistableSeriveces = Services.Resolve<IEnumerable<IPersistable>>();
+            foreach (var service in persistableSeriveces)
+            {
+                service.Load(path);
+            }
+        }
+        /// <summary>
+        /// Save a game.
+        /// </summary>
+        public void Save()
+        {
+            var persistableSeriveces = Services.Resolve<IEnumerable<IPersistable>>();
+            foreach (var service in persistableSeriveces)
+            {
+                service.Save(Info.StoreDirectory);
+            }
         }
 
         /// <summary>
