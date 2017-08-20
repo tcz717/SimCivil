@@ -12,13 +12,13 @@ namespace SimCivil.Test.VirtualClient
 {
     class Client
     {
-        private static NetworkStream clientStream;
-        private static bool stopFlag = false;
-        public static int port;
-        public static Queue<Packet> receivedPackets = new Queue<Packet>();
-        public static Queue<Packet> PacketsForSend = new Queue<Packet>();
+        private NetworkStream clientStream;
+        private bool stopFlag = false;
+        public int port;
+        public Queue<Packet> receivedPackets = new Queue<Packet>();
+        public Queue<Packet> PacketsForSend = new Queue<Packet>();
 
-        public static void Start(int pt)
+        public void Start(int pt)
         {
             port = pt;
             Task.Run(() =>
@@ -48,12 +48,12 @@ namespace SimCivil.Test.VirtualClient
             });
         }
 
-        public static void Stop()
+        public void Stop()
         {
             stopFlag = true;
         }
 
-        static void ReadMessage()
+        void ReadMessage()
         {
             try
             {

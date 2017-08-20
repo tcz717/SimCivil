@@ -103,13 +103,14 @@ namespace SimCivil.Test
 
             // Start server and subscribe connection event
             ServerListener serverListener = new ServerListener(DefaultPort);
+            Client virtualClient = new Client();
             serverListener.NewConnectionEvent += (end) => endPoints.Add(end);
             serverListener.LostConnectionEvent += (end) => endPoints.Remove(end);
             serverListener.Start();
             Thread.Sleep(500); // Keep it long enough to start server before starting client
 
             // Start client
-            Client.Start(DefaultPort);
+            virtualClient.Start(DefaultPort);
             Thread.Sleep(500);
 
             // Create a Packet and enqueue it for sending
@@ -120,13 +121,13 @@ namespace SimCivil.Test
 
             // Wait for sending and get data from client
             Thread.Sleep(300);
-            var dataFromClient = Client.receivedPackets.Dequeue().Data;
+            var dataFromClient = virtualClient.receivedPackets.Dequeue().Data;
 
             Assert.Equal(dataFromClient["foo"], dataToSend["foo"]);
             Assert.Equal(dataFromClient["bar"], dataToSend["bar"]);
-            
+
             // Test removing client function
-            Client.Stop();
+            virtualClient.Stop();
             serverListener.StopAndRemoveClient(serverListener.Clients[endPoints[0]]);
             Thread.Sleep(50);
             Assert.Empty(endPoints);
@@ -141,6 +142,7 @@ namespace SimCivil.Test
 
             // Start server and subscribe connection event
             ServerListener serverListener = new ServerListener(DefaultPort);
+            Client virtualClient = new Client();
             serverListener.NewConnectionEvent += (end) => endPoints.Add(end);
             serverListener.LostConnectionEvent += (end) => endPoints.Remove(end);
             Ping.PingEvent += (data) =>
@@ -153,21 +155,21 @@ namespace SimCivil.Test
             Thread.Sleep(500); // Keep it long enough to start server before starting client
 
             // Start client
-            Client.Start(DefaultPort);
+            virtualClient.Start(DefaultPort);
             Thread.Sleep(500);
 
             // Send Packet from virtual client
             var head = new Head(2, PacketType.Ping);
             dataToSend = new Dictionary<string, object>() { { "foo", 3.1415 }, { "bar", 0.12345 } };
-            Client.PacketsForSend.Enqueue(new Ping(dataToSend, head, null));
+            virtualClient.PacketsForSend.Enqueue(new Ping(dataToSend, head, null));
 
 
             // Wait for sending from client and PingEvent from Server
-            Thread.Sleep(1000); 
+            Thread.Sleep(900); 
             Assert.Equal(true, eventIsTriggered);
 
             // Test removing client function
-            Client.Stop();
+            virtualClient.Stop();
             serverListener.StopAndRemoveClient(serverListener.Clients[endPoints[0]]);
             Thread.Sleep(50);
             Assert.Empty(endPoints);
