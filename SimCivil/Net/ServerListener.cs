@@ -116,7 +116,7 @@ namespace SimCivil.Net
 
                 while (true)
                 {
-                    TcpClient currentClient = Task.Run(async () => await listener.AcceptTcpClientAsync()).Result;
+                    TcpClient currentClient = listener.AcceptTcpClient();
                     ServerClient serverClient = new ServerClient(this, currentClient);
                     AddClientToDict(serverClient);
                     serverClient.Start();
