@@ -19,7 +19,6 @@ namespace SimCivil.Net
         public Queue<Packet> PacketReadQueue { get; set; }
         public Queue<Packet> PacketSendQueue { get; set; }
         public Dictionary<EndPoint, ServerClient> Clients { get; private set; } = new Dictionary<EndPoint, ServerClient>();
-        public Dictionary<ServerClient,EndPoint> EndPoints { get; private set; } = new Dictionary<ServerClient, EndPoint>();
 
         public event Action<EndPoint> NewConnectionEvent;
         public event Action<EndPoint> LostConnectionEvent;
@@ -53,8 +52,13 @@ namespace SimCivil.Net
         {
             if (Clients.ContainsValue(client))
             {
-                client.stopFlag = true;
-                return DeleteClientFromDict(client);
+                EndPoint endPoint = client.TcpClt.Client.RemoteEndPoint;
+                if (Clients.Remove(endPoint))
+                {
+                    client.stopFlag = true;
+                    LostConnectionEvent(endPoint);
+                    return true;
+                }
             }
             return false;
         }
@@ -120,7 +124,8 @@ namespace SimCivil.Net
                 {
                     TcpClient currentClient = listener.AcceptTcpClient();
                     ServerClient serverClient = new ServerClient(this, currentClient);
-                    AddClientToDict(serverClient);
+                    Clients.Add(serverClient.TcpClt.Client.RemoteEndPoint, serverClient);
+                    NewConnectionEvent(serverClient.TcpClt.Client.RemoteEndPoint);
                     serverClient.Start();
                     Console.WriteLine("A Connection Established");
                 }
@@ -139,21 +144,13 @@ namespace SimCivil.Net
             }
         }
 
-        private void AddClientToDict(ServerClient serverClient)
-        {
-            Clients.Add(serverClient.TcpClt.Client.RemoteEndPoint, serverClient);
-            EndPoints.Add(serverClient, serverClient.TcpClt.Client.RemoteEndPoint);
-            //NewConnectionEvent(serverClient.TcpClt.Client.RemoteEndPoint);
-        }
-
         private bool DeleteClientFromDict(ServerClient serverClient)
         {
             bool result = false;
             EndPoint endPoint = serverClient.TcpClt.Client.RemoteEndPoint;
             result |= Clients.Remove(serverClient.TcpClt.Client.RemoteEndPoint);
-            result |= EndPoints.Remove(serverClient);
-            //if (result)
-            //    LostConnectionEvent(endPoint);
+            if (result)
+                LostConnectionEvent(endPoint);
             return result;
         }
 

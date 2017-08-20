@@ -99,33 +99,37 @@ namespace SimCivil.Test
         [Fact]
         public void ServerSendTest()
         {
-            //EndPoint[] endPoints = new EndPoint[10];
+            List<EndPoint> endPoints = new List<EndPoint>();
 
+            // Start server and subscribe connection event
             ServerListener serverListener = new ServerListener(DefaultPort);
+            serverListener.NewConnectionEvent += (end) => endPoints.Add(end);
+            serverListener.LostConnectionEvent += (end) => endPoints.Remove(end);
             serverListener.Start();
-            //serverListener.NewConnectionEvent += delegate (EndPoint end)
-            //{
-            //    endPoints[endPoints.Length] = end;
-            //};
-            Thread.Sleep(1000);
+            Thread.Sleep(500); // Keep it long enough to start server before starting client
 
+            // Start client
             Client.Start(DefaultPort);
-            Thread.Sleep(2000);
-            
+            Thread.Sleep(500);
+
+            // Create a Packet and enqueue it for sending
             var dataToSend = new Dictionary<string, object>() { { "foo", (long)1 }, { "bar", (long)2 } };
             var head = new Head(1, PacketType.Ping);
-            var clients = serverListener.Clients;
-            var enu = clients.GetEnumerator();
-            enu.MoveNext();
-            var client = enu.Current.Value;
+            var client = serverListener.Clients[endPoints[0]];
             serverListener.PacketSendQueue.Enqueue(new Ping(dataToSend, head, client));
 
-            Thread.Sleep(1000);
+            // Wait for sending and get data from client
+            Thread.Sleep(300);
             var dataFromClient = Client.receivedPackets.Dequeue().Data;
-            Client.Stop();
 
             Assert.Equal(dataFromClient["foo"], dataToSend["foo"]);
             Assert.Equal(dataFromClient["bar"], dataToSend["bar"]);
+            
+            // Test removing client function
+            Client.Stop();
+            serverListener.StopAndRemoveClient(serverListener.Clients[endPoints[0]]);
+            Thread.Sleep(50);
+            Assert.Empty(endPoints);
         }
 
         [Fact]
