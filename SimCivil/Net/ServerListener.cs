@@ -21,6 +21,9 @@ namespace SimCivil.Net
         public Dictionary<EndPoint, ServerClient> Clients { get; private set; } = new Dictionary<EndPoint, ServerClient>();
         public Dictionary<ServerClient,EndPoint> EndPoints { get; private set; } = new Dictionary<ServerClient, EndPoint>();
 
+        public event Action<EndPoint> NewConnectionEvent;
+        public event Action<EndPoint> LostConnectionEvent;
+
         /// <summary>
         /// Construct a serverlistener
         /// </summary>
@@ -31,7 +34,6 @@ namespace SimCivil.Net
             PacketSendQueue = new Queue<Packet>();
             PacketReadQueue = new Queue<Packet>();
         }
-
 
         /// <summary>
         /// Start the listener
@@ -141,13 +143,17 @@ namespace SimCivil.Net
         {
             Clients.Add(serverClient.TcpClt.Client.RemoteEndPoint, serverClient);
             EndPoints.Add(serverClient, serverClient.TcpClt.Client.RemoteEndPoint);
+            //NewConnectionEvent(serverClient.TcpClt.Client.RemoteEndPoint);
         }
 
         private bool DeleteClientFromDict(ServerClient serverClient)
         {
             bool result = false;
+            EndPoint endPoint = serverClient.TcpClt.Client.RemoteEndPoint;
             result |= Clients.Remove(serverClient.TcpClt.Client.RemoteEndPoint);
             result |= EndPoints.Remove(serverClient);
+            //if (result)
+            //    LostConnectionEvent(endPoint);
             return result;
         }
 

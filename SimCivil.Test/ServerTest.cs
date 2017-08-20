@@ -4,29 +4,22 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Threading;
+using System.Net;
 using Xunit;
 using Xunit.Abstractions;
 using Newtonsoft.Json;
+using SimCivil.Test.VirtualClient;
+using static SimCivil.Config;
 
 namespace SimCivil.Test
 {
 
-    public class PacketTest
+    public class ServerTest
     {
         // How to use this? https://xunit.github.io/docs/capturing-output.html#output-in-tests
         private readonly ITestOutputHelper output;
 
-        private byte[] ToData(int id, PacketType type, int size)
-        {
-            MemoryStream stream = new MemoryStream();
-            using (BinaryWriter writer = new BinaryWriter(stream))
-            {
-                writer.Write(id);
-                writer.Write((int)type);
-                writer.Write(size);
-            }
-            return stream.ToArray();
-        }
         [Theory]
         [InlineData(1, PacketType.Ping, 3)]
         public void HeadToBytes(int id, PacketType type, int size)
@@ -38,6 +31,7 @@ namespace SimCivil.Test
             Assert.Equal(data, head.ToBytes());
             Assert.Equal(12, data.Length);
         }
+
         [Theory]
         [InlineData(1, PacketType.Ping, 3)]
         public void HeadFrombytes(int id, PacketType type, int size)
@@ -100,6 +94,56 @@ namespace SimCivil.Test
                 new byte[head.length]
                 );
             Assert.IsType<Ping>(pkt);
+        }
+
+        [Fact]
+        public void ServerSendTest()
+        {
+            //EndPoint[] endPoints = new EndPoint[10];
+
+            ServerListener serverListener = new ServerListener(DefaultPort);
+            serverListener.Start();
+            //serverListener.NewConnectionEvent += delegate (EndPoint end)
+            //{
+            //    endPoints[endPoints.Length] = end;
+            //};
+            Thread.Sleep(1000);
+
+            Client.Start(DefaultPort);
+            Thread.Sleep(2000);
+            
+            var dataToSend = new Dictionary<string, object>() { { "foo", (long)1 }, { "bar", (long)2 } };
+            var head = new Head(1, PacketType.Ping);
+            var clients = serverListener.Clients;
+            var enu = clients.GetEnumerator();
+            enu.MoveNext();
+            var client = enu.Current.Value;
+            serverListener.PacketSendQueue.Enqueue(new Ping(dataToSend, head, client));
+
+            Thread.Sleep(1000);
+            var dataFromClient = Client.receivedPackets.Dequeue().Data;
+            Client.Stop();
+
+            Assert.Equal(dataFromClient["foo"], dataToSend["foo"]);
+            Assert.Equal(dataFromClient["bar"], dataToSend["bar"]);
+        }
+
+        [Fact]
+        public void ServerReadTest()
+        {
+
+        }
+
+        private byte[] ToData(int id, PacketType type, int size)
+        {
+            MemoryStream stream = new MemoryStream();
+            using (BinaryWriter writer = new BinaryWriter(stream))
+            {
+                writer.Write(id);
+                writer.Write((int)type);
+                writer.Write(size);
+            }
+            return stream.ToArray();
         }
     }
 }

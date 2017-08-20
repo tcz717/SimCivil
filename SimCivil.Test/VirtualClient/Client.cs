@@ -5,13 +5,17 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Net;
 using System.Net.Sockets;
+using SimCivil.Net;
+using SimCivil.Net.Packets;
 
 namespace SimCivil.Test.VirtualClient
 {
     class Client
     {
         private static NetworkStream clientStream;
+        private static bool stopFlag = false;
         public static int port;
+        public static Queue<Packet> receivedPackets = new Queue<Packet>();
 
         public static void Start(int pt)
         {
@@ -20,46 +24,54 @@ namespace SimCivil.Test.VirtualClient
             {
                 TcpClient client = new TcpClient();
 
-                client.ConnectAsync(IPAddress.Parse("127.0.0.1"), port);
+                client.Connect(IPAddress.Parse("127.0.0.1"), port);
 
                 clientStream = client.GetStream();
-                StreamWriter sw = new StreamWriter(clientStream);
 
                 Thread TRead = new Thread(ReadMessage);
                 TRead.Start();
 
                 while (true)
                 {
-                    string input = Console.ReadLine();
-
-                    if (input.Equals("clientexit"))
+                    if (stopFlag)
                     {
                         break;
                     }
-                    sw.WriteLine(input);
-                    sw.Flush();
+                    // Send Packet here
                 }
             });
         }
 
+        public static void Stop()
+        {
+            stopFlag = true;
+        }
+
         static void ReadMessage()
         {
-            StreamReader sr = new StreamReader(clientStream);
-            Console.WriteLine("Client start read...");
-            while (true)
+            try
             {
-                string rcv;
-                try
+                while (true)
                 {
-                    rcv = sr.ReadLine();
-                }
-                catch (Exception e)
-                {
-                    string exceptionInfo = e.Message;
-                    break;
-                }
+                    if (stopFlag)
+                    {
+                        clientStream.Dispose();
+                        break;
+                    }
 
-                Console.WriteLine(rcv);
+                    byte[] buffer = new byte[Packet.MaxSize];
+                    int lengthOfHead = clientStream.Read(buffer, 0, Head.HeadLength);
+                    Head head = Head.FromBytes(buffer);
+                    int lengthOfBody = clientStream.Read(buffer, 0, head.length);
+                    Packet pkt = PacketFactory.Create(null, head, buffer);
+
+                    receivedPackets.Enqueue(pkt);
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("A connection lost. Client running exception: " + e.Message);
+                stopFlag = true;
             }
         }
     }
