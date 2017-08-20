@@ -16,14 +16,25 @@ namespace SimCivil.Net
         private TcpClient currentClient;
         private NetworkStream clientStream;
 
+        /// <summary>
+        /// a flag indication if a client is trying to stop
+        /// </summary>
         public bool stopFlag = false;
 
+        /// <summary>
+        /// The TcpClient used in this ServerClient
+        /// </summary>
         public TcpClient TcpClt
         {
             get { return currentClient; }
             private set { }
         }
 
+        /// <summary>
+        /// Construct a ServerClient for receiving Packets
+        /// </summary>
+        /// <param name="serverListener">the ServerListener creading this ServerClient</param>
+        /// <param name="currentClient">the TcpClient used in this ServerClient</param>
         public ServerClient(ServerListener serverListener, TcpClient currentClient)
         {
             this.serverListener = serverListener;
@@ -48,6 +59,9 @@ namespace SimCivil.Net
             }
         }
 
+        /// <summary>
+        /// Start the client
+        /// </summary>
         public void Start()
         {
             Task.Run(() =>

@@ -16,6 +16,7 @@ namespace SimCivil.Test.VirtualClient
         private static bool stopFlag = false;
         public static int port;
         public static Queue<Packet> receivedPackets = new Queue<Packet>();
+        public static Queue<Packet> PacketsForSend = new Queue<Packet>();
 
         public static void Start(int pt)
         {
@@ -37,7 +38,12 @@ namespace SimCivil.Test.VirtualClient
                     {
                         break;
                     }
-                    // Send Packet here
+                    
+                    if (PacketsForSend.Count > 0)
+                    {
+                        byte[] data = PacketsForSend.Dequeue().ToBytes();
+                        clientStream.Write(data, 0, data.Length);
+                    }
                 }
             });
         }

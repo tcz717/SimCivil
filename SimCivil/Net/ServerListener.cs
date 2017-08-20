@@ -15,12 +15,31 @@ namespace SimCivil.Net
     public class ServerListener : IServerListener
     {
         TcpListener listener;
-        public int Port { get; set; }
+
+        /// <summary>
+        /// The port this listener listen to
+        /// </summary>
+        public int Port { get;  set; }
+        /// <summary>
+        /// Packets received from ServerClients and waiting for handling
+        /// </summary>
         public Queue<Packet> PacketReadQueue { get; set; }
+        /// <summary>
+        /// Packets waiting for sending
+        /// </summary>
         public Queue<Packet> PacketSendQueue { get; set; }
+        /// <summary>
+        /// ServerClients which are communicating with other clients
+        /// </summary>
         public Dictionary<EndPoint, ServerClient> Clients { get; private set; } = new Dictionary<EndPoint, ServerClient>();
 
+        /// <summary>
+        /// The event triggered when a new ServerClient created
+        /// </summary>
         public event Action<EndPoint> NewConnectionEvent;
+        /// <summary>
+        /// The event triggered when a connection closed
+        /// </summary>
         public event Action<EndPoint> LostConnectionEvent;
 
         /// <summary>
@@ -142,21 +161,6 @@ namespace SimCivil.Net
             {
                 listener?.Stop();
             }
-        }
-
-        private bool DeleteClientFromDict(ServerClient serverClient)
-        {
-            bool result = false;
-            EndPoint endPoint = serverClient.TcpClt.Client.RemoteEndPoint;
-            result |= Clients.Remove(serverClient.TcpClt.Client.RemoteEndPoint);
-            if (result)
-                LostConnectionEvent(endPoint);
-            return result;
-        }
-
-        private bool DeleteClientFromDict(EndPoint endPoint)
-        {
-            return DeleteClientFromDict(Clients[endPoint]);
         }
     }
 }

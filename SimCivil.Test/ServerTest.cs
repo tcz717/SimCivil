@@ -39,7 +39,7 @@ namespace SimCivil.Test
             var data = ToData(id, type, size);
             var head = Head.FromBytes(data);
 
-            Assert.Equal(head.packageID, id);
+            Assert.Equal(head.packetID, id);
             Assert.Equal(head.type, type);
             Assert.Equal(head.length, size);
         }
@@ -135,7 +135,42 @@ namespace SimCivil.Test
         [Fact]
         public void ServerReadTest()
         {
+            List<EndPoint> endPoints = new List<EndPoint>();
+            Dictionary<string, object> dataToSend = new Dictionary<string, object>();
+            bool eventIsTriggered = false;
 
+            // Start server and subscribe connection event
+            ServerListener serverListener = new ServerListener(DefaultPort);
+            serverListener.NewConnectionEvent += (end) => endPoints.Add(end);
+            serverListener.LostConnectionEvent += (end) => endPoints.Remove(end);
+            Ping.PingEvent += (data) =>
+            {
+                Assert.Equal(data["foo"], dataToSend["foo"]);
+                Assert.Equal(data["bar"], dataToSend["bar"]);
+                eventIsTriggered = true;
+            };
+            serverListener.Start();
+            Thread.Sleep(500); // Keep it long enough to start server before starting client
+
+            // Start client
+            Client.Start(DefaultPort);
+            Thread.Sleep(500);
+
+            // Send Packet from virtual client
+            var head = new Head(2, PacketType.Ping);
+            dataToSend = new Dictionary<string, object>() { { "foo", 3.1415 }, { "bar", 0.12345 } };
+            Client.PacketsForSend.Enqueue(new Ping(dataToSend, head, null));
+
+
+            // Wait for sending from client and PingEvent from Server
+            Thread.Sleep(1000); 
+            Assert.Equal(true, eventIsTriggered);
+
+            // Test removing client function
+            Client.Stop();
+            serverListener.StopAndRemoveClient(serverListener.Clients[endPoints[0]]);
+            Thread.Sleep(50);
+            Assert.Empty(endPoints);
         }
 
         private byte[] ToData(int id, PacketType type, int size)
