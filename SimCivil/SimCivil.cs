@@ -54,38 +54,16 @@ namespace SimCivil
         /// Initialize a new game.
         /// </summary>
         /// <param name="info">Game's infomation.</param>
-        public void Initialize(GameInfo info)
-        {
-            Info = info;
-            var persistableSeriveces = Services.Resolve<IEnumerable<IPersistable>>();
-            foreach (var service in persistableSeriveces)
-            {
-                service.Initialize(info);
-            }
-        }
+        public void Initialize(GameInfo info) => Services.CallMany<IPersistable>(n => n.Initialize(info));
         /// <summary>
         /// Load a game.
         /// </summary>
         /// <param name="path">Directory path to store all data.</param>
-        public void Load(string path)
-        {
-            var persistableSeriveces = Services.Resolve<IEnumerable<IPersistable>>();
-            foreach (var service in persistableSeriveces)
-            {
-                service.Load(path);
-            }
-        }
+        public void Load(string path) => Services.CallMany<IPersistable>(n => n.Load(path));
         /// <summary>
         /// Save a game.
         /// </summary>
-        public void Save()
-        {
-            var persistableSeriveces = Services.Resolve<IEnumerable<IPersistable>>();
-            foreach (var service in persistableSeriveces)
-            {
-                service.Save(Info.StoreDirectory);
-            }
-        }
+        public void Save() => Services.CallMany<IPersistable>(n => n.Save(Info.StoreDirectory));
 
         /// <summary>
         /// Start game server.
