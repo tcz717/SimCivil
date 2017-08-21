@@ -15,23 +15,61 @@ namespace SimCivil.Net
     public class ServerListener : IServerListener
     {
         TcpListener listener;
-        public int Port { get; set; }
-        public Queue<Packet> PacketReadQueue { get; set; }
-        public Queue<Packet> PacketSendQueue { get; set; }
-        public Dictionary<EndPoint, ServerClient> Clients { get; private set; } = new Dictionary<EndPoint, ServerClient>();
-        public Dictionary<ServerClient,EndPoint> EndPoints { get; private set; } = new Dictionary<ServerClient, EndPoint>();
 
+        /// <summary>
+        /// Server host
+        /// </summary>
+        public IPAddress Host { get; }
+
+        /// <summary>
+        /// The port this listener listen to
+        /// </summary>
+        public int Port { get;  set; }
+        /// <summary>
+        /// Packets received from ServerClients and waiting for handling
+        /// </summary>
+        public Queue<Packet> PacketReadQueue { get; set; }
+        /// <summary>
+        /// Packets waiting for sending
+        /// </summary>
+        public Queue<Packet> PacketSendQueue { get; set; }
+        /// <summary>
+        /// ServerClients which are communicating with other clients
+        /// </summary>
+        public Dictionary<EndPoint, ServerClient> Clients { get; private set; } = new Dictionary<EndPoint, ServerClient>();
+
+        /// <summary>
+        /// The event triggered when a new ServerClient created
+        /// </summary>
+        public event EventHandler<ServerClient> NewConnectionEvent;
+        /// <summary>
+        /// The event triggered when a connection closed
+        /// </summary>
+        public event EventHandler<ServerClient> LostConnectionEvent;
+
+        /// <summary>
+        /// Construct a serverlistener
+        /// </summary>
+        /// <param name="host">server host</param>
+        /// <param name="port">port to start listener</param>
+        public ServerListener(IPAddress host, int port)
+        {
+            Host = host;
+            Port = port;
+            PacketSendQueue = new Queue<Packet>();
+            PacketReadQueue = new Queue<Packet>();
+        }
         /// <summary>
         /// Construct a serverlistener
         /// </summary>
         /// <param name="port">port to start listener</param>
         public ServerListener(int port)
         {
+            Host = IPAddress.Loopback;
             Port = port;
             PacketSendQueue = new Queue<Packet>();
             PacketReadQueue = new Queue<Packet>();
         }
-
 
         /// <summary>
         /// Start the listener
@@ -51,8 +89,13 @@ namespace SimCivil.Net
         {
             if (Clients.ContainsValue(client))
             {
-                client.stopFlag = true;
-                return DeleteClientFromDict(client);
+                EndPoint endPoint = client.TcpClt.Client.RemoteEndPoint;
+                if (Clients.Remove(endPoint))
+                {
+                    client.Stop();
+                    LostConnectionEvent?.Invoke(this, client);
+                    return true;
+                }
             }
             return false;
         }
@@ -118,7 +161,8 @@ namespace SimCivil.Net
                 {
                     TcpClient currentClient = listener.AcceptTcpClient();
                     ServerClient serverClient = new ServerClient(this, currentClient);
-                    AddClientToDict(serverClient);
+                    Clients.Add(serverClient.TcpClt.Client.RemoteEndPoint, serverClient);
+                    NewConnectionEvent?.Invoke(this, serverClient);
                     serverClient.Start();
                     Console.WriteLine("A Connection Established");
                 }
@@ -137,23 +181,17 @@ namespace SimCivil.Net
             }
         }
 
-        private void AddClientToDict(ServerClient serverClient)
+        /// <summary>
+        /// Stop all clients thread and remove them from storage
+        /// </summary>
+        public void StopAndRemoveAllClient()
         {
-            Clients.Add(serverClient.TcpClt.Client.RemoteEndPoint, serverClient);
-            EndPoints.Add(serverClient, serverClient.TcpClt.Client.RemoteEndPoint);
-        }
-
-        private bool DeleteClientFromDict(ServerClient serverClient)
-        {
-            bool result = false;
-            result |= Clients.Remove(serverClient.TcpClt.Client.RemoteEndPoint);
-            result |= EndPoints.Remove(serverClient);
-            return result;
-        }
-
-        private bool DeleteClientFromDict(EndPoint endPoint)
-        {
-            return DeleteClientFromDict(Clients[endPoint]);
+            var clients = Clients.Values;
+            foreach (var c in clients)
+            {
+                c.Stop();
+                LostConnectionEvent?.Invoke(this, c);
+            }
         }
     }
 }

@@ -4,16 +4,23 @@ using System.Text;
 
 namespace SimCivil.Net.Packets
 {
-    [HeadType(PacketType.Ping)]
+    /// <summary>
+    /// A type of Packet for ping
+    /// </summary>
+    [PacketType(PacketType.Ping)]
     public class Ping : Packet
     {
-        public Ping(Dictionary<string, object> data, Head head = default(Head), ServerClient client = null) : base(data, head, client)
+        public Ping(Dictionary<string, object> data = null, Head head = default(Head), ServerClient client = null) : base(data, head, client)
         {
         }
 
-        public override void Handle()
+        /// <summary>
+        /// Throw a Ping event
+        /// </summary>
+        public override void Handle() 
         {
-            throw new NotImplementedException();
+            Client.ServerListener.SendPacket(new PingResponse(Client, head.packetID));
+            Client.WaitFor<PingResponse>(this);
         }
     }
 }
