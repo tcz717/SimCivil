@@ -11,6 +11,7 @@ using Xunit.Abstractions;
 using Newtonsoft.Json;
 using SimCivil.Test.VirtualClient;
 using static SimCivil.Config;
+using System.Linq;
 
 namespace SimCivil.Test
 {
@@ -99,38 +100,41 @@ namespace SimCivil.Test
         [Fact]
         public void ServerSendTest()
         {
-            List<ServerClient> endPoints = new List<ServerClient>();
-
+            // Create a Packet and enqueue it for sending
+            var head = new Head(1, PacketType.Ping);
+            var dataToSend = new Dictionary<string, object>() { { "foo", 1L }, { "bar", 2L } };
             // Start server and subscribe connection event
             ServerListener serverListener = new ServerListener(DefaultPort);
             Client virtualClient = new Client();
-            serverListener.NewConnectionEvent += (sender, e) => endPoints.Add(e);
-            serverListener.LostConnectionEvent += (sender, e) => endPoints.Remove(e);
+            serverListener.NewConnectionEvent += (sender, e) =>
+            {
+                e.SendPacket(new Ping(dataToSend, head, e));
+            };
             serverListener.Start();
             Thread.Sleep(500); // Keep it long enough to start server before starting client
 
             // Start client
             virtualClient.Start(DefaultPort);
-            Thread.Sleep(500);
-
-            // Create a Packet and enqueue it for sending
-            var dataToSend = new Dictionary<string, object>() { { "foo", (long)1 }, { "bar", (long)2 } };
-            var head = new Head(1, PacketType.Ping);
-            var client = endPoints[0];
-            serverListener.PacketSendQueue.Enqueue(new Ping(dataToSend, head, client));
 
             // Wait for sending and get data from client
-            Thread.Sleep(300);
-            var dataFromClient = virtualClient.receivedPackets.Dequeue().Data;
+            int retry = 10;
+            while (retry > 0)
+            {
+                Thread.Sleep(100);
+                if(virtualClient.receivedPackets.Any())
+                {
+                    var dataFromClient = virtualClient.receivedPackets.Dequeue().Data;
 
-            Assert.Equal(dataFromClient["foo"], dataToSend["foo"]);
-            Assert.Equal(dataFromClient["bar"], dataToSend["bar"]);
+                    Assert.Equal(dataFromClient["foo"], dataToSend["foo"]);
+                    Assert.Equal(dataFromClient["bar"], dataToSend["bar"]);
+                    break;
+                }
+            }
+            Assert.True(retry > 0);
 
             // Test removing client function
             virtualClient.Stop();
-            serverListener.StopAndRemoveClient(endPoints[0]);
-            Thread.Sleep(50);
-            Assert.Empty(endPoints);
+            serverListener.StopAndRemoveAllClient();
         }
 
         [Fact]
@@ -144,6 +148,7 @@ namespace SimCivil.Test
             Client virtualClient = new Client();
             serverListener.NewConnectionEvent += (sender,e) =>
             {
+                readSem.Release();
                 e.OnPacketReceived += (sender0, e0) =>
                   {
                       readSem.Release();
@@ -158,8 +163,9 @@ namespace SimCivil.Test
             var head = new Head(2, PacketType.Ping);
             dataToSend = new Dictionary<string, object>() { { "foo", 3.1415 }, { "bar", 0.12345 } };
             virtualClient.PacketsForSend.Enqueue(new Ping(dataToSend, head, null));
-
-            Assert.True(readSem.WaitOne(10000));
+            
+            Assert.True(readSem.WaitOne(5000));
+            Assert.True(readSem.WaitOne(5000));
 
             // Test removing client function
             virtualClient.Stop();

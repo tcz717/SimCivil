@@ -18,7 +18,7 @@ namespace SimCivil.Net.Packets
             }
             set
             {
-                Data[nameof(RefPacketID)] = this;
+                Data[nameof(RefPacketID)] = value;
             }
         }
         /// <summary>

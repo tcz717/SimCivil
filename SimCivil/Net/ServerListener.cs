@@ -17,6 +17,11 @@ namespace SimCivil.Net
         TcpListener listener;
 
         /// <summary>
+        /// Server host
+        /// </summary>
+        public IPAddress Host { get; }
+
+        /// <summary>
         /// The port this listener listen to
         /// </summary>
         public int Port { get;  set; }
@@ -45,9 +50,22 @@ namespace SimCivil.Net
         /// <summary>
         /// Construct a serverlistener
         /// </summary>
+        /// <param name="host">server host</param>
+        /// <param name="port">port to start listener</param>
+        public ServerListener(IPAddress host, int port)
+        {
+            Host = host;
+            Port = port;
+            PacketSendQueue = new Queue<Packet>();
+            PacketReadQueue = new Queue<Packet>();
+        }
+        /// <summary>
+        /// Construct a serverlistener
+        /// </summary>
         /// <param name="port">port to start listener</param>
         public ServerListener(int port)
         {
+            Host = IPAddress.Loopback;
             Port = port;
             PacketSendQueue = new Queue<Packet>();
             PacketReadQueue = new Queue<Packet>();
