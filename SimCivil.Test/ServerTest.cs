@@ -144,7 +144,7 @@ namespace SimCivil.Test
             Semaphore readSem = new Semaphore(0, 10);
 
             // Start server and subscribe connection event
-            ServerListener serverListener = new ServerListener(DefaultPort);
+            ServerListener serverListener = new ServerListener(DefaultPort+1);
             Client virtualClient = new Client();
             serverListener.NewConnectionEvent += (sender,e) =>
             {
@@ -157,7 +157,7 @@ namespace SimCivil.Test
             serverListener.Start();
 
             // Start client
-            virtualClient.Start(DefaultPort);
+            virtualClient.Start(DefaultPort+1);
 
             // Send Packet from virtual client
             var head = new Head(2, PacketType.Ping);
