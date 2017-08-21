@@ -51,10 +51,10 @@ namespace SimCivil.Net
         /// <param name="data">dictionary storing data, consist of a string and a value</param>
         /// <param name="head">head storing ID, type, and body length</param>
         /// <param name="client">client indicating where to send to or received from</param>
-        public Packet(Dictionary<string, object> data, Head head = default(Head), ServerClient client = null)
+        public Packet(Dictionary<string, object> data=null, Head head = default(Head), ServerClient client = null)
         {
             this.head = head;
-            this.data = data;
+            this.data = data ?? new Dictionary<string, object>();
             this.client = client;
         }
 
@@ -71,6 +71,12 @@ namespace SimCivil.Net
         /// The method executed after clients received and pushed in the PacketReadQueue
         /// </summary>
         public abstract void Handle();
+
+        /// <summary>
+        /// If the packet need futher procedure, this method will be called when response received.
+        /// </summary>
+        /// <param name="packet">Pesponse packet.</param>
+        public virtual void ResponseCallback(Packet packet) { }
         
         /// <summary>
         /// Update length stored in head and convert Packet, including head, to bytes

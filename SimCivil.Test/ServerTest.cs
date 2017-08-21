@@ -11,6 +11,7 @@ using Xunit.Abstractions;
 using Newtonsoft.Json;
 using SimCivil.Test.VirtualClient;
 using static SimCivil.Config;
+using System.Linq;
 
 namespace SimCivil.Test
 {
@@ -99,80 +100,76 @@ namespace SimCivil.Test
         [Fact]
         public void ServerSendTest()
         {
-            List<EndPoint> endPoints = new List<EndPoint>();
-
-            // Start server and subscribe connection event
-            ServerListener serverListener = new ServerListener(DefaultPort);
-            Client virtualClient = new Client();
-            serverListener.NewConnectionEvent += (end) => endPoints.Add(end);
-            serverListener.LostConnectionEvent += (end) => endPoints.Remove(end);
-            serverListener.Start();
-            Thread.Sleep(500); // Keep it long enough to start server before starting client
-
-            // Start client
-            virtualClient.Start(DefaultPort);
-            Thread.Sleep(500);
-
             // Create a Packet and enqueue it for sending
-            var dataToSend = new Dictionary<string, object>() { { "foo", (long)1 }, { "bar", (long)2 } };
             var head = new Head(1, PacketType.Ping);
-            var client = serverListener.Clients[endPoints[0]];
-            serverListener.PacketSendQueue.Enqueue(new Ping(dataToSend, head, client));
-
-            // Wait for sending and get data from client
-            Thread.Sleep(300);
-            var dataFromClient = virtualClient.receivedPackets.Dequeue().Data;
-
-            Assert.Equal(dataFromClient["foo"], dataToSend["foo"]);
-            Assert.Equal(dataFromClient["bar"], dataToSend["bar"]);
-
-            // Test removing client function
-            virtualClient.Stop();
-            serverListener.StopAndRemoveClient(serverListener.Clients[endPoints[0]]);
-            Thread.Sleep(50);
-            Assert.Empty(endPoints);
-        }
-
-        [Fact]
-        public void ServerReadTest()
-        {
-            List<EndPoint> endPoints = new List<EndPoint>();
-            Dictionary<string, object> dataToSend = new Dictionary<string, object>();
-            bool eventIsTriggered = false;
-
+            var dataToSend = new Dictionary<string, object>() { { "foo", 1L }, { "bar", 2L } };
             // Start server and subscribe connection event
             ServerListener serverListener = new ServerListener(DefaultPort);
             Client virtualClient = new Client();
-            serverListener.NewConnectionEvent += (end) => endPoints.Add(end);
-            serverListener.LostConnectionEvent += (end) => endPoints.Remove(end);
-            Ping.PingEvent += (data) =>
+            serverListener.NewConnectionEvent += (sender, e) =>
             {
-                Assert.Equal(data["foo"], dataToSend["foo"]);
-                Assert.Equal(data["bar"], dataToSend["bar"]);
-                eventIsTriggered = true;
+                e.SendPacket(new Ping(dataToSend, head, e));
             };
             serverListener.Start();
             Thread.Sleep(500); // Keep it long enough to start server before starting client
 
             // Start client
             virtualClient.Start(DefaultPort);
-            Thread.Sleep(500);
+
+            // Wait for sending and get data from client
+            int retry = 10;
+            while (retry > 0)
+            {
+                Thread.Sleep(100);
+                if(virtualClient.receivedPackets.Any())
+                {
+                    var dataFromClient = virtualClient.receivedPackets.Dequeue().Data;
+
+                    Assert.Equal(dataFromClient["foo"], dataToSend["foo"]);
+                    Assert.Equal(dataFromClient["bar"], dataToSend["bar"]);
+                    break;
+                }
+            }
+            Assert.True(retry > 0);
+
+            // Test removing client function
+            virtualClient.Stop();
+            serverListener.StopAndRemoveAllClient();
+        }
+
+        [Fact]
+        public void ServerReadTest()
+        {
+            Dictionary<string, object> dataToSend = new Dictionary<string, object>();
+            Semaphore readSem = new Semaphore(0, 10);
+
+            // Start server and subscribe connection event
+            ServerListener serverListener = new ServerListener(DefaultPort);
+            Client virtualClient = new Client();
+            serverListener.NewConnectionEvent += (sender,e) =>
+            {
+                readSem.Release();
+                e.OnPacketReceived += (sender0, e0) =>
+                  {
+                      readSem.Release();
+                  };
+            };
+            serverListener.Start();
+
+            // Start client
+            virtualClient.Start(DefaultPort);
 
             // Send Packet from virtual client
             var head = new Head(2, PacketType.Ping);
             dataToSend = new Dictionary<string, object>() { { "foo", 3.1415 }, { "bar", 0.12345 } };
             virtualClient.PacketsForSend.Enqueue(new Ping(dataToSend, head, null));
-
-
-            // Wait for sending from client and PingEvent from Server
-            Thread.Sleep(900); 
-            Assert.Equal(true, eventIsTriggered);
+            
+            Assert.True(readSem.WaitOne());
+            Assert.True(readSem.WaitOne(5000));
 
             // Test removing client function
             virtualClient.Stop();
-            serverListener.StopAndRemoveClient(serverListener.Clients[endPoints[0]]);
-            Thread.Sleep(50);
-            Assert.Empty(endPoints);
+            serverListener.StopAndRemoveAllClient();
         }
 
         private byte[] ToData(int id, PacketType type, int size)

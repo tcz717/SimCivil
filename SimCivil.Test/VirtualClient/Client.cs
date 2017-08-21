@@ -25,7 +25,7 @@ namespace SimCivil.Test.VirtualClient
             {
                 TcpClient client = new TcpClient();
 
-                client.Connect(IPAddress.Parse("127.0.0.1"), port);
+                client.Connect(IPAddress.Loopback, port);
 
                 clientStream = client.GetStream();
 
@@ -43,6 +43,7 @@ namespace SimCivil.Test.VirtualClient
                     {
                         byte[] data = PacketsForSend.Dequeue().ToBytes();
                         clientStream.Write(data, 0, data.Length);
+                        clientStream.Flush();
                     }
                 }
             });
