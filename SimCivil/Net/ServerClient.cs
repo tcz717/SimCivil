@@ -4,6 +4,7 @@ using System.IO;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
+using SimCivil.Net.Packets;
 
 namespace SimCivil.Net
 {
@@ -17,9 +18,27 @@ namespace SimCivil.Net
         private NetworkStream clientStream;
 
         /// <summary>
-        /// a flag indication if a client is trying to stop
+        /// Register a callback when specfic packet received.
         /// </summary>
-        public bool stopFlag = false;
+        /// <typeparam name="T">Packet type expected to receive.</typeparam>
+        /// <param name="packet">Packet requesting callback.</param>
+        public void WaitFor<T>(Packet packet) where T : ResponsePacket
+        {
+            // TODO @panyz522
+        }
+        private bool stopFlag = false;
+        /// <summary>
+        /// Event invoking when a packet received.
+        /// </summary>
+        public event EventHandler<Packet> OnPacketReceived;
+
+        /// <summary>
+        /// Update timeout flag.
+        /// </summary>
+        public void Update()
+        {
+            // TODO @panyz522
+        }
 
         /// <summary>
         /// The TcpClient used in this ServerClient
@@ -83,6 +102,13 @@ namespace SimCivil.Net
                         Packet pkt = PacketFactory.Create(this, head, buffer);
 
                         serverListener.PushPacket(pkt);
+
+                        if(pkt is ResponsePacket)
+                        {
+                            // TODO: check if pkt is in wait list and callback.
+                        }
+
+                        OnPacketReceived?.Invoke(this, pkt);
                     }
                 }
                 catch(Exception e)
@@ -91,6 +117,14 @@ namespace SimCivil.Net
                     serverListener.StopAndRemoveClient(this);
                 }
             });
+        }
+
+        /// <summary>
+        /// Stop client.
+        /// </summary>
+        public void Stop()
+        {
+            stopFlag = true;
         }
     }
 }
