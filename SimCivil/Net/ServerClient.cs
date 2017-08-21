@@ -50,6 +50,11 @@ namespace SimCivil.Net
         }
 
         /// <summary>
+        /// This Client's holder.
+        /// </summary>
+        public ServerListener ServerListener { get => serverListener; set => serverListener = value; }
+
+        /// <summary>
         /// Construct a ServerClient for receiving Packets
         /// </summary>
         /// <param name="serverListener">the ServerListener creading this ServerClient</param>
