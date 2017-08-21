@@ -43,6 +43,7 @@ namespace SimCivil.Test.VirtualClient
                     {
                         byte[] data = PacketsForSend.Dequeue().ToBytes();
                         clientStream.Write(data, 0, data.Length);
+                        clientStream.Flush();
                     }
                 }
             });
