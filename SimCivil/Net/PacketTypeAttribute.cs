@@ -6,11 +6,11 @@ namespace SimCivil.Net
     /// Attribute to Mark a Packet class's ParketType
     /// </summary>
     [AttributeUsage(AttributeTargets.Class)]
-    public class HeadTypeAttribute : Attribute
+    public class PacketTypeAttribute : Attribute
     {
         private PacketType packetType;
 
-        public HeadTypeAttribute(PacketType packetType)
+        public PacketTypeAttribute(PacketType packetType)
         {
             this.packetType = packetType;
         }

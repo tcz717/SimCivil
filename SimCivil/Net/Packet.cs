@@ -7,25 +7,61 @@ using System.Linq;
 
 namespace SimCivil.Net
 {
+    /// <summary>
+    /// The base class of Packet, including Head, data, client, and send/handle methods etc.
+    /// </summary>
     public abstract class Packet
     {
-        public const int MaxSize = 4096; //单个数据包最大限制
+        /// <summary>
+        /// 单个数据包最大限制
+        /// </summary>
+        public const int MaxSize = 4096; 
 
-        Dictionary<string, object> data;
-        Head head;
-        ServerClient client;
+        /// <summary>
+        /// The dictionary storing data, consist of a string and a value
+        /// </summary>
+        protected Dictionary<string, object> data;
 
+        /// <summary>
+        /// Packet head storing ID, type, and body length
+        /// </summary>
+        protected Head head;
+
+        /// <summary>
+        /// The client indicating where to send to or received from
+        /// </summary>
+        protected ServerClient client;
+
+        /// <summary>
+        /// The dictionary storing data, consist of a string and a value
+        /// </summary>
         public Dictionary<string, object> Data { get { return data; } set { data = value; } }
+        /// <summary>
+        /// Packet head storing ID, type, and body length
+        /// </summary>
         public Head Head { get { return head; } set { head = value; } }
+        /// <summary>
+        /// The client indicating where to send to or received from
+        /// </summary>
         public ServerClient Client { get { return client; } set { client = value; } }
 
-        public Packet(Dictionary<string, object> data, Head head = default(Head), ServerClient client = null)
+        /// <summary>
+        /// Construct a Packet
+        /// </summary>
+        /// <param name="data">dictionary storing data, consist of a string and a value</param>
+        /// <param name="head">head storing ID, type, and body length</param>
+        /// <param name="client">client indicating where to send to or received from</param>
+        public Packet(Dictionary<string, object> data=null, Head head = default(Head), ServerClient client = null)
         {
             this.head = head;
-            this.data = data;
+            this.data = data ?? new Dictionary<string, object>();
             this.client = client;
         }
 
+        /// <summary>
+        /// Give order to send packet immediately. Note: This is a method especially for server, please do NOT use it directly!
+        /// It is recommended to enqueue packets into PacketSendQueue for sending
+        /// </summary>
         public virtual void Send()
         {
             client.SendPacket(this);
@@ -35,6 +71,12 @@ namespace SimCivil.Net
         /// The method executed after clients received and pushed in the PacketReadQueue
         /// </summary>
         public abstract void Handle();
+
+        /// <summary>
+        /// If the packet need futher procedure, this method will be called when response received.
+        /// </summary>
+        /// <param name="packet">Pesponse packet.</param>
+        public virtual void ResponseCallback(Packet packet) { }
         
         /// <summary>
         /// Update length stored in head and convert Packet, including head, to bytes
@@ -49,21 +91,54 @@ namespace SimCivil.Net
             return head.ToBytes().Concat(dataBytes).ToArray();
         }
     }
-
+    
+    /// <summary>
+    /// A class describes Packet Head
+    /// </summary>
     public struct Head
     {
+        /// <summary>
+        /// Fixed head length
+        /// </summary>
         public const int HeadLength = 12;
-        public int packageID;
+
+        /// <summary>
+        /// Packet ID
+        /// </summary>
+        public int packetID;
+
+        /// <summary>
+        /// Packet type
+        /// </summary>
         public PacketType type;
+
+        /// <summary>
+        /// Length of body
+        /// </summary>
         public int length;
 
+        /// <summary>
+        /// Construct a Packet Head
+        /// </summary>
+        /// <param name="type">Packet type</param>
         public Head(PacketType type) : this(0, type, 0) { }
 
+        /// <summary>
+        /// Construct a Packet Head
+        /// </summary>
+        /// <param name="packageID">Packet ID</param>
+        /// <param name="type">Packet type</param>
         public Head(int packageID, PacketType type) : this(packageID, type, 0) { }
 
+        /// <summary>
+        ///  Construct a Packet Head
+        /// </summary>
+        /// <param name="packageID">Packet ID</param>
+        /// <param name="type">Packet type</param>
+        /// <param name="length">length of body</param>
         public Head(int packageID, PacketType type, int length)
         {
-            this.packageID = packageID;
+            this.packetID = packageID;
             this.length = length;
             this.type = type;
         }
@@ -89,7 +164,7 @@ namespace SimCivil.Net
         public byte[] ToBytes()
         {
             List<byte> bytes = new List<byte>();
-            bytes.AddRange(BitConverter.GetBytes(packageID));
+            bytes.AddRange(BitConverter.GetBytes(packetID));
             bytes.AddRange(BitConverter.GetBytes((int)type));
             bytes.AddRange(BitConverter.GetBytes(length));
 
