@@ -14,6 +14,7 @@ namespace SimCivil
         public static Config Cfg { get; set; }
 
         public const int DefaultPort = 20170;
+        public const int DefalutPeriod = 50;
 
         public const int DefaultAtlasWidth = 256;
         public const int DefaultAtlasHeight = 256;

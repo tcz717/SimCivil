@@ -2,7 +2,10 @@
 using SimCivil.Map;
 using SimCivil.Net;
 using SimCivil.Store;
+using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
 using static SimCivil.Config;
 
 namespace SimCivil
@@ -67,10 +70,23 @@ namespace SimCivil
 
         /// <summary>
         /// Start game server.
+        /// <paramref name="period">Span between ticks.</paramref>
         /// </summary>
-        public void Run()
+        public void Run(int period = DefalutPeriod)
         {
-
+            var tickers = Services.Resolve<IEnumerable<ITicker>>();
+            int tickCount = 0;
+            while(true)
+            {
+                var startTime = DateTime.Now;
+                foreach (var ticker in tickers)
+                {
+                    ticker.Update(tickCount);
+                }
+                var remain = (DateTime.Now - startTime).Milliseconds;
+                if (remain > 0)
+                    Thread.Sleep(remain);
+            };
         }
     }
 }
