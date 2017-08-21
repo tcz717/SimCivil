@@ -164,7 +164,7 @@ namespace SimCivil.Test
             dataToSend = new Dictionary<string, object>() { { "foo", 3.1415 }, { "bar", 0.12345 } };
             virtualClient.PacketsForSend.Enqueue(new Ping(dataToSend, head, null));
             
-            Assert.True(readSem.WaitOne(5000));
+            Assert.True(readSem.WaitOne());
             Assert.True(readSem.WaitOne(5000));
 
             // Test removing client function
