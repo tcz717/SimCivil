@@ -50,7 +50,6 @@ namespace SimCivil.Net
         /// Construct a Packet, type will automatically add into head
         /// </summary>
         /// <param name="data">dictionary storing data, consist of a string and a value</param>
-        /// <param name="head">head storing ID, type, and body length</param>
         /// <param name="client">client indicating where to send to or received from</param>
         public Packet(Dictionary<string, object> data=null, ServerClient client = null)
         {
@@ -61,7 +60,8 @@ namespace SimCivil.Net
         }
 
         /// <summary>
-        /// Give order to send packet immediately. Note: This is a method especially for server, please do NOT use it directly!
+        /// Give order to send packet immediately. 
+        /// Note: This is a method especially for server, please do NOT use it directly!
         /// It is recommended to enqueue packets into PacketSendQueue for sending
         /// </summary>
         public virtual void Send()
@@ -81,14 +81,16 @@ namespace SimCivil.Net
         public virtual void ResponseCallback(Packet packet) { }
         
         /// <summary>
-        /// Update length stored in head and convert Packet, including head, to bytes
+        /// Update ID and length stored in head and convert Packet, including head, to bytes
         /// </summary>
+        /// <param name="packetID">the ID of packet for assembling head</param>
         /// <returns>bytes converted from Packet</returns>
-        public virtual byte[] ToBytes()
+        public virtual byte[] ToBytes(int packetID)
         {
             byte[] dataBytes = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(Data));
 
             head.length = dataBytes.Length;
+            head.packetID = packetID;
 
             return head.ToBytes().Concat(dataBytes).ToArray();
         }
