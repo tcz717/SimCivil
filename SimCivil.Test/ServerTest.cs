@@ -16,9 +16,8 @@ using System.Linq;
 namespace SimCivil.Test
 {
 
-    public class ServerTest
+    public class ServerTest : IDisposable
     {
-        // How to use this? https://xunit.github.io/docs/capturing-output.html#output-in-tests
         private readonly ITestOutputHelper output;
 
         [Theory]
@@ -50,7 +49,7 @@ namespace SimCivil.Test
         {
             // Init a Packet
             int a = 1; long a1 = 100; float b = 3.141592f; double c = 3.1415926535;
-            Dictionary<String, object> dataSend = 
+            Dictionary<String, object> dataSend =
                 new Dictionary<String, object> { { "int", a }, { "long", a1 }, { "float", b }, { "double", c } };
             Head headSend = new Head(1, PacketType.Ping);
             Packet packetSend = new Ping(dataSend, headSend);
@@ -97,81 +96,6 @@ namespace SimCivil.Test
             Assert.IsType<Ping>(pkt);
         }
 
-        [Fact]
-        public void ServerSendTest()
-        {
-            // Create a Packet and enqueue it for sending
-            var head = new Head(1, PacketType.Ping);
-            var dataToSend = new Dictionary<string, object>() { { "foo", 1L }, { "bar", 2L } };
-            // Start server and subscribe connection event
-            ServerListener serverListener = new ServerListener(DefaultPort);
-            Client virtualClient = new Client();
-            serverListener.NewConnectionEvent += (sender, e) =>
-            {
-                e.SendPacket(new Ping(dataToSend, head, e));
-            };
-            serverListener.Start();
-            Thread.Sleep(500); // Keep it long enough to start server before starting client
-
-            // Start client
-            virtualClient.Start(DefaultPort);
-
-            // Wait for sending and get data from client
-            int retry = 10;
-            while (retry > 0)
-            {
-                Thread.Sleep(100);
-                if(virtualClient.receivedPackets.Any())
-                {
-                    var dataFromClient = virtualClient.receivedPackets.Dequeue().Data;
-
-                    Assert.Equal(dataFromClient["foo"], dataToSend["foo"]);
-                    Assert.Equal(dataFromClient["bar"], dataToSend["bar"]);
-                    break;
-                }
-            }
-            Assert.True(retry > 0);
-
-            // Test removing client function
-            virtualClient.Stop();
-            serverListener.StopAndRemoveAllClient();
-        }
-
-        [Fact]
-        public void ServerReadTest()
-        {
-            Dictionary<string, object> dataToSend = new Dictionary<string, object>();
-            Semaphore readSem = new Semaphore(0, 10);
-
-            // Start server and subscribe connection event
-            ServerListener serverListener = new ServerListener(DefaultPort+1);
-            Client virtualClient = new Client();
-            serverListener.NewConnectionEvent += (sender,e) =>
-            {
-                readSem.Release();
-                e.OnPacketReceived += (sender0, e0) =>
-                  {
-                      readSem.Release();
-                  };
-            };
-            serverListener.Start();
-
-            // Start client
-            virtualClient.Start(DefaultPort+1);
-
-            // Send Packet from virtual client
-            var head = new Head(2, PacketType.Ping);
-            dataToSend = new Dictionary<string, object>() { { "foo", 3.1415 }, { "bar", 0.12345 } };
-            virtualClient.PacketsForSend.Enqueue(new Ping(dataToSend, head, null));
-            
-            Assert.True(readSem.WaitOne());
-            Assert.True(readSem.WaitOne(5000));
-
-            // Test removing client function
-            virtualClient.Stop();
-            serverListener.StopAndRemoveAllClient();
-        }
-
         private byte[] ToData(int id, PacketType type, int size)
         {
             MemoryStream stream = new MemoryStream();
@@ -181,7 +105,18 @@ namespace SimCivil.Test
                 writer.Write((int)type);
                 writer.Write(size);
             }
+            var data = stream.ToArray();
+            output.WriteLine($"Raw data is: {Convert.ToBase64String(data)}");
             return stream.ToArray();
+        }
+
+        public void Dispose()
+        {
+        }
+
+        public ServerTest(ITestOutputHelper outputHelper)
+        {
+            output = outputHelper;
         }
     }
 }
