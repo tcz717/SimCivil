@@ -12,7 +12,7 @@ namespace SimCivil.Map
     /// </summary>
     public class MapData
     {
-        internal static readonly ILog logger = LogManager.GetLogger(typeof(MapData);
+        internal static readonly ILog logger = LogManager.GetLogger(typeof(MapData));
         public Dictionary<(int X, int Y), Atlas> AtlasCollection { get; private set; }
         public IMapGenerator MapGenerator { get; private set; }
         public IMapRepository MapRepository { get; }
