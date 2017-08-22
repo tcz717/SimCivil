@@ -108,11 +108,6 @@ namespace SimCivil.Net
 
                         serverListener.PushPacket(pkt);
 
-                        if(pkt is ResponsePacket)
-                        {
-                            // TODO: check if pkt is in wait list and callback.
-                        }
-
                         OnPacketReceived?.Invoke(this, pkt);
                     }
                 }

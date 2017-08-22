@@ -2,7 +2,10 @@
 using SimCivil.Map;
 using SimCivil.Net;
 using SimCivil.Store;
+using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
 using static SimCivil.Config;
 
 namespace SimCivil
@@ -54,45 +57,36 @@ namespace SimCivil
         /// Initialize a new game.
         /// </summary>
         /// <param name="info">Game's infomation.</param>
-        public void Initialize(GameInfo info)
-        {
-            Info = info;
-            var persistableSeriveces = Services.Resolve<IEnumerable<IPersistable>>();
-            foreach (var service in persistableSeriveces)
-            {
-                service.Initialize(info);
-            }
-        }
+        public void Initialize(GameInfo info) => Services.CallMany<IPersistable>(n => n.Initialize(info));
         /// <summary>
         /// Load a game.
         /// </summary>
         /// <param name="path">Directory path to store all data.</param>
-        public void Load(string path)
-        {
-            var persistableSeriveces = Services.Resolve<IEnumerable<IPersistable>>();
-            foreach (var service in persistableSeriveces)
-            {
-                service.Load(path);
-            }
-        }
+        public void Load(string path) => Services.CallMany<IPersistable>(n => n.Load(path));
         /// <summary>
         /// Save a game.
         /// </summary>
-        public void Save()
-        {
-            var persistableSeriveces = Services.Resolve<IEnumerable<IPersistable>>();
-            foreach (var service in persistableSeriveces)
-            {
-                service.Save(Info.StoreDirectory);
-            }
-        }
+        public void Save() => Services.CallMany<IPersistable>(n => n.Save(Info.StoreDirectory));
 
         /// <summary>
         /// Start game server.
+        /// <paramref name="period">Span between ticks.</paramref>
         /// </summary>
-        public void Run()
+        public void Run(int period = DefalutPeriod)
         {
-
+            var tickers = Services.Resolve<IEnumerable<ITicker>>();
+            int tickCount = 0;
+            while(true)
+            {
+                var startTime = DateTime.Now;
+                foreach (var ticker in tickers)
+                {
+                    ticker.Update(tickCount);
+                }
+                var remain = (DateTime.Now - startTime).Milliseconds;
+                if (remain > 0)
+                    Thread.Sleep(remain);
+            };
         }
     }
 }

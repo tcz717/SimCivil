@@ -6,13 +6,14 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using SimCivil;
+using SimCivil.Net.Packets;
 
 namespace SimCivil.Net
 {
     /// <summary>
     /// Control TcpListener and a Listener Thread
     /// </summary>
-    public class ServerListener : IServerListener
+    public class ServerListener : IServerListener, ITicker
     {
         TcpListener listener;
 
@@ -77,7 +78,7 @@ namespace SimCivil.Net
         public void Start()
         {
             Task.Run(new Action(ListeningHandle));
-            Task.Run(new Action(PushAndPollHandle));
+            Task.Run(new Action(SendWorker));
         }
 
         /// <summary>
@@ -124,25 +125,18 @@ namespace SimCivil.Net
             }
         }
 
-        private void PushAndPollHandle()
+        private void SendWorker()
         {
             while (true)
             {
                 Packet pkt = null;
-                lock(PacketReadQueue)
-                {
-                    if (PacketReadQueue.Count > 0)
-                        pkt = PacketReadQueue.Dequeue();
-                }
-                pkt?.Handle();
-
-                pkt = null;
                 lock (PacketSendQueue)
                 {
                     if (PacketSendQueue.Count > 0)
                         pkt = PacketSendQueue.Dequeue();
                 }
                 pkt?.Send();
+                Thread.Yield();
             }
         }
 
@@ -191,6 +185,34 @@ namespace SimCivil.Net
             {
                 c.Stop();
                 LostConnectionEvent?.Invoke(this, c);
+            }
+        }
+
+        /// <summary>
+        /// Handle all packets in ReadQueue.
+        /// </summary>
+        /// <param name="tickCount">Total tick.</param>
+        public void Update(int tickCount)
+        {
+            while (true)
+            {
+                Packet pkt = null;
+                // To reduce lock time
+                lock (PacketReadQueue)
+                {
+                    if (PacketReadQueue.Count > 0)
+                        pkt = PacketReadQueue.Dequeue();
+                    else
+                        break;
+                }
+                if (pkt != null)
+                {
+                    pkt.Handle();
+                    if (pkt is ResponsePacket)
+                    {
+                        // TODO: check if pkt is in wait list and callback.
+                    }
+                }
             }
         }
     }
