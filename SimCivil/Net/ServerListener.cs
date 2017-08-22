@@ -136,6 +136,7 @@ namespace SimCivil.Net
                         pkt = PacketSendQueue.Dequeue();
                 }
                 pkt?.Send();
+                // TODO: WaitFor here?
                 Thread.Yield();
             }
         }
@@ -212,6 +213,11 @@ namespace SimCivil.Net
                     {
                         // TODO: check if pkt is in wait list and callback.
                     }
+                }
+
+                foreach(var client in Clients.Values)
+                {
+                    client.TimeOutCheck();
                 }
             }
         }

@@ -3,6 +3,7 @@
     /// <summary>
     /// A Ping packet's response.
     /// </summary>
+    [PacketType(PacketType.PingResponse)]
     public class PingResponse : ResponsePacket
     {
         /// <summary>
