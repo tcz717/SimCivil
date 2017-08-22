@@ -28,4 +28,5 @@ SimCivil合作开发说明
 - [.net core 2.0](https://github.com/dotnet/core/blob/master/release-notes/2.0/2.0.0.md)
 - [Newtonsoft.Json 10.0.3](https://www.newtonsoft.com/json)
 - [Autofac 4.6.1](http://docs.autofac.org/en/latest/index.html)
+- [Log4net](http://logging.apache.org/log4net/)
 - System.ValueType 4.4.0

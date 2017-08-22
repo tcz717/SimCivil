@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using log4net;
 using SimCivil.Map;
 using SimCivil.Net;
 using SimCivil.Store;
@@ -15,6 +16,10 @@ namespace SimCivil
     /// </summary>
     public class SimCivil
     {
+        /// <summary>
+        /// SimCivil's logger.
+        /// </summary>
+        public static readonly ILog logger = LogManager.GetLogger(typeof(SimCivil));
         /// <summary>
         /// Game's map data.
         /// </summary>
@@ -74,6 +79,7 @@ namespace SimCivil
         /// </summary>
         public void Run(int period = DefalutPeriod)
         {
+            logger.Info("SimCivil server start running.");
             var tickers = Services.Resolve<IEnumerable<ITicker>>();
             int tickCount = 0;
             while(true)
@@ -87,6 +93,7 @@ namespace SimCivil
                 if (remain > 0)
                     Thread.Sleep(remain);
             };
+            logger.Info("SimCivil server stop.");
         }
     }
 }

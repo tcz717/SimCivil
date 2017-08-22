@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace SimCivil
 {
@@ -18,6 +19,9 @@ namespace SimCivil
 
         public const int DefaultPingRequestSecond = 30;
         public const int DefaultLostConnectionSecond = 60;
+
+        public static readonly TimeSpan PingRequestTime = TimeSpan.FromSeconds(DefaultPingRequestSecond);
+        public static readonly TimeSpan LostConnectionTime = TimeSpan.FromSeconds(DefaultLostConnectionSecond);
 
         public const int DefaultAtlasWidth = 256;
         public const int DefaultAtlasHeight = 256;

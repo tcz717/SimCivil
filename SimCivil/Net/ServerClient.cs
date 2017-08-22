@@ -22,8 +22,6 @@ namespace SimCivil.Net
         private int currentID;
         private bool isStart = false; // For TimeOutCheck
         private bool stopFlag = false; // For stop thread
-        private TimeSpan pingRequestTime;
-        private TimeSpan lostConnectionTime;
 
         /// <summary>
         /// Register a callback when specfic packet received.
@@ -64,8 +62,6 @@ namespace SimCivil.Net
             this.currentClient = currentClient;
             clientStream = currentClient.GetStream();
             currentID = 0;
-            pingRequestTime = new TimeSpan(0, DefaultPingRequestSecond / 60, DefaultPingRequestSecond % 60);
-            lostConnectionTime = new TimeSpan(0, DefaultLostConnectionSecond / 60, DefaultLostConnectionSecond % 60);
         }
 
         /// <summary>
@@ -150,11 +146,11 @@ namespace SimCivil.Net
         {
             if (isStart)
             {
-                if (DateTime.Now - lastReceive > pingRequestTime)
+                if (DateTime.Now - lastReceive > PingRequestTime)
                 {
                     serverListener.PacketSendQueue.Enqueue(new Ping());
                 }
-                if (DateTime.Now - lastReceive > lostConnectionTime)
+                if (DateTime.Now - lastReceive > LostConnectionTime)
                 {
                     serverListener.StopAndRemoveClient(this);
                     Console.WriteLine("A connection lost. Receiving out of time.");
