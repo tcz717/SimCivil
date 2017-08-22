@@ -21,5 +21,14 @@ namespace SimCivil.Net.Packets
         {
             Client.ServerListener.SendPacket(new PingResponse(Client, head.packetID));
         }
+
+        /// <summary>
+        /// Send packet immediately. And wait for PingResponse.
+        /// </summary>
+        public override void Send()
+        {
+            Client.WaitFor<PingResponse>(this);
+            base.Send();
+        }
     }
 }
