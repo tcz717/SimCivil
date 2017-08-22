@@ -51,11 +51,10 @@ namespace SimCivil.Test
             int a = 1; long a1 = 100; float b = 3.141592f; double c = 3.1415926535;
             Dictionary<String, object> dataSend =
                 new Dictionary<String, object> { { "int", a }, { "long", a1 }, { "float", b }, { "double", c } };
-            Head headSend = new Head(1, PacketType.Ping);
-            Packet packetSend = new Ping(dataSend, headSend);
+            Packet packetSend = new Ping(dataSend);
 
             // Convert Packet to bytes
-            byte[] bufferSend = packetSend.ToBytes();
+            byte[] bufferSend = packetSend.ToBytes(1);
 
             #region transmit as stream
             // Transmit data

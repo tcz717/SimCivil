@@ -3,6 +3,7 @@
     /// <summary>
     /// A Ping packet's response.
     /// </summary>
+    [PacketType(PacketType.PingResponse)]
     public class PingResponse : ResponsePacket
     {
         /// <summary>
@@ -19,8 +20,7 @@
         /// </summary>
         public override void Handle()
         {
-            // @panyz522 here is just a example for request/response 
-            Client.Update();
+            // No need to handle here
         }
     }
 }

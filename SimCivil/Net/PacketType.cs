@@ -2,8 +2,9 @@
 {
     public enum PacketType
     {
-        Ping = 0,
-        PingResponse = 1,
-        Error = 2,
+        Empty = 0,
+        Ping = 1,
+        PingResponse = 2,
+        Error = 3,
     }
 }
