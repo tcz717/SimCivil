@@ -5,6 +5,7 @@ using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using SimCivil.Net.Packets;
+using SimCivil.Net;
 
 namespace SimCivil.Net
 {
@@ -16,6 +17,7 @@ namespace SimCivil.Net
         private ServerListener serverListener;
         private TcpClient currentClient;
         private NetworkStream clientStream;
+        private DateTime lastReceive = DateTime.Now;
 
         /// <summary>
         /// Register a callback when specfic packet received.
@@ -24,21 +26,13 @@ namespace SimCivil.Net
         /// <param name="packet">Packet requesting callback.</param>
         public void WaitFor<T>(Packet packet) where T : ResponsePacket
         {
-            // TODO @panyz522
+            // TODO @panyz522 add packet and response to dic
         }
         private bool stopFlag = false;
         /// <summary>
         /// Event invoking when a packet received.
         /// </summary>
         public event EventHandler<Packet> OnPacketReceived;
-
-        /// <summary>
-        /// Update timeout flag.
-        /// </summary>
-        public void Update()
-        {
-            // TODO @panyz522
-        }
 
         /// <summary>
         /// The TcpClient used in this ServerClient
@@ -100,14 +94,18 @@ namespace SimCivil.Net
                             break;
                         }
 
+                        // Build packet
                         byte[] buffer = new byte[Packet.MaxSize];
                         int lengthOfHead = clientStream.Read(buffer, 0, Head.HeadLength);
                         Head head = Head.FromBytes(buffer);
                         int lengthOfBody = clientStream.Read(buffer, 0, head.length);
                         Packet pkt = PacketFactory.Create(this, head, buffer);
 
+                        // Enqueue packet
                         serverListener.PushPacket(pkt);
 
+                        // Packet receive action
+                        lastReceive = DateTime.Now;
                         OnPacketReceived?.Invoke(this, pkt);
                     }
                 }
@@ -125,6 +123,24 @@ namespace SimCivil.Net
         public void Stop()
         {
             stopFlag = true;
+        }
+
+        /// <summary>
+        /// Check whether the client has not received message for a while and determine what to do
+        /// </summary>
+        public void TimeOutCheck()
+        {
+            var pingRequestTime = new TimeSpan(0, 0, 30);
+            var lostConnectionTime = new TimeSpan(0, 1, 0);
+            if (DateTime.Now - lastReceive > pingRequestTime)
+            {
+                serverListener.PacketSendQueue.Enqueue(new Ping());
+            }
+            if (DateTime.Now - lastReceive > lostConnectionTime)
+            {
+                serverListener.StopAndRemoveClient(this);
+                Console.WriteLine("A connection lost. Receiving out of time.");
+            }
         }
     }
 }

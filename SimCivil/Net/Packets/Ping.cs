@@ -10,7 +10,7 @@ namespace SimCivil.Net.Packets
     [PacketType(PacketType.Ping)]
     public class Ping : Packet
     {
-        public Ping(Dictionary<string, object> data = null, Head head = default(Head), ServerClient client = null) : base(data, head, client)
+        public Ping(Dictionary<string, object> data = null, ServerClient client = null) : base(data, client)
         {
         }
 

@@ -183,7 +183,7 @@ namespace SimCivil.Net
             var clients = Clients.Values;
             foreach (var c in clients)
             {
-                c.Stop();
+                StopAndRemoveClient(c);
                 LostConnectionEvent?.Invoke(this, c);
             }
         }

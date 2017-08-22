@@ -19,8 +19,7 @@
         /// </summary>
         public override void Handle()
         {
-            // @panyz522 here is just a example for request/response 
-            Client.Update();
+            // No need to handle here
         }
     }
 }

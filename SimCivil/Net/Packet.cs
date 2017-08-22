@@ -4,6 +4,7 @@ using System.IO;
 using Newtonsoft.Json;
 using System.Text;
 using System.Linq;
+using System.Reflection;
 
 namespace SimCivil.Net
 {
@@ -46,16 +47,17 @@ namespace SimCivil.Net
         public ServerClient Client { get { return client; } set { client = value; } }
 
         /// <summary>
-        /// Construct a Packet
+        /// Construct a Packet, type will automatically add into head
         /// </summary>
         /// <param name="data">dictionary storing data, consist of a string and a value</param>
         /// <param name="head">head storing ID, type, and body length</param>
         /// <param name="client">client indicating where to send to or received from</param>
-        public Packet(Dictionary<string, object> data=null, Head head = default(Head), ServerClient client = null)
+        public Packet(Dictionary<string, object> data=null, ServerClient client = null)
         {
-            this.head = head;
             this.data = data ?? new Dictionary<string, object>();
             this.client = client;
+            head = default(Head);
+            head.type = GetType().GetTypeInfo().GetCustomAttribute<PacketTypeAttribute>().PacketType;
         }
 
         /// <summary>

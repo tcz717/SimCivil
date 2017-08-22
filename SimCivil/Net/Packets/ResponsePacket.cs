@@ -32,7 +32,7 @@ namespace SimCivil.Net.Packets
             RefPacketID = refpacketID;
         }
 
-        internal ResponsePacket(Dictionary<string, object> data = null, Head head = default(Head), ServerClient client = null) : base(data, head, client)
+        internal ResponsePacket(Dictionary<string, object> data = null, ServerClient client = null) : base(data, client)
         {
         }
     }
