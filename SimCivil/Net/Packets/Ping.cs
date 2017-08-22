@@ -20,7 +20,6 @@ namespace SimCivil.Net.Packets
         public override void Handle() 
         {
             Client.ServerListener.SendPacket(new PingResponse(Client, head.packetID));
-            Client.WaitFor<PingResponse>(this); // TODO: why here?
         }
     }
 }

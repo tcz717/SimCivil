@@ -16,6 +16,9 @@ namespace SimCivil
         public const int DefaultPort = 20170;
         public const int DefalutPeriod = 50;
 
+        public const int DefaultPingRequestSecond = 30;
+        public const int DefaultLostConnectionSecond = 60;
+
         public const int DefaultAtlasWidth = 256;
         public const int DefaultAtlasHeight = 256;
         public const int MaxGroundEntities = 4;

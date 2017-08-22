@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using SimCivil.Net.Packets;
 using SimCivil.Net;
+using static SimCivil.Config;
 
 namespace SimCivil.Net
 {
@@ -21,6 +22,8 @@ namespace SimCivil.Net
         private int currentID;
         private bool isStart = false; // For TimeOutCheck
         private bool stopFlag = false; // For stop thread
+        private TimeSpan pingRequestTime;
+        private TimeSpan lostConnectionTime;
 
         /// <summary>
         /// Register a callback when specfic packet received.
@@ -61,6 +64,8 @@ namespace SimCivil.Net
             this.currentClient = currentClient;
             clientStream = currentClient.GetStream();
             currentID = 0;
+            pingRequestTime = new TimeSpan(0, DefaultPingRequestSecond / 60, DefaultPingRequestSecond % 60);
+            lostConnectionTime = new TimeSpan(0, DefaultLostConnectionSecond / 60, DefaultLostConnectionSecond % 60);
         }
 
         /// <summary>
@@ -145,8 +150,6 @@ namespace SimCivil.Net
         {
             if (isStart)
             {
-                var pingRequestTime = new TimeSpan(0, 0, 30);
-                var lostConnectionTime = new TimeSpan(0, 1, 0);
                 if (DateTime.Now - lastReceive > pingRequestTime)
                 {
                     serverListener.PacketSendQueue.Enqueue(new Ping());
