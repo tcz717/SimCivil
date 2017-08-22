@@ -1,4 +1,5 @@
-﻿using SimCivil.Store;
+﻿using log4net;
+using SimCivil.Store;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -11,6 +12,7 @@ namespace SimCivil.Map
     /// </summary>
     public class MapData
     {
+        internal static readonly ILog logger = LogManager.GetLogger(typeof(MapData);
         public Dictionary<(int X, int Y), Atlas> AtlasCollection { get; private set; }
         public IMapGenerator MapGenerator { get; private set; }
         public IMapRepository MapRepository { get; }
@@ -41,6 +43,7 @@ namespace SimCivil.Map
                 {
                     var exsistAtlas = MapRepository.GetAtlas(atlasIndex);
                     AtlasCollection[atlasIndex] = exsistAtlas;
+                    logger.Info($"Loaded Atlas {atlasIndex} with {MapRepository}.");
                     return exsistAtlas.Tiles[x, y];
                 }
                 else if(AllowExpanding)
@@ -48,6 +51,7 @@ namespace SimCivil.Map
                     var newAtlas = MapGenerator.Generate(atlasIndex.X, atlasIndex.Y);
                     AtlasCollection[atlasIndex] = newAtlas;
                     MapRepository.PutAtlas(atlasIndex, newAtlas);
+                    logger.Info($"Generated Atlas {atlasIndex} with {MapGenerator}.");
                     return newAtlas.Tiles[x, y];
 
                 }

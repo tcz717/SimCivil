@@ -62,16 +62,28 @@ namespace SimCivil
         /// Initialize a new game.
         /// </summary>
         /// <param name="info">Game's infomation.</param>
-        public void Initialize(GameInfo info) => Services.CallMany<IPersistable>(n => n.Initialize(info));
+        public void Initialize(GameInfo info)
+        {
+            logger.Info($"Initialize Game: {info.Name} ({info.StoreDirectory} {info.Seed.ToString("X")})");
+            Services.CallMany<IPersistable>(n => n.Initialize(info));
+        }
         /// <summary>
         /// Load a game.
         /// </summary>
         /// <param name="path">Directory path to store all data.</param>
-        public void Load(string path) => Services.CallMany<IPersistable>(n => n.Load(path));
+        public void Load(string path)
+        {
+            logger.Info($"Load Game in: {path}");
+            Services.CallMany<IPersistable>(n => n.Load(path));
+        }
         /// <summary>
         /// Save a game.
         /// </summary>
-        public void Save() => Services.CallMany<IPersistable>(n => n.Save(Info.StoreDirectory));
+        public void Save()
+        {
+            logger.Info($"Save Game in: {Info.StoreDirectory}");
+            Services.CallMany<IPersistable>(n => n.Save(Info.StoreDirectory));
+        }
 
         /// <summary>
         /// Start game server.
@@ -92,6 +104,7 @@ namespace SimCivil
                 var remain = (DateTime.Now - startTime).Milliseconds;
                 if (remain > 0)
                     Thread.Sleep(remain);
+                tickCount++;
             };
             logger.Info("SimCivil server stop.");
         }
