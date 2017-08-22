@@ -15,7 +15,7 @@ namespace SimCivil.Net.Packets
         }
 
         /// <summary>
-        /// Throw a Ping event
+        /// Ping handle
         /// </summary>
         public override void Handle() 
         {

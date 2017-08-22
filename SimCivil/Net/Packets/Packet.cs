@@ -47,7 +47,7 @@ namespace SimCivil.Net
         public ServerClient Client { get { return client; } set { client = value; } }
 
         /// <summary>
-        /// Construct a Packet, type will automatically add into head
+        /// Construct a Packet, type will be automatically added into head
         /// </summary>
         /// <param name="data">dictionary storing data, consist of a string and a value</param>
         /// <param name="client">client indicating where to send to or received from</param>
