@@ -5,6 +5,8 @@ using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using SimCivil.Net.Packets;
+using SimCivil.Net;
+using static SimCivil.Config;
 
 namespace SimCivil.Net
 {
@@ -16,6 +18,12 @@ namespace SimCivil.Net
         private ServerListener serverListener;
         private TcpClient currentClient;
         private NetworkStream clientStream;
+        private DateTime lastReceive;
+        private int currentID;
+        private bool isStart = false; // For TimeOutCheck
+        private bool stopFlag = false; // For stop thread
+        private TimeSpan pingRequestTime;
+        private TimeSpan lostConnectionTime;
 
         /// <summary>
         /// Register a callback when specfic packet received.
@@ -24,21 +32,12 @@ namespace SimCivil.Net
         /// <param name="packet">Packet requesting callback.</param>
         public void WaitFor<T>(Packet packet) where T : ResponsePacket
         {
-            // TODO @panyz522
+            // TODO @panyz522 add packet and response to dic
         }
-        private bool stopFlag = false;
         /// <summary>
         /// Event invoking when a packet received.
         /// </summary>
         public event EventHandler<Packet> OnPacketReceived;
-
-        /// <summary>
-        /// Update timeout flag.
-        /// </summary>
-        public void Update()
-        {
-            // TODO @panyz522
-        }
 
         /// <summary>
         /// The TcpClient used in this ServerClient
@@ -64,18 +63,27 @@ namespace SimCivil.Net
             this.serverListener = serverListener;
             this.currentClient = currentClient;
             clientStream = currentClient.GetStream();
+            currentID = 0;
+            pingRequestTime = new TimeSpan(0, DefaultPingRequestSecond / 60, DefaultPingRequestSecond % 60);
+            lostConnectionTime = new TimeSpan(0, DefaultLostConnectionSecond / 60, DefaultLostConnectionSecond % 60);
         }
 
-
         /// <summary>
-        /// A method for send
+        /// Update packet head, convert packet to bytes, and send them.
+        /// Note: this method should only be called by server and packet itself, please do NOT use it directly!
+        /// It is recommended to enqueue packets into PacketSendQueue for sending
         /// </summary>
         public void SendPacket(Packet pkt)
         {
             try
             {
-                byte[] data = pkt.ToBytes();
+                byte[] data = pkt.ToBytes(currentID);
                 clientStream.Write(data, 0, data.Length);
+
+                if (++currentID >= Int32.MaxValue)
+                {
+                    currentID = 0;
+                }
             }
             catch (Exception e)
             {
@@ -97,18 +105,26 @@ namespace SimCivil.Net
                         if (stopFlag)
                         {
                             clientStream.Dispose();
+                            isStart = false;
                             break;
                         }
 
+                        // Build packet
                         byte[] buffer = new byte[Packet.MaxSize];
                         int lengthOfHead = clientStream.Read(buffer, 0, Head.HeadLength);
                         Head head = Head.FromBytes(buffer);
                         int lengthOfBody = clientStream.Read(buffer, 0, head.length);
                         Packet pkt = PacketFactory.Create(this, head, buffer);
 
+                        // Enqueue packet
                         serverListener.PushPacket(pkt);
 
+                        // Packet receive action
+                        lastReceive = DateTime.Now;
                         OnPacketReceived?.Invoke(this, pkt);
+
+                        // Change Client status
+                        isStart = true;
                     }
                 }
                 catch(Exception e)
@@ -125,6 +141,25 @@ namespace SimCivil.Net
         public void Stop()
         {
             stopFlag = true;
+        }
+
+        /// <summary>
+        /// Check whether the client has not received message for a while and determine what to do
+        /// </summary>
+        public void TimeOutCheck()
+        {
+            if (isStart)
+            {
+                if (DateTime.Now - lastReceive > pingRequestTime)
+                {
+                    serverListener.PacketSendQueue.Enqueue(new Ping());
+                }
+                if (DateTime.Now - lastReceive > lostConnectionTime)
+                {
+                    serverListener.StopAndRemoveClient(this);
+                    Console.WriteLine("A connection lost. Receiving out of time.");
+                }
+            }
         }
     }
 }

@@ -41,7 +41,7 @@ namespace SimCivil.Test.VirtualClient
                     
                     if (PacketsForSend.Count > 0)
                     {
-                        byte[] data = PacketsForSend.Dequeue().ToBytes();
+                        byte[] data = PacketsForSend.Dequeue().ToBytes(1);
                         clientStream.Write(data, 0, data.Length);
                         clientStream.Flush();
                     }

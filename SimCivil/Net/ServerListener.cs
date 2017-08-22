@@ -136,6 +136,7 @@ namespace SimCivil.Net
                         pkt = PacketSendQueue.Dequeue();
                 }
                 pkt?.Send();
+                // TODO: WaitFor here?
                 Thread.Yield();
             }
         }
@@ -183,7 +184,7 @@ namespace SimCivil.Net
             var clients = Clients.Values;
             foreach (var c in clients)
             {
-                c.Stop();
+                StopAndRemoveClient(c);
                 LostConnectionEvent?.Invoke(this, c);
             }
         }
@@ -212,6 +213,11 @@ namespace SimCivil.Net
                     {
                         // TODO: check if pkt is in wait list and callback.
                     }
+                }
+
+                foreach(var client in Clients.Values)
+                {
+                    client.TimeOutCheck();
                 }
             }
         }

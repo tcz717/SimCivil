@@ -26,13 +26,13 @@ namespace SimCivil.Net.Packets
         /// </summary>
         /// <param name="client">Client to response.</param>
         /// <param name="refpacketID">Requesting packet's id.</param>
-        public ResponsePacket(ServerClient client, int refpacketID)
+        public ResponsePacket(ServerClient client, int refpacketID):base()
         {
             this.client = client;
             RefPacketID = refpacketID;
         }
 
-        internal ResponsePacket(Dictionary<string, object> data = null, Head head = default(Head), ServerClient client = null) : base(data, head, client)
+        internal ResponsePacket(Dictionary<string, object> data = null, ServerClient client = null) : base(data, client)
         {
         }
     }

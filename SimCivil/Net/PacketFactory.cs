@@ -30,7 +30,9 @@ namespace SimCivil.Net
         {
             Dictionary<string, object> dataDict = JsonConvert.DeserializeObject<Dictionary<string, object>>(Encoding.UTF8.GetString(data));
 
-            return Activator.CreateInstance(LegalPackets[head.type], dataDict, head, serverClient) as Packet;
+            Packet pkt = Activator.CreateInstance(LegalPackets[head.type], dataDict, serverClient) as Packet;
+            pkt.Head = head;
+            return pkt;
         }        
         
         static PacketFactory()
