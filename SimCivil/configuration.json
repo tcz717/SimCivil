@@ -3,7 +3,7 @@
   "components": [
     {
       "type": "SimCivil.Net.ServerListener",
-      "service": [
+      "services": [
         {
           "type": "SimCivil.Net.IServerListener"
         }
@@ -15,7 +15,7 @@
     },
     {
       "type": "SimCivil.Store.MemoryMapRepo",
-      "service": [
+      "services": [
         {
           "type": "SimCivil.Store.IMapRepository"
         }
@@ -24,6 +24,14 @@
     {
       "type": "SimCivil.Map.MapData",
       "instanceScope": "singleinstance"
+    },
+    {
+      "type": "SimCivil.Store.ConfigRepository",
+      "services": [
+        {
+          "type": "SimCivil.Store.IPersistable"
+        }
+      ]
     }
   ]
 }

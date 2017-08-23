@@ -5,6 +5,7 @@ using SimCivil.Net;
 using SimCivil.Store;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using static SimCivil.Config;
 
@@ -44,6 +45,10 @@ namespace SimCivil
         public SimCivil(IContainer container)
         {
             Services = container;
+            foreach(var s in Services.ComponentRegistry.Registrations)
+            {
+                logger.Info($"Service {s.Activator.LimitType} registered as {string.Join(',', s.Services.Select(n => n.Description))}");
+            }
         }
 
         /// <summary>
@@ -93,6 +98,7 @@ namespace SimCivil
             logger.Info("SimCivil server start running.");
             var tickers = Services.Resolve<IEnumerable<ITicker>>();
             int tickCount = 0;
+            Services.Resolve<IServerListener>().Start();
             while(true)
             {
                 var startTime = DateTime.Now;

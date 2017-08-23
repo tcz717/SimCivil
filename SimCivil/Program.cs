@@ -32,10 +32,16 @@ namespace SimCivil
 
             if(parser.ParsingSucceeded)
             {
+                if (info.Seed == 0)
+                {
+                    Random r = new Random();
+                    info.Seed = r.Next(int.MinValue, int.MaxValue);
+                    logger.Info($"Using auto seed {info.Seed}");
+                }
                 if (!string.IsNullOrWhiteSpace(info.Config))
                     game = new SimCivil(LoadConfiguration(info.Config));
                 else
-                    game = new SimCivil();
+                    game = new SimCivil(LoadConfiguration(Config.DefaultConfigFile));
                 if (info.IsCreate)
                     game.Initialize(info);
                 else
