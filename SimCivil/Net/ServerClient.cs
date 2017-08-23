@@ -22,6 +22,7 @@ namespace SimCivil.Net
         private int currentID;
         private bool isStart = false; // For TimeOutCheck
         private bool stopFlag = false; // For stop thread
+        private Dictionary<Type,List<Packet>> waitList = new Dictionary<Type, List<Packet>>();
 
         /// <summary>
         /// Register a callback when specfic packet received.
@@ -30,8 +31,38 @@ namespace SimCivil.Net
         /// <param name="packet">Packet requesting callback.</param>
         public void WaitFor<T>(Packet packet) where T : ResponsePacket
         {
-            // TODO @panyz522 add packet and response to dic
+            Type type = typeof(T); 
+            if (waitList[type] == null)
+            {
+                waitList[type] = new List<Packet>();
+            }
+            waitList[type].Add(packet);
+            ServerListener.logger.Debug($"Packet \"type: {packet.Head.type} response type: {nameof(T)}\" added to wait list and is waiting for response");
         }
+
+        /// <summary>
+        /// Get the source packet of a response packet
+        /// </summary>
+        /// <param name="response">a response packet</param>
+        /// <returns></returns>
+        public Packet CallFor(ResponsePacket response)
+        {
+            if (waitList.ContainsKey(response.GetType()))
+            {
+                foreach(var srcPacket in waitList[response.GetType()])
+                {
+                    if (srcPacket.Head.packetID == response.RefPacketID)
+                    {
+                        ServerListener.logger.Debug($"Successfully call back packet by \"{response.Head.type}\"");
+                        waitList[response.GetType()].Remove(srcPacket);
+                        return srcPacket;
+                    }
+                }
+            }
+            ServerListener.logger.Error($"Failed to call back packet by \"{response.Head.type}\", cannnot find it in dic");
+            return null;
+        }
+
         /// <summary>
         /// Event invoking when a packet received.
         /// </summary>
@@ -75,6 +106,7 @@ namespace SimCivil.Net
             {
                 byte[] data = pkt.ToBytes(currentID);
                 clientStream.Write(data, 0, data.Length);
+                ServerListener.logger.Debug($"Packet has been sent: \"ID:{pkt.Head.packetID} type:{pkt.Head.type}\"");
 
                 if (++currentID >= Int32.MaxValue)
                 {
@@ -83,7 +115,7 @@ namespace SimCivil.Net
             }
             catch (Exception e)
             {
-                Console.WriteLine("Client connecting failed in Send: " + e.Message);
+                ServerListener.logger.Error("Client connecting failed in Send: " + e.Message); 
             }
         }
 
@@ -125,7 +157,7 @@ namespace SimCivil.Net
                 }
                 catch(Exception e)
                 {
-                    Console.WriteLine("A connection lost. Client running exception: " + e.Message);
+                    ServerListener.logger.Info($"Client \"{TcpClt.Client.RemoteEndPoint}\" failed to receive packet and forced to stop. Exception: {e.Message}");
                     serverListener.StopAndRemoveClient(this);
                 }
             });
@@ -137,6 +169,7 @@ namespace SimCivil.Net
         public void Stop()
         {
             stopFlag = true;
+            ServerListener.logger.Debug($"Client \"{TcpClt.Client.RemoteEndPoint}\" is flagged to stop");
         }
 
         /// <summary>
@@ -148,12 +181,13 @@ namespace SimCivil.Net
             {
                 if (DateTime.Now - lastReceive > PingRequestTime)
                 {
-                    serverListener.PacketSendQueue.Enqueue(new Ping());
+                    serverListener.SendPacket(new Ping());
+                    ServerListener.logger.Info($"Client \"{TcpClt.Client.RemoteEndPoint}\" sent Ping request due to time out");
                 }
                 if (DateTime.Now - lastReceive > LostConnectionTime)
                 {
+                    ServerListener.logger.Info($"Client \"{TcpClt.Client.RemoteEndPoint}\" receiving out of time, and ordered to stop");
                     serverListener.StopAndRemoveClient(this);
-                    Console.WriteLine("A connection lost. Receiving out of time.");
                 }
             }
         }
