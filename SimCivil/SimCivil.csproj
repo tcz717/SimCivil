@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp2.0</TargetFramework>
+    <RuntimeIdentifier>win10-x64</RuntimeIdentifier>
     <Company>TPDT</Company>
     <Authors>TPDT</Authors>
     <Description />
@@ -10,12 +10,13 @@
     <PackageLicenseUrl>http://gitlab.tancoder.com/TPDT/sim-civil/blob/master/README.md</PackageLicenseUrl>
     <NeutralLanguage></NeutralLanguage>
   </PropertyGroup>
-
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DocumentationFile>bin\Debug\netcoreapp2.0\SimCivil.xml</DocumentationFile>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
-
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DocumentationFile>bin\Release\netcoreapp2.0\SimCivil.xml</DocumentationFile>
+  </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Autofac.Configuration" Version="4.0.1" />
     <PackageReference Include="CommandLineArgumentsParser" Version="3.0.15" />
@@ -23,9 +24,9 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="2.0.0" />
     <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
     <PackageReference Include="Autofac" Version="4.6.1" />
+    <PackageReference Include="System.Net.NameResolution" Version="4.3.0" />
     <PackageReference Include="System.ValueTuple" Version="4.4.0" />
   </ItemGroup>
-
   <ItemGroup>
     <None Update="configuration.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -34,5 +35,4 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
-
 </Project>
