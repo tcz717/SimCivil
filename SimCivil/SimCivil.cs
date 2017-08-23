@@ -5,7 +5,6 @@ using SimCivil.Net;
 using SimCivil.Store;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using static SimCivil.Config;
 
@@ -34,8 +33,6 @@ namespace SimCivil
                 .WithParameter("port", DefaultPort)
                 .AsImplementedInterfaces()
                 .SingleInstance();
-
-            builder.RegisterInstance(this);
 
             Services = builder.Build();
         }

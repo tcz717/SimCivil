@@ -1,0 +1,29 @@
+﻿{
+  "defaultAssembly": "SimCivil",
+  "components": [
+    {
+      "type": "SimCivil.Net.ServerListener",
+      "service": [
+        {
+          "type": "SimCivil.Net.IServerListener"
+        }
+      ],
+      "instanceScope": "singleinstance",
+      "parameters": {
+        "port": 20170
+      }
+    },
+    {
+      "type": "SimCivil.Store.MemoryMapRepo",
+      "service": [
+        {
+          "type": "SimCivil.Store.IMapRepository"
+        }
+      ]
+    },
+    {
+      "type": "SimCivil.Map.MapData",
+      "instanceScope": "singleinstance"
+    }
+  ]
+}

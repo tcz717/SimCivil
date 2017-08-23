@@ -1,6 +1,9 @@
 ﻿using log4net;
 using System;
 using System.Reflection;
+using Autofac;
+using Microsoft.Extensions.Configuration;
+using Autofac.Configuration;
 
 [assembly: log4net.Config.XmlConfigurator(ConfigFile = "log.config", Watch = false)]
 
@@ -29,6 +32,10 @@ namespace SimCivil
 
             if(parser.ParsingSucceeded)
             {
+                if (!string.IsNullOrWhiteSpace(info.Config))
+                    game = new SimCivil(LoadConfiguration(info.Config));
+                else
+                    game = new SimCivil();
                 if (info.IsCreate)
                     game.Initialize(info);
                 else
@@ -36,6 +43,18 @@ namespace SimCivil
                 game.Run();
             }
             Console.Read();
+        }
+
+        private static IContainer LoadConfiguration(string config)
+        {
+            var builder = new ContainerBuilder();
+            var configBuilder = new ConfigurationBuilder();
+            configBuilder.AddJsonFile("configuration.json");
+            var module = new ConfigurationModule(configBuilder.Build());
+            
+            builder.RegisterModule(module);
+
+            return builder.Build();
         }
 
         private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)

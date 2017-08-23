@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "SimCivil": {
+      "commandName": "Project",
+      "commandLineArgs": "-c saves -n test"
+    }
+  }
+}
