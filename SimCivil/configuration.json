@@ -14,10 +14,13 @@
       }
     },
     {
-      "type": "SimCivil.Store.MemoryMapRepo",
+      "type": "SimCivil.Store.JsonMapRepo",
       "services": [
         {
           "type": "SimCivil.Store.IMapRepository"
+        },
+        {
+          "type": "SimCivil.Store.IPersistable"
         }
       ]
     },

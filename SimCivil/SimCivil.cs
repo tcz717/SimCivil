@@ -98,7 +98,7 @@ namespace SimCivil
         /// </summary>
         public void Run(int period = DefalutPeriod)
         {
-            logger.Info("SimCivil server start running.");
+            logger.Info("SimCivil loop start running.");
             var tickers = Services.Resolve<IEnumerable<ITicker>>();
             int tickCount = 0;
             Services.Resolve<IServerListener>().Start();
@@ -137,7 +137,7 @@ namespace SimCivil
             }
 
             exit:
-            logger.Info("SimCivil server stop.");
+            logger.Info("SimCivil stop loop.");
         }
     }
 }
