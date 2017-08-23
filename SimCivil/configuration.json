@@ -22,6 +22,14 @@
       ]
     },
     {
+      "type": "SimCivil.Map.RandomMapGen",
+      "services": [
+        {
+          "type": "SimCivil.Map.IMapGenerator"
+        }
+      ]
+    },
+    {
       "type": "SimCivil.Map.MapData",
       "instanceScope": "singleinstance"
     },
