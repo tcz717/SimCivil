@@ -75,6 +75,7 @@ namespace SimCivil.Net
             {
                 byte[] data = pkt.ToBytes(currentID);
                 clientStream.Write(data, 0, data.Length);
+                ServerListener.logger.Debug($"Packet has been sent: \"ID:{pkt.Head.packetID} type:{pkt.Head.type}\"");
 
                 if (++currentID >= Int32.MaxValue)
                 {
@@ -83,7 +84,7 @@ namespace SimCivil.Net
             }
             catch (Exception e)
             {
-                Console.WriteLine("Client connecting failed in Send: " + e.Message);
+                ServerListener.logger.Error("Client connecting failed in Send: " + e.Message); 
             }
         }
 
@@ -125,7 +126,7 @@ namespace SimCivil.Net
                 }
                 catch(Exception e)
                 {
-                    Console.WriteLine("A connection lost. Client running exception: " + e.Message);
+                    ServerListener.logger.Info($"Client \"{TcpClt.Client.RemoteEndPoint}\" failed to receive packet and forced to stop. Exception: {e.Message}");
                     serverListener.StopAndRemoveClient(this);
                 }
             });
@@ -137,6 +138,7 @@ namespace SimCivil.Net
         public void Stop()
         {
             stopFlag = true;
+            ServerListener.logger.Debug($"Client \"{TcpClt.Client.RemoteEndPoint}\" is flagged to stop");
         }
 
         /// <summary>
@@ -148,12 +150,13 @@ namespace SimCivil.Net
             {
                 if (DateTime.Now - lastReceive > PingRequestTime)
                 {
-                    serverListener.PacketSendQueue.Enqueue(new Ping());
+                    serverListener.SendPacket(new Ping());
+                    ServerListener.logger.Info($"Client \"{TcpClt.Client.RemoteEndPoint}\" sent Ping request due to time out");
                 }
                 if (DateTime.Now - lastReceive > LostConnectionTime)
                 {
+                    ServerListener.logger.Info($"Client \"{TcpClt.Client.RemoteEndPoint}\" receiving out of time, and ordered to stop");
                     serverListener.StopAndRemoveClient(this);
-                    Console.WriteLine("A connection lost. Receiving out of time.");
                 }
             }
         }

@@ -5,6 +5,7 @@ using System.Net.Sockets;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using log4net;
 using SimCivil;
 using SimCivil.Net.Packets;
 
@@ -18,10 +19,13 @@ namespace SimCivil.Net
         TcpListener listener;
 
         /// <summary>
+        /// Logger for net
+        /// </summary>
+        public static readonly ILog logger = LogManager.GetLogger(typeof(ServerListener));
+        /// <summary>
         /// Server host
         /// </summary>
         public IPAddress Host { get; }
-
         /// <summary>
         /// The port this listener listen to
         /// </summary>
@@ -29,11 +33,11 @@ namespace SimCivil.Net
         /// <summary>
         /// Packets received from ServerClients and waiting for handling
         /// </summary>
-        public Queue<Packet> PacketReadQueue { get; set; }
+        private Queue<Packet> PacketReadQueue { get; set; }
         /// <summary>
         /// Packets waiting for sending
         /// </summary>
-        public Queue<Packet> PacketSendQueue { get; set; }
+        private  Queue<Packet> PacketSendQueue { get; set; }
         /// <summary>
         /// ServerClients which are communicating with other clients
         /// </summary>
@@ -79,6 +83,7 @@ namespace SimCivil.Net
         {
             Task.Run(new Action(ListeningHandle));
             Task.Run(new Action(SendWorker));
+            logger.Info($"ServerListnener registered at port: {Port}");
         }
 
         /// <summary>
@@ -95,9 +100,11 @@ namespace SimCivil.Net
                 {
                     client.Stop();
                     LostConnectionEvent?.Invoke(this, client);
+                    logger.Info($"Client to \"{endPoint}\" stopped");
                     return true;
                 }
             }
+            logger.Error($"Failed to stop client. Client \"{client.TcpClt.Client.RemoteEndPoint}\" has not been registered correctly");
             return false;
         }
 
@@ -111,6 +118,7 @@ namespace SimCivil.Net
             {
                 PacketSendQueue.Enqueue(pkt);
             }
+            logger.Debug($"Packet has been enqueued and is waiting for sending: \"type: {pkt.Head.type}\"");
         }
 
         /// <summary>
@@ -123,6 +131,7 @@ namespace SimCivil.Net
             {
                 PacketReadQueue.Enqueue(pkt);
             }
+            logger.Debug($"Packet has been enqueued and is waiting for reading: \"ID: {pkt.Head.packetID} type: {pkt.Head.type}\"");
         }
 
         private void SendWorker()
@@ -136,7 +145,6 @@ namespace SimCivil.Net
                         pkt = PacketSendQueue.Dequeue();
                 }
                 pkt?.Send();
-                // TODO: WaitFor here?
                 Thread.Yield();
             }
         }
@@ -150,7 +158,7 @@ namespace SimCivil.Net
             {
                 listener = new TcpListener(IPAddress.Any, Port);
                 listener.Start();
-                Console.WriteLine("Listener started");
+                logger.Info($"ServerListnener started at port: {Port}");
 
                 while (true)
                 {
@@ -159,16 +167,16 @@ namespace SimCivil.Net
                     Clients.Add(serverClient.TcpClt.Client.RemoteEndPoint, serverClient);
                     NewConnectionEvent?.Invoke(this, serverClient);
                     serverClient.Start();
-                    Console.WriteLine("A Connection Established");
+                    logger.Info($"Connection Established to {serverClient.TcpClt.Client.RemoteEndPoint}");
                 }
             }
             catch(ArgumentOutOfRangeException e)
             {
-                Console.WriteLine("Cannot start TcpListener: " + e.Message);
+                logger.Error("Cannot start TcpListener: " + e.Message);
             }
             catch(Exception e)
             {
-                Console.WriteLine("Listener exception: " + e.Message);
+                logger.Error("Listener exception: " + e.Message);
             }
             finally
             {
@@ -179,14 +187,20 @@ namespace SimCivil.Net
         /// <summary>
         /// Stop all clients thread and remove them from storage
         /// </summary>
-        public void StopAndRemoveAllClient()
+        public bool StopAndRemoveAllClient()
         {
+            bool result = true;
             var clients = Clients.Values;
             foreach (var c in clients)
             {
-                StopAndRemoveClient(c);
+                result &= StopAndRemoveClient(c);
                 LostConnectionEvent?.Invoke(this, c);
             }
+            if (result == true)
+                logger.Info("Clients have been cleaned");
+            else
+                logger.Error("Failed to remove all clients. Some clients may not be registered correctly");
+            return result;
         }
 
         /// <summary>
