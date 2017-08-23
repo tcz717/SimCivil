@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CodeSnippets 
+    xmlns="http://schemas.microsoft.com/VisualStudio/2005/CodeSnippet">
+    <CodeSnippet Format="1.0.0">
+        <Header>
+            <Title>Add log - INFO</Title>
+            <Shortcut>info</Shortcut>
+            <Author>tcz717</Author>
+        </Header>
+        <Snippet>
+            <Code Language="CSharp">
+                <![CDATA[$Logger$.Info("$end$");]]>
+            </Code>
+            <Declarations>
+                <Object>
+                    <ID>Logger</ID>
+                    <Type>log4net.ILog</Type>
+                    <Default>logger</Default>
+                </Object>
+            </Declarations>
+        </Snippet>
+    </CodeSnippet>
+</CodeSnippets>
