@@ -81,8 +81,8 @@ namespace SimCivil.Net
         /// </summary>
         public void Start()
         {
-            Task.Run(new Action(ListeningHandle));
-            Task.Run(new Action(SendWorker));
+            Task.Factory.StartNew(ListeningHandle ,TaskCreationOptions.AttachedToParent);
+            Task.Factory.StartNew(SendWorker, TaskCreationOptions.AttachedToParent);
             logger.Info($"ServerListnener registered at port: {Port}");
         }
 
@@ -136,6 +136,7 @@ namespace SimCivil.Net
 
         private void SendWorker()
         {
+            Thread.CurrentThread.Name = nameof(SendWorker);
             while (true)
             {
                 Packet pkt = null;
@@ -154,6 +155,7 @@ namespace SimCivil.Net
         /// </summary>
         private void ListeningHandle()
         {
+            Thread.CurrentThread.Name = nameof(ListeningHandle);
             try
             {
                 listener = new TcpListener(IPAddress.Any, Port);
@@ -226,7 +228,7 @@ namespace SimCivil.Net
                     if (pkt is ResponsePacket)
                     {
                         var srcPacket = pkt.Client.CallFor(pkt as ResponsePacket);
-                        // TODO: What to do after call back?
+                        srcPacket.ResponseCallback(pkt);
                     }
                 }
 

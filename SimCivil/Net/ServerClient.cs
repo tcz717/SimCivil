@@ -124,8 +124,9 @@ namespace SimCivil.Net
         /// </summary>
         public void Start()
         {
-            Task.Run(() =>
+            Task.Factory.StartNew(() =>
             {
+                Thread.CurrentThread.Name = $"Client {TcpClt.Client.RemoteEndPoint}";
                 try
                 {
                     while (true)
@@ -155,12 +156,12 @@ namespace SimCivil.Net
                         isStart = true;
                     }
                 }
-                catch(Exception e)
+                catch (Exception e)
                 {
                     ServerListener.logger.Info($"Client \"{TcpClt.Client.RemoteEndPoint}\" failed to receive packet and forced to stop. Exception: {e.Message}");
                     serverListener.StopAndRemoveClient(this);
                 }
-            });
+            }, TaskCreationOptions.AttachedToParent);
         }
 
         /// <summary>
