@@ -22,6 +22,7 @@ namespace SimCivil.Net
         private int currentID;
         private bool isStart = false; // For TimeOutCheck
         private bool stopFlag = false; // For stop thread
+        private Dictionary<Type,List<Packet>> waitList = new Dictionary<Type, List<Packet>>();
 
         /// <summary>
         /// Register a callback when specfic packet received.
@@ -30,8 +31,38 @@ namespace SimCivil.Net
         /// <param name="packet">Packet requesting callback.</param>
         public void WaitFor<T>(Packet packet) where T : ResponsePacket
         {
-            // TODO @panyz522 add packet and response to dic
+            Type type = typeof(T); 
+            if (waitList[type] == null)
+            {
+                waitList[type] = new List<Packet>();
+            }
+            waitList[type].Add(packet);
+            ServerListener.logger.Debug($"Packet \"type: {packet.Head.type} response type: {nameof(T)}\" added to wait list and is waiting for response");
         }
+
+        /// <summary>
+        /// Get the source packet of a response packet
+        /// </summary>
+        /// <param name="response">a response packet</param>
+        /// <returns></returns>
+        public Packet CallFor(ResponsePacket response)
+        {
+            if (waitList.ContainsKey(response.GetType()))
+            {
+                foreach(var srcPacket in waitList[response.GetType()])
+                {
+                    if (srcPacket.Head.packetID == response.RefPacketID)
+                    {
+                        ServerListener.logger.Debug($"Successfully call back packet by \"{response.Head.type}\"");
+                        waitList[response.GetType()].Remove(srcPacket);
+                        return srcPacket;
+                    }
+                }
+            }
+            ServerListener.logger.Error($"Failed to call back packet by \"{response.Head.type}\", cannnot find it in dic");
+            return null;
+        }
+
         /// <summary>
         /// Event invoking when a packet received.
         /// </summary>

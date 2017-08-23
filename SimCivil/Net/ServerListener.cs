@@ -225,7 +225,8 @@ namespace SimCivil.Net
                     pkt.Handle();
                     if (pkt is ResponsePacket)
                     {
-                        // TODO: check if pkt is in wait list and callback.
+                        var srcPacket = pkt.Client.CallFor(pkt as ResponsePacket);
+                        // TODO: What to do after call back?
                     }
                 }
 
