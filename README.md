@@ -11,6 +11,9 @@ SimCivil合作开发说明
 
 如果对于项目设计有任何建议或者反馈，可以提交issue一起讨论
 
+## 配置开发环境
+- [参考wiki](http://gitlab.tancoder.com/TPDT/sim-civil/wikis/%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE)
+
 ## 主要模块
 
 - 游戏核心逻辑
@@ -20,8 +23,7 @@ SimCivil合作开发说明
 - 其他辅助算法如A*寻路算法、Perlin地图生成算法等
 
 ## 主要概念
-
-[参考wiki](/../wikis/home#核心概念)
+- [参考Wiki](/../wikis/home#核心概念)
 
 ## 项目依赖
 

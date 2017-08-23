@@ -12,9 +12,29 @@ namespace SimCivil
         static void Main(string[] args)
         {
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
-
+            GameInfo info = new GameInfo();
             SimCivil game = new SimCivil();
-            game.Run();
+            var parser = new CommandLineParser.CommandLineParser();
+
+            try
+            {
+                parser.ExtractArgumentAttributes(info);
+                parser.ParseCommandLine(args);
+            }
+            catch (CommandLineParser.Exceptions.CommandLineException e)
+            {
+                Console.WriteLine(e.Message);
+                parser.ShowUsage();
+            }
+
+            if(parser.ParsingSucceeded)
+            {
+                if (info.IsCreate)
+                    game.Initialize(info);
+                else
+                    game.Load(info);
+                game.Run();
+            }
             Console.Read();
         }
 

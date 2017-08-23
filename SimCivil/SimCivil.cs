@@ -64,17 +64,19 @@ namespace SimCivil
         /// <param name="info">Game's infomation.</param>
         public void Initialize(GameInfo info)
         {
+            Info = info;
             logger.Info($"Initialize Game: {info.Name} ({info.StoreDirectory} {info.Seed.ToString("X")})");
             Services.CallMany<IPersistable>(n => n.Initialize(info));
         }
         /// <summary>
         /// Load a game.
         /// </summary>
-        /// <param name="path">Directory path to store all data.</param>
-        public void Load(string path)
+        /// <param name="info">Game's infomation.</param>
+        public void Load(GameInfo info)
         {
-            logger.Info($"Load Game in: {path}");
-            Services.CallMany<IPersistable>(n => n.Load(path));
+            Info = info;
+            logger.Info($"Load Game in: {info.StoreDirectory}");
+            Services.CallMany<IPersistable>(n => n.Load(info.StoreDirectory));
         }
         /// <summary>
         /// Save a game.
@@ -101,9 +103,12 @@ namespace SimCivil
                 {
                     ticker.Update(tickCount);
                 }
-                var remain = (DateTime.Now - startTime).Milliseconds;
-                if (remain > 0)
-                    Thread.Sleep(remain);
+                var duration = (DateTime.Now - startTime).Milliseconds;
+                logger.Debug($"Tick {tickCount} takes {duration} ms.");
+                if (duration < period)
+                    Thread.Sleep(period - duration);
+                else
+                    logger.Warn($"Tick {tickCount} timeout.");
                 tickCount++;
             };
             logger.Info("SimCivil server stop.");
