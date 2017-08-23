@@ -101,9 +101,12 @@ namespace SimCivil
                 {
                     ticker.Update(tickCount);
                 }
-                var remain = (DateTime.Now - startTime).Milliseconds;
-                if (remain > 0)
-                    Thread.Sleep(remain);
+                var duration = (DateTime.Now - startTime).Milliseconds;
+                logger.Debug($"Tick {tickCount} takes {duration} ms.");
+                if (duration < period)
+                    Thread.Sleep(period - duration);
+                else
+                    logger.Warn($"Tick {tickCount} timeout.");
                 tickCount++;
             };
             logger.Info("SimCivil server stop.");
