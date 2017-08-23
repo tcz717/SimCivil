@@ -1,12 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Dynamic;
 
-namespace SimCivil.Map
+namespace SimCivil
 {
     /// <summary>
     /// DynamicObject that will return null if member not exsist.
     /// </summary>
-    public class NullableDynamicObject : DynamicObject
+    public class NullableDynamicObject : DynamicObject, ICloneable
     {
         public Dictionary<string, object> Data { get; set; }
         public override bool TryGetMember(GetMemberBinder binder, out object result)
@@ -36,6 +37,11 @@ namespace SimCivil.Map
         public virtual NullableDynamicObject Clone()
         {
             return new NullableDynamicObject(new Dictionary<string, object>(Data));
+        }
+
+        object ICloneable.Clone()
+        {
+            return Clone();
         }
     }
 }
