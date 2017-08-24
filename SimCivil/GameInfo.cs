@@ -7,7 +7,7 @@ namespace SimCivil
     /// Basic infomation about a game.
     /// </summary>
     [ArgumentGroupCertification("n,c", EArgumentGroupCondition.AllOrNoneUsed)]
-    [ArgumentRequiresOtherArgumentsCertification("s","c")]
+    [ArgumentRequiresOtherArgumentsCertification("s", "c")]
     public class GameInfo
     {
         /// <summary>
@@ -30,5 +30,10 @@ namespace SimCivil
         /// </summary>
         [ValueArgument(typeof(int), 's', Description = "Magic Number about how to generate map.")]
         public int Seed;
+        /// <summary>
+        /// Json configuration file about how to build game services. 
+        /// </summary>
+        [ValueArgument(typeof(string), 'j', Description = "Json configuration file about how to build game services.")]
+        public string Config = null;
     }
 }
