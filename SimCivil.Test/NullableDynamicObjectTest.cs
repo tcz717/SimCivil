@@ -24,5 +24,18 @@ namespace SimCivil.Test
             o.Test = value;
             Assert.Null(o.NotExist);
         }
+
+        [Fact]
+        public void CloneTest()
+        {
+            dynamic o1 = new NullableDynamicObject();
+            var value = "123";
+            o1.Test = value;
+            dynamic o2 = o1.Clone();
+            o1.Test = 0;
+            int? inull = o1.test;
+            Assert.False(inull.HasValue);
+            Assert.Equal(value, o2.Test);
+        }
     }
 }

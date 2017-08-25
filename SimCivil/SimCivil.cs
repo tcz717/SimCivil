@@ -5,7 +5,10 @@ using SimCivil.Net;
 using SimCivil.Store;
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using static SimCivil.Config;
 
 namespace SimCivil
@@ -44,6 +47,10 @@ namespace SimCivil
         public SimCivil(IContainer container)
         {
             Services = container;
+            foreach(var s in Services.ComponentRegistry.Registrations)
+            {
+                logger.Info($"Service {s.Activator.LimitType} registered as {string.Join(',', s.Services.Select(n => n.Description))}");
+            }
         }
 
         /// <summary>
@@ -63,6 +70,7 @@ namespace SimCivil
         {
             Info = info;
             logger.Info($"Initialize Game: {info.Name} ({info.StoreDirectory} {info.Seed.ToString("X")})");
+            Directory.CreateDirectory(info.StoreDirectory);
             Services.CallMany<IPersistable>(n => n.Initialize(info));
         }
         /// <summary>
@@ -90,25 +98,46 @@ namespace SimCivil
         /// </summary>
         public void Run(int period = DefalutPeriod)
         {
-            logger.Info("SimCivil server start running.");
+            logger.Info("SimCivil loop start running.");
             var tickers = Services.Resolve<IEnumerable<ITicker>>();
             int tickCount = 0;
+            Services.Resolve<IServerListener>().Start();
+
+            var token = new CancellationTokenSource(5000);
+            var loop = Task.Factory.StartNew(() =>
+            {
+                Thread.CurrentThread.Name = "GameLoop";
+                while (!token.Token.IsCancellationRequested)
+                {
+                    var startTime = DateTime.Now;
+                    foreach (var ticker in tickers)
+                    {
+                        ticker.Update(tickCount);
+                    }
+                    var duration = (DateTime.Now - startTime).Milliseconds;
+                    logger.Debug($"Tick {tickCount} takes {duration} ms.");
+                    if (duration < period)
+                        Thread.Sleep(period - duration);
+                    else
+                        logger.Warn($"Tick {tickCount} timeout.");
+                    tickCount++;
+                };
+                Save();
+            }, token.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
+
             while(true)
             {
-                var startTime = DateTime.Now;
-                foreach (var ticker in tickers)
+                switch(Console.ReadKey().Key)
                 {
-                    ticker.Update(tickCount);
+                    case ConsoleKey.Escape:
+                        token.Cancel();
+                        loop.Wait();
+                        goto exit;
                 }
-                var duration = (DateTime.Now - startTime).Milliseconds;
-                logger.Debug($"Tick {tickCount} takes {duration} ms.");
-                if (duration < period)
-                    Thread.Sleep(period - duration);
-                else
-                    logger.Warn($"Tick {tickCount} timeout.");
-                tickCount++;
-            };
-            logger.Info("SimCivil server stop.");
+            }
+
+            exit:
+            logger.Info("SimCivil stop loop.");
         }
     }
 }

@@ -10,13 +10,13 @@ namespace SimCivil.Store
     /// </summary>
     public class MemoryMapRepo : IMapRepository
     {
-        private Dictionary<(int X, int Y), Atlas> AtlasStore;
+        protected Dictionary<(int X, int Y), Atlas> AtlasStore;
 
-        public bool Contains((int X, int Y) atlasIndex) => AtlasStore.ContainsKey(atlasIndex);
+        public virtual bool Contains((int X, int Y) atlasIndex) => AtlasStore.ContainsKey(atlasIndex);
 
-        public Atlas GetAtlas((int X, int Y) atlasIndex) => AtlasStore[atlasIndex];
+        public virtual Atlas GetAtlas((int X, int Y) atlasIndex) => AtlasStore[atlasIndex];
 
-        public void PutAtlas((int X, int Y) atlasIndex, Atlas atlas) => AtlasStore[atlasIndex] = atlas;
+        public virtual void PutAtlas((int X, int Y) atlasIndex, Atlas atlas) => AtlasStore[atlasIndex] = atlas;
 
         public MemoryMapRepo()
         {

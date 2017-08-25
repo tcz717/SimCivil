@@ -14,5 +14,13 @@ namespace SimCivil
         /// </summary>
         /// <param name="tickCount">Total tick.</param>
         void Update(int tickCount);
+        /// <summary>
+        /// Start Service.
+        /// </summary>
+        void Start();
+        /// <summary>
+        /// Stop Service.
+        /// </summary>
+        void Stop();
     }
 }

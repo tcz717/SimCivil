@@ -46,11 +46,11 @@ namespace SimCivil.Net
         /// <summary>
         /// The event triggered when a new ServerClient created
         /// </summary>
-        public event EventHandler<ServerClient> NewConnectionEvent;
+        public event EventHandler<ServerClient> OnNewConnected;
         /// <summary>
         /// The event triggered when a connection closed
         /// </summary>
-        public event EventHandler<ServerClient> LostConnectionEvent;
+        public event EventHandler<ServerClient> OnLostedConnection;
 
         /// <summary>
         /// Construct a serverlistener
@@ -81,8 +81,8 @@ namespace SimCivil.Net
         /// </summary>
         public void Start()
         {
-            Task.Run(new Action(ListeningHandle));
-            Task.Run(new Action(SendWorker));
+            Task.Factory.StartNew(ListeningHandle ,TaskCreationOptions.AttachedToParent);
+            Task.Factory.StartNew(SendWorker, TaskCreationOptions.AttachedToParent);
             logger.Info($"ServerListnener registered at port: {Port}");
         }
 
@@ -99,7 +99,7 @@ namespace SimCivil.Net
                 if (Clients.Remove(endPoint))
                 {
                     client.Stop();
-                    LostConnectionEvent?.Invoke(this, client);
+                    OnLostedConnection?.Invoke(this, client);
                     logger.Info($"Client to \"{endPoint}\" stopped");
                     return true;
                 }
@@ -136,6 +136,7 @@ namespace SimCivil.Net
 
         private void SendWorker()
         {
+            Thread.CurrentThread.Name = nameof(SendWorker);
             while (true)
             {
                 Packet pkt = null;
@@ -154,6 +155,7 @@ namespace SimCivil.Net
         /// </summary>
         private void ListeningHandle()
         {
+            Thread.CurrentThread.Name = nameof(ListeningHandle);
             try
             {
                 listener = new TcpListener(IPAddress.Any, Port);
@@ -165,7 +167,7 @@ namespace SimCivil.Net
                     TcpClient currentClient = listener.AcceptTcpClient();
                     ServerClient serverClient = new ServerClient(this, currentClient);
                     Clients.Add(serverClient.TcpClt.Client.RemoteEndPoint, serverClient);
-                    NewConnectionEvent?.Invoke(this, serverClient);
+                    OnNewConnected?.Invoke(this, serverClient);
                     serverClient.Start();
                     logger.Info($"Connection Established to {serverClient.TcpClt.Client.RemoteEndPoint}");
                 }
@@ -194,7 +196,7 @@ namespace SimCivil.Net
             foreach (var c in clients)
             {
                 result &= StopAndRemoveClient(c);
-                LostConnectionEvent?.Invoke(this, c);
+                OnLostedConnection?.Invoke(this, c);
             }
             if (result == true)
                 logger.Info("Clients have been cleaned");
@@ -226,7 +228,7 @@ namespace SimCivil.Net
                     if (pkt is ResponsePacket)
                     {
                         var srcPacket = pkt.Client.CallFor(pkt as ResponsePacket);
-                        // TODO: What to do after call back?
+                        srcPacket.ResponseCallback(pkt);
                     }
                 }
 
@@ -235,6 +237,11 @@ namespace SimCivil.Net
                     client.TimeOutCheck();
                 }
             }
+        }
+
+        public void Stop()
+        {
+            StopAndRemoveAllClient();
         }
     }
 }

@@ -3,7 +3,7 @@
   "components": [
     {
       "type": "SimCivil.Net.ServerListener",
-      "service": [
+      "services": [
         {
           "type": "SimCivil.Net.IServerListener"
         }
@@ -14,16 +14,35 @@
       }
     },
     {
-      "type": "SimCivil.Store.MemoryMapRepo",
-      "service": [
+      "type": "SimCivil.Store.JsonMapRepo",
+      "services": [
         {
           "type": "SimCivil.Store.IMapRepository"
+        },
+        {
+          "type": "SimCivil.Store.IPersistable"
+        }
+      ]
+    },
+    {
+      "type": "SimCivil.Map.RandomMapGen",
+      "services": [
+        {
+          "type": "SimCivil.Map.IMapGenerator"
         }
       ]
     },
     {
       "type": "SimCivil.Map.MapData",
       "instanceScope": "singleinstance"
+    },
+    {
+      "type": "SimCivil.Store.ConfigRepository",
+      "services": [
+        {
+          "type": "SimCivil.Store.IPersistable"
+        }
+      ]
     }
   ]
 }

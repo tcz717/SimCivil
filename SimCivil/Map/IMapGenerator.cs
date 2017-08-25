@@ -9,11 +9,6 @@ namespace SimCivil.Map
     public interface IMapGenerator
     {
         /// <summary>
-        /// Magic number used to generating atlas.
-        /// </summary>
-        int Seed { get; }
-
-        /// <summary>
         /// Generate new Atlas
         /// </summary>
         /// <param name="x">Index of the atlas</param>
@@ -34,7 +29,11 @@ namespace SimCivil.Map
     public class GeneratingEventArgs : EventArgs
     {
         public (int X, int Y) Position { get; set; }
-        public int Height { get; set; }
         public Tile Tile { get; set; }
+        public GeneratingEventArgs((int X, int Y) position, Tile tile)
+        {
+            Position = position;
+            Tile = tile;
+        }
     }
 }
