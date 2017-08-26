@@ -5,6 +5,8 @@ using SimCivil.Map;
 using Newtonsoft.Json;
 using System.IO;
 using log4net;
+using System.Threading.Tasks;
+using System.Linq;
 
 namespace SimCivil.Store
 {
@@ -63,6 +65,29 @@ namespace SimCivil.Store
             Atlas atlas = JsonConvert.DeserializeObject<Atlas>(File.ReadAllText(fullPath));
             logger.Info($"Loaded ${atlasIndex} atlas file from {fullPath}.");
             return atlas;
+        }
+
+        public async Task LoadAsync(string path)
+        {
+            var fullPath = Path.Combine(path, $"{nameof(AtlasIndex)}.json");
+            RootPath = path;
+            AtlasIndex = JsonConvert.DeserializeObject<HashSet<(int X, int Y)>>(await File.ReadAllTextAsync(fullPath));
+            logger.Info($"Loaded atlas index file in {fullPath}.");
+        }
+
+        public async Task SaveAsync(string path)
+        {
+            var fullPath = Path.Combine(path, $"{nameof(AtlasIndex)}.json");
+            await File.WriteAllTextAsync(fullPath, JsonConvert.SerializeObject(AtlasIndex));
+            logger.Info($"Saved atlas index file in {fullPath}.");
+
+            var writeTasks = AtlasStore.Select(async a =>
+            {
+                fullPath = Path.Combine(path, $"{a.Key.X}_{a.Key.Y}.json");
+                await File.WriteAllTextAsync(fullPath, JsonConvert.SerializeObject(a.Value));
+                logger.Info($"Saved ${a.Key} atlas file in {fullPath}.");
+            });
+            await Task.WhenAll(writeTasks);
         }
     }
 }

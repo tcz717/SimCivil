@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace SimCivil.Store
 {
@@ -33,11 +34,27 @@ namespace SimCivil.Store
             logger.Info($"Loaded {nameof(ConfigRepository)}:{fullPath}");
         }
 
+        public async Task LoadAsync(string path)
+        {
+            string fullPath = Path.Combine(path, Config.DefaultGameConfigFile);
+            string json = await File.ReadAllTextAsync(fullPath);
+            Config.Cfg = JsonConvert.DeserializeObject<Config>(json);
+            logger.Info($"Loaded {nameof(ConfigRepository)}:{fullPath}");
+        }
+
         public void Save(string path)
         {
             string fullPath = Path.Combine(path, Config.DefaultGameConfigFile);
             string json = JsonConvert.SerializeObject(Config.Cfg);
             File.WriteAllText(fullPath, json);
+            logger.Info($"Saved {nameof(ConfigRepository)}:{fullPath}");
+        }
+
+        public async Task SaveAsync(string path)
+        {
+            string fullPath = Path.Combine(path, Config.DefaultGameConfigFile);
+            string json = JsonConvert.SerializeObject(Config.Cfg);
+            await File.WriteAllTextAsync(fullPath, json);
             logger.Info($"Saved {nameof(ConfigRepository)}:{fullPath}");
         }
     }
