@@ -23,8 +23,8 @@ namespace SimCivil
         public static readonly TimeSpan PingRequestTime = TimeSpan.FromSeconds(DefaultPingRequestSecond);
         public static readonly TimeSpan LostConnectionTime = TimeSpan.FromSeconds(DefaultLostConnectionSecond);
 
-        public const int DefaultAtlasWidth = 256;
-        public const int DefaultAtlasHeight = 256;
+        public const int DefaultAtlasWidth = 64;
+        public const int DefaultAtlasHeight = 64;
         public const int MaxGroundEntities = 4;
         public const int SeaLevel = 64;
 
