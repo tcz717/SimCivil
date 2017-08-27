@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using log4net;
 using SimCivil;
 using SimCivil.Net.Packets;
+using System.Collections.Concurrent;
 
 namespace SimCivil.Net
 {
@@ -41,16 +42,16 @@ namespace SimCivil.Net
         /// <summary>
         /// ServerClients which are communicating with other clients
         /// </summary>
-        public Dictionary<EndPoint, ServerClient> Clients { get; private set; } = new Dictionary<EndPoint, ServerClient>();
+        public ConcurrentDictionary<EndPoint, ServerClient> Clients { get; private set; } = new ConcurrentDictionary<EndPoint, ServerClient>();
 
         /// <summary>
         /// The event triggered when a new ServerClient created
         /// </summary>
-        public event EventHandler<ServerClient> OnNewConnected;
+        public event EventHandler<IServerConnection> OnConnected;
         /// <summary>
         /// The event triggered when a connection closed
         /// </summary>
-        public event EventHandler<ServerClient> OnLostedConnection;
+        public event EventHandler<IServerConnection> OnDisconnection;
 
         /// <summary>
         /// Construct a serverlistener
@@ -93,16 +94,13 @@ namespace SimCivil.Net
         /// <returns></returns>
         public bool StopAndRemoveClient(ServerClient client)
         {
-            if (Clients.ContainsValue(client))
+            EndPoint endPoint = client.TcpClt.Client.RemoteEndPoint;
+            if (Clients.TryRemove(endPoint, out var c) && c == client)
             {
-                EndPoint endPoint = client.TcpClt.Client.RemoteEndPoint;
-                if (Clients.Remove(endPoint))
-                {
-                    client.Stop();
-                    OnLostedConnection?.Invoke(this, client);
-                    logger.Info($"Client to \"{endPoint}\" stopped");
-                    return true;
-                }
+                client.Stop();
+                OnDisconnection?.Invoke(this, client);
+                logger.Info($"Client to \"{endPoint}\" stopped");
+                return true;
             }
             logger.Error($"Failed to stop client. Client \"{client.TcpClt.Client.RemoteEndPoint}\" has not been registered correctly");
             return false;
@@ -166,9 +164,7 @@ namespace SimCivil.Net
                 {
                     TcpClient currentClient = listener.AcceptTcpClient();
                     ServerClient serverClient = new ServerClient(this, currentClient);
-                    Clients.Add(serverClient.TcpClt.Client.RemoteEndPoint, serverClient);
-                    OnNewConnected?.Invoke(this, serverClient);
-                    serverClient.Start();
+                    AttachClient(serverClient);
                     logger.Info($"Connection Established to {serverClient.TcpClt.Client.RemoteEndPoint}");
                 }
             }
@@ -196,7 +192,7 @@ namespace SimCivil.Net
             foreach (var c in clients)
             {
                 result &= StopAndRemoveClient(c);
-                OnLostedConnection?.Invoke(this, c);
+                OnDisconnection?.Invoke(this, c);
             }
             if (result == true)
                 logger.Info("Clients have been cleaned");
@@ -243,5 +239,14 @@ namespace SimCivil.Net
         {
             StopAndRemoveAllClient();
         }
+
+        public void AttachClient(ServerClient client)
+        {
+            Clients.Add(client.TcpClt.Client.RemoteEndPoint, client);
+            OnConnected?.Invoke(this, client);
+            client.Start();
+        }
+
+        public void DetachClient(ServerClient client) => StopAndRemoveClient(client);
     }
 }
