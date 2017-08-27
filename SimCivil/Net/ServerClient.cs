@@ -195,5 +195,7 @@ namespace SimCivil.Net
                 }
             }
         }
+
+        public void Close() => Stop();
     }
 }

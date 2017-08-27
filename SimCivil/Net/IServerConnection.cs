@@ -9,5 +9,6 @@ namespace SimCivil.Net
         event EventHandler<Packet> OnPacketReceived;
         void TimeOutCheck();
         void SendPacket(Packet pkt);
+        void Close();
     }
 }

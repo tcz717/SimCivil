@@ -9,7 +9,7 @@ namespace SimCivil
     /// </summary>
     public class NullableDynamicObject : DynamicObject, ICloneable
     {
-        public Dictionary<string, object> Data { get; set; }
+        public Dictionary<string,object> Data { get; set; }
         public override bool TryGetMember(GetMemberBinder binder, out object result)
         {
             if (base.TryGetMember(binder, out result))

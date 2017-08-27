@@ -96,48 +96,62 @@ namespace SimCivil
         /// Start game server.
         /// <paramref name="period">Span between ticks.</paramref>
         /// </summary>
-        public void Run(int period = DefalutPeriod)
+        public void Run(int period = DefalutPeriod, bool block = true)
         {
             logger.Info("SimCivil loop start running.");
-            var tickers = Services.Resolve<IEnumerable<ITicker>>();
-            int tickCount = 0;
-            Services.Resolve<IServerListener>().Start();
 
-            var token = new CancellationTokenSource(5000);
-            var loop = Task.Factory.StartNew(() =>
-            {
-                Thread.CurrentThread.Name = "GameLoop";
-                while (!token.Token.IsCancellationRequested)
-                {
-                    var startTime = DateTime.Now;
-                    foreach (var ticker in tickers)
-                    {
-                        ticker.Update(tickCount);
-                    }
-                    var duration = (DateTime.Now - startTime).Milliseconds;
-                    logger.Debug($"Tick {tickCount} takes {duration} ms.");
-                    if (duration < period)
-                        Thread.Sleep(period - duration);
-                    else
-                        logger.Warn($"Tick {tickCount} timeout.");
-                    tickCount++;
-                };
-                Save();
-            }, token.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
+            var token = new CancellationTokenSource();
+            var loop = Task.Factory.StartNew(() => GameLoop(period, token.Token),
+                token.Token,
+                TaskCreationOptions.LongRunning,
+                TaskScheduler.Default)
+                .ContinueWith(t => logger.Info("SimCivil stop loop."));
 
-            while(true)
+            while(block)
             {
                 switch(Console.ReadKey().Key)
                 {
                     case ConsoleKey.Escape:
                         token.Cancel();
-                        loop.Wait();
-                        goto exit;
+                        logger.Info("keyborad exit requested");
+                        return;
                 }
             }
+        }
 
-            exit:
-            logger.Info("SimCivil stop loop.");
+        private void GameLoop(int period, CancellationToken token)
+        {
+            Thread.CurrentThread.Name = "GameLoop";
+            //Start tickers
+            var tickers = Services.Resolve<IEnumerable<ITicker>>();
+            int tickCount = 0;
+
+            foreach (var ticker in tickers)
+            {
+                ticker.Start();
+            }
+
+            while (!token.IsCancellationRequested)
+            {
+                var startTime = DateTime.Now;
+                foreach (var ticker in tickers)
+                {
+                    ticker.Update(tickCount);
+                }
+                var duration = (DateTime.Now - startTime).Milliseconds;
+                logger.Debug($"Tick {tickCount} takes {duration} ms.");
+                if (duration < period)
+                    Thread.Sleep(period - duration);
+                else
+                    logger.Warn($"Tick {tickCount} timeout.");
+                tickCount++;
+            };
+            Save();
+            //Stop tickers
+            foreach (var ticker in tickers)
+            {
+                ticker.Start();
+            }
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 
@@ -10,7 +11,7 @@ namespace SimCivil.Net.Packets
     [PacketType(PacketType.Ping)]
     public class Ping : Packet
     {
-        public Ping(Dictionary<string, object> data = null, ServerClient client = null) : base(data, client)
+        public Ping(Hashtable data = null, IServerConnection client = null) : base(data, client)
         {
         }
 
@@ -27,7 +28,6 @@ namespace SimCivil.Net.Packets
         /// </summary>
         public override void Send()
         {
-            Client.WaitFor<PingResponse>(this);
             base.Send();
         }
     }

@@ -12,6 +12,7 @@ using Newtonsoft.Json;
 using SimCivil.Test.VirtualClient;
 using static SimCivil.Config;
 using System.Linq;
+using System.Collections;
 
 namespace SimCivil.Test
 {
@@ -49,8 +50,8 @@ namespace SimCivil.Test
         {
             // Init a Packet
             int a = 1; long a1 = 100; float b = 3.141592f; double c = 3.1415926535;
-            Dictionary<String, object> dataSend =
-                new Dictionary<String, object> { { "int", a }, { "long", a1 }, { "float", b }, { "double", c } };
+            Hashtable dataSend =
+                new Hashtable { { "int", a }, { "long", a1 }, { "float", b }, { "double", c } };
             Packet packetSend = new Ping(dataSend);
 
             // Convert Packet to bytes

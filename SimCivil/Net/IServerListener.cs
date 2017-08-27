@@ -6,12 +6,13 @@ namespace SimCivil.Net
 {
     public interface IServerListener
     {
-        ConcurrentDictionary<EndPoint, ServerClient> Clients { get; }
         void SendPacket(Packet pkt);
         void Start();
         void Stop();
-        void AttachClient(ServerClient client);
-        void DetachClient(ServerClient client);
+        void AttachClient(IServerConnection client);
+        void DetachClient(IServerConnection client);
+        void RegisterPacket(PacketType type, PacketCallBack callBack);
+        void UnregisterPacket(PacketType type, PacketCallBack callBack);
 
         /// <summary>
         /// The event triggered when a new ServerClient created
@@ -20,6 +21,8 @@ namespace SimCivil.Net
         /// <summary>
         /// The event triggered when a connection closed
         /// </summary>
-        event EventHandler<IServerConnection> OnDisconnection;
+        event EventHandler<IServerConnection> OnDisconnected;
     }
+
+    public delegate void PacketCallBack(IServerConnection con, Packet pkt);
 }

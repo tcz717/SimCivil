@@ -1,12 +1,11 @@
 ﻿using log4net;
-using Microsoft.Extensions.ObjectPool;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Reflection;
-using System.ServiceModel.Channels;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -14,15 +13,16 @@ using static SimCivil.Config;
 
 namespace SimCivil.Net
 {
-    public class MatrixServer : IServerListener
+    public class MatrixServer : IServerListener, ITicker
     {
-        private const int Backlog = 50;
         static readonly ILog logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
-        public ConcurrentDictionary<EndPoint, ServerClient> Clients { get; }
+        public ConcurrentDictionary<EndPoint, IServerConnection> Clients { get; }
+
+        private ConcurrentDictionary<PacketType, PacketCallBack> callbakDict;
 
         public event EventHandler<IServerConnection> OnConnected;
-        public event EventHandler<IServerConnection> OnDisconnection;
-        CancellationTokenSource  cancellation = new CancellationTokenSource();
+        public event EventHandler<IServerConnection> OnDisconnected;
+        CancellationTokenSource cancellation = new CancellationTokenSource();
         /// <summary>
         /// Server host
         /// </summary>
@@ -33,34 +33,33 @@ namespace SimCivil.Net
         public int Port { get; set; }
 
         private readonly Socket socket;
-        private readonly BufferManager buffer;
         private readonly BlockingCollection<Packet> PacketSendQueue;
         private readonly BlockingCollection<Packet> PacketReadQueue;
-        private DefaultObjectPool<SocketAsyncEventArgs> socketArgsPool;
-        private SocketAsyncEventArgs acceptArgs;
 
         /// <summary>
         /// Construct a serverlistener
         /// </summary>
         /// <param name="ip">ip to start listener</param>
         /// <param name="port">port to start listener</param>
-        public MatrixServer(string ip,int port)
+        public MatrixServer(string ip, int port)
         {
             Host = IPAddress.Parse(ip);
             Port = port;
             socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            buffer = BufferManager.CreateBufferManager(Packet.MaxSize * 1000, Packet.MaxSize);
 
             PacketSendQueue = new BlockingCollection<Packet>();
             PacketReadQueue = new BlockingCollection<Packet>();
 
-            acceptArgs = new SocketAsyncEventArgs();
-            acceptArgs.Completed += Accept_Completed;
+            Clients = new ConcurrentDictionary<EndPoint, IServerConnection>();
+
+            callbakDict = new ConcurrentDictionary<PacketType, PacketCallBack>(
+                PacketFactory.LegalPackets.Select(lp => new KeyValuePair<PacketType, PacketCallBack>(lp.Key, null))
+               );
         }
 
         public void SendPacket(Packet pkt)
         {
-            throw new NotImplementedException();
+            pkt.Client.SendPacket(pkt);
         }
 
         public void Start()
@@ -75,49 +74,47 @@ namespace SimCivil.Net
         private void LisenteningLoop(CancellationToken token)
         {
             Thread.CurrentThread.Name = nameof(LisenteningLoop);
-            socketArgsPool = new DefaultObjectPool<SocketAsyncEventArgs>(
-                new DefaultPooledObjectPolicy<SocketAsyncEventArgs>());
-
-            socket.Bind(new IPEndPoint(Host,Port));
-            socket.Listen(Backlog);
-            StartAccept();
-        }
-
-        private void StartAccept()
-        {
-            acceptArgs.AcceptSocket = null;
-            if (!socket.AcceptAsync(acceptArgs))
-                ProcessAccept(acceptArgs);
-        }
-
-        private void ProcessAccept(SocketAsyncEventArgs e)
-        {
-            if (e.SocketError == SocketError.Success)
+            TcpListener listener = new TcpListener(Host, Port);
+            listener.Start();
+            logger.Info($"{nameof(MatrixServer)} start at {Host}:{Port}");
+            while (!cancellation.IsCancellationRequested)
             {
-                var client = new MatrixConnection(this, e.AcceptSocket);
-
-                OnConnected?.Invoke(this, client);
-
-                SocketAsyncEventArgs readArgs = socketArgsPool.Get();
-                readArgs.UserToken = client;
-                readArgs.Completed = ReadHead_Completed;
-                readArgs.SetBuffer(buffer.TakeBuffer(Head.HeadLength),0,Head.HeadLength);
-
-                if (e.AcceptSocket != null && !e.AcceptSocket.ReceiveAsync(readArgs))
-                    ProcessReceive(readArgs);
+                var socket = listener.AcceptSocket();
+                var con = new MatrixConnection(this, socket);
+                AttachClient(con);
+                var _ = ReadPacketAsync(con);
             }
-            e.AcceptSocket = null;
-            this.StartAccept();
+            listener.Stop();
         }
 
-        private void ReadHead_Completed(object sender, SocketAsyncEventArgs e)
+        private async Task ReadPacketAsync(MatrixConnection con)
         {
-            throw new NotImplementedException();
-        }
+            byte[] buffer = new byte[Packet.MaxSize];
+            int lengthOfBody = 0;
+            try
+            {
+                while (!cancellation.Token.IsCancellationRequested)
+                {
+                    int lengthOfHead = await con.Stream.ReadAsync(buffer, 0, Head.HeadLength);
+                    Head head = Head.FromBytes(buffer);
+                    lengthOfBody = await con.Stream.ReadAsync(buffer, 0, head.length);
 
-        private void Accept_Completed(object sender, SocketAsyncEventArgs e)
-        {
-            throw new NotImplementedException();
+                    Packet pkt = PacketFactory.Create(con, head, buffer);
+
+                    logger.Debug($"received packet {pkt}");
+                    PacketReadQueue.Add(pkt);
+                }
+            }
+            catch (Exception e)
+            {
+                byte[] body = new byte[lengthOfBody];
+                Array.Copy(buffer, body, lengthOfBody);
+                logger.Error($"nameof(ReadPacketAsync) read error packet {BitConverter.ToString(body)}", e);
+            }
+            finally
+            {
+                DetachClient(con);
+            }
         }
 
         public void Stop()
@@ -125,14 +122,40 @@ namespace SimCivil.Net
             cancellation.Cancel();
         }
 
-        public void AttachClient(ServerClient client)
+        public void AttachClient(IServerConnection client)
         {
-            throw new NotImplementedException();
+            MatrixConnection connection = client as MatrixConnection ?? throw new NotSupportedException();
+            if (!Clients.TryAdd(connection.Socket.RemoteEndPoint, client))
+                throw new ArgumentException();
+            OnConnected?.Invoke(this, client);
+            logger.Info($"Connection established {connection.Socket.RemoteEndPoint}");
         }
 
-        public void DetachClient(ServerClient client)
+        public void DetachClient(IServerConnection client)
         {
-            throw new NotImplementedException();
+            MatrixConnection connection = client as MatrixConnection ?? throw new NotSupportedException();
+            Clients.Remove(connection.Socket.RemoteEndPoint, out client);
+            OnDisconnected?.Invoke(this, client);
+            logger.Info($"Disconnection established {connection.Socket.RemoteEndPoint}");
+        }
+
+        public void Update(int tickCount)
+        {
+            while(PacketReadQueue.TryTake(out Packet pkt))
+            {
+                pkt.Handle();
+                callbakDict[pkt.Head.type]?.Invoke(pkt.Client, pkt);
+            }
+        }
+
+        public void RegisterPacket(PacketType type, PacketCallBack callBack)
+        {
+            callbakDict[type] += callBack;
+        }
+
+        public void UnregisterPacket(PacketType type, PacketCallBack callBack)
+        {
+            callbakDict[type] -= callBack;
         }
     }
 }

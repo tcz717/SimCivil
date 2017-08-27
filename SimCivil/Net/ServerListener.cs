@@ -51,7 +51,7 @@ namespace SimCivil.Net
         /// <summary>
         /// The event triggered when a connection closed
         /// </summary>
-        public event EventHandler<IServerConnection> OnDisconnection;
+        public event EventHandler<IServerConnection> OnDisconnected;
 
         /// <summary>
         /// Construct a serverlistener
@@ -98,7 +98,7 @@ namespace SimCivil.Net
             if (Clients.TryRemove(endPoint, out var c) && c == client)
             {
                 client.Stop();
-                OnDisconnection?.Invoke(this, client);
+                OnDisconnected?.Invoke(this, client);
                 logger.Info($"Client to \"{endPoint}\" stopped");
                 return true;
             }
@@ -192,7 +192,7 @@ namespace SimCivil.Net
             foreach (var c in clients)
             {
                 result &= StopAndRemoveClient(c);
-                OnDisconnection?.Invoke(this, c);
+                OnDisconnected?.Invoke(this, c);
             }
             if (result == true)
                 logger.Info("Clients have been cleaned");
@@ -223,7 +223,7 @@ namespace SimCivil.Net
                     pkt.Handle();
                     if (pkt is ResponsePacket)
                     {
-                        var srcPacket = pkt.Client.CallFor(pkt as ResponsePacket);
+                        var srcPacket = (pkt.Client as ServerClient).CallFor(pkt as ResponsePacket);
                         srcPacket.ResponseCallback(pkt);
                     }
                 }
@@ -240,13 +240,24 @@ namespace SimCivil.Net
             StopAndRemoveAllClient();
         }
 
-        public void AttachClient(ServerClient client)
+        public void AttachClient(IServerConnection client)
         {
-            Clients.Add(client.TcpClt.Client.RemoteEndPoint, client);
+            var c = client as ServerClient;
+            Clients.TryAdd(c.TcpClt.Client.RemoteEndPoint, c);
             OnConnected?.Invoke(this, client);
-            client.Start();
+            c.Start();
         }
 
-        public void DetachClient(ServerClient client) => StopAndRemoveClient(client);
+        public void DetachClient(IServerConnection client) => StopAndRemoveClient(client as ServerClient);
+
+        public void RegisterPacket(PacketType type, PacketCallBack callBack)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void UnregisterPacket(PacketType type, PacketCallBack callBack)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

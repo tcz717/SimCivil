@@ -11,7 +11,7 @@
         /// </summary>
         /// <param name="client">Client to response.</param>
         /// <param name="refpacketID">Ping packet's id.</param>
-        public PingResponse(ServerClient client, int refpacketID) : base(client, refpacketID)
+        public PingResponse(IServerConnection client, int refpacketID) : base(client, refpacketID)
         {
         }
 

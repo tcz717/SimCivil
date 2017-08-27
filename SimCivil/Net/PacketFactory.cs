@@ -6,6 +6,7 @@ using SimCivil.Net.Packets;
 using System.Text;
 using System.Reflection;
 using System.Linq;
+using System.Collections;
 
 namespace SimCivil.Net
 {
@@ -26,9 +27,9 @@ namespace SimCivil.Net
         /// <param name="head">a well built head</param>
         /// <param name="data">raw bytes of data</param>
         /// <returns></returns>
-        public static Packet Create(ServerClient serverClient, Head head, byte[] data)
+        public static Packet Create(IServerConnection serverClient, Head head, byte[] data)
         {
-            Dictionary<string, object> dataDict = JsonConvert.DeserializeObject<Dictionary<string, object>>(Encoding.UTF8.GetString(data));
+            Hashtable dataDict = JsonConvert.DeserializeObject<Hashtable>(Encoding.UTF8.GetString(data, 0, head.length));
 
             Packet pkt = Activator.CreateInstance(LegalPackets[head.type], dataDict, serverClient) as Packet;
             pkt.Head = head;
