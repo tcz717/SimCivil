@@ -110,7 +110,7 @@ namespace SimCivil.Net
             {
                 byte[] body = new byte[lengthOfBody];
                 Array.Copy(buffer, body, lengthOfBody);
-                logger.Error($"nameof(ReadPacketAsync) read error packet {BitConverter.ToString(body)}", e);
+                logger.Error($"{nameof(ReadPacketAsync)} read error packet {BitConverter.ToString(body)}", e);
             }
             finally
             {
