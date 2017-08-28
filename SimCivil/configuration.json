@@ -2,15 +2,19 @@
   "defaultAssembly": "SimCivil",
   "components": [
     {
-      "type": "SimCivil.Net.ServerListener",
+      "type": "SimCivil.Net.MatrixServer",
       "services": [
         {
           "type": "SimCivil.Net.IServerListener"
+        },
+        {
+          "type": "SimCivil.ITicker"
         }
       ],
       "instanceScope": "singleinstance",
       "parameters": {
-        "port": 20170
+        "port": 20170,
+        "ip": "127.0.0.1"
       }
     },
     {
@@ -41,6 +45,25 @@
       "services": [
         {
           "type": "SimCivil.Store.IPersistable"
+        }
+      ]
+    },
+    {
+      "type": "SimCivil.Auth.SimpleAuth",
+      "services": [
+        {
+          "type": "SimCivil.Auth.IAuth"
+        }
+      ]
+    },
+    {
+      "type": "SimCivil.Controller.PlayerController",
+      "services": [
+        {
+          "type": "SimCivil.Controller.IController"
+        },
+        {
+          "type": "SimCivil.ITicker"
         }
       ]
     }
