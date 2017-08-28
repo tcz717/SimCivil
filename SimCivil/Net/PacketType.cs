@@ -8,5 +8,6 @@
         Error = 3,
         OK = 4,
         Handshake = 5,
+        Login = 6,
     }
 }

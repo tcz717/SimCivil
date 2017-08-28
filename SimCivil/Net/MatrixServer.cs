@@ -151,7 +151,7 @@ namespace SimCivil.Net
                 bool isVaild = pkt.Verify();
                 if (isVaild)
                 {
-                    pkt.Reply(new ErrorResponse());
+                    pkt.ReplyError(desc: "Packet format invaild");
                     continue;
                 }
                 callbackDict[pkt.Head.type]?.Invoke(pkt, ref isVaild);

@@ -50,7 +50,9 @@ namespace SimCivil.Net
                 throw new InvalidOperationException("Socket closed.");
 
             byte[] data = pkt.ToBytes(currentID);
-            Stream.WriteAsync(data, 0, data.Length);
+            var send = Stream.WriteAsync(data, 0, data.Length);
+            if (pkt is ErrorResponse)
+                send.ContinueWith(t => Close());
             logger.Debug($"Packet has been sent: \"ID:{pkt.Head.packetID} type:{pkt.Head.type}\"");
 
             Interlocked.Increment(ref currentID);
@@ -71,6 +73,7 @@ namespace SimCivil.Net
         {
             var type = PacketFactory.PacketsType[typeof(T)];
             int tries = 50;
+            packet.Client = this;
             void temp_callback(Packet pkt, ref bool vaild)
             {
                 T re = pkt as T;

@@ -1,6 +1,8 @@
-﻿using System;
+﻿using log4net;
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Text;
 
 namespace SimCivil.Net.Packets
@@ -11,6 +13,7 @@ namespace SimCivil.Net.Packets
     [PacketType(PacketType.Error)]
     public class ErrorResponse : ResponsePacket
     {
+        static readonly ILog logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
         public ErrorResponse(int errorCode = 0, string description = "invaild packet")
         {
             ErrorCode = errorCode;
@@ -54,6 +57,11 @@ namespace SimCivil.Net.Packets
         {
             base.Handle();
             client.Close();
+        }
+        public override void Send()
+        {
+            logger.Info($"Send ErrorResponse for code:{ErrorCode} desc:{Description}");
+            base.Send();
         }
     }
 }

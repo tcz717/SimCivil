@@ -20,7 +20,7 @@ namespace SimCivil
         public const int DefaultPingRequestSecond = 30;
         public const int DefaultLostConnectionSecond = 60;
 
-        public static readonly Version SimCivilProtocolVersion = new Version(1, 1);
+        public static readonly Version SimCivilProtocolVersion = new Version(1, 0);
 
         public static readonly TimeSpan PingRequestTime = TimeSpan.FromSeconds(DefaultPingRequestSecond);
         public static readonly TimeSpan LostConnectionTime = TimeSpan.FromSeconds(DefaultLostConnectionSecond);

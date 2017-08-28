@@ -81,5 +81,11 @@ namespace SimCivil.Net.Packets
                 Data[nameof(Auth)] = value;
             }
         }
+
+        public override void Handle()
+        {
+            ReplyError(2, "Handshake should be sent from server.");
+            base.Handle();
+        }
     }
 }
