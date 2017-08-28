@@ -150,7 +150,7 @@ namespace SimCivil
             //Stop tickers
             foreach (var ticker in tickers)
             {
-                ticker.Start();
+                ticker.Stop();
             }
         }
     }

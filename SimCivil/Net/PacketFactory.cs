@@ -19,6 +19,7 @@ namespace SimCivil.Net
         /// Packet types allowed to construct in Factory.
         /// </summary>
         public static Dictionary<PacketType, Type> LegalPackets { get; }
+        public static Dictionary<Type, PacketType> PacketsType { get; }
 
         /// <summary>
         /// Build a Packet object from a given head and data, and add serverclient info in it
@@ -39,14 +40,17 @@ namespace SimCivil.Net
         static PacketFactory()
         {
             var dict = new Dictionary<PacketType, Type>();
+            PacketsType = new Dictionary<Type, PacketType>();
             var types = typeof(Packet).GetTypeInfo().Assembly.GetTypes()
                 .Where(t => t.GetTypeInfo().GetCustomAttribute<PacketTypeAttribute>() != null);
             foreach (var t in types)
             {
-                dict[t.GetTypeInfo().GetCustomAttribute<PacketTypeAttribute>().PacketType] = t;
+                var key = t.GetTypeInfo().GetCustomAttribute<PacketTypeAttribute>().PacketType;
+                dict[key] = t;
+                PacketsType[t] = key;
             }
 
-            LegalPackets = dict;    
+            LegalPackets = dict;
         }
     }
 }
