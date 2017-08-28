@@ -1,4 +1,5 @@
 ﻿using log4net;
+using SimCivil.Net.Packets;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -18,7 +19,7 @@ namespace SimCivil.Net
         static readonly ILog logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
         public ConcurrentDictionary<EndPoint, IServerConnection> Clients { get; }
 
-        private ConcurrentDictionary<PacketType, PacketCallBack> callbakDict;
+        private ConcurrentDictionary<PacketType, PacketCallBack> callbackDict;
 
         public event EventHandler<IServerConnection> OnConnected;
         public event EventHandler<IServerConnection> OnDisconnected;
@@ -52,7 +53,7 @@ namespace SimCivil.Net
 
             Clients = new ConcurrentDictionary<EndPoint, IServerConnection>();
 
-            callbakDict = new ConcurrentDictionary<PacketType, PacketCallBack>(
+            callbackDict = new ConcurrentDictionary<PacketType, PacketCallBack>(
                 PacketFactory.LegalPackets.Select(lp => new KeyValuePair<PacketType, PacketCallBack>(lp.Key, null))
                );
         }
@@ -113,13 +114,17 @@ namespace SimCivil.Net
             }
             finally
             {
-                DetachClient(con);
+                con.Close();
             }
         }
 
         public void Stop()
         {
             cancellation.Cancel();
+            foreach (var c in Clients.Values)
+            {
+                c.Close();
+            }
         }
 
         public void AttachClient(IServerConnection client)
@@ -136,26 +141,33 @@ namespace SimCivil.Net
             MatrixConnection connection = client as MatrixConnection ?? throw new NotSupportedException();
             Clients.Remove(connection.Socket.RemoteEndPoint, out client);
             OnDisconnected?.Invoke(this, client);
-            logger.Info($"Disconnection established {connection.Socket.RemoteEndPoint}");
+            logger.Info($"Detached Connection {connection.Socket.RemoteEndPoint}");
         }
 
         public void Update(int tickCount)
         {
             while(PacketReadQueue.TryTake(out Packet pkt))
             {
-                pkt.Handle();
-                callbakDict[pkt.Head.type]?.Invoke(pkt.Client, pkt);
+                bool isVaild = pkt.Verify();
+                if (isVaild)
+                {
+                    pkt.Reply(new ErrorResponse());
+                    continue;
+                }
+                callbackDict[pkt.Head.type]?.Invoke(pkt, ref isVaild);
+                if (isVaild)
+                    pkt.Handle();
             }
         }
 
         public void RegisterPacket(PacketType type, PacketCallBack callBack)
         {
-            callbakDict[type] += callBack;
+            callbackDict[type] += callBack;
         }
 
         public void UnregisterPacket(PacketType type, PacketCallBack callBack)
         {
-            callbakDict[type] -= callBack;
+            callbackDict[type] -= callBack;
         }
     }
 }

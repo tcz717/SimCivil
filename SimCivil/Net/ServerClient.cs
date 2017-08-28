@@ -69,6 +69,7 @@ namespace SimCivil.Net
         /// Event invoking when a packet received.
         /// </summary>
         public event EventHandler<Packet> OnPacketReceived;
+        public event EventHandler OnDisconnected;
 
         /// <summary>
         /// The TcpClient used in this ServerClient
@@ -84,6 +85,7 @@ namespace SimCivil.Net
         /// </summary>
         public ServerListener ServerListener { get => serverListener; set => serverListener = value; }
         IServerListener IServerConnection.ServerListener { get => serverListener; set => serverListener = value as ServerListener; }
+        public bool Connected  => isStart;
 
         /// <summary>
         /// Construct a ServerClient for receiving Packets

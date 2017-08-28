@@ -6,6 +6,7 @@ using System.Text;
 using System.Linq;
 using System.Reflection;
 using System.Collections;
+using SimCivil.Net.Packets;
 
 namespace SimCivil.Net
 {
@@ -102,6 +103,13 @@ namespace SimCivil.Net
             result &= head.length > 0;
             result &= Data != null;
             return result;
+        }
+
+        public void Reply(ResponsePacket response)
+        {
+            response.Client = client;
+            response.RefPacketID = head.packetID;
+            client.SendPacket(response);
         }
     }
     

@@ -20,7 +20,7 @@ namespace SimCivil.Net.Packets
         /// </summary>
         public override void Handle() 
         {
-            Client.ServerListener.SendPacket(new PingResponse(Client, head.packetID));
+            Reply(new PingResponse());
         }
 
         /// <summary>

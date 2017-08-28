@@ -24,5 +24,5 @@ namespace SimCivil.Net
         event EventHandler<IServerConnection> OnDisconnected;
     }
 
-    public delegate void PacketCallBack(IServerConnection con, Packet pkt);
+    public delegate void PacketCallBack(Packet pkt, ref bool isVaild);
 }

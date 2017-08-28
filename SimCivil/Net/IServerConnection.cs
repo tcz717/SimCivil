@@ -6,9 +6,13 @@ namespace SimCivil.Net
     {
         IServerListener ServerListener { get; set; }
 
+        event EventHandler OnDisconnected;
         event EventHandler<Packet> OnPacketReceived;
+
         void TimeOutCheck();
         void SendPacket(Packet pkt);
         void Close();
+
+        bool Connected { get; }
     }
 }

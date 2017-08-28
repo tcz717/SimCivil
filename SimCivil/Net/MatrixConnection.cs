@@ -21,12 +21,20 @@ namespace SimCivil.Net
         public IServerListener ServerListener { get; set; }
         public Socket Socket { get; }
         public NetworkStream Stream { get; }
+        public bool Connected => Socket.Connected;
 
         public event EventHandler<Packet> OnPacketReceived;
+        public event EventHandler OnDisconnected;
 
         public void Close()
         {
-            Stream?.Close();
+            if (Connected)
+            {
+                Stream?.Close();
+                OnDisconnected?.Invoke(this, new EventArgs());
+                ServerListener.DetachClient(this);
+                logger.Info($"Disconnected {Socket.RemoteEndPoint}");
+            }
         }
 
         public void Dispose()
@@ -37,6 +45,9 @@ namespace SimCivil.Net
 
         public void SendPacket(Packet pkt)
         {
+            if (!Socket.Connected)
+                throw new InvalidOperationException("Socket closed.");
+
             byte[] data = pkt.ToBytes(currentID);
             Stream.WriteAsync(data, 0, data.Length);
             logger.Debug($"Packet has been sent: \"ID:{pkt.Head.packetID} type:{pkt.Head.type}\"");
