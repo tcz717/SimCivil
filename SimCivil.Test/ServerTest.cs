@@ -110,6 +110,24 @@ namespace SimCivil.Test
             return stream.ToArray();
         }
 
+        private Func<int> Counter()
+        {
+            int init = 0;
+            return () => init++;
+        }
+        [Fact]
+        public void ClosureTest()
+        {
+            var counter1 = Counter();
+            var counter2 = Counter();
+
+            Assert.Equal(counter1(), 0);
+            Assert.Equal(counter1(), 1);
+            Assert.Equal(counter2(), 0);
+            Assert.Equal(counter1(), 2);
+            Assert.Equal(counter2(), 1);
+        }
+
         public void Dispose()
         {
         }

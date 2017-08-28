@@ -6,6 +6,6 @@ namespace SimCivil.Auth
 {
     public interface IAuth
     {
-        event EventHandler<Player> OnLogin;
+        event EventHandler<Player> OnLogined;
     }
 }

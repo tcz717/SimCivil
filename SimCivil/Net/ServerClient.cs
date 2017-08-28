@@ -199,5 +199,16 @@ namespace SimCivil.Net
         }
 
         public void Close() => Stop();
+
+        /// <summary>
+        /// Used to send a packet and request it's reply for next step.
+        /// </summary>
+        /// <typeparam name="T">ResponsePacket</typeparam>
+        /// <param name="packet">Packet to send</param>
+        /// <param name="callback">callback wehen received specified response.</param>
+        public void SendAndWait<T>(Packet packet, Action<T> callback) where T : ResponsePacket
+        {
+            throw new NotImplementedException();
+        }
     }
 }

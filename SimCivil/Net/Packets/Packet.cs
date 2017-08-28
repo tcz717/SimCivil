@@ -44,6 +44,21 @@ namespace SimCivil.Net
         public IServerConnection Client { get { return client; } set { client = value; } }
 
         /// <summary>
+        /// Send time.
+        /// </summary>
+        public DateTime Timestamp
+        {
+            get
+            {
+                return (DateTime)Data[nameof(Timestamp)];
+            }
+            set
+            {
+                Data[nameof(Timestamp)] = value;
+            }
+        }
+
+        /// <summary>
         /// Construct a Packet, type will be automatically added into head
         /// </summary>
         /// <param name="data">dictionary storing data, consist of a string and a value</param>
@@ -69,7 +84,7 @@ namespace SimCivil.Net
         /// <summary>
         /// The method executed after clients received and pushed in the PacketReadQueue
         /// </summary>
-        public abstract void Handle();
+        public virtual void Handle() { }
 
         /// <summary>
         /// If the packet need futher procedure, this method will be called when response received.
