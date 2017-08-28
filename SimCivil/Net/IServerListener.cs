@@ -1,22 +1,28 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Net;
 
 namespace SimCivil.Net
 {
     public interface IServerListener
     {
-        Dictionary<EndPoint, ServerClient> Clients { get; }
         void SendPacket(Packet pkt);
         void Start();
+        void Stop();
+        void AttachClient(IServerConnection client);
+        void DetachClient(IServerConnection client);
+        void RegisterPacket(PacketType type, PacketCallBack callBack);
+        void UnregisterPacket(PacketType type, PacketCallBack callBack);
 
         /// <summary>
         /// The event triggered when a new ServerClient created
         /// </summary>
-        event EventHandler<ServerClient> OnNewConnected;
+        event EventHandler<IServerConnection> OnConnected;
         /// <summary>
         /// The event triggered when a connection closed
         /// </summary>
-        event EventHandler<ServerClient> OnLostedConnection;
+        event EventHandler<IServerConnection> OnDisconnected;
     }
+
+    public delegate void PacketCallBack(Packet pkt, ref bool isVaild);
 }

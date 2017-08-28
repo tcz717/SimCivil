@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 
 namespace SimCivil.Net.Packets
 {
@@ -26,14 +27,19 @@ namespace SimCivil.Net.Packets
         /// </summary>
         /// <param name="client">Client to response.</param>
         /// <param name="refpacketID">Requesting packet's id.</param>
-        public ResponsePacket(ServerClient client, int refpacketID):base()
+        public ResponsePacket(IServerConnection client, int refpacketID):base()
         {
             this.client = client;
             RefPacketID = refpacketID;
         }
 
-        internal ResponsePacket(Dictionary<string, object> data = null, ServerClient client = null) : base(data, client)
+        internal ResponsePacket(Hashtable data = null, IServerConnection client = null) : base(data, client)
         {
+        }
+
+        public override bool Verify()
+        {
+            return base.Verify() && Data.ContainsKey(nameof(RefPacketID));
         }
     }
 }

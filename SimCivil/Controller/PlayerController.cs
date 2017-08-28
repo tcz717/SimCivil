@@ -18,17 +18,12 @@ namespace SimCivil.Controller
 
         public void Start()
         {
-            Server.OnNewConnected += Server_OnNewConnected;
-        }
-
-        private void Server_OnNewConnected(object sender, ServerClient e)
-        {
             throw new NotImplementedException();
         }
 
         public void Stop()
         {
-            Server.OnNewConnected -= Server_OnNewConnected;
+            throw new NotImplementedException();
         }
 
         public PlayerController(MapData map, IServerListener server)

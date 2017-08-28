@@ -5,16 +5,18 @@ using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using SimCivil.Net.Packets;
-using SimCivil.Net;
 using static SimCivil.Config;
+using System.Reflection;
+using log4net;
 
 namespace SimCivil.Net
 {
     /// <summary>
     /// Clients created by listener
     /// </summary>
-    public class ServerClient
+    public class ServerClient : IServerConnection
     {
+        static readonly ILog logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
         private ServerListener serverListener;
         private TcpClient currentClient;
         private NetworkStream clientStream;
@@ -37,7 +39,7 @@ namespace SimCivil.Net
                 waitList[type] = new List<Packet>();
             }
             waitList[type].Add(packet);
-            ServerListener.logger.Debug($"Packet \"type: {packet.Head.type} response type: {nameof(T)}\" added to wait list and is waiting for response");
+            logger.Debug($"Packet \"type: {packet.Head.type} response type: {nameof(T)}\" added to wait list and is waiting for response");
         }
 
         /// <summary>
@@ -53,13 +55,13 @@ namespace SimCivil.Net
                 {
                     if (srcPacket.Head.packetID == response.RefPacketID)
                     {
-                        ServerListener.logger.Debug($"Successfully call back packet by \"{response.Head.type}\"");
+                        logger.Debug($"Successfully call back packet by \"{response.Head.type}\"");
                         waitList[response.GetType()].Remove(srcPacket);
                         return srcPacket;
                     }
                 }
             }
-            ServerListener.logger.Error($"Failed to call back packet by \"{response.Head.type}\", cannnot find it in dic");
+            logger.Error($"Failed to call back packet by \"{response.Head.type}\", cannnot find it in dic");
             return null;
         }
 
@@ -67,6 +69,7 @@ namespace SimCivil.Net
         /// Event invoking when a packet received.
         /// </summary>
         public event EventHandler<Packet> OnPacketReceived;
+        public event EventHandler OnDisconnected;
 
         /// <summary>
         /// The TcpClient used in this ServerClient
@@ -81,6 +84,8 @@ namespace SimCivil.Net
         /// This Client's holder.
         /// </summary>
         public ServerListener ServerListener { get => serverListener; set => serverListener = value; }
+        IServerListener IServerConnection.ServerListener { get => serverListener; set => serverListener = value as ServerListener; }
+        public bool Connected  => isStart;
 
         /// <summary>
         /// Construct a ServerClient for receiving Packets
@@ -106,7 +111,7 @@ namespace SimCivil.Net
             {
                 byte[] data = pkt.ToBytes(currentID);
                 clientStream.Write(data, 0, data.Length);
-                ServerListener.logger.Debug($"Packet has been sent: \"ID:{pkt.Head.packetID} type:{pkt.Head.type}\"");
+                logger.Debug($"Packet has been sent: \"ID:{pkt.Head.packetID} type:{pkt.Head.type}\"");
 
                 if (++currentID >= Int32.MaxValue)
                 {
@@ -115,7 +120,7 @@ namespace SimCivil.Net
             }
             catch (Exception e)
             {
-                ServerListener.logger.Error("Client connecting failed in Send: " + e.Message); 
+                logger.Error("Client connecting failed in Send: " + e.Message); 
             }
         }
 
@@ -146,7 +151,7 @@ namespace SimCivil.Net
                         Packet pkt = PacketFactory.Create(this, head, buffer);
 
                         // Enqueue packet
-                        serverListener.PushPacket(pkt);
+                        ServerListener.PushPacket(pkt);
 
                         // Packet receive action
                         lastReceive = DateTime.Now;
@@ -158,8 +163,8 @@ namespace SimCivil.Net
                 }
                 catch (Exception e)
                 {
-                    ServerListener.logger.Info($"Client \"{TcpClt.Client.RemoteEndPoint}\" failed to receive packet and forced to stop. Exception: {e.Message}");
-                    serverListener.StopAndRemoveClient(this);
+                    logger.Info($"Client \"{TcpClt.Client.RemoteEndPoint}\" failed to receive packet and forced to stop. Exception: {e.Message}");
+                    serverListener.DetachClient(this);
                 }
             }, TaskCreationOptions.AttachedToParent);
         }
@@ -170,7 +175,7 @@ namespace SimCivil.Net
         public void Stop()
         {
             stopFlag = true;
-            ServerListener.logger.Debug($"Client \"{TcpClt.Client.RemoteEndPoint}\" is flagged to stop");
+            logger.Debug($"Client \"{TcpClt.Client.RemoteEndPoint}\" is flagged to stop");
         }
 
         /// <summary>
@@ -182,15 +187,17 @@ namespace SimCivil.Net
             {
                 if (DateTime.Now - lastReceive > PingRequestTime)
                 {
-                    serverListener.SendPacket(new Ping());
-                    ServerListener.logger.Info($"Client \"{TcpClt.Client.RemoteEndPoint}\" sent Ping request due to time out");
+                    SendPacket(new Ping());
+                    logger.Info($"Client \"{TcpClt.Client.RemoteEndPoint}\" sent Ping request due to time out");
                 }
                 if (DateTime.Now - lastReceive > LostConnectionTime)
                 {
-                    ServerListener.logger.Info($"Client \"{TcpClt.Client.RemoteEndPoint}\" receiving out of time, and ordered to stop");
-                    serverListener.StopAndRemoveClient(this);
+                    logger.Info($"Client \"{TcpClt.Client.RemoteEndPoint}\" receiving out of time, and ordered to stop");
+                    ServerListener.DetachClient(this);
                 }
             }
         }
+
+        public void Close() => Stop();
     }
 }

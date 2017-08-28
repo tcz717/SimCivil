@@ -5,6 +5,8 @@ using Newtonsoft.Json;
 using System.Text;
 using System.Linq;
 using System.Reflection;
+using System.Collections;
+using SimCivil.Net.Packets;
 
 namespace SimCivil.Net
 {
@@ -19,11 +21,6 @@ namespace SimCivil.Net
         public const int MaxSize = 4096; 
 
         /// <summary>
-        /// The dictionary storing data, consist of a string and a value
-        /// </summary>
-        protected Dictionary<string, object> data;
-
-        /// <summary>
         /// Packet head storing ID, type, and body length
         /// </summary>
         protected Head head;
@@ -31,12 +28,12 @@ namespace SimCivil.Net
         /// <summary>
         /// The client indicating where to send to or received from
         /// </summary>
-        protected ServerClient client;
+        protected IServerConnection client;
 
         /// <summary>
         /// The dictionary storing data, consist of a string and a value
         /// </summary>
-        public Dictionary<string, object> Data { get { return data; } set { data = value; } }
+        public Hashtable Data { get; set; }
         /// <summary>
         /// Packet head storing ID, type, and body length
         /// </summary>
@@ -44,16 +41,16 @@ namespace SimCivil.Net
         /// <summary>
         /// The client indicating where to send to or received from
         /// </summary>
-        public ServerClient Client { get { return client; } set { client = value; } }
+        public IServerConnection Client { get { return client; } set { client = value; } }
 
         /// <summary>
         /// Construct a Packet, type will be automatically added into head
         /// </summary>
         /// <param name="data">dictionary storing data, consist of a string and a value</param>
         /// <param name="client">client indicating where to send to or received from</param>
-        public Packet(Dictionary<string, object> data=null, ServerClient client = null)
+        public Packet(Hashtable data=null, IServerConnection client = null)
         {
-            this.data = data ?? new Dictionary<string, object>();
+            Data = data ?? new Hashtable();
             this.client = client;
             head = default(Head);
             head.type = GetType().GetTypeInfo().GetCustomAttribute<PacketTypeAttribute>().PacketType;
@@ -93,6 +90,26 @@ namespace SimCivil.Net
             head.packetID = packetID;
 
             return head.ToBytes().Concat(dataBytes).ToArray();
+        }
+
+        /// <summary>
+        /// Verify this packet's receiving correctness.
+        /// </summary>
+        /// <returns></returns>
+        public virtual bool Verify()
+        {
+            bool result = true;
+            result &= Enum.GetNames(typeof(PacketType)).Contains(head.type.ToString());
+            result &= head.length > 0;
+            result &= Data != null;
+            return result;
+        }
+
+        public void Reply(ResponsePacket response)
+        {
+            response.Client = client;
+            response.RefPacketID = head.packetID;
+            client.SendPacket(response);
         }
     }
     
