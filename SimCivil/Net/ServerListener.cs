@@ -43,6 +43,7 @@ namespace SimCivil.Net
         /// ServerClients which are communicating with other clients
         /// </summary>
         public ConcurrentDictionary<EndPoint, ServerClient> Clients { get; private set; } = new ConcurrentDictionary<EndPoint, ServerClient>();
+        public int Priority { get; } = 900;
 
         /// <summary>
         /// The event triggered when a new ServerClient created

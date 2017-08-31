@@ -122,8 +122,8 @@ namespace SimCivil
         private void GameLoop(int period, CancellationToken token)
         {
             Thread.CurrentThread.Name = "GameLoop";
-            //Start tickers
-            var tickers = Services.Resolve<IEnumerable<ITicker>>();
+            //Get tickers
+            var tickers = Services.Resolve<IEnumerable<ITicker>>().OrderByDescending(t => t.Priority);
             int tickCount = 0;
 
             foreach (var ticker in tickers)
