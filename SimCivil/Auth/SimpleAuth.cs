@@ -68,7 +68,8 @@ namespace SimCivil.Auth
             // if already online, deny.
             if (OnlinePlayer.Any(p => p.Username == username))
                 return false;
-            Player player = new Player(username, token, connection);
+            Player player = new Player(username, token);
+            connection.ContextPlayer = player;
             OnLogined?.Invoke(this, player);
             logger.Info($"[{username}] login succeed");
             return true;
