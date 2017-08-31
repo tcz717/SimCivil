@@ -1,4 +1,5 @@
-﻿using SimCivil.Net.Packets;
+﻿using SimCivil.Auth;
+using SimCivil.Net.Packets;
 using System;
 
 namespace SimCivil.Net
@@ -6,6 +7,7 @@ namespace SimCivil.Net
     public interface IServerConnection
     {
         IServerListener ServerListener { get; set; }
+        Player ContextPlayer { get; set; }
 
         event EventHandler OnDisconnected;
         event EventHandler<Packet> OnPacketReceived;
