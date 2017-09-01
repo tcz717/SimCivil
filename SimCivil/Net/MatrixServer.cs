@@ -32,6 +32,7 @@ namespace SimCivil.Net
         /// The port this listener listen to
         /// </summary>
         public int Port { get; set; }
+        public int Priority { get; } = 900;
 
         private readonly Socket socket;
         private readonly BlockingCollection<Packet> PacketSendQueue;

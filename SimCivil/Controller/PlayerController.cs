@@ -1,6 +1,7 @@
 ﻿using SimCivil.Auth;
 using SimCivil.Map;
 using SimCivil.Net;
+using SimCivil.Store;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -14,6 +15,9 @@ namespace SimCivil.Controller
     {
         private readonly MapData Map;
         private readonly IAuth auth;
+        private readonly IEntityRepository entityRepository;
+
+        public int Priority { get; } = 800;
 
         public void Update(int tickCount)
         {
@@ -30,16 +34,17 @@ namespace SimCivil.Controller
             throw new NotImplementedException();
         }
 
-        public PlayerController(MapData map, IAuth auth)
+        public PlayerController(MapData map, IAuth auth, IEntityRepository entityRepository)
         {
             Map = map;
             this.auth = auth;
+            this.entityRepository = entityRepository;
             auth.OnLogined += Auth_OnLogined;
         }
 
         private void Auth_OnLogined(object sender, Player e)
         {
-            throw new NotImplementedException();
+            entityRepository.LoadPlayerEntity(e);
         }
     }
 }

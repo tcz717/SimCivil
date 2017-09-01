@@ -9,5 +9,7 @@
         OK = 4,
         Handshake = 5,
         Login = 6,
+        FullViewSync = 7,
+        FullViewSyncResponse = 8,
     }
 }

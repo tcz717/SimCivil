@@ -8,6 +8,7 @@ using SimCivil.Net.Packets;
 using static SimCivil.Config;
 using System.Reflection;
 using log4net;
+using SimCivil.Auth;
 
 namespace SimCivil.Net
 {
@@ -86,6 +87,8 @@ namespace SimCivil.Net
         public ServerListener ServerListener { get => serverListener; set => serverListener = value; }
         IServerListener IServerConnection.ServerListener { get => serverListener; set => serverListener = value as ServerListener; }
         public bool Connected  => isStart;
+
+        public Player ContextPlayer { get; set; }
 
         /// <summary>
         /// Construct a ServerClient for receiving Packets

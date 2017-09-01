@@ -39,6 +39,7 @@ namespace SimCivil.Test
             var builder = new ContainerBuilder();
             builder.Register(n => A.Fake<IMapGenerator>());
             builder.Register(n => A.Fake<IMapRepository>());
+            builder.Register(n => A.Fake<IServerListener>());
             builder.RegisterType<MapData>().SingleInstance();
 
             using (var Services = builder.Build())

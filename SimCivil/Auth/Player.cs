@@ -1,4 +1,6 @@
-﻿using SimCivil.Net;
+﻿using Newtonsoft.Json;
+using SimCivil.Model;
+using SimCivil.Net;
 
 namespace SimCivil.Auth
 {
@@ -7,17 +9,18 @@ namespace SimCivil.Auth
     /// </summary>
     public class Player
     {
-        public Player(string username, object token, IServerConnection connection = null)
+        public Player(string username, object token)
         {
             Username = username;
             Token = token;
-            Connection = connection;
         }
 
         public Player() { }
 
         public string Username { get; set; }
         public object Token { get; set; }
-        public IServerConnection Connection { get; set; }
+        public string PlayerName { get; set; }
+        [JsonIgnore]
+        public Entity Entity { get; set; }
     }
 }

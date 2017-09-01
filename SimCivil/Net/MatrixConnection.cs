@@ -4,6 +4,7 @@ using System.Net.Sockets;
 using System.Reflection;
 using System.Threading;
 using SimCivil.Net.Packets;
+using SimCivil.Auth;
 
 namespace SimCivil.Net
 {
@@ -23,6 +24,8 @@ namespace SimCivil.Net
         public Socket Socket { get; }
         public NetworkStream Stream { get; }
         public bool Connected => Socket.Connected;
+
+        public Player ContextPlayer { get; set; }
 
         public event EventHandler<Packet> OnPacketReceived;
         public event EventHandler OnDisconnected;
