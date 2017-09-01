@@ -145,14 +145,18 @@ namespace SimCivil.Net
             logger.Info($"Detached Connection {connection.Socket.RemoteEndPoint}");
         }
 
+        /// <summary>
+        /// Check vaildition, callback and handle
+        /// </summary>
+        /// <param name="tickCount"></param>
         public void Update(int tickCount)
         {
             while(PacketReadQueue.TryTake(out Packet pkt))
             {
-                bool isVaild = pkt.Verify();
+                bool isVaild = pkt.Verify(out string error);
                 if (isVaild)
                 {
-                    pkt.ReplyError(desc: "Packet format invaild");
+                    pkt.ReplyError(desc: error);
                     continue;
                 }
                 callbackDict[pkt.Head.type]?.Invoke(pkt, ref isVaild);

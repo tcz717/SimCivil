@@ -6,13 +6,6 @@ using System.Text;
 namespace SimCivil.Net.Packets
 {
     /// <summary>
-    /// Represnt a full view sync request.
-    /// </summary>
-    [PacketType(PacketType.FullViewSync)]
-    public class FullViewSync : Packet
-    {
-    }
-    /// <summary>
     /// Response to a full view sync request.
     /// </summary>
     [PacketType(PacketType.FullViewSyncResponse)]

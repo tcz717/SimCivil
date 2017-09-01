@@ -112,12 +112,19 @@ namespace SimCivil.Net
         /// Verify this packet's receiving correctness.
         /// </summary>
         /// <returns></returns>
-        public virtual bool Verify()
+        public virtual bool Verify(out string errorDesc)
         {
             bool result = true;
             result &= Enum.GetNames(typeof(PacketType)).Contains(head.type.ToString());
             result &= head.length > 0;
             result &= Data != null;
+            if (!result)
+                errorDesc = "Packet format invaild";
+            result &= !PacketFactory.PacketAttributes[head.type].LoginRequired || Client.ContextPlayer != null;
+            if (result)
+                errorDesc = "";
+            else
+                errorDesc = "Login required";
             return result;
         }
 
