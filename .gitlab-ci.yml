@@ -3,6 +3,7 @@ image: microsoft/dotnet:2.0.0-sdk
 stages:
   - build
   - test
+  - publish
   - deploy
 
 cache:
@@ -25,3 +26,16 @@ xunit:
     - dotnet test
   tags:
     - docker
+
+publish:linux-x64:
+    stage: publish
+    script: 
+        - dotnet restore ./SimCivil.sln && dotnet publish ./SimCivil.sln -c Release -o ./obj/publish/linux-x64 -c linux-x64
+    only: 
+        - master
+        - dev
+    artifacts:
+        name: "$simcivil_${CI_COMMIT_REF_NAME}"
+        expire_in: 1 week
+        path:
+            - ./obj/publish/linux-x64
