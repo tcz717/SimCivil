@@ -9,6 +9,7 @@ namespace SimCivil.Net.Packets
     /// </summary>
     [PacketType(PacketType.Empty)]
     [PacketType(PacketType.FullViewSync, LoginRequired = true)]
+    [PacketType(PacketType.QueryRoleList, LoginRequired = true)]
     public class EmptyPacket : Packet
     {
     }

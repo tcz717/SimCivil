@@ -21,6 +21,6 @@ namespace SimCivil.Auth
         public object Token { get; set; }
         public string PlayerName { get; set; }
         [JsonIgnore]
-        public Entity Entity { get; set; }
+        public Entity CurrentRole { get; set; }
     }
 }

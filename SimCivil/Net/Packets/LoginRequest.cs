@@ -54,9 +54,9 @@ namespace SimCivil.Net.Packets
                 Data[nameof(ClientName)] = value;
             }
         }
-        public override bool Verify()
+        public override bool Verify(out string errorDesc)
         {
-            return base.Verify()
+            return base.Verify(out errorDesc)
                 && Data.ContainsKey(nameof(Username))
                 && Data[nameof(Username)] is string
                 && Data.ContainsKey(nameof(Token));

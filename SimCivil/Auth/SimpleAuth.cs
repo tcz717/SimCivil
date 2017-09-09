@@ -19,6 +19,7 @@ namespace SimCivil.Auth
         /// Happen when user are vaild.
         /// </summary>
         public event EventHandler<Player> OnLogined;
+        public event EventHandler<Player> OnLogouted;
 
         HashSet<IServerConnection> readyToLogin;
         public IList<Player> OnlinePlayer { get; private set; } = new List<Player>();
@@ -30,7 +31,32 @@ namespace SimCivil.Auth
         {
             readyToLogin = new HashSet<IServerConnection>();
             server.OnConnected += Server_OnConnected;
+            server.OnDisconnected += Server_OnDisconnected;
             server.RegisterPacket(PacketType.Login, LoginHandle);
+            server.RegisterPacket(PacketType.QueryRoleList, QueryRoleListHandle);
+        }
+
+        private void Server_OnDisconnected(object sender, IServerConnection e)
+        {
+            if (e.ContextPlayer == null)
+                return;
+            Logout(e.ContextPlayer);
+            e.ContextPlayer = null;
+        }
+
+        public void Logout(Player player)
+        {
+            if(OnlinePlayer.Remove(player))
+            {
+                OnLogouted?.Invoke(this, player);
+                logger.Info($"[{player.Username}] logout succeed");
+            }
+        }
+
+        private void QueryRoleListHandle(Packet pkt, ref bool isVaild)
+        {
+            if (isVaild)
+                pkt.Reply(new QueryRoleListResponse());
         }
 
         private void LoginHandle(Packet p, ref bool isVaild)
@@ -42,9 +68,12 @@ namespace SimCivil.Auth
                 {
                     isVaild = false;
                     p.ReplyError(desc: "Handshake responses first.");
+                    return;
                 }
-                else if (Login(pkt.Username, pkt.Token, p.Client))
+                Player player = Login(pkt.Username, pkt.Token);
+                if (player != null)
                 {
+                    p.Client.ContextPlayer = player;
                     p.ReplyOk();
                 }
                 else
@@ -61,18 +90,17 @@ namespace SimCivil.Auth
         /// </summary>
         /// <param name="username"></param>
         /// <param name="token"></param>
-        /// <param name="connection"></param>
         /// <returns>login result</returns>
-        public bool Login(string username, object token, IServerConnection connection)
+        public Player Login(string username, object token)
         {
             // if already online, deny.
             if (OnlinePlayer.Any(p => p.Username == username))
-                return false;
+                return null;
             Player player = new Player(username, token);
-            connection.ContextPlayer = player;
+            OnlinePlayer.Add(player);
             OnLogined?.Invoke(this, player);
             logger.Info($"[{username}] login succeed");
-            return true;
+            return player;
         }
 
         private void Server_OnConnected(object sender, IServerConnection e)

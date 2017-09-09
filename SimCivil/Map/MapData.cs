@@ -94,12 +94,12 @@ namespace SimCivil.Map
 
         private void FullViewSyncHandle(Packet pkt, ref bool isVaild)
         {
-            if (pkt.Client.ContextPlayer?.Entity == null)
+            if (pkt.Client.ContextPlayer?.CurrentRole == null)
             {
                 isVaild = false;
                 return;
             }
-            var entity = pkt.Client.ContextPlayer.Entity;
+            var entity = pkt.Client.ContextPlayer.CurrentRole;
             IEnumerable<Tile> view = SelectRange(entity.Position, entity.Meta.ViewDistence);
             pkt.Reply(new FullViewSyncResponse(entity.Position, entity.Meta.ViewDistence, view));
         }

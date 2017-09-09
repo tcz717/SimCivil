@@ -44,9 +44,9 @@ namespace SimCivil.Net.Packets
             }
         }
 
-        public override bool Verify()
+        public override bool Verify(out string errorDesc)
         {
-            return base.Verify()
+            return base.Verify(out errorDesc)
                 && Data.Contains(nameof(ErrorCode))
                 && Data[nameof(ErrorCode)] is string
                 && Data.Contains(nameof(Description))
