@@ -38,4 +38,4 @@ publish:linux-x64:
         name: "$simcivil_${CI_COMMIT_REF_NAME}"
         expire_in: 3 days
         paths:
-            - publish/linux-x64/
+            - SimCivil/publish/linux-x64/
