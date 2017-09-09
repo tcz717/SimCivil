@@ -30,7 +30,7 @@ xunit:
 publish:linux-x64:
     stage: publish
     script: 
-        - dotnet restore ./SimCivil.sln && dotnet publish ./SimCivil.sln -c Release -o ./obj/publish/linux-x64 -r linux-x64
+        - dotnet restore ./SimCivil.sln && dotnet publish ./SimCivil.sln -c Release -o publish/linux-x64 -r linux-x64
     only: 
         - master
         - dev
@@ -38,4 +38,4 @@ publish:linux-x64:
         name: "$simcivil_${CI_COMMIT_REF_NAME}"
         expire_in: 3 days
         paths:
-            - ./obj/publish/linux-x64/
+            - publish/linux-x64/
