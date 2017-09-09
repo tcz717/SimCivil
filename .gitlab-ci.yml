@@ -36,6 +36,6 @@ publish:linux-x64:
         - dev
     artifacts:
         name: "$simcivil_${CI_COMMIT_REF_NAME}"
-        expire_in: 1 week
+        expire_in: 3 days
         paths:
-            - ./obj/publish/linux-x64
+            - ./obj/publish/linux-x64/
