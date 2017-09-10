@@ -38,7 +38,7 @@ publish:linux-x64:
     - docker
   script: 
     - dotnet restore ./SimCivil.sln && dotnet publish ./SimCivil.sln -c Release -o publish/linux-x64 -r linux-x64
-    - cp SimCivil/publish/linux-x64 simcivil-linux-x64
+    - cp -r SimCivil/publish/linux-x64 simcivil-linux-x64
   only: 
     - master
     - dev
@@ -54,7 +54,7 @@ publish:win10-x64:
     - docker
   script: 
     - dotnet restore ./SimCivil.sln && dotnet publish ./SimCivil.sln -c Release -o publish/win10-x64 -r win10-x64
-    - cp SimCivil/publish/win10-x64 simcivil-win10-x64
+    - cp -r SimCivil/publish/win10-x64 simcivil-win10-x64
   only: 
     - master
     - dev
@@ -70,7 +70,7 @@ publish:core-2.0:
     - docker
   script: 
     - dotnet restore ./SimCivil.sln && dotnet publish ./SimCivil.sln -c Release -o publish/core-2.0
-    - cp SimCivil/publish/core-2.0 simcivil-core-2.0
+    - cp -r SimCivil/publish/core-2.0 simcivil-core-2.0
   only: 
     - master
     - dev
