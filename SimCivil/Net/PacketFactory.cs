@@ -44,7 +44,7 @@ namespace SimCivil.Net
             PacketsType = new Dictionary<Type, PacketType>();
             PacketAttributes = new Dictionary<PacketType, PacketTypeAttribute>();
             var types = typeof(Packet).GetTypeInfo().Assembly.GetTypes()
-                .Where(t => t.GetTypeInfo().GetCustomAttribute<PacketTypeAttribute>() != null);
+                .Where(t => t.GetTypeInfo().GetCustomAttributes<PacketTypeAttribute>().Count() > 0);
             foreach (var t in types)
             {
                 var packetAttrs = t.GetTypeInfo().GetCustomAttributes<PacketTypeAttribute>();
