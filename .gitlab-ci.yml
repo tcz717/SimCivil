@@ -13,8 +13,8 @@ cache:
 server:
   stage: build
   script:
-    - dotnet restore
-    - dotnet build
+    - dotnet restore ./SimCivil.sln 
+    - dotnet build ./SimCivil.sln 
   tags:
     - docker
   artifacts:
@@ -27,8 +27,8 @@ xunit:
   stage: test
   script:
     - cd SimCivil.Test
-    - dotnet restore
-    - dotnet test
+    - dotnet restore ./SimCivil.sln 
+    - dotnet test ./SimCivil.sln 
   tags:
     - docker
 
