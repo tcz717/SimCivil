@@ -14,7 +14,7 @@ server:
   stage: build
   script:
     - dotnet restore
-    - dotnet build
+    - dotnet build ./SimCivil.sln 
   tags:
     - docker
   artifacts:
