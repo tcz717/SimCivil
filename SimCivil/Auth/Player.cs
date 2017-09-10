@@ -1,6 +1,8 @@
 ﻿using Newtonsoft.Json;
 using SimCivil.Model;
 using SimCivil.Net;
+using System;
+using System.Collections.Generic;
 
 namespace SimCivil.Auth
 {
@@ -20,6 +22,7 @@ namespace SimCivil.Auth
         public string Username { get; set; }
         public object Token { get; set; }
         public string PlayerName { get; set; }
+        public List<Guid> Roles { get; set; }
         [JsonIgnore]
         public Entity CurrentRole { get; set; }
     }

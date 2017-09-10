@@ -29,6 +29,14 @@
       ]
     },
     {
+      "type": "SimCivil.Store.MemoryEntityRepo",
+      "services": [
+        {
+          "type": "SimCivil.Store.IEntityRepository"
+        }
+      ]
+    },
+    {
       "type": "SimCivil.Map.RandomMapGen",
       "services": [
         {

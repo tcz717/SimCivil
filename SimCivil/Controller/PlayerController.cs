@@ -15,36 +15,33 @@ namespace SimCivil.Controller
     {
         private readonly MapData Map;
         private readonly IAuth auth;
-        private readonly IEntityRepository entityRepository;
 
         public int Priority { get; } = 800;
 
         public void Update(int tickCount)
         {
-            throw new NotImplementedException();
+            //TODO
         }
 
         public void Start()
         {
-            throw new NotImplementedException();
+            //TODO
         }
 
         public void Stop()
         {
-            throw new NotImplementedException();
+            //TODO
         }
 
-        public PlayerController(MapData map, IAuth auth, IEntityRepository entityRepository)
+        public PlayerController(MapData map, IAuth auth)
         {
             Map = map;
             this.auth = auth;
-            this.entityRepository = entityRepository;
             auth.OnLogined += Auth_OnLogined;
         }
 
         private void Auth_OnLogined(object sender, Player e)
         {
-            entityRepository.LoadPlayerEntity(e);
         }
     }
 }

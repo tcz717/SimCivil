@@ -1,6 +1,7 @@
 ﻿using log4net;
 using SimCivil.Net;
 using SimCivil.Net.Packets;
+using SimCivil.Store;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,18 +23,22 @@ namespace SimCivil.Auth
         public event EventHandler<Player> OnLogouted;
 
         HashSet<IServerConnection> readyToLogin;
+        private readonly IEntityRepository entityRepository;
+
         public IList<Player> OnlinePlayer { get; private set; } = new List<Player>();
         /// <summary>
         /// Constrcutor can be injected.
         /// </summary>
         /// <param name="server"></param>
-        public SimpleAuth(IServerListener server)
+        /// <param name="entityRepository"></param>
+        public SimpleAuth(IServerListener server, IEntityRepository entityRepository)
         {
             readyToLogin = new HashSet<IServerConnection>();
             server.OnConnected += Server_OnConnected;
             server.OnDisconnected += Server_OnDisconnected;
             server.RegisterPacket(PacketType.Login, LoginHandle);
             server.RegisterPacket(PacketType.QueryRoleList, QueryRoleListHandle);
+            this.entityRepository = entityRepository;
         }
 
         private void Server_OnDisconnected(object sender, IServerConnection e)
@@ -56,7 +61,7 @@ namespace SimCivil.Auth
         private void QueryRoleListHandle(Packet pkt, ref bool isVaild)
         {
             if (isVaild)
-                pkt.Reply(new QueryRoleListResponse());
+                pkt.Reply(new QueryRoleListResponse(entityRepository.LoadPlayerRoles(pkt.Client.ContextPlayer)));
         }
 
         private void LoginHandle(Packet p, ref bool isVaild)
