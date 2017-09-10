@@ -37,11 +37,12 @@ namespace SimCivil.Controller
         {
             Map = map;
             this.auth = auth;
-            auth.OnLogined += Auth_OnLogined;
+            auth.OnRoleChanged += Auth_OnRoleChanged;
         }
 
-        private void Auth_OnLogined(object sender, Player e)
+        private void Auth_OnRoleChanged(object sender, RoleChangeArgs e)
         {
+            throw new NotImplementedException();
         }
     }
 }
