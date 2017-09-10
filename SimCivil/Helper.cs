@@ -1,4 +1,7 @@
 ﻿using Autofac;
+using SimCivil.Auth;
+using SimCivil.Model;
+using SimCivil.Store;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -22,6 +25,16 @@ namespace SimCivil
             foreach (var service in servces)
             {
                 action(service);
+            }
+        }
+    }
+    public static class EntityHelper
+    {
+        public static IEnumerable<Entity> LoadPlayerRoles(this IEntityRepository repository, Player player)
+        {
+            foreach (var roleId in player.Roles)
+            {
+                yield return repository.LoadEntity(roleId);
             }
         }
     }

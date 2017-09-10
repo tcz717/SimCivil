@@ -5,7 +5,7 @@ namespace SimCivil.Net
     /// <summary>
     /// Attribute to Mark a Packet class's ParketType
     /// </summary>
-    [AttributeUsage(AttributeTargets.Class)]
+    [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
     public class PacketTypeAttribute : Attribute
     {
         private PacketType packetType;
@@ -14,7 +14,8 @@ namespace SimCivil.Net
         {
             this.packetType = packetType;
         }
-        
+
         public PacketType PacketType { get => packetType; }
+        public bool LoginRequired { get; set; } = false;
     }
 }

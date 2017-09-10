@@ -8,7 +8,9 @@ namespace SimCivil.Auth
     public interface IAuth
     {
         event EventHandler<Player> OnLogined;
-        bool Login(string username, object token, IServerConnection connection = null);
+        event EventHandler<Player> OnLogouted;
+        Player Login(string username, object token);
+        void Logout(Player player);
         IList<Player> OnlinePlayer { get; }
     }
 }

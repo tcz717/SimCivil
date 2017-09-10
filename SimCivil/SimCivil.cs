@@ -129,6 +129,7 @@ namespace SimCivil
             foreach (var ticker in tickers)
             {
                 ticker.Start();
+                logger.Info($"Started Ticker {ticker}");
             }
 
             while (!token.IsCancellationRequested)
@@ -151,6 +152,7 @@ namespace SimCivil
             foreach (var ticker in tickers)
             {
                 ticker.Stop();
+                logger.Info($"Stoped Ticker {ticker}");
             }
         }
     }

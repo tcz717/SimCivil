@@ -20,6 +20,7 @@ namespace SimCivil.Net
         /// </summary>
         public static Dictionary<PacketType, Type> LegalPackets { get; }
         public static Dictionary<Type, PacketType> PacketsType { get; }
+        public static Dictionary<PacketType, PacketTypeAttribute> PacketAttributes { get; }
 
         /// <summary>
         /// Build a Packet object from a given head and data, and add serverclient info in it
@@ -39,18 +40,22 @@ namespace SimCivil.Net
         
         static PacketFactory()
         {
-            var dict = new Dictionary<PacketType, Type>();
+            LegalPackets = new Dictionary<PacketType, Type>();
             PacketsType = new Dictionary<Type, PacketType>();
+            PacketAttributes = new Dictionary<PacketType, PacketTypeAttribute>();
             var types = typeof(Packet).GetTypeInfo().Assembly.GetTypes()
-                .Where(t => t.GetTypeInfo().GetCustomAttribute<PacketTypeAttribute>() != null);
+                .Where(t => t.GetTypeInfo().GetCustomAttributes<PacketTypeAttribute>().Count() > 0);
             foreach (var t in types)
             {
-                var key = t.GetTypeInfo().GetCustomAttribute<PacketTypeAttribute>().PacketType;
-                dict[key] = t;
-                PacketsType[t] = key;
+                var packetAttrs = t.GetTypeInfo().GetCustomAttributes<PacketTypeAttribute>();
+                foreach (var attr in packetAttrs)
+                {
+                    var key = attr.PacketType;
+                    LegalPackets[key] = t;
+                    PacketAttributes[key] = attr;
+                    PacketsType[t] = key;
+                }
             }
-
-            LegalPackets = dict;
         }
     }
 }

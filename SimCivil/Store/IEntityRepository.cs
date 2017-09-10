@@ -6,8 +6,12 @@ using System.Text;
 
 namespace SimCivil.Store
 {
+    /// <summary>
+    /// Repository Store Entities
+    /// </summary>
     public interface IEntityRepository
     {
-        Entity LoadPlayerEntity(Player player);
+        Entity LoadEntity(Guid id);
+        void SaveEntity(Guid id, Entity entity);
     }
 }

@@ -37,9 +37,9 @@ namespace SimCivil.Net.Packets
         {
         }
 
-        public override bool Verify()
+        public override bool Verify(out string errorDesc)
         {
-            return base.Verify()
+            return base.Verify(out errorDesc)
                 && Data.ContainsKey(nameof(RefPacketID))
                 && Data[nameof(RefPacketID)] is int;
         }
