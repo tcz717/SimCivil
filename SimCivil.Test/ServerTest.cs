@@ -52,7 +52,7 @@ namespace SimCivil.Test
             int a = 1; long a1 = 100; float b = 3.141592f; double c = 3.1415926535;
             Hashtable dataSend =
                 new Hashtable { { "int", a }, { "long", a1 }, { "float", b }, { "double", c } };
-            Packet packetSend = new Ping(dataSend);
+            Packet packetSend = new Ping(PacketType.Ping, dataSend, null);
 
             // Convert Packet to bytes
             byte[] bufferSend = packetSend.ToBytes(1);
@@ -94,6 +94,20 @@ namespace SimCivil.Test
                 new byte[head.length]
                 );
             Assert.IsType<Ping>(pkt);
+        }
+        [Fact]
+        public void PacketCreate_Auto()
+        {
+            foreach (var type in PacketFactory.LegalPackets.Keys)
+            {
+                Head head = new Head(0, type, 0);
+                var pkt = PacketFactory.Create(
+                    null,
+                    head,
+                    new byte[0]
+                    );
+                Assert.IsType(PacketFactory.LegalPackets[type], pkt);
+            }
         }
 
         private byte[] ToData(int id, PacketType type, int size)

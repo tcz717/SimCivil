@@ -11,7 +11,7 @@ namespace SimCivil.Net.Packets
     [PacketType(PacketType.Login)]
     public class LoginRequest : Packet
     {
-        public LoginRequest(Hashtable data, IServerConnection client) : base(data, client) { }
+        public LoginRequest(PacketType type, Hashtable data, IServerConnection client) : base(type, data, client) { }
         /// <summary>
         /// Player's username
         /// </summary>

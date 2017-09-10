@@ -1,5 +1,6 @@
 ﻿using SimCivil.Map;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 
@@ -17,6 +18,9 @@ namespace SimCivil.Net.Packets
             ViewDistence = viewDistence;
             Tiles = tiles;
         }
+
+        public FullViewSyncResponse(PacketType type = PacketType.Empty, Hashtable data = null, IServerConnection client = null)
+            : base(type, data, client) { }
 
         public (int x, int y) Center
         {

@@ -33,7 +33,8 @@ namespace SimCivil.Net.Packets
             RefPacketID = refpacketID;
         }
 
-        internal ResponsePacket(Hashtable data = null, IServerConnection client = null) : base(data, client)
+        public ResponsePacket(PacketType type = PacketType.Empty, Hashtable data = null, IServerConnection client = null)
+            : base(type, data, client)
         {
         }
 

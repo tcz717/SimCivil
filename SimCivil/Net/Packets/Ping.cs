@@ -11,9 +11,8 @@ namespace SimCivil.Net.Packets
     [PacketType(PacketType.Ping)]
     public class Ping : Packet
     {
-        public Ping(Hashtable data = null, IServerConnection client = null) : base(data, client)
-        {
-        }
+        public Ping() { }
+        public Ping(PacketType type, Hashtable data, IServerConnection client) : base(type, data, client) { }
 
         /// <summary>
         /// Ping handle

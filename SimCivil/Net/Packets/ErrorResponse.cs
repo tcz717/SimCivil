@@ -19,7 +19,7 @@ namespace SimCivil.Net.Packets
             ErrorCode = errorCode;
             Description = description;
         }
-        public ErrorResponse(Hashtable data, IServerConnection client) : base(data, client) { }
+        public ErrorResponse(PacketType type, Hashtable data, IServerConnection client) : base(type, data, client) { }
 
         public int ErrorCode
         {

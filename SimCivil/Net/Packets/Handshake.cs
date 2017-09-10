@@ -13,7 +13,7 @@ namespace SimCivil.Net.Packets
     [PacketType(PacketType.Handshake)]
     public class Handshake : Packet
     {
-        public Handshake(Hashtable data, IServerConnection client) : base(data, client) { }
+        public Handshake(PacketType type, Hashtable data, IServerConnection client) : base(type, data, client) { }
 
         public Handshake(IAuth auth)
         {
