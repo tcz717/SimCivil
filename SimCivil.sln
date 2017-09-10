@@ -7,8 +7,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SimCivil", "SimCivil\SimCiv
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SimCivil.Test", "SimCivil.Test\SimCivil.Test.csproj", "{ECF883AB-AF30-485B-BAE8-CF5508616828}"
 EndProject
-Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{9203F9F1-94C0-4006-8DC3-CDB56F1CBE69}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -23,10 +21,6 @@ Global
 		{ECF883AB-AF30-485B-BAE8-CF5508616828}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{ECF883AB-AF30-485B-BAE8-CF5508616828}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{ECF883AB-AF30-485B-BAE8-CF5508616828}.Release|Any CPU.Build.0 = Release|Any CPU
-		{9203F9F1-94C0-4006-8DC3-CDB56F1CBE69}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9203F9F1-94C0-4006-8DC3-CDB56F1CBE69}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9203F9F1-94C0-4006-8DC3-CDB56F1CBE69}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9203F9F1-94C0-4006-8DC3-CDB56F1CBE69}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
