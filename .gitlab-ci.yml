@@ -27,8 +27,8 @@ xunit:
   stage: test
   script:
     - cd SimCivil.Test
-    - dotnet restore ./SimCivil.sln 
-    - dotnet test ./SimCivil.sln 
+    - dotnet restore 
+    - dotnet test 
   tags:
     - docker
 
