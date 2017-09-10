@@ -17,6 +17,11 @@ server:
     - dotnet build
   tags:
     - docker
+  artifacts:
+    name: "simcivil-debug-${CI_COMMIT_REF_NAME}"
+    expire_in: 6 hours
+    paths:
+        - simcivil-debug
 
 xunit:
   stage: test
@@ -28,14 +33,49 @@ xunit:
     - docker
 
 publish:linux-x64:
-    stage: publish
-    script: 
-        - dotnet restore ./SimCivil.sln && dotnet publish ./SimCivil.sln -c Release -o publish/linux-x64 -r linux-x64
-    only: 
-        - master
-        - dev
-    artifacts:
-        name: "$simcivil_${CI_COMMIT_REF_NAME}"
-        expire_in: 3 days
-        paths:
-            - SimCivil/publish/linux-x64/
+  stage: publish
+  tags:
+    - docker
+  script: 
+    - dotnet restore ./SimCivil.sln && dotnet publish ./SimCivil.sln -c Release -o publish/linux-x64 -r linux-x64
+    - cp SimCivil/publish/linux-x64 simcivil-linux-x64
+  only: 
+    - master
+    - dev
+  artifacts:
+    name: "simcivil-linux-x64-${CI_COMMIT_REF_NAME}"
+    expire_in: 3 days
+    paths:
+        - simcivil-linux-x64
+
+publish:win10-x64:
+  stage: publish
+  tags:
+    - docker
+  script: 
+    - dotnet restore ./SimCivil.sln && dotnet publish ./SimCivil.sln -c Release -o publish/win10-x64 -r win10-x64
+    - cp SimCivil/publish/win10-x64 simcivil-win10-x64
+  only: 
+    - master
+    - dev
+  artifacts:
+    name: "simcivil-win10-x64-${CI_COMMIT_REF_NAME}"
+    expire_in: 3 days
+    paths:
+        - simcivil-win10-x64
+        
+publish:core-2.0:
+  stage: publish
+  tags:
+    - docker
+  script: 
+    - dotnet restore ./SimCivil.sln && dotnet publish ./SimCivil.sln -c Release -o publish/core-2.0
+    - cp SimCivil/publish/core-2.0 simcivil-core-2.0
+  only: 
+    - master
+    - dev
+  artifacts:
+    name: "simcivil-core-2.0-${CI_COMMIT_REF_NAME}"
+    expire_in: 3 days
+    paths:
+        - simcivil-core-2.0
