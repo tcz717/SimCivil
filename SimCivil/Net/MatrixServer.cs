@@ -16,14 +16,14 @@ namespace SimCivil.Net
 {
     public class MatrixServer : IServerListener, ITicker
     {
-        static readonly ILog logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly ILog logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
         public ConcurrentDictionary<EndPoint, IServerConnection> Clients { get; }
 
         private ConcurrentDictionary<PacketType, PacketCallBack> callbackDict;
 
         public event EventHandler<IServerConnection> OnConnected;
         public event EventHandler<IServerConnection> OnDisconnected;
-        CancellationTokenSource cancellation = new CancellationTokenSource();
+        private CancellationTokenSource cancellation = new CancellationTokenSource();
         /// <summary>
         /// Server host
         /// </summary>

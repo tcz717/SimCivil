@@ -14,6 +14,15 @@ namespace SimCivil.Map
 
         public event GeneratingEventHandler OnGenerating;
 
+        /// <inheritdoc />
+        /// <summary>
+        /// Generate new Atlas
+        /// </summary>
+        /// <param name="x">Index of the atlas</param>
+        /// <param name="y">Index of the atlas</param>
+        /// <param name="width">Atlas's Width</param>
+        /// <param name="height">Atlas's Height</param>
+        /// <returns></returns>
         public Atlas Generate(int x, int y, int width = DefaultAtlasWidth, int height = DefaultAtlasHeight)
         {
             Atlas atlas = Atlas.Create(x, y, width, height);

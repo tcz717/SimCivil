@@ -9,14 +9,14 @@ using Autofac.Configuration;
 
 namespace SimCivil
 {
-    class Program
+    internal class Program
     {
         public static readonly ILog logger = LogManager.GetLogger(Assembly.GetExecutingAssembly(), "Global");
-        static void Main(string[] args)
+
+        private static void Main(string[] args)
         {
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
             GameInfo info = new GameInfo();
-            SimCivil game = new SimCivil();
             var parser = new CommandLineParser.CommandLineParser();
 
             try
@@ -30,7 +30,7 @@ namespace SimCivil
                 parser.ShowUsage();
             }
 
-            if(parser.ParsingSucceeded)
+            if (parser.ParsingSucceeded)
             {
                 if (info.Seed == 0)
                 {
@@ -38,10 +38,7 @@ namespace SimCivil
                     info.Seed = r.Next(int.MinValue, int.MaxValue);
                     logger.Info($"Using auto seed {info.Seed}");
                 }
-                if (!string.IsNullOrWhiteSpace(info.Config))
-                    game = new SimCivil(LoadConfiguration(info.Config));
-                else
-                    game = new SimCivil(LoadConfiguration(Config.DefaultConfigFile));
+                SimCivil game = !string.IsNullOrWhiteSpace(info.Config) ? new SimCivil(LoadConfiguration(info.Config)) : new SimCivil(LoadConfiguration());
                 if (info.IsCreate)
                     game.Initialize(info);
                 else
@@ -51,13 +48,13 @@ namespace SimCivil
             Console.Read();
         }
 
-        private static IContainer LoadConfiguration(string config)
+        private static IContainer LoadConfiguration(string config = "configuration.json")
         {
             var builder = new ContainerBuilder();
             var configBuilder = new ConfigurationBuilder();
-            configBuilder.AddJsonFile("configuration.json");
+            configBuilder.AddJsonFile(config);
             var module = new ConfigurationModule(configBuilder.Build());
-            
+
             builder.RegisterModule(module);
 
             return builder.Build();

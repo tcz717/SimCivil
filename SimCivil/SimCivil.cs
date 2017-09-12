@@ -101,10 +101,10 @@ namespace SimCivil
             logger.Info("SimCivil loop start running.");
 
             var token = new CancellationTokenSource();
-            var loop = Task.Factory.StartNew(() => GameLoop(period, token.Token),
-                token.Token,
-                TaskCreationOptions.LongRunning,
-                TaskScheduler.Default)
+            Task.Factory.StartNew(() => GameLoop(period, token.Token),
+                    token.Token,
+                    TaskCreationOptions.LongRunning,
+                    TaskScheduler.Default)
                 .ContinueWith(t => logger.Info("SimCivil stop loop."));
 
             while(block)

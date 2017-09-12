@@ -5,6 +5,7 @@ using SimCivil.Net.Packets;
 using SimCivil.Store;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -16,7 +17,7 @@ namespace SimCivil.Auth
     /// </summary>
     public class SimpleAuth : IAuth
     {
-        static readonly ILog logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly ILog logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
         /// <summary>
         /// Happen when user are vaild.
         /// </summary>
@@ -35,7 +36,7 @@ namespace SimCivil.Auth
         public event EventHandler<RoleChangeArgs> OnRoleChanged;
 
 
-        HashSet<IServerConnection> readyToLogin;
+        private readonly HashSet<IServerConnection> readyToLogin;
         private readonly IEntityRepository entityRepository;
 
         public IList<Player> OnlinePlayer { get; private set; } = new List<Player>();
@@ -58,9 +59,10 @@ namespace SimCivil.Auth
         private void SwitchRoleHandle(Packet pkt, ref bool isVaild)
         {
             SwitchRole request = pkt as SwitchRole;
-            if(isVaild)
+            if (isVaild)
             {
-                var entity = entityRepository.LoadEntity(request.RoleGuid);
+                Debug.Assert(request != null, nameof(request) + " != null");
+                Entity entity = entityRepository.LoadEntity(request.RoleGuid);
                 RoleChangeArgs args = new RoleChangeArgs()
                 {
                     NewEntity = entity,
@@ -98,13 +100,12 @@ namespace SimCivil.Auth
             e.ContextPlayer = null;
         }
 
+        /// <inheritdoc />
         public void Logout(Player player)
         {
-            if(OnlinePlayer.Remove(player))
-            {
-                OnLogouted?.Invoke(this, player);
-                logger.Info($"[{player.Username}] logout succeed");
-            }
+            if (!OnlinePlayer.Remove(player)) return;
+            OnLogouted?.Invoke(this, player);
+            logger.Info($"[{player.Username}] logout succeed");
         }
 
         private void QueryRoleListHandle(Packet pkt, ref bool isVaild)
@@ -124,6 +125,7 @@ namespace SimCivil.Auth
                     p.ReplyError(desc: "Handshake responses first.");
                     return;
                 }
+                Debug.Assert(pkt != null, nameof(pkt) + " != null");
                 Player player = Login(pkt.Username, pkt.Token);
                 if (player != null)
                 {

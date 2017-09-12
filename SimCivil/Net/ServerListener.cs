@@ -17,7 +17,7 @@ namespace SimCivil.Net
     /// </summary>
     public class ServerListener : IServerListener, ITicker
     {
-        TcpListener listener;
+        private TcpListener listener;
 
         /// <summary>
         /// Logger for net
@@ -38,7 +38,7 @@ namespace SimCivil.Net
         /// <summary>
         /// Packets waiting for sending
         /// </summary>
-        private  Queue<Packet> PacketSendQueue { get; set; }
+        private Queue<Packet> PacketSendQueue { get; set; }
         /// <summary>
         /// ServerClients which are communicating with other clients
         /// </summary>
@@ -169,11 +169,11 @@ namespace SimCivil.Net
                     logger.Info($"Connection Established to {serverClient.TcpClt.Client.RemoteEndPoint}");
                 }
             }
-            catch(ArgumentOutOfRangeException e)
+            catch (ArgumentOutOfRangeException e)
             {
                 logger.Error("Cannot start TcpListener: " + e.Message);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 logger.Error("Listener exception: " + e.Message);
             }

@@ -10,7 +10,7 @@ namespace SimCivil.Net
 {
     public class MatrixConnection : IServerConnection, IDisposable
     {
-        static readonly ILog logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly ILog logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
         private int currentID = 0;
 
         public MatrixConnection(IServerListener serverListener, Socket socket)
