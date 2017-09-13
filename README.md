@@ -7,9 +7,16 @@ SimCivil合作开发说明
 ## 介绍
 服务器模拟一个非常自由或者说内容设定丰富的世界，世界里面的 **所有人形生物** 都是玩家写脚本自动控制的。游戏不提供官方的客户端，玩家可以选择使用人工智能、有限状态机、甚至手动控制的方式，利用服务器提供的API控制玩家的角色在游戏内生存、发展和竞争。
 
+## 服务端下载
+- [.net core 2.0 版本](http://gitlab.tancoder.com/TPDT/sim-civil/-/jobs/artifacts/master/download?job=publish%3Acore-2.0)
+- [Linux x64 版本](http://gitlab.tancoder.com/TPDT/sim-civil/-/jobs/artifacts/master/download?job=publish%3Alinux-x64)
+- [Windows10 x64 版本](http://gitlab.tancoder.com/TPDT/sim-civil/-/jobs/artifacts/master/download?job=publish%3Awin10-x64)
+- [开发版本](http://gitlab.tancoder.com/TPDT/sim-civil/-/jobs/artifacts/dev/download?job=server)
+
 ## 讨论
 
-如果对于项目设计有任何建议或者反馈，可以提交issue一起讨论
+- 如果对于项目设计有任何建议或者反馈，可以提交issue一起讨论
+- 错误日志汇总可以在[sentry](https://sentry.io/tpdt/simcivil/)上查看
 
 ## 配置开发环境
 - [参考wiki](http://gitlab.tancoder.com/TPDT/sim-civil/wikis/%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE)
