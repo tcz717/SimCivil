@@ -13,5 +13,6 @@
         FullViewSyncResponse = 8,
         QueryRoleList = 9,
         QueryRoleListResponse = 10,
+        SwitchRole = 11,
     }
 }

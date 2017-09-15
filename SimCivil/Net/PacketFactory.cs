@@ -33,7 +33,7 @@ namespace SimCivil.Net
         {
             Hashtable dataDict = JsonConvert.DeserializeObject<Hashtable>(Encoding.UTF8.GetString(data, 0, head.length));
 
-            Packet pkt = Activator.CreateInstance(LegalPackets[head.type], dataDict, serverClient) as Packet;
+            Packet pkt = Activator.CreateInstance(LegalPackets[head.type], head.type, dataDict, serverClient) as Packet;
             pkt.Head = head;
             return pkt;
         }        

@@ -8,15 +8,27 @@ namespace SimCivil.Net.Packets
     /// <summary>
     /// Reply OK.
     /// </summary>
-    [PacketType(PacketType.Error)]
+    [PacketType(PacketType.OK)]
     public class OkResponse : ResponsePacket
     {
-        public OkResponse(string description = "accept.")
+        public OkResponse(bool success = true, string description = "accept.")
         {
+            Success = success;
             Description = description;
         }
-        public OkResponse(Hashtable data, IServerConnection client) : base(data, client) { }
+        public OkResponse(PacketType type, Hashtable data, IServerConnection client) : base(type, data, client) { }
 
+        public bool Success
+        {
+            get
+            {
+                return (bool)Data[nameof(Success)];
+            }
+            set
+            {
+                Data[nameof(Success)] = value;
+            }
+        }
         public string Description
         {
             get

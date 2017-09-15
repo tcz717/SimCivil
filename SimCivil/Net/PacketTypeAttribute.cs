@@ -17,5 +17,13 @@ namespace SimCivil.Net
 
         public PacketType PacketType { get => packetType; }
         public bool LoginRequired { get; set; } = false;
+        public PacketDirection Direction { get; set; } = PacketDirection.Both;
+    }
+
+    public enum PacketDirection
+    {
+        Both,
+        ServerToClient,
+        ClientToServer,
     }
 }

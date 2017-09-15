@@ -1,9 +1,11 @@
 ﻿using log4net;
+using SimCivil.Model;
 using SimCivil.Net;
 using SimCivil.Net.Packets;
 using SimCivil.Store;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -15,14 +17,26 @@ namespace SimCivil.Auth
     /// </summary>
     public class SimpleAuth : IAuth
     {
-        static readonly ILog logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly ILog logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
         /// <summary>
         /// Happen when user are vaild.
         /// </summary>
         public event EventHandler<Player> OnLogined;
+        /// <summary>
+        /// Happen when user exits.
+        /// </summary>
         public event EventHandler<Player> OnLogouted;
+        /// <summary>
+        /// Happen when user's role changing.
+        /// </summary>
+        public event EventHandler<RoleChangeArgs> OnRoleChanging;
+        /// <summary>
+        /// Happen when user's role changed.
+        /// </summary>
+        public event EventHandler<RoleChangeArgs> OnRoleChanged;
 
-        HashSet<IServerConnection> readyToLogin;
+
+        private readonly HashSet<IServerConnection> readyToLogin;
         private readonly IEntityRepository entityRepository;
 
         public IList<Player> OnlinePlayer { get; private set; } = new List<Player>();
@@ -38,24 +52,60 @@ namespace SimCivil.Auth
             server.OnDisconnected += Server_OnDisconnected;
             server.RegisterPacket(PacketType.Login, LoginHandle);
             server.RegisterPacket(PacketType.QueryRoleList, QueryRoleListHandle);
+            server.RegisterPacket(PacketType.SwitchRole, SwitchRoleHandle);
             this.entityRepository = entityRepository;
+        }
+
+        private void SwitchRoleHandle(Packet pkt, ref bool isVaild)
+        {
+            SwitchRole request = pkt as SwitchRole;
+            if (isVaild)
+            {
+                Debug.Assert(request != null, nameof(request) + " != null");
+                Entity entity = entityRepository.LoadEntity(request.RoleGuid);
+                RoleChangeArgs args = new RoleChangeArgs()
+                {
+                    NewEntity = entity,
+                    OldEntity = pkt.Client.ContextPlayer.CurrentRole,
+                    Player = pkt.Client.ContextPlayer,
+                    Allowed = true,
+                };
+                OnRoleChanging?.Invoke(this, args);
+
+                if (args.Allowed)
+                {
+                    if (args.OldEntity != null)
+                        entityRepository.SaveEntity(args.OldEntity);
+                    args.Player.CurrentRole = args.NewEntity;
+
+                    OnRoleChanged?.Invoke(this, args);
+
+                    pkt.ReplyOk();
+                }
+                else
+                {
+                    isVaild = false;
+                    pkt.ReplyDeny();
+                }
+            }
         }
 
         private void Server_OnDisconnected(object sender, IServerConnection e)
         {
+            if (readyToLogin.Contains(e))
+                readyToLogin.Remove(e);
             if (e.ContextPlayer == null)
                 return;
             Logout(e.ContextPlayer);
             e.ContextPlayer = null;
         }
 
+        /// <inheritdoc />
         public void Logout(Player player)
         {
-            if(OnlinePlayer.Remove(player))
-            {
-                OnLogouted?.Invoke(this, player);
-                logger.Info($"[{player.Username}] logout succeed");
-            }
+            if (!OnlinePlayer.Remove(player)) return;
+            OnLogouted?.Invoke(this, player);
+            logger.Info($"[{player.Username}] logout succeed");
         }
 
         private void QueryRoleListHandle(Packet pkt, ref bool isVaild)
@@ -75,6 +125,7 @@ namespace SimCivil.Auth
                     p.ReplyError(desc: "Handshake responses first.");
                     return;
                 }
+                Debug.Assert(pkt != null, nameof(pkt) + " != null");
                 Player player = Login(pkt.Username, pkt.Token);
                 if (player != null)
                 {

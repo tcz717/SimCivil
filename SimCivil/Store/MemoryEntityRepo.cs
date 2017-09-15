@@ -21,9 +21,9 @@ namespace SimCivil.Store
             return Entities[id];
         }
 
-        public void SaveEntity(Guid id, Entity entity)
+        public void SaveEntity(Entity entity)
         {
-            Entities[id] = entity;
+            Entities[entity.Id] = entity;
         }
     }
 }

@@ -13,13 +13,13 @@ namespace SimCivil.Net.Packets
     [PacketType(PacketType.Error)]
     public class ErrorResponse : ResponsePacket
     {
-        static readonly ILog logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly ILog logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
         public ErrorResponse(int errorCode = 0, string description = "invaild packet")
         {
             ErrorCode = errorCode;
             Description = description;
         }
-        public ErrorResponse(Hashtable data, IServerConnection client) : base(data, client) { }
+        public ErrorResponse(PacketType type, Hashtable data, IServerConnection client) : base(type, data, client) { }
 
         public int ErrorCode
         {

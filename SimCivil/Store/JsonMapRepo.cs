@@ -15,7 +15,7 @@ namespace SimCivil.Store
     /// </summary>
     public class JsonMapRepo : MemoryMapRepo, IPersistable
     {
-        static readonly ILog logger = LogManager.GetLogger(typeof(JsonMapRepo));
+        private static readonly ILog logger = LogManager.GetLogger(typeof(JsonMapRepo));
 
         public string RootPath { get; private set; }
         public HashSet<(int X, int Y)> AtlasIndex { get; private set; }

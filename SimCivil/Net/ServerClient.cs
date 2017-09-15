@@ -17,7 +17,7 @@ namespace SimCivil.Net
     /// </summary>
     public class ServerClient : IServerConnection
     {
-        static readonly ILog logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly ILog logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
         private ServerListener serverListener;
         private TcpClient currentClient;
         private NetworkStream clientStream;
@@ -25,7 +25,7 @@ namespace SimCivil.Net
         private int currentID;
         private bool isStart = false; // For TimeOutCheck
         private bool stopFlag = false; // For stop thread
-        private Dictionary<Type,List<Packet>> waitList = new Dictionary<Type, List<Packet>>();
+        private Dictionary<Type, List<Packet>> waitList = new Dictionary<Type, List<Packet>>();
 
         /// <summary>
         /// Register a callback when specfic packet received.

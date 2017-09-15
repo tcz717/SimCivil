@@ -12,6 +12,6 @@ namespace SimCivil.Store
     public interface IEntityRepository
     {
         Entity LoadEntity(Guid id);
-        void SaveEntity(Guid id, Entity entity);
+        void SaveEntity(Entity entity);
     }
 }
