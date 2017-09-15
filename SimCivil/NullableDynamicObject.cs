@@ -16,8 +16,7 @@ namespace SimCivil
         {
             if (base.TryGetMember(binder, out result))
                 return true;
-            if (!Data.TryGetValue(binder.Name, out result))
-                result = null;
+            Data.TryGetValue(binder.Name, out result);
             return true;
         }
 
