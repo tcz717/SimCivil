@@ -14,7 +14,7 @@ namespace SimCivil.Map
         private Random rand;
 
         /// <summary>
-        /// Event trigered on generating new tile.
+        /// Event triggered on generating new tile.
         /// </summary>
         public event GeneratingEventHandler OnGenerating;
 

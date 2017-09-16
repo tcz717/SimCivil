@@ -79,6 +79,7 @@ namespace SimCivil.Net.Packets
         /// </summary>
         public virtual void Send()
         {
+            Timestamp = DateTime.Now;
             Client.SendPacket(this);
         }
 
@@ -138,7 +139,7 @@ namespace SimCivil.Net.Packets
         {
             response.Client = Client;
             response.RefPacketId = PacketHead.PacketId;
-            Client.SendPacket(response);
+            response.Send();
         }
 
         /// <summary>

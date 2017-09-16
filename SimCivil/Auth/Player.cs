@@ -20,6 +20,7 @@ namespace SimCivil.Auth
         {
             Username = username;
             Token = token;
+            Roles = new List<Guid>();
         }
 
         /// <summary>

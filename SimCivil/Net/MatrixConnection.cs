@@ -9,7 +9,7 @@ using SimCivil.Auth;
 namespace SimCivil.Net
 {
     /// <summary>
-    /// An implement of IServerConnection with better performence.
+    /// An implement of IServerConnection with better performance.
     /// </summary>
     /// <seealso>
     ///     <cref>SimCivil.Net.IServerConnection</cref>
@@ -140,7 +140,7 @@ namespace SimCivil.Net
         /// </summary>
         /// <typeparam name="T">ResponsePacket</typeparam>
         /// <param name="packet">Packet to send</param>
-        /// <param name="callback">callback wehen received specified response.</param>
+        /// <param name="callback">callback when received specified response.</param>
         public void SendAndWait<T>(Packet packet, Action<T> callback) where T : ResponsePacket
         {
             var type = PacketFactory.PacketsType[typeof(T)];
@@ -148,10 +148,10 @@ namespace SimCivil.Net
             int tries = 50;
             packet.Client = this;
 
-            void TempCallback(Packet pkt, ref bool vaild)
+            void TempCallback(Packet pkt, ref bool valid)
             {
                 T re = pkt as T;
-                if (re.RefPacketId == packet.PacketHead.PacketId && vaild)
+                if (re.RefPacketId == packet.PacketHead.PacketId && valid)
                 {
                     callback(re);
                     ServerListener.UnregisterPacket(type, TempCallback);

@@ -32,6 +32,7 @@ namespace SimCivil.Net.Packets
         /// <param name="type">The type.</param>
         /// <param name="data">The data.</param>
         /// <param name="client">The client.</param>
+        // ReSharper disable once UnusedMember.Global
         public ErrorResponse(PacketType type, Hashtable data, IServerConnection client) : base(type, data, client)
         {
         }

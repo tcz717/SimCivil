@@ -16,7 +16,7 @@ using static SimCivil.Config;
 namespace SimCivil.Net
 {
     /// <summary>
-    /// An implement of IServerListener with better preformence.
+    /// An implement of IServerListener with better preference.
     /// </summary>
     /// <seealso cref="IServerListener" />
     /// <seealso cref="ITicker" />
@@ -32,7 +32,7 @@ namespace SimCivil.Net
         /// </value>
         public ConcurrentDictionary<EndPoint, IServerConnection> Clients { get; }
 
-        private ConcurrentDictionary<PacketType, PacketCallBack> _callbackDict;
+        private readonly ConcurrentDictionary<PacketType, PacketCallBack> _callbackDict;
 
         /// <summary>
         /// The event triggered when a new ServerClient created
@@ -57,8 +57,8 @@ namespace SimCivil.Net
         public int Port { get; set; }
 
         /// <summary>
-        /// Ticker's priority, larger number has high priorty.
-        /// If system is busy, low priorty ticker may be skip.
+        /// Ticker's priority, larger number has high priory.
+        /// If system is busy, low priory ticker may be skip.
         /// </summary>
         public int Priority { get; } = 900;
 
@@ -67,7 +67,7 @@ namespace SimCivil.Net
         private readonly BlockingCollection<Packet> _packetReadQueue;
 
         /// <summary>
-        /// Construct a serverlistener
+        /// Construct a server listener
         /// </summary>
         /// <param name="ip">ip to start listener</param>
         /// <param name="port">port to start listener</param>
@@ -93,7 +93,7 @@ namespace SimCivil.Net
         /// <param name="pkt">The PKT.</param>
         public void SendPacket(Packet pkt)
         {
-            pkt.Client.SendPacket(pkt);
+            pkt.Send();
         }
 
         /// <summary>
@@ -102,15 +102,15 @@ namespace SimCivil.Net
         public void Start()
         {
             Task.Factory.StartNew(
-                () => LisenteningLoop(_cancellation.Token),
+                () => ListeningLoop(_cancellation.Token),
                 _cancellation.Token,
                 TaskCreationOptions.LongRunning,
                 TaskScheduler.Current);
         }
 
-        private void LisenteningLoop(CancellationToken token)
+        private void ListeningLoop(CancellationToken token)
         {
-            Thread.CurrentThread.Name = nameof(LisenteningLoop);
+            Thread.CurrentThread.Name = nameof(ListeningLoop);
             TcpListener listener = new TcpListener(Host, Port);
             listener.Start();
             logger.Info($"{nameof(MatrixServer)} start at {Host}:{Port}");
@@ -195,7 +195,7 @@ namespace SimCivil.Net
         }
 
         /// <summary>
-        /// Check vaildition, callback and handle
+        /// Check validation, callback and handle
         /// </summary>
         /// <param name="tickCount"></param>
         public void Update(int tickCount)
