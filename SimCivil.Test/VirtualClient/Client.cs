@@ -69,7 +69,7 @@ namespace SimCivil.Test.VirtualClient
                     byte[] buffer = new byte[Packet.MaxSize];
                     int lengthOfHead = clientStream.Read(buffer, 0, Head.HeadLength);
                     Head head = Head.FromBytes(buffer);
-                    int lengthOfBody = clientStream.Read(buffer, 0, head.length);
+                    int lengthOfBody = clientStream.Read(buffer, 0, head.Length);
                     Packet pkt = PacketFactory.Create(null, head, buffer);
 
                     receivedPackets.Enqueue(pkt);

@@ -15,6 +15,7 @@ namespace SimCivil.Net
     /// <summary>
     /// Control TcpListener and a Listener Thread
     /// </summary>
+    [Obsolete]
     public class ServerListener : IServerListener, ITicker
     {
         private TcpListener listener;
@@ -23,32 +24,40 @@ namespace SimCivil.Net
         /// Logger for net
         /// </summary>
         public static readonly ILog logger = LogManager.GetLogger(typeof(ServerListener));
+
         /// <summary>
         /// Server host
         /// </summary>
         public IPAddress Host { get; }
+
         /// <summary>
         /// The port this listener listen to
         /// </summary>
-        public int Port { get;  set; }
+        public int Port { get; set; }
+
         /// <summary>
         /// Packets received from ServerClients and waiting for handling
         /// </summary>
         private Queue<Packet> PacketReadQueue { get; set; }
+
         /// <summary>
         /// Packets waiting for sending
         /// </summary>
         private Queue<Packet> PacketSendQueue { get; set; }
+
         /// <summary>
         /// ServerClients which are communicating with other clients
         /// </summary>
-        public ConcurrentDictionary<EndPoint, ServerClient> Clients { get; private set; } = new ConcurrentDictionary<EndPoint, ServerClient>();
+        public ConcurrentDictionary<EndPoint, ServerClient> Clients { get; private set; } =
+            new ConcurrentDictionary<EndPoint, ServerClient>();
+
         public int Priority { get; } = 900;
 
         /// <summary>
         /// The event triggered when a new ServerClient created
         /// </summary>
         public event EventHandler<IServerConnection> OnConnected;
+
         /// <summary>
         /// The event triggered when a connection closed
         /// </summary>
@@ -66,6 +75,7 @@ namespace SimCivil.Net
             PacketSendQueue = new Queue<Packet>();
             PacketReadQueue = new Queue<Packet>();
         }
+
         /// <summary>
         /// Construct a serverlistener
         /// </summary>
@@ -83,7 +93,7 @@ namespace SimCivil.Net
         /// </summary>
         public void Start()
         {
-            Task.Factory.StartNew(ListeningHandle ,TaskCreationOptions.AttachedToParent);
+            Task.Factory.StartNew(ListeningHandle, TaskCreationOptions.AttachedToParent);
             Task.Factory.StartNew(SendWorker, TaskCreationOptions.AttachedToParent);
             logger.Info($"ServerListnener registered at port: {Port}");
         }
@@ -103,7 +113,8 @@ namespace SimCivil.Net
                 logger.Info($"Client to \"{endPoint}\" stopped");
                 return true;
             }
-            logger.Error($"Failed to stop client. Client \"{client.TcpClt.Client.RemoteEndPoint}\" has not been registered correctly");
+            logger.Error(
+                $"Failed to stop client. Client \"{client.TcpClt.Client.RemoteEndPoint}\" has not been registered correctly");
             return false;
         }
 
@@ -117,7 +128,7 @@ namespace SimCivil.Net
             {
                 PacketSendQueue.Enqueue(pkt);
             }
-            logger.Debug($"Packet has been enqueued and is waiting for sending: \"type: {pkt.Head.type}\"");
+            logger.Debug($"Packet has been enqueued and is waiting for sending: \"type: {pkt.PacketHead.Type}\"");
         }
 
         /// <summary>
@@ -130,7 +141,8 @@ namespace SimCivil.Net
             {
                 PacketReadQueue.Enqueue(pkt);
             }
-            logger.Debug($"Packet has been enqueued and is waiting for reading: \"ID: {pkt.Head.packetID} type: {pkt.Head.type}\"");
+            logger.Debug(
+                $"Packet has been enqueued and is waiting for reading: \"ID: {pkt.PacketHead.PacketId} type: {pkt.PacketHead.Type}\"");
         }
 
         private void SendWorker()
@@ -229,7 +241,7 @@ namespace SimCivil.Net
                     }
                 }
 
-                foreach(var client in Clients.Values)
+                foreach (var client in Clients.Values)
                 {
                     client.TimeOutCheck();
                 }

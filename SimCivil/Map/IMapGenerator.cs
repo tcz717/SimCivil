@@ -24,12 +24,41 @@ namespace SimCivil.Map
         event GeneratingEventHandler OnGenerating;
     }
 
+    /// <summary>
+    /// When a new atlas is generating.
+    /// </summary>
+    /// <param name="sender">The sender.</param>
+    /// <param name="args">The <see cref="GeneratingEventArgs"/> instance containing the event data.</param>
     public delegate void GeneratingEventHandler(IMapGenerator sender, GeneratingEventArgs args);
 
+    /// <summary>
+    /// Represent a new atlas generating.
+    /// </summary>
+    /// <seealso cref="System.EventArgs" />
     public class GeneratingEventArgs : EventArgs
     {
+        /// <summary>
+        /// Gets or sets the position.
+        /// </summary>
+        /// <value>
+        /// The position.
+        /// </value>
         public (int X, int Y) Position { get; set; }
+
+        /// <summary>
+        /// Gets or sets the tile.
+        /// </summary>
+        /// <value>
+        /// The tile.
+        /// </value>
         public Tile Tile { get; set; }
+
+        /// <inheritdoc />
+        /// <summary>
+        /// Initializes a new instance of the <see cref="T:SimCivil.Map.GeneratingEventArgs" /> class.
+        /// </summary>
+        /// <param name="position">The position.</param>
+        /// <param name="tile">The tile.</param>
         public GeneratingEventArgs((int X, int Y) position, Tile tile)
         {
             Position = position;

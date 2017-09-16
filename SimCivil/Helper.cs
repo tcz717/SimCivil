@@ -4,6 +4,7 @@ using SimCivil.Model;
 using SimCivil.Store;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace SimCivil
@@ -28,14 +29,21 @@ namespace SimCivil
             }
         }
     }
+
+    /// <summary>
+    /// Helper class for Entity
+    /// </summary>
     public static class EntityHelper
     {
+        /// <summary>
+        /// Loads the player roles.
+        /// </summary>
+        /// <param name="repository">The repository.</param>
+        /// <param name="player">The player.</param>
+        /// <returns></returns>
         public static IEnumerable<Entity> LoadPlayerRoles(this IEntityRepository repository, Player player)
         {
-            foreach (var roleId in player.Roles)
-            {
-                yield return repository.LoadEntity(roleId);
-            }
+            return player.Roles.Select(repository.LoadEntity);
         }
     }
 }

@@ -38,7 +38,9 @@ namespace SimCivil
                     info.Seed = r.Next(int.MinValue, int.MaxValue);
                     logger.Info($"Using auto seed {info.Seed}");
                 }
-                SimCivil game = !string.IsNullOrWhiteSpace(info.Config) ? new SimCivil(LoadConfiguration(info.Config)) : new SimCivil(LoadConfiguration());
+                SimCivil game = !string.IsNullOrWhiteSpace(info.Config)
+                    ? new SimCivil(LoadConfiguration(info.Config))
+                    : new SimCivil(LoadConfiguration());
                 if (info.IsCreate)
                     game.Initialize(info);
                 else

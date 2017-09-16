@@ -7,6 +7,10 @@ using System.Text;
 using System.Linq;
 using static SimCivil.Config;
 using System.Collections;
+using System.Collections.ObjectModel;
+using System.Collections.Specialized;
+using System.Diagnostics;
+using SimCivil.Model;
 using SimCivil.Net.Packets;
 
 namespace SimCivil.Map
@@ -17,15 +21,60 @@ namespace SimCivil.Map
     public class MapData
     {
         internal static readonly ILog logger = LogManager.GetLogger(typeof(MapData));
-        public Dictionary<(int X, int Y), Atlas> AtlasCollection { get; private set; }
-        public IMapGenerator MapGenerator { get; private set; }
+
+        /// <summary>
+        /// Gets the atlas collection.
+        /// </summary>
+        /// <value>
+        /// The atlas collection.
+        /// </value>
+        public Dictionary<(int X, int Y), Atlas> AtlasCollection { get; } = new Dictionary<(int X, int Y), Atlas>();
+
+        /// <summary>
+        /// Gets the map generator.
+        /// </summary>
+        /// <value>
+        /// The map generator.
+        /// </value>
+        public IMapGenerator MapGenerator { get; }
+
+        /// <summary>
+        /// Gets the map repository.
+        /// </summary>
+        /// <value>
+        /// The map repository.
+        /// </value>
         public IMapRepository MapRepository { get; }
+
+        /// <summary>
+        /// Gets the server listener.
+        /// </summary>
+        /// <value>
+        /// The server listener.
+        /// </value>
         public IServerListener ServerListener { get; }
 
         /// <summary>
-        /// Whether allowing expanding when tile not exsists.
+        /// Whether allowing expanding when tile not exists.
         /// </summary>
         public bool AllowExpanding { get; set; } = true;
+
+        /// <summary>
+        /// Gets the entities.
+        /// </summary>
+        /// <value>
+        /// The entities.
+        /// </value>
+        public ObservableCollection<Entity> Entities { get; } = new ObservableCollection<Entity>();
+
+        /// <summary>
+        /// Gets or sets the entities position dictionary.
+        /// </summary>
+        /// <value>
+        /// The entities position dictionary.
+        /// </value>
+        public Dictionary<(int X, int Y), Entity> EntitiesPositionDictionary { get; } =
+                    new Dictionary<(int X, int Y), Entity>();
 
         /// <summary>
         /// Get tile by position.
@@ -33,12 +82,12 @@ namespace SimCivil.Map
         /// <param name="x">Tile's X position</param>
         /// <param name="y">Tile's Y position</param>
         /// <returns>Tile you want.</returns>
-        /// <exception cref="IndexOutOfRangeException">Tile isn't exsist and expanding is not allowed.</exception>
+        /// <exception cref="IndexOutOfRangeException">Tile isn't existed and expanding is not allowed.</exception>
         public Tile this[int x, int y]
         {
             get
             {
-                (int X, int Y) atlasIndex = Pos2AltasIndex((x, y));
+                (int X, int Y) atlasIndex = Pos2AtlasIndex((x, y));
                 Atlas atlas;
 
                 if (AtlasCollection.ContainsKey(atlasIndex))
@@ -65,7 +114,7 @@ namespace SimCivil.Map
             }
         }
 
-        private static (int X, int Y) Pos2AltasIndex((int x, int y) pos)
+        private static (int X, int Y) Pos2AtlasIndex((int x, int y) pos)
         {
             return (X: pos.x % DefaultAtlasWidth, Y: pos.y % DefaultAtlasHeight);
         }
@@ -75,14 +124,14 @@ namespace SimCivil.Map
         /// </summary>
         /// <param name="pos">Tile's position</param>
         /// <returns>Tile you want.</returns>
-        /// <exception cref="IndexOutOfRangeException">Tile isn't exsist and expanding is not allowed.</exception>
-        public Tile this[(int X, int Y) pos] { get => this[pos.X, pos.Y]; }
+        /// <exception cref="IndexOutOfRangeException">Tile isn't existed and expanding is not allowed.</exception>
+        public Tile this[(int X, int Y) pos] => this[pos.X, pos.Y];
 
         /// <summary>
         /// Config a map data container.
         /// </summary>
         /// <param name="mapGenerator">Object to generate new atlas.</param>
-        /// <param name="mapRepository">Object to generate load exsisted atlas.</param>
+        /// <param name="mapRepository">Object to generate load existed atlas.</param>
         /// <param name="serverListener">Server to sync Map</param>
         public MapData(IMapGenerator mapGenerator, IMapRepository mapRepository, IServerListener serverListener)
         {
@@ -90,13 +139,47 @@ namespace SimCivil.Map
             MapRepository = mapRepository;
             ServerListener = serverListener;
             serverListener.RegisterPacket(PacketType.FullViewSync, FullViewSyncHandle);
+
+            Entities.CollectionChanged += Entities_CollectionChanged;
         }
 
-        private void FullViewSyncHandle(Packet pkt, ref bool isVaild)
+        private void Entities_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            switch (e.Action)
+            {
+                case NotifyCollectionChangedAction.Add:
+                    foreach (Entity item in e.NewItems.Cast<Entity>())
+                    {
+                        EntitiesPositionDictionary[item.Position] = item;
+                        item.PositionChanged += Item_PositionChanged;
+                    }
+                    break;
+                case NotifyCollectionChangedAction.Reset:
+                case NotifyCollectionChangedAction.Remove:
+                    foreach (Entity item in e.OldItems.Cast<Entity>())
+                    {
+                        EntitiesPositionDictionary.Remove(item.Position);
+                    }
+                    break;
+                case NotifyCollectionChangedAction.Move:
+                case NotifyCollectionChangedAction.Replace:
+                    throw new NotSupportedException();
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+
+        private void Item_PositionChanged(object sender, PropertyChangedEventArgs<(int X, int Y)> e)
+        {
+            EntitiesPositionDictionary.Remove(e.OldValue);
+            EntitiesPositionDictionary.Add(e.NewValue, sender as Entity);
+        }
+
+        private void FullViewSyncHandle(Packet pkt, ref bool isValid)
         {
             if (pkt.Client.ContextPlayer?.CurrentRole == null)
             {
-                isVaild = false;
+                isValid = false;
                 return;
             }
             var entity = pkt.Client.ContextPlayer.CurrentRole;
@@ -104,11 +187,11 @@ namespace SimCivil.Map
             pkt.Reply(new FullViewSyncResponse(entity.Position, entity.Meta.ViewDistence, view));
         }
 
-        private IEnumerable<Tile> SelectRange((int x, int y) position, int viewDistence)
+        private IEnumerable<Tile> SelectRange((int x, int y) position, int viewDistance)
         {
-            (int x, int y) lt = (position.x - viewDistence, position.y - viewDistence),
-                lb = (position.x - viewDistence, position.y + viewDistence),
-                rt = (position.x + viewDistence, position.y - viewDistence);
+            (int x, int y) lt = (position.x - viewDistance, position.y - viewDistance),
+                lb = (position.x - viewDistance, position.y + viewDistance),
+                rt = (position.x + viewDistance, position.y - viewDistance);
 
             for (int i = lt.y; i < lb.y; i++)
             {
@@ -117,6 +200,15 @@ namespace SimCivil.Map
                     yield return this[i, j];
                 }
             }
+        }
+
+        /// <summary>
+        /// Attaches the entity.
+        /// </summary>
+        /// <param name="entity">The entity.</param>
+        public void AttachEntity(Entity entity)
+        {
+            Entities.Add(entity);
         }
     }
 }

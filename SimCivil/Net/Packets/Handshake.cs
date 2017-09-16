@@ -13,8 +13,20 @@ namespace SimCivil.Net.Packets
     [PacketType(PacketType.Handshake)]
     public class Handshake : Packet
     {
-        public Handshake(PacketType type, Hashtable data, IServerConnection client) : base(type, data, client) { }
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Handshake"/> class.
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="data">dictionary storing data, consist of a string and a value</param>
+        /// <param name="client">client indicating where to send to or received from</param>
+        public Handshake(PacketType type, Hashtable data, IServerConnection client) : base(type, data, client)
+        {
+        }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Handshake"/> class.
+        /// </summary>
+        /// <param name="auth">The authentication.</param>
         public Handshake(IAuth auth)
         {
             Protocol = SimCivilProtocolVersion.ToString();
@@ -28,28 +40,17 @@ namespace SimCivil.Net.Packets
         /// </summary>
         public string Protocol
         {
-            get
-            {
-                return (string)Data[nameof(Protocol)];
-            }
-            set
-            {
-                Data[nameof(Protocol)] = value;
-            }
+            get => GetDataProperty<string>();
+            set => SetDataProperty(value);
         }
+
         /// <summary>
         /// Game name.
         /// </summary>
         public string GameName
         {
-            get
-            {
-                return (string)Data[nameof(GameName)];
-            }
-            set
-            {
-                Data[nameof(GameName)] = value;
-            }
+            get => GetDataProperty<string>();
+            set => SetDataProperty(value);
         }
 
         /// <summary>
@@ -57,14 +58,8 @@ namespace SimCivil.Net.Packets
         /// </summary>
         public string ServerVersion
         {
-            get
-            {
-                return (string)Data[nameof(ServerVersion)];
-            }
-            set
-            {
-                Data[nameof(ServerVersion)] = value;
-            }
+            get => GetDataProperty<string>();
+            set => SetDataProperty(value);
         }
 
         /// <summary>
@@ -72,16 +67,13 @@ namespace SimCivil.Net.Packets
         /// </summary>
         public string Auth
         {
-            get
-            {
-                return (string)Data[nameof(Auth)];
-            }
-            set
-            {
-                Data[nameof(Auth)] = value;
-            }
+            get => GetDataProperty<string>();
+            set => SetDataProperty(value);
         }
 
+        /// <summary>
+        /// The method executed after clients received and pushed in the PacketReadQueue
+        /// </summary>
         public override void Handle()
         {
             ReplyError(2, "Handshake should be sent from server.");

@@ -12,18 +12,22 @@ namespace SimCivil.Map
         /// Atlas' all tiles.
         /// </summary>
         public Tile[,] Tiles { get; private set; }
+
         /// <summary>
         /// Atlas' X position.
         /// </summary>
         public int X { get; private set; }
+
         /// <summary>
         /// Atlas' Y position.
         /// </summary>
         public int Y { get; private set; }
+
         /// <summary>
         /// Atlas' Width.
         /// </summary>
         public int Width { get; private set; }
+
         /// <summary>
         /// Atlas' Height.
         /// </summary>
@@ -33,28 +37,32 @@ namespace SimCivil.Map
         /// The minimum X position of it's tiles.
         /// </summary>
         [JsonIgnore]
-        public int Left { get { return X; } }
+        public int Left => X;
+
         /// <summary>
         /// The maximum X position of it's tiles.
         /// </summary>
         [JsonIgnore]
-        public int Right { get { return X + Width; } }
+        public int Right => X + Width;
+
         /// <summary>
         /// The minimum Y position of it's tiles.
         /// </summary>
         [JsonIgnore]
-        public int Top { get { return Y; } }
+        public int Top => Y;
+
         /// <summary>
         /// The maximum Y position of it's tiles.
         /// </summary>
         [JsonIgnore]
-        public int Bottom { get { return Y + Height; } }
+        public int Bottom => Y + Height;
 
         /// <summary>
         /// Whether it's tiles have been created.
         /// </summary>
         [JsonIgnore]
-        public bool IsExsist { get; private set; } = false;
+        public bool IsExist { get; private set; } = false;
+
         /// <summary>
         /// Whether it's tiles have been loaded.
         /// </summary>
@@ -62,7 +70,7 @@ namespace SimCivil.Map
         public bool HasLoaded { get; private set; } = false;
 
         /// <summary>
-        /// Method to craete a new empty Atlas.
+        /// Method to create a new empty Atlas.
         /// </summary>
         /// <param name="x">Atlas' X position.</param>
         /// <param name="y">Atlas' Y position.</param>
@@ -78,7 +86,7 @@ namespace SimCivil.Map
                 Y = y,
                 Width = width,
                 Height = height,
-                IsExsist = true,
+                IsExist = true,
                 HasLoaded = true,
             };
         }

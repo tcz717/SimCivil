@@ -22,10 +22,12 @@ namespace SimCivil
         /// SimCivil's logger.
         /// </summary>
         public static readonly ILog logger = LogManager.GetLogger(typeof(SimCivil));
+
         /// <summary>
         /// Game's map data.
         /// </summary>
         public MapData Map { get; private set; }
+
         /// <summary>
         /// Default game config.
         /// </summary>
@@ -47,9 +49,10 @@ namespace SimCivil
         public SimCivil(IContainer container)
         {
             Services = container;
-            foreach(var s in Services.ComponentRegistry.Registrations)
+            foreach (var s in Services.ComponentRegistry.Registrations)
             {
-                logger.Info($"Service {s.Activator.LimitType} registered as {string.Join(',', s.Services.Select(n => n.Description))}");
+                logger.Info(
+                    $"Service {s.Activator.LimitType} registered as {string.Join(',', s.Services.Select(n => n.Description))}");
             }
         }
 
@@ -57,6 +60,7 @@ namespace SimCivil
         /// A container used for denpendencies injecting.
         /// </summary>
         public IContainer Services { get; private set; }
+
         /// <summary>
         /// Basic game infomation.
         /// </summary>
@@ -69,10 +73,11 @@ namespace SimCivil
         public void Initialize(GameInfo info)
         {
             Info = info;
-            logger.Info($"Initialize Game: {info.Name} ({info.StoreDirectory} {info.Seed.ToString("X")})");
+            logger.Info($"Initialize Game: {info.Name} ({info.StoreDirectory} {info.Seed:X})");
             Directory.CreateDirectory(info.StoreDirectory);
             Services.CallMany<IPersistable>(n => n.Initialize(info));
         }
+
         /// <summary>
         /// Load a game.
         /// </summary>
@@ -83,6 +88,7 @@ namespace SimCivil
             logger.Info($"Load Game in: {info.StoreDirectory}");
             Services.CallMany<IPersistable>(n => n.Load(info.StoreDirectory));
         }
+
         /// <summary>
         /// Save a game.
         /// </summary>
@@ -105,11 +111,13 @@ namespace SimCivil
                     token.Token,
                     TaskCreationOptions.LongRunning,
                     TaskScheduler.Default)
+                // ReSharper disable once MethodSupportsCancellation
                 .ContinueWith(t => logger.Info("SimCivil stop loop."));
 
-            while(block)
+            // ReSharper disable once LoopVariableIsNeverChangedInsideLoop
+            while (block)
             {
-                switch(Console.ReadKey().Key)
+                switch (Console.ReadKey().Key)
                 {
                     case ConsoleKey.Escape:
                         token.Cancel();
@@ -125,6 +133,7 @@ namespace SimCivil
             //Get tickers
             var tickers = Services.Resolve<IEnumerable<ITicker>>().OrderByDescending(t => t.Priority);
             int tickCount = 0;
+            Map = Services.Resolve<MapData>();
 
             foreach (var ticker in tickers)
             {
@@ -146,7 +155,8 @@ namespace SimCivil
                 else
                     logger.Warn($"Tick {tickCount} timeout.");
                 tickCount++;
-            };
+            }
+            ;
             Save();
             //Stop tickers
             foreach (var ticker in tickers)

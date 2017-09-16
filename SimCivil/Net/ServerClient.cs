@@ -15,6 +15,7 @@ namespace SimCivil.Net
     /// <summary>
     /// Clients created by listener
     /// </summary>
+    [Obsolete]
     public class ServerClient : IServerConnection
     {
         private static readonly ILog logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
@@ -34,13 +35,14 @@ namespace SimCivil.Net
         /// <param name="packet">Packet requesting callback.</param>
         public void WaitFor<T>(Packet packet) where T : ResponsePacket
         {
-            Type type = typeof(T); 
+            Type type = typeof(T);
             if (waitList[type] == null)
             {
                 waitList[type] = new List<Packet>();
             }
             waitList[type].Add(packet);
-            logger.Debug($"Packet \"type: {packet.Head.type} response type: {nameof(T)}\" added to wait list and is waiting for response");
+            logger.Debug(
+                $"Packet \"type: {packet.PacketHead.Type} response type: {nameof(T)}\" added to wait list and is waiting for response");
         }
 
         /// <summary>
@@ -52,17 +54,17 @@ namespace SimCivil.Net
         {
             if (waitList.ContainsKey(response.GetType()))
             {
-                foreach(var srcPacket in waitList[response.GetType()])
+                foreach (var srcPacket in waitList[response.GetType()])
                 {
-                    if (srcPacket.Head.packetID == response.RefPacketID)
+                    if (srcPacket.PacketHead.PacketId == response.RefPacketId)
                     {
-                        logger.Debug($"Successfully call back packet by \"{response.Head.type}\"");
+                        logger.Debug($"Successfully call back packet by \"{response.PacketHead.Type}\"");
                         waitList[response.GetType()].Remove(srcPacket);
                         return srcPacket;
                     }
                 }
             }
-            logger.Error($"Failed to call back packet by \"{response.Head.type}\", cannnot find it in dic");
+            logger.Error($"Failed to call back packet by \"{response.PacketHead.Type}\", cannnot find it in dic");
             return null;
         }
 
@@ -70,6 +72,7 @@ namespace SimCivil.Net
         /// Event invoking when a packet received.
         /// </summary>
         public event EventHandler<Packet> OnPacketReceived;
+
         public event EventHandler OnDisconnected;
 
         /// <summary>
@@ -84,9 +87,19 @@ namespace SimCivil.Net
         /// <summary>
         /// This Client's holder.
         /// </summary>
-        public ServerListener ServerListener { get => serverListener; set => serverListener = value; }
-        IServerListener IServerConnection.ServerListener { get => serverListener; set => serverListener = value as ServerListener; }
-        public bool Connected  => isStart;
+        public ServerListener ServerListener
+        {
+            get => serverListener;
+            set => serverListener = value;
+        }
+
+        IServerListener IServerConnection.ServerListener
+        {
+            get => serverListener;
+            set => serverListener = value as ServerListener;
+        }
+
+        public bool Connected => isStart;
 
         public Player ContextPlayer { get; set; }
 
@@ -114,7 +127,7 @@ namespace SimCivil.Net
             {
                 byte[] data = pkt.ToBytes(currentID);
                 clientStream.Write(data, 0, data.Length);
-                logger.Debug($"Packet has been sent: \"ID:{pkt.Head.packetID} type:{pkt.Head.type}\"");
+                logger.Debug($"Packet has been sent: \"ID:{pkt.PacketHead.PacketId} type:{pkt.PacketHead.Type}\"");
 
                 if (++currentID >= Int32.MaxValue)
                 {
@@ -123,7 +136,7 @@ namespace SimCivil.Net
             }
             catch (Exception e)
             {
-                logger.Error("Client connecting failed in Send: " + e.Message); 
+                logger.Error("Client connecting failed in Send: " + e.Message);
             }
         }
 
@@ -150,7 +163,7 @@ namespace SimCivil.Net
                         byte[] buffer = new byte[Packet.MaxSize];
                         int lengthOfHead = clientStream.Read(buffer, 0, Head.HeadLength);
                         Head head = Head.FromBytes(buffer);
-                        int lengthOfBody = clientStream.Read(buffer, 0, head.length);
+                        int lengthOfBody = clientStream.Read(buffer, 0, head.Length);
                         Packet pkt = PacketFactory.Create(this, head, buffer);
 
                         // Enqueue packet
@@ -166,7 +179,8 @@ namespace SimCivil.Net
                 }
                 catch (Exception e)
                 {
-                    logger.Info($"Client \"{TcpClt.Client.RemoteEndPoint}\" failed to receive packet and forced to stop. Exception: {e.Message}");
+                    logger.Info(
+                        $"Client \"{TcpClt.Client.RemoteEndPoint}\" failed to receive packet and forced to stop. Exception: {e.Message}");
                     serverListener.DetachClient(this);
                 }
             }, TaskCreationOptions.AttachedToParent);
@@ -195,7 +209,8 @@ namespace SimCivil.Net
                 }
                 if (DateTime.Now - lastReceive > LostConnectionTime)
                 {
-                    logger.Info($"Client \"{TcpClt.Client.RemoteEndPoint}\" receiving out of time, and ordered to stop");
+                    logger.Info(
+                        $"Client \"{TcpClt.Client.RemoteEndPoint}\" receiving out of time, and ordered to stop");
                     ServerListener.DetachClient(this);
                 }
             }

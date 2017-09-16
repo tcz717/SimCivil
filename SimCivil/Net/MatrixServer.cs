@@ -3,6 +3,7 @@ using SimCivil.Net.Packets;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -14,32 +15,59 @@ using static SimCivil.Config;
 
 namespace SimCivil.Net
 {
+    /// <summary>
+    /// An implement of IServerListener with better preference.
+    /// </summary>
+    /// <seealso cref="IServerListener" />
+    /// <seealso cref="ITicker" />
     public class MatrixServer : IServerListener, ITicker
     {
         private static readonly ILog logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+
+        /// <summary>
+        /// Gets the clients.
+        /// </summary>
+        /// <value>
+        /// The clients.
+        /// </value>
         public ConcurrentDictionary<EndPoint, IServerConnection> Clients { get; }
 
-        private ConcurrentDictionary<PacketType, PacketCallBack> callbackDict;
+        private readonly ConcurrentDictionary<PacketType, PacketCallBack> _callbackDict;
 
+        /// <summary>
+        /// The event triggered when a new ServerClient created
+        /// </summary>
         public event EventHandler<IServerConnection> OnConnected;
+
+        /// <summary>
+        /// The event triggered when a connection closed
+        /// </summary>
         public event EventHandler<IServerConnection> OnDisconnected;
-        private CancellationTokenSource cancellation = new CancellationTokenSource();
+
+        private readonly CancellationTokenSource _cancellation = new CancellationTokenSource();
+
         /// <summary>
         /// Server host
         /// </summary>
         public IPAddress Host { get; }
+
         /// <summary>
         /// The port this listener listen to
         /// </summary>
         public int Port { get; set; }
-        public int Priority { get; } = 900;
-
-        private readonly Socket socket;
-        private readonly BlockingCollection<Packet> PacketSendQueue;
-        private readonly BlockingCollection<Packet> PacketReadQueue;
 
         /// <summary>
-        /// Construct a serverlistener
+        /// Ticker's priority, larger number has high priory.
+        /// If system is busy, low priory ticker may be skip.
+        /// </summary>
+        public int Priority { get; } = 900;
+
+        private readonly Socket _socket;
+        private readonly BlockingCollection<Packet> _packetSendQueue;
+        private readonly BlockingCollection<Packet> _packetReadQueue;
+
+        /// <summary>
+        /// Construct a server listener
         /// </summary>
         /// <param name="ip">ip to start listener</param>
         /// <param name="port">port to start listener</param>
@@ -47,39 +75,46 @@ namespace SimCivil.Net
         {
             Host = IPAddress.Parse(ip);
             Port = port;
-            socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            _socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
-            PacketSendQueue = new BlockingCollection<Packet>();
-            PacketReadQueue = new BlockingCollection<Packet>();
+            _packetSendQueue = new BlockingCollection<Packet>();
+            _packetReadQueue = new BlockingCollection<Packet>();
 
             Clients = new ConcurrentDictionary<EndPoint, IServerConnection>();
 
-            callbackDict = new ConcurrentDictionary<PacketType, PacketCallBack>(
+            _callbackDict = new ConcurrentDictionary<PacketType, PacketCallBack>(
                 PacketFactory.LegalPackets.Select(lp => new KeyValuePair<PacketType, PacketCallBack>(lp.Key, null))
-               );
+            );
         }
 
+        /// <summary>
+        /// Sends the packet.
+        /// </summary>
+        /// <param name="pkt">The PKT.</param>
         public void SendPacket(Packet pkt)
         {
-            pkt.Client.SendPacket(pkt);
+            pkt.Send();
         }
 
+        /// <summary>
+        /// Starts this server.
+        /// </summary>
         public void Start()
         {
             Task.Factory.StartNew(
-                () => LisenteningLoop(cancellation.Token),
-                cancellation.Token,
+                () => ListeningLoop(_cancellation.Token),
+                _cancellation.Token,
                 TaskCreationOptions.LongRunning,
                 TaskScheduler.Current);
         }
 
-        private void LisenteningLoop(CancellationToken token)
+        private void ListeningLoop(CancellationToken token)
         {
-            Thread.CurrentThread.Name = nameof(LisenteningLoop);
+            Thread.CurrentThread.Name = nameof(ListeningLoop);
             TcpListener listener = new TcpListener(Host, Port);
             listener.Start();
             logger.Info($"{nameof(MatrixServer)} start at {Host}:{Port}");
-            while (!cancellation.IsCancellationRequested)
+            while (!token.IsCancellationRequested)
             {
                 var socket = listener.AcceptSocket();
                 var con = new MatrixConnection(this, socket);
@@ -95,16 +130,16 @@ namespace SimCivil.Net
             int lengthOfBody = 0;
             try
             {
-                while (!cancellation.Token.IsCancellationRequested)
+                while (!_cancellation.Token.IsCancellationRequested)
                 {
                     int lengthOfHead = await con.Stream.ReadAsync(buffer, 0, Head.HeadLength);
                     Head head = Head.FromBytes(buffer);
-                    lengthOfBody = await con.Stream.ReadAsync(buffer, 0, head.length);
+                    lengthOfBody = await con.Stream.ReadAsync(buffer, 0, head.Length);
 
                     Packet pkt = PacketFactory.Create(con, head, buffer);
 
                     logger.Debug($"received packet {pkt}");
-                    PacketReadQueue.Add(pkt);
+                    _packetReadQueue.Add(pkt);
                 }
             }
             catch (Exception e)
@@ -119,15 +154,24 @@ namespace SimCivil.Net
             }
         }
 
+        /// <summary>
+        /// Stops this server.
+        /// </summary>
         public void Stop()
         {
-            cancellation.Cancel();
+            _cancellation.Cancel();
             foreach (var c in Clients.Values)
             {
                 c.Close();
             }
         }
 
+        /// <summary>
+        /// Attaches the client.
+        /// </summary>
+        /// <param name="client">The client.</param>
+        /// <exception cref="NotSupportedException"></exception>
+        /// <exception cref="ArgumentException"></exception>
         public void AttachClient(IServerConnection client)
         {
             MatrixConnection connection = client as MatrixConnection ?? throw new NotSupportedException();
@@ -137,6 +181,11 @@ namespace SimCivil.Net
             logger.Info($"Connection established {connection.Socket.RemoteEndPoint}");
         }
 
+        /// <summary>
+        /// Detaches the client.
+        /// </summary>
+        /// <param name="client">The client.</param>
+        /// <exception cref="NotSupportedException"></exception>
         public void DetachClient(IServerConnection client)
         {
             MatrixConnection connection = client as MatrixConnection ?? throw new NotSupportedException();
@@ -146,33 +195,47 @@ namespace SimCivil.Net
         }
 
         /// <summary>
-        /// Check vaildition, callback and handle
+        /// Check validation, callback and handle
         /// </summary>
         /// <param name="tickCount"></param>
         public void Update(int tickCount)
         {
-            while(PacketReadQueue.TryTake(out Packet pkt))
+            while (_packetReadQueue.TryTake(out Packet pkt))
             {
-                bool isVaild = pkt.Verify(out string error);
-                if (isVaild)
+                bool isValid = pkt.Verify(out string error);
+                if (isValid)
                 {
                     pkt.ReplyError(desc: error);
                     continue;
                 }
-                callbackDict[pkt.Head.type]?.Invoke(pkt, ref isVaild);
-                if (isVaild)
+                _callbackDict[pkt.PacketHead.Type]?.Invoke(pkt, ref isValid);
+                if (isValid)
                     pkt.Handle();
             }
         }
 
+        /// <summary>
+        /// Registers the packet.
+        /// </summary>
+        /// <param name="type">The type.</param>
+        /// <param name="callBack">The call back.</param>
         public void RegisterPacket(PacketType type, PacketCallBack callBack)
         {
-            callbackDict[type] += callBack;
+            _callbackDict[type] += callBack;
         }
 
+        /// <summary>
+        /// Unregisters the packet.
+        /// </summary>
+        /// <param name="type">The type.</param>
+        /// <param name="callBack">The call back.</param>
         public void UnregisterPacket(PacketType type, PacketCallBack callBack)
         {
-            callbackDict[type] -= callBack;
+            if (_callbackDict != null)
+            {
+                Debug.Assert(callBack != null, nameof(callBack) + " != null");
+                _callbackDict[type] -= callBack;
+            }
         }
     }
 }
