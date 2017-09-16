@@ -8,9 +8,21 @@ using System.Threading.Tasks;
 
 namespace SimCivil.Store
 {
+    /// <inheritdoc />
+    /// <summary>
+    /// Repository stored config
+    /// </summary>
+    /// <seealso>
+    ///     <cref>SimCivil.Store.IPersistable</cref>
+    /// </seealso>
     public class ConfigRepository : IPersistable
     {
         private static readonly ILog logger = LogManager.GetLogger(typeof(ConfigRepository));
+        /// <inheritdoc />
+        /// <summary>
+        /// Initialize the store.
+        /// </summary>
+        /// <param name="info"></param>
         public void Initialize(GameInfo info)
         {
             Random r = new Random(info.Seed);
@@ -26,6 +38,11 @@ namespace SimCivil.Store
             logger.Info($"Init {nameof(ConfigRepository)}:{info.Name}(SW: {Config.Cfg.SpawnPoint})");
         }
 
+        /// <inheritdoc />
+        /// <summary>
+        /// Load the config.
+        /// </summary>
+        /// <param name="path">Directory path to store all data.</param>
         public void Load(string path)
         {
             string fullPath = Path.Combine(path, Config.DefaultGameConfigFile);
@@ -34,6 +51,12 @@ namespace SimCivil.Store
             logger.Info($"Loaded {nameof(ConfigRepository)}:{fullPath}");
         }
 
+        /// <inheritdoc />
+        /// <summary>
+        /// Load the config async.
+        /// </summary>
+        /// <param name="path">Directory path to store all data.</param>
+        /// <returns></returns>
         public async Task LoadAsync(string path)
         {
             string fullPath = Path.Combine(path, Config.DefaultGameConfigFile);
@@ -42,6 +65,11 @@ namespace SimCivil.Store
             logger.Info($"Loaded {nameof(ConfigRepository)}:{fullPath}");
         }
 
+        /// <inheritdoc />
+        /// <summary>
+        /// Save the config.
+        /// </summary>
+        /// <param name="path">Directory path to store all data.</param>
         public void Save(string path)
         {
             string fullPath = Path.Combine(path, Config.DefaultGameConfigFile);
@@ -50,6 +78,12 @@ namespace SimCivil.Store
             logger.Info($"Saved {nameof(ConfigRepository)}:{fullPath}");
         }
 
+        /// <inheritdoc />
+        /// <summary>
+        /// Save the config async.
+        /// </summary>
+        /// <param name="path">Directory path to store all data.</param>
+        /// <returns></returns>
         public async Task SaveAsync(string path)
         {
             string fullPath = Path.Combine(path, Config.DefaultGameConfigFile);

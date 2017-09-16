@@ -8,11 +8,25 @@ using SimCivil.Auth;
 
 namespace SimCivil.Net
 {
+    /// <summary>
+    /// An implement of IServerConnection with better performence.
+    /// </summary>
+    /// <seealso>
+    ///     <cref>SimCivil.Net.IServerConnection</cref>
+    /// </seealso>
+    /// <seealso>
+    ///     <cref>System.IDisposable</cref>
+    /// </seealso>
     public class MatrixConnection : IServerConnection, IDisposable
     {
         private static readonly ILog logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
-        private int currentID = 0;
+        private int _currentId;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MatrixConnection"/> class.
+        /// </summary>
+        /// <param name="serverListener">The server listener.</param>
+        /// <param name="socket">The socket.</param>
         public MatrixConnection(IServerListener serverListener, Socket socket)
         {
             ServerListener = serverListener;
@@ -20,16 +34,55 @@ namespace SimCivil.Net
             Stream = new NetworkStream(socket);
         }
 
+        /// <summary>
+        /// Gets or sets the server listener.
+        /// </summary>
+        /// <value>
+        /// The server listener.
+        /// </value>
         public IServerListener ServerListener { get; set; }
+        /// <summary>
+        /// Gets the socket.
+        /// </summary>
+        /// <value>
+        /// The socket.
+        /// </value>
         public Socket Socket { get; }
+        /// <summary>
+        /// Gets the stream.
+        /// </summary>
+        /// <value>
+        /// The stream.
+        /// </value>
         public NetworkStream Stream { get; }
+        /// <summary>
+        /// Gets a value indicating whether this <see cref="MatrixConnection"/> is connected.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if connected; otherwise, <c>false</c>.
+        /// </value>
         public bool Connected => Socket.Connected;
 
+        /// <summary>
+        /// Gets or sets the context player.
+        /// </summary>
+        /// <value>
+        /// The context player.
+        /// </value>
         public Player ContextPlayer { get; set; }
 
+        /// <summary>
+        /// Occurs when [on packet received].
+        /// </summary>
         public event EventHandler<Packet> OnPacketReceived;
+        /// <summary>
+        /// Occurs when [on disconnected].
+        /// </summary>
         public event EventHandler OnDisconnected;
 
+        /// <summary>
+        /// Closes this instance.
+        /// </summary>
         public void Close()
         {
             if (Connected)
@@ -41,26 +94,38 @@ namespace SimCivil.Net
             }
         }
 
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
         public void Dispose()
         {
             Stream?.Dispose();
             Socket?.Dispose();
         }
 
+        /// <summary>
+        /// Sends the packet.
+        /// </summary>
+        /// <param name="pkt">The PKT.</param>
+        /// <exception cref="InvalidOperationException">Socket closed.</exception>
         public void SendPacket(Packet pkt)
         {
             if (!Socket.Connected)
                 throw new InvalidOperationException("Socket closed.");
 
-            byte[] data = pkt.ToBytes(currentID);
+            byte[] data = pkt.ToBytes(_currentId);
             var send = Stream.WriteAsync(data, 0, data.Length);
             if (pkt is ErrorResponse)
                 send.ContinueWith(t => Close());
-            logger.Debug($"Packet has been sent: \"ID:{pkt.Head.packetID} type:{pkt.Head.type}\"");
+            logger.Debug($"Packet has been sent: \"ID:{pkt.PacketHead.PacketId} type:{pkt.PacketHead.Type}\"");
 
-            Interlocked.Increment(ref currentID);
+            Interlocked.Increment(ref _currentId);
         }
 
+        /// <summary>
+        /// Times the out check.
+        /// </summary>
+        /// <exception cref="NotImplementedException"></exception>
         public void TimeOutCheck()
         {
             throw new NotImplementedException();
@@ -77,18 +142,18 @@ namespace SimCivil.Net
             var type = PacketFactory.PacketsType[typeof(T)];
             int tries = 50;
             packet.Client = this;
-            void temp_callback(Packet pkt, ref bool vaild)
+            void TempCallback(Packet pkt, ref bool vaild)
             {
                 T re = pkt as T;
-                if (re.RefPacketID == packet.Head.packetID && vaild)
+                if (re.RefPacketId == packet.PacketHead.PacketId && vaild)
                 {
                     callback(re);
-                    ServerListener.UnregisterPacket(type, temp_callback);
+                    ServerListener.UnregisterPacket(type, TempCallback);
                 }
                 else if (--tries < 0)
-                    ServerListener.UnregisterPacket(type, temp_callback);
+                    ServerListener.UnregisterPacket(type, TempCallback);
             }
-            ServerListener.RegisterPacket(type, temp_callback);
+            ServerListener.RegisterPacket(type, TempCallback);
             packet.Send();
         }
 
@@ -101,6 +166,9 @@ namespace SimCivil.Net
             return Socket.RemoteEndPoint.ToString();
         }
 
+        /// <summary>
+        /// Finalizes an instance of the <see cref="MatrixConnection"/> class.
+        /// </summary>
         ~MatrixConnection()
         {
             Dispose();

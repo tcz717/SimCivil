@@ -11,24 +11,66 @@ using SharpRaven.Data;
 
 namespace SimCivil.Profile
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class SentryTag
     {
+        /// <summary>
+        /// Gets or sets the name.
+        /// </summary>
+        /// <value>
+        /// The name.
+        /// </value>
         public string Name { get; set; }
+        /// <summary>
+        /// Gets or sets the layout.
+        /// </summary>
+        /// <value>
+        /// The layout.
+        /// </value>
         public IRawLayout Layout { get; set; }
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <seealso cref="log4net.Appender.AppenderSkeleton" />
     public class SentryAppender : AppenderSkeleton
     {
+        /// <summary>
+        /// The raven client
+        /// </summary>
         protected IRavenClient RavenClient;
+        /// <summary>
+        /// Gets or sets the DSN.
+        /// </summary>
+        /// <value>
+        /// The DSN.
+        /// </value>
         public string DSN { get; set; }
+        /// <summary>
+        /// Gets or sets the logger.
+        /// </summary>
+        /// <value>
+        /// The logger.
+        /// </value>
         public string Logger { get; set; }
         private readonly IList<SentryTag> tagLayouts = new List<SentryTag>();
 
+        /// <summary>
+        /// Adds the tag.
+        /// </summary>
+        /// <param name="tag">The tag.</param>
         public void AddTag(SentryTag tag)
         {
             tagLayouts.Add(tag);
         }
 
+        /// <summary>
+        /// Appends the specified logging event.
+        /// </summary>
+        /// <param name="loggingEvent">The logging event.</param>
         protected override void Append(LoggingEvent loggingEvent)
         {
             if (RavenClient == null)
@@ -80,6 +122,11 @@ namespace SimCivil.Profile
             }
         }
 
+        /// <summary>
+        /// Translates the specified level.
+        /// </summary>
+        /// <param name="level">The level.</param>
+        /// <returns></returns>
         public static ErrorLevel Translate(Level level)
         {
             switch (level.DisplayName)
@@ -96,6 +143,10 @@ namespace SimCivil.Profile
                 : errorLevel;
         }
 
+        /// <summary>
+        /// Appends the specified logging events.
+        /// </summary>
+        /// <param name="loggingEvents">The logging events.</param>
         protected override void Append(LoggingEvent[] loggingEvents)
         {
             foreach (var loggingEvent in loggingEvents)

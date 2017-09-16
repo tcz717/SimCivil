@@ -1,61 +1,51 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
-using System.IO;
-using Newtonsoft.Json;
-using System.Text;
 using System.Linq;
 using System.Reflection;
-using System.Collections;
-using SimCivil.Net.Packets;
+using System.Text;
+using Newtonsoft.Json;
 
-namespace SimCivil.Net
+namespace SimCivil.Net.Packets
 {
     /// <summary>
     /// The base class of Packet, including Head, data, client, and send/handle methods etc.
     /// </summary>
     public abstract class Packet
     {
+        private Head _packetHead;
+
         /// <summary>
         /// 单个数据包最大限制
         /// </summary>
         public const int MaxSize = 4096; 
 
         /// <summary>
-        /// Packet head storing ID, type, and body length
-        /// </summary>
-        protected Head head;
-
-        /// <summary>
-        /// The client indicating where to send to or received from
-        /// </summary>
-        protected IServerConnection client;
-
-        /// <summary>
         /// The dictionary storing data, consist of a string and a value
         /// </summary>
         public Hashtable Data { get; set; }
+
         /// <summary>
         /// Packet head storing ID, type, and body length
         /// </summary>
-        public Head Head { get { return head; } set { head = value; } }
+        public Head PacketHead
+        {
+            get => _packetHead;
+            set => _packetHead = value;
+        }
+
         /// <summary>
         /// The client indicating where to send to or received from
         /// </summary>
-        public IServerConnection Client { get { return client; } set { client = value; } }
+        public IServerConnection Client { get; set; }
 
         /// <summary>
         /// Send time.
         /// </summary>
         public DateTime Timestamp
         {
-            get
-            {
-                return (DateTime)Data[nameof(Timestamp)];
-            }
-            set
-            {
-                Data[nameof(Timestamp)] = value;
-            }
+            get => (DateTime)Data[nameof(Timestamp)];
+            set => Data[nameof(Timestamp)] = value;
         }
 
         /// <summary>
@@ -64,15 +54,19 @@ namespace SimCivil.Net
         /// <param name="type"></param>
         /// <param name="data">dictionary storing data, consist of a string and a value</param>
         /// <param name="client">client indicating where to send to or received from</param>
-        public Packet(PacketType type = PacketType.Empty, Hashtable data = null, IServerConnection client = null)
+        protected Packet(PacketType type = PacketType.Empty, Hashtable data = null, IServerConnection client = null)
         {
             Data = data ?? new Hashtable();
-            this.client = client;
-            head = default(Head);
-            if (type == PacketType.Empty)
-                head.type = GetType().GetTypeInfo().GetCustomAttribute<PacketTypeAttribute>().PacketType;
-            else
-                head.type = type;
+            Client = client;
+            PacketHead = default(Head);
+            UpdateType(type);
+        }
+
+        private void UpdateType(PacketType type)
+        {
+            Head packetHead = PacketHead;
+            packetHead.Type = type == PacketType.Empty ? GetType().GetTypeInfo().GetCustomAttribute<PacketTypeAttribute>().PacketType : type;
+            PacketHead = packetHead;
         }
 
         /// <summary>
@@ -82,7 +76,7 @@ namespace SimCivil.Net
         /// </summary>
         public virtual void Send()
         {
-            client.SendPacket(this);
+            Client.SendPacket(this);
         }
 
         /// <summary>
@@ -100,16 +94,16 @@ namespace SimCivil.Net
         /// <summary>
         /// Update ID and length stored in head and convert Packet, including head, to bytes
         /// </summary>
-        /// <param name="packetID">the ID of packet for assembling head</param>
+        /// <param name="packetId">the ID of packet for assembling head</param>
         /// <returns>bytes converted from Packet</returns>
-        public virtual byte[] ToBytes(int packetID)
+        public virtual byte[] ToBytes(int packetId)
         {
             byte[] dataBytes = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(Data));
 
-            head.length = dataBytes.Length;
-            head.packetID = packetID;
+            _packetHead.Length = dataBytes.Length;
+            _packetHead.PacketId = packetId;
 
-            return head.ToBytes().Concat(dataBytes).ToArray();
+            return PacketHead.ToBytes().Concat(dataBytes).ToArray();
         }
 
         /// <summary>
@@ -119,32 +113,46 @@ namespace SimCivil.Net
         public virtual bool Verify(out string errorDesc)
         {
             bool result = true;
-            result &= Enum.GetNames(typeof(PacketType)).Contains(head.type.ToString());
-            result &= head.length > 0;
+            result &= Enum.GetNames(typeof(PacketType)).Contains(PacketHead.Type.ToString());
+            result &= PacketHead.Length > 0;
             result &= Data != null;
             if (!result)
                 errorDesc = "Packet format invaild";
-            result &= !PacketFactory.PacketAttributes[head.type].LoginRequired || Client.ContextPlayer != null;
-            if (result)
-                errorDesc = "";
-            else
-                errorDesc = "Login required";
+            result &= !PacketFactory.PacketAttributes[PacketHead.Type].LoginRequired || Client.ContextPlayer != null;
+            errorDesc = result ? "" : "Login required";
             return result;
         }
 
+        /// <summary>
+        /// Replies the specified response.
+        /// </summary>
+        /// <param name="response">The response.</param>
         public void Reply(ResponsePacket response)
         {
-            response.Client = client;
-            response.RefPacketID = head.packetID;
-            client.SendPacket(response);
+            response.Client = Client;
+            response.RefPacketId = PacketHead.PacketId;
+            Client.SendPacket(response);
         }
 
+        /// <summary>
+        /// Replies the error.
+        /// </summary>
+        /// <param name="errorCode">The error code.</param>
+        /// <param name="desc">The desc.</param>
         public void ReplyError(int errorCode = 0, string desc = "error occured") =>
-            Reply(new ErrorResponse(errorCode, desc) { Client = client });
+            Reply(new ErrorResponse(errorCode, desc) { Client = Client });
+        /// <summary>
+        /// Replies the ok.
+        /// </summary>
+        /// <param name="desc">The desc.</param>
         public void ReplyOk(string desc = "request ok") =>
-            Reply(new OkResponse(true, desc) { Client = client });
+            Reply(new OkResponse(true, desc) { Client = Client });
+        /// <summary>
+        /// Replies the deny.
+        /// </summary>
+        /// <param name="desc">The desc.</param>
         public void ReplyDeny(string desc = "request denied") =>
-            Reply(new OkResponse(false, desc) { Client = client });
+            Reply(new OkResponse(false, desc) { Client = Client });
     }
     
     /// <summary>
@@ -160,17 +168,17 @@ namespace SimCivil.Net
         /// <summary>
         /// Packet ID
         /// </summary>
-        public int packetID;
+        public int PacketId;
 
         /// <summary>
         /// Packet type
         /// </summary>
-        public PacketType type;
+        public PacketType Type;
 
         /// <summary>
         /// Length of body
         /// </summary>
-        public int length;
+        public int Length;
 
         /// <summary>
         /// Construct a Packet Head
@@ -181,21 +189,21 @@ namespace SimCivil.Net
         /// <summary>
         /// Construct a Packet Head
         /// </summary>
-        /// <param name="packageID">Packet ID</param>
+        /// <param name="packageId">Packet ID</param>
         /// <param name="type">Packet type</param>
-        public Head(int packageID, PacketType type) : this(packageID, type, 0) { }
+        public Head(int packageId, PacketType type) : this(packageId, type, 0) { }
 
         /// <summary>
-        ///  Construct a Packet Head
+        /// Construct a Packet Head
         /// </summary>
-        /// <param name="packageID">Packet ID</param>
+        /// <param name="packageId">Packet ID</param>
         /// <param name="type">Packet type</param>
         /// <param name="length">length of body</param>
-        public Head(int packageID, PacketType type, int length)
+        public Head(int packageId, PacketType type, int length)
         {
-            this.packetID = packageID;
-            this.length = length;
-            this.type = type;
+            PacketId = packageId;
+            Length = length;
+            Type = type;
         }
 
         /// <summary>
@@ -205,11 +213,11 @@ namespace SimCivil.Net
         /// <returns>a brand new head</returns>
         public static Head FromBytes(byte[] buffer)
         {
-            int packageID = BitConverter.ToInt32(buffer, 0);
+            int packageId = BitConverter.ToInt32(buffer, 0);
             PacketType type = (PacketType)BitConverter.ToInt32(buffer, 4);
             int length = BitConverter.ToInt32(buffer, 8);
 
-            return new Head(packageID, type, length);
+            return new Head(packageId, type, length);
         }
 
         /// <summary>
@@ -219,9 +227,9 @@ namespace SimCivil.Net
         public byte[] ToBytes()
         {
             List<byte> bytes = new List<byte>();
-            bytes.AddRange(BitConverter.GetBytes(packetID));
-            bytes.AddRange(BitConverter.GetBytes((int)type));
-            bytes.AddRange(BitConverter.GetBytes(length));
+            bytes.AddRange(BitConverter.GetBytes(PacketId));
+            bytes.AddRange(BitConverter.GetBytes((int)Type));
+            bytes.AddRange(BitConverter.GetBytes(Length));
 
             return bytes.ToArray();
         }

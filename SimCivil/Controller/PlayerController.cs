@@ -16,23 +16,48 @@ namespace SimCivil.Controller
         private readonly MapData Map;
         private readonly IAuth auth;
 
+        /// <inheritdoc />
+        /// <summary>
+        /// Gets the priority.
+        /// </summary>
+        /// <value>
+        /// The priority.
+        /// </value>
         public int Priority { get; } = 800;
 
+        /// <inheritdoc />
+        /// <summary>
+        /// Updates the specified tick count.
+        /// </summary>
+        /// <param name="tickCount">The tick count.</param>
         public void Update(int tickCount)
         {
             //TODO
         }
 
+        /// <inheritdoc />
+        /// <summary>
+        /// Starts this instance.
+        /// </summary>
         public void Start()
         {
             //TODO
         }
 
+        /// <inheritdoc />
+        /// <summary>
+        /// Stops this instance.
+        /// </summary>
         public void Stop()
         {
             //TODO
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PlayerController"/> class.
+        /// </summary>
+        /// <param name="map">The map.</param>
+        /// <param name="auth">The authentication.</param>
         public PlayerController(MapData map, IAuth auth)
         {
             Map = map;

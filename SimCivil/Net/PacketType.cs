@@ -1,5 +1,8 @@
 ﻿namespace SimCivil.Net
 {
+    /// <summary>
+    /// Packet's protocol meaning.
+    /// </summary>
     public enum PacketType
     {
         Empty = 0,

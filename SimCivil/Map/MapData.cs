@@ -17,9 +17,33 @@ namespace SimCivil.Map
     public class MapData
     {
         internal static readonly ILog logger = LogManager.GetLogger(typeof(MapData));
+        /// <summary>
+        /// Gets the atlas collection.
+        /// </summary>
+        /// <value>
+        /// The atlas collection.
+        /// </value>
         public Dictionary<(int X, int Y), Atlas> AtlasCollection { get; private set; }
+        /// <summary>
+        /// Gets the map generator.
+        /// </summary>
+        /// <value>
+        /// The map generator.
+        /// </value>
         public IMapGenerator MapGenerator { get; private set; }
+        /// <summary>
+        /// Gets the map repository.
+        /// </summary>
+        /// <value>
+        /// The map repository.
+        /// </value>
         public IMapRepository MapRepository { get; }
+        /// <summary>
+        /// Gets the server listener.
+        /// </summary>
+        /// <value>
+        /// The server listener.
+        /// </value>
         public IServerListener ServerListener { get; }
 
         /// <summary>

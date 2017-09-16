@@ -69,7 +69,7 @@ namespace SimCivil
         public void Initialize(GameInfo info)
         {
             Info = info;
-            logger.Info($"Initialize Game: {info.Name} ({info.StoreDirectory} {info.Seed.ToString("X")})");
+            logger.Info($"Initialize Game: {info.Name} ({info.StoreDirectory} {info.Seed:X})");
             Directory.CreateDirectory(info.StoreDirectory);
             Services.CallMany<IPersistable>(n => n.Initialize(info));
         }
@@ -105,8 +105,10 @@ namespace SimCivil
                     token.Token,
                     TaskCreationOptions.LongRunning,
                     TaskScheduler.Default)
+                // ReSharper disable once MethodSupportsCancellation
                 .ContinueWith(t => logger.Info("SimCivil stop loop."));
 
+            // ReSharper disable once LoopVariableIsNeverChangedInsideLoop
             while(block)
             {
                 switch(Console.ReadKey().Key)
@@ -125,6 +127,7 @@ namespace SimCivil
             //Get tickers
             var tickers = Services.Resolve<IEnumerable<ITicker>>().OrderByDescending(t => t.Priority);
             int tickCount = 0;
+            Map = Services.Resolve<MapData>();
 
             foreach (var ticker in tickers)
             {

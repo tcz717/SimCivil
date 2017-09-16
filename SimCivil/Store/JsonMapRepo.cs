@@ -17,15 +17,35 @@ namespace SimCivil.Store
     {
         private static readonly ILog logger = LogManager.GetLogger(typeof(JsonMapRepo));
 
+        /// <summary>
+        /// Gets the root path.
+        /// </summary>
+        /// <value>
+        /// The root path.
+        /// </value>
         public string RootPath { get; private set; }
+        /// <summary>
+        /// Gets the index of the atlas.
+        /// </summary>
+        /// <value>
+        /// The index of the atlas.
+        /// </value>
         public HashSet<(int X, int Y)> AtlasIndex { get; private set; }
 
+        /// <summary>
+        /// Initialize the store.
+        /// </summary>
+        /// <param name="info"></param>
         public void Initialize(GameInfo info)
         {
             AtlasIndex = new HashSet<(int X, int Y)>();
             RootPath = info.StoreDirectory;
         }
 
+        /// <summary>
+        /// Load the object.
+        /// </summary>
+        /// <param name="path">Directory path to store all data.</param>
         public void Load(string path)
         {
             var fullPath = Path.Combine(path, $"{nameof(AtlasIndex)}.json");
@@ -34,6 +54,10 @@ namespace SimCivil.Store
             logger.Info($"Loaded atlas index file in {fullPath}.");
         }
 
+        /// <summary>
+        /// Save the object.
+        /// </summary>
+        /// <param name="path">Directory path to store all data.</param>
         public void Save(string path)
         {
             var fullPath = Path.Combine(path, $"{nameof(AtlasIndex)}.json");
@@ -47,6 +71,11 @@ namespace SimCivil.Store
                 logger.Info($"Saved ${key} atlas file in {fullPath}.");
             }
         }
+        /// <summary>
+        /// Gets the atlas.
+        /// </summary>
+        /// <param name="atlasIndex">Index of the atlas.</param>
+        /// <returns></returns>
         public override Atlas GetAtlas((int X, int Y) atlasIndex)
         {
             if (base.Contains(atlasIndex))
@@ -67,6 +96,11 @@ namespace SimCivil.Store
             return atlas;
         }
 
+        /// <summary>
+        /// Load the object async.
+        /// </summary>
+        /// <param name="path">Directory path to store all data.</param>
+        /// <returns></returns>
         public async Task LoadAsync(string path)
         {
             var fullPath = Path.Combine(path, $"{nameof(AtlasIndex)}.json");
@@ -75,6 +109,11 @@ namespace SimCivil.Store
             logger.Info($"Loaded atlas index file in {fullPath}.");
         }
 
+        /// <summary>
+        /// Save the object async.
+        /// </summary>
+        /// <param name="path">Directory path to store all data.</param>
+        /// <returns></returns>
         public async Task SaveAsync(string path)
         {
             var fullPath = Path.Combine(path, $"{nameof(AtlasIndex)}.json");

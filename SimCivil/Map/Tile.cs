@@ -57,15 +57,15 @@ namespace SimCivil.Map
         /// <returns></returns>
         public static Tile Create((int X, int Y) pos, string surface = "", int height = SeaLevel)
         {
-            var e = new Tile()
+            var e = new Tile
             {
                 Height = height,
                 Meta = new NullableDynamicObject(),
                 Position = pos,
                 Surface = surface,
+                Slots = new Slot[5],
+                Sides = new Side[4],
             };
-            e.Slots = new Slot[5];
-            e.Sides = new Side[4];
             return e;
         }
     }

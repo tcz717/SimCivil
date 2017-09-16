@@ -117,7 +117,7 @@ namespace SimCivil.Net
             {
                 PacketSendQueue.Enqueue(pkt);
             }
-            logger.Debug($"Packet has been enqueued and is waiting for sending: \"type: {pkt.Head.type}\"");
+            logger.Debug($"Packet has been enqueued and is waiting for sending: \"type: {pkt.PacketHead.Type}\"");
         }
 
         /// <summary>
@@ -130,7 +130,7 @@ namespace SimCivil.Net
             {
                 PacketReadQueue.Enqueue(pkt);
             }
-            logger.Debug($"Packet has been enqueued and is waiting for reading: \"ID: {pkt.Head.packetID} type: {pkt.Head.type}\"");
+            logger.Debug($"Packet has been enqueued and is waiting for reading: \"ID: {pkt.PacketHead.PacketId} type: {pkt.PacketHead.Type}\"");
         }
 
         private void SendWorker()

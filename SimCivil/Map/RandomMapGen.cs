@@ -5,6 +5,7 @@ using static SimCivil.Config;
 
 namespace SimCivil.Map
 {
+    /// <inheritdoc />
     /// <summary>
     /// Random map generator used for test.
     /// </summary>
@@ -12,6 +13,9 @@ namespace SimCivil.Map
     {
         private Random rand;
 
+        /// <summary>
+        /// Event trigered on generating new tile.
+        /// </summary>
         public event GeneratingEventHandler OnGenerating;
 
         /// <inheritdoc />
@@ -38,6 +42,9 @@ namespace SimCivil.Map
             return atlas;
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="RandomMapGen"/> class.
+        /// </summary>
         public RandomMapGen()
         {
             rand = new Random(Cfg.Seed);

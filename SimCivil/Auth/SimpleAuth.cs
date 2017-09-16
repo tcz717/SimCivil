@@ -39,6 +39,12 @@ namespace SimCivil.Auth
         private readonly HashSet<IServerConnection> readyToLogin;
         private readonly IEntityRepository entityRepository;
 
+        /// <summary>
+        /// Gets the online player.
+        /// </summary>
+        /// <value>
+        /// The online player.
+        /// </value>
         public IList<Player> OnlinePlayer { get; private set; } = new List<Player>();
         /// <summary>
         /// Constrcutor can be injected.
@@ -100,6 +106,10 @@ namespace SimCivil.Auth
             e.ContextPlayer = null;
         }
 
+        /// <summary>
+        /// Logouts the specified player.
+        /// </summary>
+        /// <param name="player">The player.</param>
         /// <inheritdoc />
         public void Logout(Player player)
         {

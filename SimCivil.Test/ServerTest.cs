@@ -40,9 +40,9 @@ namespace SimCivil.Test
             var data = ToData(id, type, size);
             var head = Head.FromBytes(data);
 
-            Assert.Equal(head.packetID, id);
-            Assert.Equal(head.type, type);
-            Assert.Equal(head.length, size);
+            Assert.Equal(head.PacketId, id);
+            Assert.Equal(head.Type, type);
+            Assert.Equal(head.Length, size);
         }
 
         [Fact]
@@ -71,12 +71,12 @@ namespace SimCivil.Test
             Head head = Head.FromBytes(bufferRead);
 
             // Build Packet
-            int lengthOfBody = stream.Read(bufferRead, 0, head.length);
+            int lengthOfBody = stream.Read(bufferRead, 0, head.Length);
             Packet packetRcv = PacketFactory.Create(null, head, bufferRead);
             #endregion
 
             // Compare result
-            Assert.Equal<PacketType>(packetRcv.Head.type, packetSend.Head.type);
+            Assert.Equal<PacketType>(packetRcv.PacketHead.Type, packetSend.PacketHead.Type);
             Assert.Equal(Convert.ToInt32(packetRcv.Data["int"]), packetSend.Data["int"]);
             Assert.Equal(packetRcv.Data["long"], packetSend.Data["long"]);
             Assert.Equal(Convert.ToSingle(packetRcv.Data["float"]), packetSend.Data["float"]);
@@ -91,7 +91,7 @@ namespace SimCivil.Test
             var pkt = PacketFactory.Create(
                 null,
                 head,
-                new byte[head.length]
+                new byte[head.Length]
                 );
             Assert.IsType<Ping>(pkt);
         }

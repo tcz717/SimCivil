@@ -33,22 +33,25 @@ namespace SimCivil.Map
         /// The minimum X position of it's tiles.
         /// </summary>
         [JsonIgnore]
-        public int Left { get { return X; } }
+        public int Left => X;
+
         /// <summary>
         /// The maximum X position of it's tiles.
         /// </summary>
         [JsonIgnore]
-        public int Right { get { return X + Width; } }
+        public int Right => X + Width;
+
         /// <summary>
         /// The minimum Y position of it's tiles.
         /// </summary>
         [JsonIgnore]
-        public int Top { get { return Y; } }
+        public int Top => Y;
+
         /// <summary>
         /// The maximum Y position of it's tiles.
         /// </summary>
         [JsonIgnore]
-        public int Bottom { get { return Y + Height; } }
+        public int Bottom => Y + Height;
 
         /// <summary>
         /// Whether it's tiles have been created.

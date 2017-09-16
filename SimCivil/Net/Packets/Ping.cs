@@ -11,7 +11,16 @@ namespace SimCivil.Net.Packets
     [PacketType(PacketType.Ping)]
     public class Ping : Packet
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Ping"/> class.
+        /// </summary>
         public Ping() { }
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Ping"/> class.
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="data">dictionary storing data, consist of a string and a value</param>
+        /// <param name="client">client indicating where to send to or received from</param>
         public Ping(PacketType type, Hashtable data, IServerConnection client) : base(type, data, client) { }
 
         /// <summary>
@@ -20,14 +29,6 @@ namespace SimCivil.Net.Packets
         public override void Handle() 
         {
             Reply(new PingResponse());
-        }
-
-        /// <summary>
-        /// Send packet immediately. And wait for PingResponse.
-        /// </summary>
-        public override void Send()
-        {
-            base.Send();
         }
     }
 }

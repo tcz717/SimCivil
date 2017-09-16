@@ -14,36 +14,52 @@ namespace SimCivil.Net.Packets
     public class ErrorResponse : ResponsePacket
     {
         private static readonly ILog logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ErrorResponse"/> class.
+        /// </summary>
+        /// <param name="errorCode">The error code.</param>
+        /// <param name="description">The description.</param>
         public ErrorResponse(int errorCode = 0, string description = "invaild packet")
         {
             ErrorCode = errorCode;
             Description = description;
         }
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ErrorResponse"/> class.
+        /// </summary>
+        /// <param name="type">The type.</param>
+        /// <param name="data">The data.</param>
+        /// <param name="client">The client.</param>
         public ErrorResponse(PacketType type, Hashtable data, IServerConnection client) : base(type, data, client) { }
 
+        /// <summary>
+        /// Gets or sets the error code.
+        /// </summary>
+        /// <value>
+        /// The error code.
+        /// </value>
         public int ErrorCode
         {
-            get
-            {
-                return (int)Data[nameof(ErrorCode)];
-            }
-            set
-            {
-                Data[nameof(ErrorCode)] = value;
-            }
+            get => (int)Data[nameof(ErrorCode)];
+            set => Data[nameof(ErrorCode)] = value;
         }
+        /// <summary>
+        /// Gets or sets the description.
+        /// </summary>
+        /// <value>
+        /// The description.
+        /// </value>
         public string Description
         {
-            get
-            {
-                return (string)Data[nameof(Description)];
-            }
-            set
-            {
-                Data[nameof(Description)] = value;
-            }
+            get => (string)Data[nameof(Description)];
+            set => Data[nameof(Description)] = value;
         }
 
+        /// <summary>
+        /// Verify this packet's receiving correctness.
+        /// </summary>
+        /// <param name="errorDesc"></param>
+        /// <returns></returns>
         public override bool Verify(out string errorDesc)
         {
             return base.Verify(out errorDesc)
@@ -53,11 +69,19 @@ namespace SimCivil.Net.Packets
                 && Data[nameof(ErrorCode)] is int;
         }
 
+        /// <summary>
+        /// The method executed after clients received and pushed in the PacketReadQueue
+        /// </summary>
         public override void Handle()
         {
             base.Handle();
-            client.Close();
+            Client.Close();
         }
+        /// <summary>
+        /// Give order to send packet immediately.
+        /// Note: This is a method especially for server, please do NOT use it directly!
+        /// It is recommended to enqueue packets into PacketSendQueue for sending
+        /// </summary>
         public override void Send()
         {
             logger.Info($"Send ErrorResponse for code:{ErrorCode} desc:{Description}");
