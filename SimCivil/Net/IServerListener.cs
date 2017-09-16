@@ -67,6 +67,6 @@ namespace SimCivil.Net
     /// Function will be called after received a packet.
     /// </summary>
     /// <param name="pkt">The packet.</param>
-    /// <param name="isVaild">if set to <c>true</c> [is vaild].</param>
-    public delegate void PacketCallBack(Packet pkt, ref bool isVaild);
+    /// <param name="isValid">if set to <c>true</c> [is valid].</param>
+    public delegate void PacketCallBack(Packet pkt, ref bool isValid);
 }

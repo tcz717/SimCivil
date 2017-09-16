@@ -80,14 +80,11 @@ namespace SimCivil.Store
         /// <returns></returns>
         public override Atlas GetAtlas((int X, int Y) atlasIndex)
         {
-            if (base.Contains(atlasIndex))
+            if (Contains(atlasIndex))
                 return base.GetAtlas(atlasIndex);
-            else
-            {
-                Atlas atlas = LoadAtlas(atlasIndex);
-                PutAtlas(atlasIndex, atlas);
-                return atlas;
-            }
+            Atlas atlas = LoadAtlas(atlasIndex);
+            PutAtlas(atlasIndex, atlas);
+            return atlas;
         }
 
         private Atlas LoadAtlas((int X, int Y) atlasIndex)

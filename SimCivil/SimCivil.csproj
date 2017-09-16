@@ -19,6 +19,7 @@
   <ItemGroup>
     <PackageReference Include="Autofac.Configuration" Version="4.0.1" />
     <PackageReference Include="CommandLineArgumentsParser" Version="3.0.16" />
+    <PackageReference Include="JetBrains.Annotations" Version="11.0.0" />
     <PackageReference Include="log4net" Version="2.0.8" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="2.0.0" />
     <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />

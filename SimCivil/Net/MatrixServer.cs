@@ -202,14 +202,14 @@ namespace SimCivil.Net
         {
             while (_packetReadQueue.TryTake(out Packet pkt))
             {
-                bool isVaild = pkt.Verify(out string error);
-                if (isVaild)
+                bool isValid = pkt.Verify(out string error);
+                if (isValid)
                 {
                     pkt.ReplyError(desc: error);
                     continue;
                 }
-                _callbackDict[pkt.PacketHead.Type]?.Invoke(pkt, ref isVaild);
-                if (isVaild)
+                _callbackDict[pkt.PacketHead.Type]?.Invoke(pkt, ref isValid);
+                if (isValid)
                     pkt.Handle();
             }
         }

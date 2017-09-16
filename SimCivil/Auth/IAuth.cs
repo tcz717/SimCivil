@@ -12,14 +12,14 @@ namespace SimCivil.Auth
     public interface IAuth
     {
         /// <summary>
-        /// Occurs when [on logined].
+        /// Occurs when [logged in].
         /// </summary>
-        event EventHandler<Player> OnLogined;
+        event EventHandler<Player> LoggedIn;
 
         /// <summary>
-        /// Occurs when [on logouted].
+        /// Occurs when [logged out].
         /// </summary>
-        event EventHandler<Player> OnLogouted;
+        event EventHandler<Player> LoggedOut;
 
         /// <summary>
         /// Happen when user's role changing.
@@ -32,7 +32,7 @@ namespace SimCivil.Auth
         event EventHandler<RoleChangeArgs> OnRoleChanged;
 
         /// <summary>
-        /// Logins the specified username.
+        /// Login the specified username.
         /// </summary>
         /// <param name="username">The username.</param>
         /// <param name="token">The token.</param>
@@ -40,7 +40,7 @@ namespace SimCivil.Auth
         Player Login(string username, object token);
 
         /// <summary>
-        /// Logouts the specified player.
+        /// Logout the specified player.
         /// </summary>
         /// <param name="player">The player.</param>
         void Logout(Player player);

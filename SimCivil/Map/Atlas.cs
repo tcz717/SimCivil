@@ -61,7 +61,7 @@ namespace SimCivil.Map
         /// Whether it's tiles have been created.
         /// </summary>
         [JsonIgnore]
-        public bool IsExsist { get; private set; } = false;
+        public bool IsExist { get; private set; } = false;
 
         /// <summary>
         /// Whether it's tiles have been loaded.
@@ -70,7 +70,7 @@ namespace SimCivil.Map
         public bool HasLoaded { get; private set; } = false;
 
         /// <summary>
-        /// Method to craete a new empty Atlas.
+        /// Method to create a new empty Atlas.
         /// </summary>
         /// <param name="x">Atlas' X position.</param>
         /// <param name="y">Atlas' Y position.</param>
@@ -86,7 +86,7 @@ namespace SimCivil.Map
                 Y = y,
                 Width = width,
                 Height = height,
-                IsExsist = true,
+                IsExist = true,
                 HasLoaded = true,
             };
         }

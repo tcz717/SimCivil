@@ -19,14 +19,14 @@ namespace SimCivil.Auth
         private static readonly ILog logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
         /// <summary>
-        /// Happen when user are vaild.
+        /// Happen when user are valid.
         /// </summary>
-        public event EventHandler<Player> OnLogined;
+        public event EventHandler<Player> LoggedIn;
 
         /// <summary>
         /// Happen when user exits.
         /// </summary>
-        public event EventHandler<Player> OnLogouted;
+        public event EventHandler<Player> LoggedOut;
 
         /// <summary>
         /// Happen when user's role changing.
@@ -66,10 +66,10 @@ namespace SimCivil.Auth
             _entityRepository = entityRepository;
         }
 
-        private void SwitchRoleHandle(Packet pkt, ref bool isVaild)
+        private void SwitchRoleHandle(Packet pkt, ref bool isValid)
         {
             SwitchRole request = pkt as SwitchRole;
-            if (isVaild)
+            if (isValid)
             {
                 Debug.Assert(request != null, nameof(request) + " != null");
                 Entity entity = _entityRepository.LoadEntity(request.RoleGuid);
@@ -94,7 +94,7 @@ namespace SimCivil.Auth
                 }
                 else
                 {
-                    isVaild = false;
+                    isValid = false;
                     pkt.ReplyDeny();
                 }
             }
@@ -118,24 +118,24 @@ namespace SimCivil.Auth
         public void Logout(Player player)
         {
             if (!OnlinePlayer.Remove(player)) return;
-            OnLogouted?.Invoke(this, player);
+            LoggedOut?.Invoke(this, player);
             logger.Info($"[{player.Username}] logout succeed");
         }
 
-        private void QueryRoleListHandle(Packet pkt, ref bool isVaild)
+        private void QueryRoleListHandle(Packet pkt, ref bool isValid)
         {
-            if (isVaild)
+            if (isValid)
                 pkt.Reply(new QueryRoleListResponse(_entityRepository.LoadPlayerRoles(pkt.Client.ContextPlayer)));
         }
 
-        private void LoginHandle(Packet p, ref bool isVaild)
+        private void LoginHandle(Packet p, ref bool isValid)
         {
             LoginRequest pkt = p as LoginRequest;
-            if (isVaild)
+            if (isValid)
             {
                 if (!_readyToLogin.Contains(p.Client))
                 {
-                    isVaild = false;
+                    isValid = false;
                     p.ReplyError(desc: "Handshake responses first.");
                     return;
                 }
@@ -148,7 +148,7 @@ namespace SimCivil.Auth
                 }
                 else
                 {
-                    isVaild = false;
+                    isValid = false;
                     p.ReplyError(2, "Player has logined");
                 }
             }
@@ -168,7 +168,7 @@ namespace SimCivil.Auth
                 return null;
             Player player = new Player(username, token);
             OnlinePlayer.Add(player);
-            OnLogined?.Invoke(this, player);
+            LoggedIn?.Invoke(this, player);
             logger.Info($"[{username}] login succeed");
             return player;
         }

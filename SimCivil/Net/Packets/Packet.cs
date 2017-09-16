@@ -89,9 +89,9 @@ namespace SimCivil.Net.Packets
         }
 
         /// <summary>
-        /// If the packet need futher procedure, this method will be called when response received.
+        /// If the packet need further procedure, this method will be called when response received.
         /// </summary>
-        /// <param name="packet">Pesponse packet.</param>
+        /// <param name="packet">Response packet.</param>
         [Obsolete]
         public virtual void ResponseCallback(Packet packet)
         {
@@ -123,7 +123,7 @@ namespace SimCivil.Net.Packets
             result &= PacketHead.Length > 0;
             result &= Data != null;
             if (!result)
-                errorDesc = "Packet format invaild";
+                errorDesc = "Packet format invalid";
             result &= !PacketFactory.PacketAttributes[PacketHead.Type].LoginRequired || Client.ContextPlayer != null;
             errorDesc = result ? "" : "Login required";
             return result;
