@@ -24,6 +24,7 @@ namespace SimCivil.Store
         /// The root path.
         /// </value>
         public string RootPath { get; private set; }
+
         /// <summary>
         /// Gets the index of the atlas.
         /// </summary>
@@ -71,6 +72,7 @@ namespace SimCivil.Store
                 logger.Info($"Saved ${key} atlas file in {fullPath}.");
             }
         }
+
         /// <summary>
         /// Gets the atlas.
         /// </summary>

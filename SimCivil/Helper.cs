@@ -29,6 +29,7 @@ namespace SimCivil
             }
         }
     }
+
     /// <summary>
     /// Helper class for Entity
     /// </summary>

@@ -19,7 +19,9 @@ namespace SimCivil.Net.Packets
         /// <param name="type"></param>
         /// <param name="data">dictionary storing data, consist of a string and a value</param>
         /// <param name="client">client indicating where to send to or received from</param>
-        public Handshake(PacketType type, Hashtable data, IServerConnection client) : base(type, data, client) { }
+        public Handshake(PacketType type, Hashtable data, IServerConnection client) : base(type, data, client)
+        {
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Handshake"/> class.
@@ -38,15 +40,16 @@ namespace SimCivil.Net.Packets
         /// </summary>
         public string Protocol
         {
-            get => (string)Data[nameof(Protocol)];
+            get => (string) Data[nameof(Protocol)];
             set => Data[nameof(Protocol)] = value;
         }
+
         /// <summary>
         /// Game name.
         /// </summary>
         public string GameName
         {
-            get => (string)Data[nameof(GameName)];
+            get => (string) Data[nameof(GameName)];
             set => Data[nameof(GameName)] = value;
         }
 
@@ -55,7 +58,7 @@ namespace SimCivil.Net.Packets
         /// </summary>
         public string ServerVersion
         {
-            get => (string)Data[nameof(ServerVersion)];
+            get => (string) Data[nameof(ServerVersion)];
             set => Data[nameof(ServerVersion)] = value;
         }
 
@@ -64,7 +67,7 @@ namespace SimCivil.Net.Packets
         /// </summary>
         public string Auth
         {
-            get => (string)Data[nameof(Auth)];
+            get => (string) Data[nameof(Auth)];
             set => Data[nameof(Auth)] = value;
         }
 

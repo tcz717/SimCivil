@@ -16,6 +16,7 @@ namespace SimCivil.Net
         /// The server listener.
         /// </value>
         IServerListener ServerListener { get; set; }
+
         /// <summary>
         /// Gets or sets the context player.
         /// </summary>
@@ -28,20 +29,24 @@ namespace SimCivil.Net
         /// Occurs when [on disconnected].
         /// </summary>
         event EventHandler OnDisconnected;
+
         /// <summary>
         /// Occurs when [on packet received].
         /// </summary>
+        [Obsolete]
         event EventHandler<Packet> OnPacketReceived;
 
         /// <summary>
         /// Times the out check.
         /// </summary>
         void TimeOutCheck();
+
         /// <summary>
         /// Sends the packet.
         /// </summary>
         /// <param name="pkt">The PKT.</param>
         void SendPacket(Packet pkt);
+
         /// <summary>
         /// Closes this connection.
         /// </summary>

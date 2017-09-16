@@ -12,18 +12,22 @@ namespace SimCivil.Map
         /// Atlas' all tiles.
         /// </summary>
         public Tile[,] Tiles { get; private set; }
+
         /// <summary>
         /// Atlas' X position.
         /// </summary>
         public int X { get; private set; }
+
         /// <summary>
         /// Atlas' Y position.
         /// </summary>
         public int Y { get; private set; }
+
         /// <summary>
         /// Atlas' Width.
         /// </summary>
         public int Width { get; private set; }
+
         /// <summary>
         /// Atlas' Height.
         /// </summary>
@@ -58,6 +62,7 @@ namespace SimCivil.Map
         /// </summary>
         [JsonIgnore]
         public bool IsExsist { get; private set; } = false;
+
         /// <summary>
         /// Whether it's tiles have been loaded.
         /// </summary>

@@ -19,6 +19,7 @@ namespace SimCivil.Model
         /// The identifier.
         /// </value>
         public Guid Id { get; set; }
+
         /// <summary>
         /// Gets or sets the name.
         /// </summary>
@@ -26,6 +27,7 @@ namespace SimCivil.Model
         /// The name.
         /// </value>
         public string Name { get; set; } = "Unknown";
+
         /// <summary>
         /// Gets or sets the position.
         /// </summary>
@@ -33,6 +35,7 @@ namespace SimCivil.Model
         /// The position.
         /// </value>
         public (int x, int y) Position { get; set; }
+
         /// <summary>
         /// Gets or sets the meta.
         /// </summary>

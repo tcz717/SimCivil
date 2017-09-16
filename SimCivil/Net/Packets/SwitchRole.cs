@@ -19,21 +19,26 @@ namespace SimCivil.Net.Packets
         {
             RoleGuid = roleGuid;
         }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="SwitchRole"/> class.
         /// </summary>
         /// <param name="type"></param>
         /// <param name="data">dictionary storing data, consist of a string and a value</param>
         /// <param name="client">client indicating where to send to or received from</param>
-        public SwitchRole(PacketType type, Hashtable data, IServerConnection client) : base(type, data, client) { }
+        public SwitchRole(PacketType type, Hashtable data, IServerConnection client) : base(type, data, client)
+        {
+        }
 
         /// <summary>
         /// Guid of role's entity.
         /// </summary>
-        public Guid RoleGuid {
-            get => (Guid)Data[nameof(RoleGuid)];
+        public Guid RoleGuid
+        {
+            get => (Guid) Data[nameof(RoleGuid)];
             set => Data[nameof(RoleGuid)] = value;
         }
+
         /// <summary>
         /// Verify this packet's receiving correctness.
         /// </summary>

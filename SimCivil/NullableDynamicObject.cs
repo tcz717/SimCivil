@@ -15,7 +15,7 @@ namespace SimCivil
         /// <value>
         /// The data.
         /// </value>
-        public Dictionary<string,object> Data { get; set; }
+        public Dictionary<string, object> Data { get; set; }
 
         /// <inheritdoc />
         public override bool TryGetMember(GetMemberBinder binder, out object result)
@@ -41,6 +41,7 @@ namespace SimCivil
         {
             Data = new Dictionary<string, object>();
         }
+
         /// <inheritdoc />
         /// <summary>
         /// Initializes a new instance of the <see cref="T:SimCivil.NullableDynamicObject" /> class.

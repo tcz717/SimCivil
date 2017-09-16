@@ -18,7 +18,7 @@ namespace SimCivil.Net.Packets
         /// <param name="center">The center.</param>
         /// <param name="viewDistence">The view distence.</param>
         /// <param name="tiles">The tiles.</param>
-        public FullViewSyncResponse((int x,int y) center,int viewDistence,IEnumerable<Tile> tiles)
+        public FullViewSyncResponse((int x, int y) center, int viewDistence, IEnumerable<Tile> tiles)
         {
             Center = center;
             ViewDistence = viewDistence;
@@ -31,8 +31,11 @@ namespace SimCivil.Net.Packets
         /// <param name="type">The type.</param>
         /// <param name="data">The data.</param>
         /// <param name="client">The client.</param>
-        public FullViewSyncResponse(PacketType type = PacketType.Empty, Hashtable data = null, IServerConnection client = null)
-            : base(type, data, client) { }
+        public FullViewSyncResponse(PacketType type = PacketType.Empty, Hashtable data = null,
+            IServerConnection client = null)
+            : base(type, data, client)
+        {
+        }
 
         /// <summary>
         /// Gets or sets the center.
@@ -42,7 +45,7 @@ namespace SimCivil.Net.Packets
         /// </value>
         public (int x, int y) Center
         {
-            get => ((int x, int y))Data[nameof(Center)];
+            get => ((int x, int y)) Data[nameof(Center)];
             set => Data[nameof(Center)] = value;
         }
 
@@ -54,7 +57,7 @@ namespace SimCivil.Net.Packets
         /// </value>
         public int ViewDistence
         {
-            get => (int)Data[nameof(ViewDistence)];
+            get => (int) Data[nameof(ViewDistence)];
             set => Data[nameof(ViewDistence)] = value;
         }
 
@@ -66,7 +69,7 @@ namespace SimCivil.Net.Packets
         /// </value>
         public IEnumerable<Tile> Tiles
         {
-            get => (IEnumerable<Tile>)Data[nameof(Tiles)];
+            get => (IEnumerable<Tile>) Data[nameof(Tiles)];
             set => Data[nameof(Tiles)] = value;
         }
     }

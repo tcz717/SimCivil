@@ -23,6 +23,7 @@ namespace SimCivil.Net
     public class MatrixServer : IServerListener, ITicker
     {
         private static readonly ILog logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+
         /// <summary>
         /// Gets the clients.
         /// </summary>
@@ -37,19 +38,24 @@ namespace SimCivil.Net
         /// The event triggered when a new ServerClient created
         /// </summary>
         public event EventHandler<IServerConnection> OnConnected;
+
         /// <summary>
         /// The event triggered when a connection closed
         /// </summary>
         public event EventHandler<IServerConnection> OnDisconnected;
+
         private readonly CancellationTokenSource _cancellation = new CancellationTokenSource();
+
         /// <summary>
         /// Server host
         /// </summary>
         public IPAddress Host { get; }
+
         /// <summary>
         /// The port this listener listen to
         /// </summary>
         public int Port { get; set; }
+
         /// <summary>
         /// Ticker's priority, larger number has high priorty.
         /// If system is busy, low priorty ticker may be skip.
@@ -78,7 +84,7 @@ namespace SimCivil.Net
 
             _callbackDict = new ConcurrentDictionary<PacketType, PacketCallBack>(
                 PacketFactory.LegalPackets.Select(lp => new KeyValuePair<PacketType, PacketCallBack>(lp.Key, null))
-               );
+            );
         }
 
         /// <summary>
@@ -194,7 +200,7 @@ namespace SimCivil.Net
         /// <param name="tickCount"></param>
         public void Update(int tickCount)
         {
-            while(_packetReadQueue.TryTake(out Packet pkt))
+            while (_packetReadQueue.TryTake(out Packet pkt))
             {
                 bool isVaild = pkt.Verify(out string error);
                 if (isVaild)

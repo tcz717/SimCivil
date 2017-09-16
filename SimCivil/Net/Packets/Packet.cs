@@ -18,7 +18,7 @@ namespace SimCivil.Net.Packets
         /// <summary>
         /// 单个数据包最大限制
         /// </summary>
-        public const int MaxSize = 4096; 
+        public const int MaxSize = 4096;
 
         /// <summary>
         /// The dictionary storing data, consist of a string and a value
@@ -44,7 +44,7 @@ namespace SimCivil.Net.Packets
         /// </summary>
         public DateTime Timestamp
         {
-            get => (DateTime)Data[nameof(Timestamp)];
+            get => (DateTime) Data[nameof(Timestamp)];
             set => Data[nameof(Timestamp)] = value;
         }
 
@@ -65,7 +65,9 @@ namespace SimCivil.Net.Packets
         private void UpdateType(PacketType type)
         {
             Head packetHead = PacketHead;
-            packetHead.Type = type == PacketType.Empty ? GetType().GetTypeInfo().GetCustomAttribute<PacketTypeAttribute>().PacketType : type;
+            packetHead.Type = type == PacketType.Empty
+                ? GetType().GetTypeInfo().GetCustomAttribute<PacketTypeAttribute>().PacketType
+                : type;
             PacketHead = packetHead;
         }
 
@@ -82,15 +84,19 @@ namespace SimCivil.Net.Packets
         /// <summary>
         /// The method executed after clients received and pushed in the PacketReadQueue
         /// </summary>
-        public virtual void Handle() { }
+        public virtual void Handle()
+        {
+        }
 
         /// <summary>
         /// If the packet need futher procedure, this method will be called when response received.
         /// </summary>
         /// <param name="packet">Pesponse packet.</param>
         [Obsolete]
-        public virtual void ResponseCallback(Packet packet) { }
-        
+        public virtual void ResponseCallback(Packet packet)
+        {
+        }
+
         /// <summary>
         /// Update ID and length stored in head and convert Packet, including head, to bytes
         /// </summary>
@@ -140,21 +146,23 @@ namespace SimCivil.Net.Packets
         /// <param name="errorCode">The error code.</param>
         /// <param name="desc">The desc.</param>
         public void ReplyError(int errorCode = 0, string desc = "error occured") =>
-            Reply(new ErrorResponse(errorCode, desc) { Client = Client });
+            Reply(new ErrorResponse(errorCode, desc) {Client = Client});
+
         /// <summary>
         /// Replies the ok.
         /// </summary>
         /// <param name="desc">The desc.</param>
         public void ReplyOk(string desc = "request ok") =>
-            Reply(new OkResponse(true, desc) { Client = Client });
+            Reply(new OkResponse(true, desc) {Client = Client});
+
         /// <summary>
         /// Replies the deny.
         /// </summary>
         /// <param name="desc">The desc.</param>
         public void ReplyDeny(string desc = "request denied") =>
-            Reply(new OkResponse(false, desc) { Client = Client });
+            Reply(new OkResponse(false, desc) {Client = Client});
     }
-    
+
     /// <summary>
     /// A class describes Packet Head
     /// </summary>
@@ -184,14 +192,18 @@ namespace SimCivil.Net.Packets
         /// Construct a Packet Head
         /// </summary>
         /// <param name="type">Packet type</param>
-        public Head(PacketType type) : this(0, type, 0) { }
+        public Head(PacketType type) : this(0, type, 0)
+        {
+        }
 
         /// <summary>
         /// Construct a Packet Head
         /// </summary>
         /// <param name="packageId">Packet ID</param>
         /// <param name="type">Packet type</param>
-        public Head(int packageId, PacketType type) : this(packageId, type, 0) { }
+        public Head(int packageId, PacketType type) : this(packageId, type, 0)
+        {
+        }
 
         /// <summary>
         /// Construct a Packet Head
@@ -214,7 +226,7 @@ namespace SimCivil.Net.Packets
         public static Head FromBytes(byte[] buffer)
         {
             int packageId = BitConverter.ToInt32(buffer, 0);
-            PacketType type = (PacketType)BitConverter.ToInt32(buffer, 4);
+            PacketType type = (PacketType) BitConverter.ToInt32(buffer, 4);
             int length = BitConverter.ToInt32(buffer, 8);
 
             return new Head(packageId, type, length);
@@ -228,7 +240,7 @@ namespace SimCivil.Net.Packets
         {
             List<byte> bytes = new List<byte>();
             bytes.AddRange(BitConverter.GetBytes(PacketId));
-            bytes.AddRange(BitConverter.GetBytes((int)Type));
+            bytes.AddRange(BitConverter.GetBytes((int) Type));
             bytes.AddRange(BitConverter.GetBytes(Length));
 
             return bytes.ToArray();

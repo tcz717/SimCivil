@@ -19,7 +19,9 @@ namespace SimCivil.Profile
             {
                 CommandLineArgs = Environment.GetCommandLineArgs();
             }
-            catch (NotSupportedException) { } // The system does not support command-line arguments.
+            catch (NotSupportedException)
+            {
+            } // The system does not support command-line arguments.
         }
 
 

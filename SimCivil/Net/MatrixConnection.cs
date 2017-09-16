@@ -41,6 +41,7 @@ namespace SimCivil.Net
         /// The server listener.
         /// </value>
         public IServerListener ServerListener { get; set; }
+
         /// <summary>
         /// Gets the socket.
         /// </summary>
@@ -48,6 +49,7 @@ namespace SimCivil.Net
         /// The socket.
         /// </value>
         public Socket Socket { get; }
+
         /// <summary>
         /// Gets the stream.
         /// </summary>
@@ -55,6 +57,7 @@ namespace SimCivil.Net
         /// The stream.
         /// </value>
         public NetworkStream Stream { get; }
+
         /// <summary>
         /// Gets a value indicating whether this <see cref="MatrixConnection"/> is connected.
         /// </summary>
@@ -75,6 +78,7 @@ namespace SimCivil.Net
         /// Occurs when [on packet received].
         /// </summary>
         public event EventHandler<Packet> OnPacketReceived;
+
         /// <summary>
         /// Occurs when [on disconnected].
         /// </summary>
@@ -140,8 +144,10 @@ namespace SimCivil.Net
         public void SendAndWait<T>(Packet packet, Action<T> callback) where T : ResponsePacket
         {
             var type = PacketFactory.PacketsType[typeof(T)];
+            // ReSharper disable once TooWideLocalVariableScope
             int tries = 50;
             packet.Client = this;
+
             void TempCallback(Packet pkt, ref bool vaild)
             {
                 T re = pkt as T;
@@ -153,6 +159,7 @@ namespace SimCivil.Net
                 else if (--tries < 0)
                     ServerListener.UnregisterPacket(type, TempCallback);
             }
+
             ServerListener.RegisterPacket(type, TempCallback);
             packet.Send();
         }

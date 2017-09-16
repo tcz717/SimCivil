@@ -18,6 +18,7 @@ namespace SimCivil.Store
     public class ConfigRepository : IPersistable
     {
         private static readonly ILog logger = LogManager.GetLogger(typeof(ConfigRepository));
+
         /// <inheritdoc />
         /// <summary>
         /// Initialize the store.
@@ -33,7 +34,7 @@ namespace SimCivil.Store
                 SpawnPoint = (
                     r.Next(int.MinValue / 2, r.Next(int.MaxValue / 2)),
                     r.Next(int.MinValue / 2, r.Next(int.MaxValue / 2))
-                )
+                    )
             };
             logger.Info($"Init {nameof(ConfigRepository)}:{info.Name}(SW: {Config.Cfg.SpawnPoint})");
         }

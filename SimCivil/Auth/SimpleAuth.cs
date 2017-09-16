@@ -8,7 +8,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 
 namespace SimCivil.Auth
 {
@@ -18,26 +17,30 @@ namespace SimCivil.Auth
     public class SimpleAuth : IAuth
     {
         private static readonly ILog logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+
         /// <summary>
         /// Happen when user are vaild.
         /// </summary>
         public event EventHandler<Player> OnLogined;
+
         /// <summary>
         /// Happen when user exits.
         /// </summary>
         public event EventHandler<Player> OnLogouted;
+
         /// <summary>
         /// Happen when user's role changing.
         /// </summary>
         public event EventHandler<RoleChangeArgs> OnRoleChanging;
+
         /// <summary>
         /// Happen when user's role changed.
         /// </summary>
         public event EventHandler<RoleChangeArgs> OnRoleChanged;
 
 
-        private readonly HashSet<IServerConnection> readyToLogin;
-        private readonly IEntityRepository entityRepository;
+        private readonly HashSet<IServerConnection> _readyToLogin;
+        private readonly IEntityRepository _entityRepository;
 
         /// <summary>
         /// Gets the online player.
@@ -45,7 +48,8 @@ namespace SimCivil.Auth
         /// <value>
         /// The online player.
         /// </value>
-        public IList<Player> OnlinePlayer { get; private set; } = new List<Player>();
+        public IList<Player> OnlinePlayer { get; } = new List<Player>();
+
         /// <summary>
         /// Constrcutor can be injected.
         /// </summary>
@@ -53,13 +57,13 @@ namespace SimCivil.Auth
         /// <param name="entityRepository"></param>
         public SimpleAuth(IServerListener server, IEntityRepository entityRepository)
         {
-            readyToLogin = new HashSet<IServerConnection>();
+            _readyToLogin = new HashSet<IServerConnection>();
             server.OnConnected += Server_OnConnected;
             server.OnDisconnected += Server_OnDisconnected;
             server.RegisterPacket(PacketType.Login, LoginHandle);
             server.RegisterPacket(PacketType.QueryRoleList, QueryRoleListHandle);
             server.RegisterPacket(PacketType.SwitchRole, SwitchRoleHandle);
-            this.entityRepository = entityRepository;
+            _entityRepository = entityRepository;
         }
 
         private void SwitchRoleHandle(Packet pkt, ref bool isVaild)
@@ -68,7 +72,7 @@ namespace SimCivil.Auth
             if (isVaild)
             {
                 Debug.Assert(request != null, nameof(request) + " != null");
-                Entity entity = entityRepository.LoadEntity(request.RoleGuid);
+                Entity entity = _entityRepository.LoadEntity(request.RoleGuid);
                 RoleChangeArgs args = new RoleChangeArgs()
                 {
                     NewEntity = entity,
@@ -81,7 +85,7 @@ namespace SimCivil.Auth
                 if (args.Allowed)
                 {
                     if (args.OldEntity != null)
-                        entityRepository.SaveEntity(args.OldEntity);
+                        _entityRepository.SaveEntity(args.OldEntity);
                     args.Player.CurrentRole = args.NewEntity;
 
                     OnRoleChanged?.Invoke(this, args);
@@ -98,8 +102,8 @@ namespace SimCivil.Auth
 
         private void Server_OnDisconnected(object sender, IServerConnection e)
         {
-            if (readyToLogin.Contains(e))
-                readyToLogin.Remove(e);
+            if (_readyToLogin.Contains(e))
+                _readyToLogin.Remove(e);
             if (e.ContextPlayer == null)
                 return;
             Logout(e.ContextPlayer);
@@ -121,7 +125,7 @@ namespace SimCivil.Auth
         private void QueryRoleListHandle(Packet pkt, ref bool isVaild)
         {
             if (isVaild)
-                pkt.Reply(new QueryRoleListResponse(entityRepository.LoadPlayerRoles(pkt.Client.ContextPlayer)));
+                pkt.Reply(new QueryRoleListResponse(_entityRepository.LoadPlayerRoles(pkt.Client.ContextPlayer)));
         }
 
         private void LoginHandle(Packet p, ref bool isVaild)
@@ -129,7 +133,7 @@ namespace SimCivil.Auth
             LoginRequest pkt = p as LoginRequest;
             if (isVaild)
             {
-                if (!readyToLogin.Contains(p.Client))
+                if (!_readyToLogin.Contains(p.Client))
                 {
                     isVaild = false;
                     p.ReplyError(desc: "Handshake responses first.");
@@ -148,7 +152,7 @@ namespace SimCivil.Auth
                     p.ReplyError(2, "Player has logined");
                 }
             }
-            readyToLogin.Remove(p.Client);
+            _readyToLogin.Remove(p.Client);
         }
 
         /// <summary>
@@ -172,10 +176,10 @@ namespace SimCivil.Auth
         private void Server_OnConnected(object sender, IServerConnection e)
         {
             e.SendAndWait<OkResponse>(new Handshake(this), resp =>
-             {
-                 logger.Info($"Handshake ok with ${resp.Client}");
-                 readyToLogin.Add(e);
-             });
+            {
+                logger.Info($"Handshake ok with ${resp.Client}");
+                _readyToLogin.Add(e);
+            });
         }
     }
 }

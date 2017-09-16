@@ -17,6 +17,7 @@ namespace SimCivil.Store
         /// <param name="id">The identifier.</param>
         /// <returns></returns>
         Entity LoadEntity(Guid id);
+
         /// <summary>
         /// Saves the entity.
         /// </summary>

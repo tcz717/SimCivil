@@ -24,6 +24,7 @@ namespace SimCivil
         /// The default port
         /// </summary>
         public const int DefaultPort = 20170;
+
         /// <summary>
         /// The defalut period
         /// </summary>
@@ -33,6 +34,7 @@ namespace SimCivil
         /// The default ping request second
         /// </summary>
         public const int DefaultPingRequestSecond = 30;
+
         /// <summary>
         /// The default lost connection second
         /// </summary>
@@ -47,6 +49,7 @@ namespace SimCivil
         /// The ping request time
         /// </summary>
         public static readonly TimeSpan PingRequestTime = TimeSpan.FromSeconds(DefaultPingRequestSecond);
+
         /// <summary>
         /// The lost connection time
         /// </summary>
@@ -56,14 +59,17 @@ namespace SimCivil
         /// The default atlas width
         /// </summary>
         public const int DefaultAtlasWidth = 64;
+
         /// <summary>
         /// The default atlas height
         /// </summary>
         public const int DefaultAtlasHeight = 64;
+
         /// <summary>
         /// The maximum ground entities
         /// </summary>
         public const int MaxGroundEntities = 4;
+
         /// <summary>
         /// The sea level
         /// </summary>
@@ -73,6 +79,7 @@ namespace SimCivil
         /// The default game configuration file
         /// </summary>
         public const string DefaultGameConfigFile = "game.json";
+
         /// <summary>
         /// The default configuration file
         /// </summary>
@@ -85,6 +92,7 @@ namespace SimCivil
         /// The plant height limit.
         /// </value>
         public int PlantHeightLimit { get; set; } = 200;
+
         /// <summary>
         /// Gets or sets the plant density.
         /// </summary>
@@ -100,6 +108,7 @@ namespace SimCivil
         /// The spawn point.
         /// </value>
         public (int X, int Y) SpawnPoint { get; set; }
+
         /// <summary>
         /// Gets or sets the seed.
         /// </summary>
@@ -107,6 +116,7 @@ namespace SimCivil
         /// The seed.
         /// </value>
         public int Seed { get; set; }
+
         /// <summary>
         /// Gets or sets the name.
         /// </summary>

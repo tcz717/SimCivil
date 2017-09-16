@@ -17,6 +17,7 @@ namespace SimCivil.Map
     public class MapData
     {
         internal static readonly ILog logger = LogManager.GetLogger(typeof(MapData));
+
         /// <summary>
         /// Gets the atlas collection.
         /// </summary>
@@ -24,13 +25,15 @@ namespace SimCivil.Map
         /// The atlas collection.
         /// </value>
         public Dictionary<(int X, int Y), Atlas> AtlasCollection { get; private set; }
+
         /// <summary>
         /// Gets the map generator.
         /// </summary>
         /// <value>
         /// The map generator.
         /// </value>
-        public IMapGenerator MapGenerator { get; private set; }
+        public IMapGenerator MapGenerator { get; }
+
         /// <summary>
         /// Gets the map repository.
         /// </summary>
@@ -38,6 +41,7 @@ namespace SimCivil.Map
         /// The map repository.
         /// </value>
         public IMapRepository MapRepository { get; }
+
         /// <summary>
         /// Gets the server listener.
         /// </summary>
@@ -100,7 +104,7 @@ namespace SimCivil.Map
         /// <param name="pos">Tile's position</param>
         /// <returns>Tile you want.</returns>
         /// <exception cref="IndexOutOfRangeException">Tile isn't exsist and expanding is not allowed.</exception>
-        public Tile this[(int X, int Y) pos] { get => this[pos.X, pos.Y]; }
+        public Tile this[(int X, int Y) pos] => this[pos.X, pos.Y];
 
         /// <summary>
         /// Config a map data container.

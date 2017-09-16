@@ -44,6 +44,7 @@ namespace SimCivil.Map
         /// The position.
         /// </value>
         public (int X, int Y) Position { get; set; }
+
         /// <summary>
         /// Gets or sets the tile.
         /// </summary>
@@ -51,6 +52,7 @@ namespace SimCivil.Map
         /// The tile.
         /// </value>
         public Tile Tile { get; set; }
+
         /// <inheritdoc />
         /// <summary>
         /// Initializes a new instance of the <see cref="T:SimCivil.Map.GeneratingEventArgs" /> class.

@@ -32,6 +32,7 @@ namespace SimCivil.Net
         ///   <c>true</c> if [login required]; otherwise, <c>false</c>.
         /// </value>
         public bool LoginRequired { get; set; } = false;
+
         /// <summary>
         /// Gets or sets the direction.
         /// </summary>

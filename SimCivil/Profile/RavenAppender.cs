@@ -23,6 +23,7 @@ namespace SimCivil.Profile
         /// The name.
         /// </value>
         public string Name { get; set; }
+
         /// <summary>
         /// Gets or sets the layout.
         /// </summary>
@@ -42,6 +43,7 @@ namespace SimCivil.Profile
         /// The raven client
         /// </summary>
         protected IRavenClient RavenClient;
+
         /// <summary>
         /// Gets or sets the DSN.
         /// </summary>
@@ -49,6 +51,7 @@ namespace SimCivil.Profile
         /// The DSN.
         /// </value>
         public string DSN { get; set; }
+
         /// <summary>
         /// Gets or sets the logger.
         /// </summary>
@@ -56,6 +59,7 @@ namespace SimCivil.Profile
         /// The logger.
         /// </value>
         public string Logger { get; set; }
+
         private readonly IList<SentryTag> tagLayouts = new List<SentryTag>();
 
         /// <summary>

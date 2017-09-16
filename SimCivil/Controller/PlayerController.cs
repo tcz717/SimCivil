@@ -13,8 +13,8 @@ namespace SimCivil.Controller
     /// </summary>
     public class PlayerController : IController
     {
-        private readonly MapData Map;
-        private readonly IAuth auth;
+        private readonly MapData _map;
+        private readonly IAuth _auth;
 
         /// <inheritdoc />
         /// <summary>
@@ -25,7 +25,6 @@ namespace SimCivil.Controller
         /// </value>
         public int Priority { get; } = 800;
 
-        /// <inheritdoc />
         /// <summary>
         /// Updates the specified tick count.
         /// </summary>
@@ -60,8 +59,8 @@ namespace SimCivil.Controller
         /// <param name="auth">The authentication.</param>
         public PlayerController(MapData map, IAuth auth)
         {
-            Map = map;
-            this.auth = auth;
+            _map = map;
+            _auth = auth;
             auth.OnRoleChanged += Auth_OnRoleChanged;
         }
 

@@ -15,30 +15,36 @@ namespace SimCivil.Net
         /// </summary>
         /// <param name="pkt">The PKT.</param>
         void SendPacket(Packet pkt);
+
         /// <summary>
         /// Starts this server.
         /// </summary>
         void Start();
+
         /// <summary>
         /// Stops this server.
         /// </summary>
         void Stop();
+
         /// <summary>
         /// Attaches the client.
         /// </summary>
         /// <param name="client">The client.</param>
         void AttachClient(IServerConnection client);
+
         /// <summary>
         /// Detaches the client.
         /// </summary>
         /// <param name="client">The client.</param>
         void DetachClient(IServerConnection client);
+
         /// <summary>
         /// Registers the packet.
         /// </summary>
         /// <param name="type">The type.</param>
         /// <param name="callBack">The call back.</param>
         void RegisterPacket(PacketType type, PacketCallBack callBack);
+
         /// <summary>
         /// Unregisters the packet.
         /// </summary>
@@ -50,6 +56,7 @@ namespace SimCivil.Net
         /// The event triggered when a new ServerClient created
         /// </summary>
         event EventHandler<IServerConnection> OnConnected;
+
         /// <summary>
         /// The event triggered when a connection closed
         /// </summary>

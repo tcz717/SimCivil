@@ -13,23 +13,24 @@ namespace SimCivil
         /// <summary>
         /// If create new game.
         /// </summary>
-        [SwitchArgument('c', "create", false, Description = "Create new game.")]
-        public bool IsCreate;
+        [SwitchArgument('c', "create", false, Description = "Create new game.")] public bool IsCreate;
+
         /// <summary>
         /// Game's name.
         /// </summary>
-        [ValueArgument(typeof(string), 'n', Description = "New game's name.")]
-        public string Name;
+        [ValueArgument(typeof(string), 'n', Description = "New game's name.")] public string Name;
+
         /// <summary>
         /// Directory path to store all data.
         /// </summary>
         [ValueArgument(typeof(string), 'd', Optional = false, Description = "Directory to store all data.")]
         public string StoreDirectory;
+
         /// <summary>
         /// Magic Number about how to generate map.
         /// </summary>
-        [ValueArgument(typeof(int), 's', Description = "Magic Number about how to generate map.")]
-        public int Seed;
+        [ValueArgument(typeof(int), 's', Description = "Magic Number about how to generate map.")] public int Seed;
+
         /// <summary>
         /// Json configuration file about how to build game services. 
         /// </summary>

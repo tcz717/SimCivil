@@ -14,6 +14,7 @@ namespace SimCivil.Net.Packets
     public class ErrorResponse : ResponsePacket
     {
         private static readonly ILog logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+
         /// <summary>
         /// Initializes a new instance of the <see cref="ErrorResponse"/> class.
         /// </summary>
@@ -24,13 +25,16 @@ namespace SimCivil.Net.Packets
             ErrorCode = errorCode;
             Description = description;
         }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="ErrorResponse"/> class.
         /// </summary>
         /// <param name="type">The type.</param>
         /// <param name="data">The data.</param>
         /// <param name="client">The client.</param>
-        public ErrorResponse(PacketType type, Hashtable data, IServerConnection client) : base(type, data, client) { }
+        public ErrorResponse(PacketType type, Hashtable data, IServerConnection client) : base(type, data, client)
+        {
+        }
 
         /// <summary>
         /// Gets or sets the error code.
@@ -40,9 +44,10 @@ namespace SimCivil.Net.Packets
         /// </value>
         public int ErrorCode
         {
-            get => (int)Data[nameof(ErrorCode)];
+            get => (int) Data[nameof(ErrorCode)];
             set => Data[nameof(ErrorCode)] = value;
         }
+
         /// <summary>
         /// Gets or sets the description.
         /// </summary>
@@ -51,7 +56,7 @@ namespace SimCivil.Net.Packets
         /// </value>
         public string Description
         {
-            get => (string)Data[nameof(Description)];
+            get => (string) Data[nameof(Description)];
             set => Data[nameof(Description)] = value;
         }
 
@@ -63,10 +68,10 @@ namespace SimCivil.Net.Packets
         public override bool Verify(out string errorDesc)
         {
             return base.Verify(out errorDesc)
-                && Data.Contains(nameof(ErrorCode))
-                && Data[nameof(ErrorCode)] is string
-                && Data.Contains(nameof(Description))
-                && Data[nameof(ErrorCode)] is int;
+                   && Data.Contains(nameof(ErrorCode))
+                   && Data[nameof(ErrorCode)] is string
+                   && Data.Contains(nameof(Description))
+                   && Data[nameof(ErrorCode)] is int;
         }
 
         /// <summary>
@@ -77,6 +82,7 @@ namespace SimCivil.Net.Packets
             base.Handle();
             Client.Close();
         }
+
         /// <summary>
         /// Give order to send packet immediately.
         /// Note: This is a method especially for server, please do NOT use it directly!

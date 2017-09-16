@@ -13,15 +13,16 @@ namespace SimCivil.Net.Packets
         /// </summary>
         public int RefPacketId
         {
-            get => (int)Data[nameof(RefPacketId)];
+            get => (int) Data[nameof(RefPacketId)];
             set => Data[nameof(RefPacketId)] = value;
         }
+
         /// <summary>
         /// Construct a new ResponsePacket Packet.
         /// </summary>
         /// <param name="client">Client to response.</param>
         /// <param name="refpacketID">Requesting packet's id.</param>
-        protected ResponsePacket(IServerConnection client, int refpacketID):base()
+        protected ResponsePacket(IServerConnection client, int refpacketID) : base()
         {
             this.Client = client;
             RefPacketId = refpacketID;
@@ -33,7 +34,8 @@ namespace SimCivil.Net.Packets
         /// <param name="type"></param>
         /// <param name="data">dictionary storing data, consist of a string and a value</param>
         /// <param name="client">client indicating where to send to or received from</param>
-        protected ResponsePacket(PacketType type = PacketType.Empty, Hashtable data = null, IServerConnection client = null)
+        protected ResponsePacket(PacketType type = PacketType.Empty, Hashtable data = null,
+            IServerConnection client = null)
             : base(type, data, client)
         {
         }
@@ -46,8 +48,8 @@ namespace SimCivil.Net.Packets
         public override bool Verify(out string errorDesc)
         {
             return base.Verify(out errorDesc)
-                && Data.ContainsKey(nameof(RefPacketId))
-                && Data[nameof(RefPacketId)] is int;
+                   && Data.ContainsKey(nameof(RefPacketId))
+                   && Data[nameof(RefPacketId)] is int;
         }
     }
 }

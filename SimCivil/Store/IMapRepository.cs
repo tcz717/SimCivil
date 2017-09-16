@@ -13,12 +13,14 @@ namespace SimCivil.Store
         /// <param name="atlasIndex"></param>
         /// <returns>Cheak result.</returns>
         bool Contains((int X, int Y) atlasIndex);
+
         /// <summary>
         /// Get one atlas from repository.
         /// </summary>
         /// <param name="atlasIndex">Atlas' position.</param>
         /// <returns>Wanted Atlas</returns>
         Atlas GetAtlas((int X, int Y) atlasIndex);
+
         /// <summary>
         /// Add one Atlas to track. And will be stored when nessesary.
         /// </summary>

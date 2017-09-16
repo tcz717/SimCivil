@@ -15,7 +15,10 @@ namespace SimCivil.Net.Packets
         /// <summary>
         /// Initializes a new instance of the <see cref="EmptyPacket"/> class.
         /// </summary>
-        public EmptyPacket() { }
+        public EmptyPacket()
+        {
+        }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="EmptyPacket"/> class.
         /// </summary>
@@ -23,6 +26,8 @@ namespace SimCivil.Net.Packets
         /// <param name="data">dictionary storing data, consist of a string and a value</param>
         /// <param name="client">client indicating where to send to or received from</param>
         public EmptyPacket(PacketType type = PacketType.Empty, Hashtable data = null, IServerConnection client = null)
-            : base(type, data, client) { }
+            : base(type, data, client)
+        {
+        }
     }
 }

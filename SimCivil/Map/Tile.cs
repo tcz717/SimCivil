@@ -13,6 +13,7 @@ namespace SimCivil.Map
         /// Defalut sea level is  SimCivil.Config.SeaLevel .
         /// </summary>
         public int Height { get; set; }
+
         /// <summary>
         /// Five slots:
         /// <list type="bullet">
@@ -24,6 +25,7 @@ namespace SimCivil.Map
         /// </list>
         /// </summary>
         public Slot[] Slots { get; set; }
+
         /// <summary>
         /// Four sides:
         /// <list type="bullet">
@@ -34,15 +36,17 @@ namespace SimCivil.Map
         /// </list>
         /// </summary>
         public Side[] Sides { get; set; }
+
         /// <summary>
         /// Tile's surface texture.
         /// </summary>
         public string Surface { get; set; }
+
         /// <summary>
         /// Extra data about Tile.
         /// </summary>
         public dynamic Meta { get; set; }
-        
+
         /// <summary>
         /// Tile's Position.
         /// </summary>

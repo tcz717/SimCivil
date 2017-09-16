@@ -21,13 +21,16 @@ namespace SimCivil.Net.Packets
             Success = success;
             Description = description;
         }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="OkResponse"/> class.
         /// </summary>
         /// <param name="type">The type.</param>
         /// <param name="data">The data.</param>
         /// <param name="client">The client.</param>
-        public OkResponse(PacketType type, Hashtable data, IServerConnection client) : base(type, data, client) { }
+        public OkResponse(PacketType type, Hashtable data, IServerConnection client) : base(type, data, client)
+        {
+        }
 
         /// <summary>
         /// Gets or sets a value indicating whether result is success.
@@ -37,9 +40,10 @@ namespace SimCivil.Net.Packets
         /// </value>
         public bool Success
         {
-            get => (bool)Data[nameof(Success)];
+            get => (bool) Data[nameof(Success)];
             set => Data[nameof(Success)] = value;
         }
+
         /// <summary>
         /// Gets or sets the description.
         /// </summary>
@@ -48,7 +52,7 @@ namespace SimCivil.Net.Packets
         /// </value>
         public string Description
         {
-            get => (string)Data[nameof(Description)];
+            get => (string) Data[nameof(Description)];
             set => Data[nameof(Description)] = value;
         }
     }

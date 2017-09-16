@@ -17,7 +17,6 @@ namespace SimCivil.Net.Packets
         public PingResponse(PacketType type = PacketType.Empty, Hashtable data = null, IServerConnection client = null)
             : base(type, data, client)
         {
-
         }
     }
 }

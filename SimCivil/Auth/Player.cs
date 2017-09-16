@@ -25,7 +25,9 @@ namespace SimCivil.Auth
         /// <summary>
         /// Initializes a new instance of the <see cref="Player"/> class.
         /// </summary>
-        public Player() { }
+        public Player()
+        {
+        }
 
         /// <summary>
         /// Gets or sets the username.
@@ -34,6 +36,7 @@ namespace SimCivil.Auth
         /// The username.
         /// </value>
         public string Username { get; set; }
+
         /// <summary>
         /// Gets or sets the token.
         /// </summary>
@@ -41,6 +44,7 @@ namespace SimCivil.Auth
         /// The token.
         /// </value>
         public object Token { get; set; }
+
         /// <summary>
         /// Gets or sets the name of the player.
         /// </summary>
@@ -48,6 +52,7 @@ namespace SimCivil.Auth
         /// The name of the player.
         /// </value>
         public string PlayerName { get; set; }
+
         /// <summary>
         /// Gets or sets the roles.
         /// </summary>
@@ -55,6 +60,7 @@ namespace SimCivil.Auth
         /// The roles.
         /// </value>
         public List<Guid> Roles { get; set; }
+
         /// <summary>
         /// Gets or sets the current role.
         /// </summary>
