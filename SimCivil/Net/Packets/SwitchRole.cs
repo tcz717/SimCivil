@@ -35,8 +35,8 @@ namespace SimCivil.Net.Packets
         /// </summary>
         public Guid RoleGuid
         {
-            get => (Guid) Data[nameof(RoleGuid)];
-            set => Data[nameof(RoleGuid)] = value;
+            get => GetDataProperty<Guid>();
+            set => SetDataProperty(value);
         }
 
         /// <summary>

@@ -40,8 +40,8 @@ namespace SimCivil.Net.Packets
         /// </summary>
         public string Protocol
         {
-            get => (string) Data[nameof(Protocol)];
-            set => Data[nameof(Protocol)] = value;
+            get => GetDataProperty<string>();
+            set => SetDataProperty(value);
         }
 
         /// <summary>
@@ -49,8 +49,8 @@ namespace SimCivil.Net.Packets
         /// </summary>
         public string GameName
         {
-            get => (string) Data[nameof(GameName)];
-            set => Data[nameof(GameName)] = value;
+            get => GetDataProperty<string>();
+            set => SetDataProperty(value);
         }
 
         /// <summary>
@@ -58,8 +58,8 @@ namespace SimCivil.Net.Packets
         /// </summary>
         public string ServerVersion
         {
-            get => (string) Data[nameof(ServerVersion)];
-            set => Data[nameof(ServerVersion)] = value;
+            get => GetDataProperty<string>();
+            set => SetDataProperty(value);
         }
 
         /// <summary>
@@ -67,8 +67,8 @@ namespace SimCivil.Net.Packets
         /// </summary>
         public string Auth
         {
-            get => (string) Data[nameof(Auth)];
-            set => Data[nameof(Auth)] = value;
+            get => GetDataProperty<string>();
+            set => SetDataProperty(value);
         }
 
         /// <summary>

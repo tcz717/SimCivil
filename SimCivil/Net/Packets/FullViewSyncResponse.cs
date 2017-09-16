@@ -16,12 +16,12 @@ namespace SimCivil.Net.Packets
         /// Initializes a new instance of the <see cref="FullViewSyncResponse"/> class.
         /// </summary>
         /// <param name="center">The center.</param>
-        /// <param name="viewDistence">The view distence.</param>
+        /// <param name="viewDistance">The view distance.</param>
         /// <param name="tiles">The tiles.</param>
-        public FullViewSyncResponse((int x, int y) center, int viewDistence, IEnumerable<Tile> tiles)
+        public FullViewSyncResponse((int x, int y) center, int viewDistance, IEnumerable<Tile> tiles)
         {
             Center = center;
-            ViewDistence = viewDistence;
+            ViewDistance = viewDistance;
             Tiles = tiles;
         }
 
@@ -45,20 +45,20 @@ namespace SimCivil.Net.Packets
         /// </value>
         public (int x, int y) Center
         {
-            get => ((int x, int y)) Data[nameof(Center)];
-            set => Data[nameof(Center)] = value;
+            get => GetDataProperty<(int x, int y)>();
+            set => SetDataProperty(value);
         }
 
         /// <summary>
-        /// Gets or sets the view distence.
+        /// Gets or sets the view distance.
         /// </summary>
         /// <value>
-        /// The view distence.
+        /// The view distance.
         /// </value>
-        public int ViewDistence
+        public int ViewDistance
         {
-            get => (int) Data[nameof(ViewDistence)];
-            set => Data[nameof(ViewDistence)] = value;
+            get => GetDataProperty<int>();
+            set => SetDataProperty(value);
         }
 
         /// <summary>
@@ -69,8 +69,8 @@ namespace SimCivil.Net.Packets
         /// </value>
         public IEnumerable<Tile> Tiles
         {
-            get => (IEnumerable<Tile>) Data[nameof(Tiles)];
-            set => Data[nameof(Tiles)] = value;
+            get => GetDataProperty<IEnumerable<Tile>>();
+            set => SetDataProperty(value);
         }
     }
 }

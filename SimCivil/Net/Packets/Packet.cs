@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 using Newtonsoft.Json;
 
@@ -44,8 +45,8 @@ namespace SimCivil.Net.Packets
         /// </summary>
         public DateTime Timestamp
         {
-            get => (DateTime) Data[nameof(Timestamp)];
-            set => Data[nameof(Timestamp)] = value;
+            get => GetDataProperty<DateTime>();
+            set => SetDataProperty(value);
         }
 
         /// <summary>
@@ -145,7 +146,7 @@ namespace SimCivil.Net.Packets
         /// </summary>
         /// <param name="errorCode">The error code.</param>
         /// <param name="desc">The desc.</param>
-        public void ReplyError(int errorCode = 0, string desc = "error occured") =>
+        public void ReplyError(int errorCode = 0, string desc = "error occurred") =>
             Reply(new ErrorResponse(errorCode, desc) {Client = Client});
 
         /// <summary>
@@ -161,6 +162,40 @@ namespace SimCivil.Net.Packets
         /// <param name="desc">The desc.</param>
         public void ReplyDeny(string desc = "request denied") =>
             Reply(new OkResponse(false, desc) {Client = Client});
+
+        /// <summary>
+        /// Gets the data property.
+        /// </summary>
+        /// <typeparam name="T">Property type</typeparam>
+        /// <param name="propertyName">Name of the property.</param>
+        /// <returns></returns>
+        /// <exception cref="System.ArgumentException">message - propertyName</exception>
+        protected T GetDataProperty<T>([CallerMemberName] string propertyName = null)
+        {
+            if (string.IsNullOrWhiteSpace(propertyName))
+            {
+                throw new ArgumentException("message", nameof(propertyName));
+            }
+
+            return (T) Data[propertyName];
+        }
+
+        /// <summary>
+        /// Sets the data property.
+        /// </summary>
+        /// <typeparam name="T">Property type.</typeparam>
+        /// <param name="value">The value.</param>
+        /// <param name="propertyName">Name of the property.</param>
+        /// <exception cref="System.ArgumentException">message - propertyName</exception>
+        protected void SetDataProperty<T>(T value, [CallerMemberName] string propertyName = null)
+        {
+            if (string.IsNullOrWhiteSpace(propertyName))
+            {
+                throw new ArgumentException("message", nameof(propertyName));
+            }
+
+            Data[propertyName] = value;
+        }
     }
 
     /// <summary>

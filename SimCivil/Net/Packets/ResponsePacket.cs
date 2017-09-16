@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 namespace SimCivil.Net.Packets
 {
@@ -13,19 +14,19 @@ namespace SimCivil.Net.Packets
         /// </summary>
         public int RefPacketId
         {
-            get => (int) Data[nameof(RefPacketId)];
-            set => Data[nameof(RefPacketId)] = value;
+            get => GetDataProperty<int>();
+            set => SetDataProperty(value);
         }
 
         /// <summary>
         /// Construct a new ResponsePacket Packet.
         /// </summary>
         /// <param name="client">Client to response.</param>
-        /// <param name="refpacketID">Requesting packet's id.</param>
-        protected ResponsePacket(IServerConnection client, int refpacketID) : base()
+        /// <param name="refPacketID">Requesting packet's id.</param>
+        protected ResponsePacket(IServerConnection client, int refPacketID)
         {
-            this.Client = client;
-            RefPacketId = refpacketID;
+            Client = client;
+            RefPacketId = refPacketID;
         }
 
         /// <summary>

@@ -40,8 +40,8 @@ namespace SimCivil.Net.Packets
         /// </value>
         public bool Success
         {
-            get => (bool) Data[nameof(Success)];
-            set => Data[nameof(Success)] = value;
+            get => GetDataProperty<bool>();
+            set => SetDataProperty(value);
         }
 
         /// <summary>
@@ -52,8 +52,8 @@ namespace SimCivil.Net.Packets
         /// </value>
         public string Description
         {
-            get => (string) Data[nameof(Description)];
-            set => Data[nameof(Description)] = value;
+            get => GetDataProperty<string>();
+            set => SetDataProperty(value);
         }
     }
 }

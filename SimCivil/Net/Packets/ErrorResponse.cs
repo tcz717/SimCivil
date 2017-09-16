@@ -8,7 +8,7 @@ using System.Text;
 namespace SimCivil.Net.Packets
 {
     /// <summary>
-    /// Occured a error, connection need to close.
+    /// Occurred a error, connection need to close.
     /// </summary>
     [PacketType(PacketType.Error)]
     public class ErrorResponse : ResponsePacket
@@ -20,7 +20,7 @@ namespace SimCivil.Net.Packets
         /// </summary>
         /// <param name="errorCode">The error code.</param>
         /// <param name="description">The description.</param>
-        public ErrorResponse(int errorCode = 0, string description = "invaild packet")
+        public ErrorResponse(int errorCode = 0, string description = "invalid packet")
         {
             ErrorCode = errorCode;
             Description = description;
@@ -44,8 +44,8 @@ namespace SimCivil.Net.Packets
         /// </value>
         public int ErrorCode
         {
-            get => (int) Data[nameof(ErrorCode)];
-            set => Data[nameof(ErrorCode)] = value;
+            get => GetDataProperty<int>();
+            set => SetDataProperty(value);
         }
 
         /// <summary>
@@ -56,8 +56,8 @@ namespace SimCivil.Net.Packets
         /// </value>
         public string Description
         {
-            get => (string) Data[nameof(Description)];
-            set => Data[nameof(Description)] = value;
+            get => GetDataProperty<string>();
+            set => SetDataProperty(value);
         }
 
         /// <summary>

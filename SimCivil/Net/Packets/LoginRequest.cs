@@ -26,8 +26,8 @@ namespace SimCivil.Net.Packets
         /// </summary>
         public string Username
         {
-            get => (string) Data[nameof(Username)];
-            set => Data[nameof(Username)] = value;
+            get => GetDataProperty<string>();
+            set => SetDataProperty(value);
         }
 
         /// <summary>
@@ -36,7 +36,7 @@ namespace SimCivil.Net.Packets
         public object Token
         {
             get => Data[nameof(Token)];
-            set => Data[nameof(Token)] = value;
+            set => SetDataProperty(value);
         }
 
         /// <summary>
@@ -44,8 +44,8 @@ namespace SimCivil.Net.Packets
         /// </summary>
         public string ClientName
         {
-            get => (string) Data[nameof(ClientName)];
-            set => Data[nameof(ClientName)] = value;
+            get => GetDataProperty<string>();
+            set => SetDataProperty(value);
         }
 
         /// <summary>

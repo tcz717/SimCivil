@@ -24,7 +24,7 @@ namespace SimCivil.Net.Packets
         public IEnumerable<Entity> Roles
         {
             get => Data[nameof(Roles)] as IEnumerable<Entity>;
-            set => Data[nameof(Roles)] = value;
+            set => SetDataProperty(value);
         }
 
         /// <summary>
