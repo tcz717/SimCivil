@@ -10,6 +10,7 @@ using System.Collections;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Diagnostics;
+using JetBrains.Annotations;
 using SimCivil.Model;
 using SimCivil.Net.Packets;
 
@@ -206,9 +207,20 @@ namespace SimCivil.Map
         /// Attaches the entity.
         /// </summary>
         /// <param name="entity">The entity.</param>
-        public void AttachEntity(Entity entity)
+        public void AttachEntity([NotNull] Entity entity)
         {
+            if (entity == null) throw new ArgumentNullException(nameof(entity));
             Entities.Add(entity);
+        }
+
+        /// <summary>
+        /// Detaches the entity.
+        /// </summary>
+        /// <param name="entity">The entity.</param>
+        public void DetachEntity([NotNull] Entity entity)
+        {
+            if (entity == null) throw new ArgumentNullException(nameof(entity));
+            Entities.Remove(entity);
         }
     }
 }

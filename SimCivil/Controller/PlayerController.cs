@@ -1,10 +1,10 @@
 ﻿using SimCivil.Auth;
 using SimCivil.Map;
-using SimCivil.Net;
-using SimCivil.Store;
 using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Collections.Specialized;
+using System.Linq;
+using SimCivil.Model;
 
 namespace SimCivil.Controller
 {
@@ -24,6 +24,14 @@ namespace SimCivil.Controller
         /// The priority.
         /// </value>
         public int Priority { get; } = 800;
+
+        /// <summary>
+        /// Gets or sets the role entities.
+        /// </summary>
+        /// <value>
+        /// The role entities.
+        /// </value>
+        public HashSet<Entity> RoleEntities { get; } = new HashSet<Entity>();
 
         /// <summary>
         /// Updates the specified tick count.
@@ -61,12 +69,43 @@ namespace SimCivil.Controller
         {
             _map = map;
             _auth = auth;
-            auth.OnRoleChanged += Auth_OnRoleChanged;
+            _auth.RoleChanged += Auth_OnRoleChanged;
+            _map.Entities.CollectionChanged += Entities_CollectionChanged;
+        }
+
+        private void Entities_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            switch (e.Action)
+            {
+                case NotifyCollectionChangedAction.Add:
+                    foreach (Entity entity in e.NewItems)
+                    {
+                        if (RoleEntities.Contains(entity))
+                        {
+                            throw new InvalidOperationException($"{entity} has existed in {nameof(PlayerController)}");
+                        }
+                        RoleEntities.Add(entity);
+                    }
+                    break;
+                case NotifyCollectionChangedAction.Reset:
+                case NotifyCollectionChangedAction.Remove:
+                    foreach (Entity entity in e.OldItems)
+                    {
+                        RoleEntities.Remove(entity);
+                    }
+                    break;
+                case NotifyCollectionChangedAction.Move:
+                case NotifyCollectionChangedAction.Replace:
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
         }
 
         private void Auth_OnRoleChanged(object sender, RoleChangeArgs e)
         {
-            throw new NotImplementedException();
+            if (e.OldEntity != null) _map.DetachEntity(e.OldEntity);
+            _map.AttachEntity(e.NewEntity);
         }
     }
 }

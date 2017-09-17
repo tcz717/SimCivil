@@ -7,6 +7,7 @@ using System.Text;
 using System.Reflection;
 using System.Linq;
 using System.Collections;
+using System.Diagnostics;
 
 namespace SimCivil.Net
 {
@@ -37,7 +38,7 @@ namespace SimCivil.Net
         public static Dictionary<PacketType, PacketTypeAttribute> PacketAttributes { get; }
 
         /// <summary>
-        /// Build a Packet object from a given head and data, and add serverclient info in it
+        /// Build a Packet object from a given head and data, and add client info in it
         /// </summary>
         /// <param name="serverClient">the client calling this method</param>
         /// <param name="head">a well built head</param>
@@ -49,6 +50,7 @@ namespace SimCivil.Net
                 JsonConvert.DeserializeObject<Hashtable>(Encoding.UTF8.GetString(data, 0, head.Length));
 
             Packet pkt = Activator.CreateInstance(LegalPackets[head.Type], head.Type, dataDict, serverClient) as Packet;
+            Debug.Assert(pkt != null, nameof(pkt) + " != null");
             pkt.PacketHead = head;
             return pkt;
         }
@@ -62,10 +64,12 @@ namespace SimCivil.Net
                 .Where(t => t.GetTypeInfo().GetCustomAttributes<PacketTypeAttribute>().Any());
             foreach (var t in types)
             {
-                var packetAttrs = t.GetTypeInfo().GetCustomAttributes<PacketTypeAttribute>();
-                foreach (var attr in packetAttrs)
+                var packetAttr = t.GetTypeInfo().GetCustomAttributes<PacketTypeAttribute>();
+                foreach (var attr in packetAttr)
                 {
                     var key = attr.PacketType;
+                    if(LegalPackets.ContainsKey(key))
+                        throw new InvalidOperationException();
                     LegalPackets[key] = t;
                     PacketAttributes[key] = attr;
                     PacketsType[t] = key;

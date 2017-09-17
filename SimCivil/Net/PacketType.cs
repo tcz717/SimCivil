@@ -17,5 +17,6 @@
         QueryRoleList = 9,
         QueryRoleListResponse = 10,
         SwitchRole = 11,
+        GenerateRole =12
     }
 }

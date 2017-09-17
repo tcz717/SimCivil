@@ -50,6 +50,14 @@ namespace SimCivil.Net.Packets
         }
 
         /// <summary>
+        /// Gets or sets a value indicating whether this instance is replied.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if this instance is replied; otherwise, <c>false</c>.
+        /// </value>
+        public bool IsReplied { get; protected set; }
+
+        /// <summary>
         /// Construct a Packet, type will be automatically added into head
         /// </summary>
         /// <param name="type"></param>
@@ -137,6 +145,8 @@ namespace SimCivil.Net.Packets
         /// <param name="response">The response.</param>
         public void Reply(ResponsePacket response)
         {
+            if (IsReplied) throw new InvalidOperationException($"Packet {this} has replied");
+            IsReplied = true;
             response.Client = Client;
             response.RefPacketId = PacketHead.PacketId;
             response.Send();

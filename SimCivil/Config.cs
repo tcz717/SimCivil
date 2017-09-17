@@ -25,10 +25,11 @@ namespace SimCivil
         /// </summary>
         public const int DefaultPort = 20170;
 
+
         /// <summary>
-        /// The defalut period
+        /// The default period
         /// </summary>
-        public const int DefalutPeriod = 50;
+        public const int DefaultPeriod = 50;
 
         /// <summary>
         /// The default ping request second
@@ -124,6 +125,19 @@ namespace SimCivil
         /// The name.
         /// </value>
         public string Name { get; set; }
+
+        /// <summary>
+        /// Gets or sets the available races.
+        /// </summary>
+        /// <value>
+        /// The available races.
+        /// </value>
+        public string[] AvailableRaces { get; set; } = {"human"};
+
+        /// <summary>
+        /// The available sex
+        /// </summary>
+        public static readonly string[] AvailableSex = {"male", "female"};
 
         static Config()
         {
