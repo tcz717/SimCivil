@@ -1,6 +1,7 @@
 SimCivil合作开发说明
 =======================
-[![build status](http://gitlab.tancoder.com/TPDT/sim-civil/badges/master/build.svg)](http://gitlab.tancoder.com/TPDT/sim-civil/commits/master)
+[![Travis-CI Build Status](https://travis-ci.com/tcz717/SimCivil.svg?token=yfj7KWUzZasJmgSkLsTx&branch=master)](https://travis-ci.com/tcz717/SimCivil)
+[![GitLab Build status](http://gitlab.tancoder.com/TPDT/sim-civil/badges/master/build.svg)](http://gitlab.tancoder.com/TPDT/sim-civil/commits/master)
 
 此项目主要是游戏的服务端，负责核心逻辑处理
 

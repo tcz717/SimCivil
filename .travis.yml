@@ -1,0 +1,9 @@
+language: csharp
+solution: SimCivil.sln
+mono: none
+dotnet: 2.0.0
+dist: trusty
+script:
+   - dotnet restore SimCivil.sln
+   - dotnet build SimCivil.sln
+   - dotnet test SimCivil.Test/SimCivil.Test.csproj
