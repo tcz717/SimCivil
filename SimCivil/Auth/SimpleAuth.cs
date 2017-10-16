@@ -192,7 +192,7 @@ namespace SimCivil.Auth
         {
             e.SendAndWait<OkResponse>(new Handshake(this), resp =>
             {
-                logger.Info($"Handshake ok with ${resp.Client}");
+                logger.Info($"Handshake OK with {resp.Client}");
                 _readyToLogin.Add(e);
             });
         }

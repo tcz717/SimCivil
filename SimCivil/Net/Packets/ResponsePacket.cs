@@ -12,9 +12,9 @@ namespace SimCivil.Net.Packets
         /// <summary>
         /// Ping packet's id need to response.
         /// </summary>
-        public int RefPacketId
+        public long RefPacketId
         {
-            get => GetDataProperty<int>();
+            get => GetDataProperty<long>();
             set => SetDataProperty(value);
         }
 
@@ -50,7 +50,7 @@ namespace SimCivil.Net.Packets
         {
             return base.Verify(out errorDesc)
                    && Data.ContainsKey(nameof(RefPacketId))
-                   && Data[nameof(RefPacketId)] is int;
+                   && Data[nameof(RefPacketId)] is long;
         }
     }
 }

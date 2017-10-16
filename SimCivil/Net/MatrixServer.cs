@@ -203,7 +203,7 @@ namespace SimCivil.Net
             while (_packetReadQueue.TryTake(out Packet pkt))
             {
                 bool isValid = pkt.Verify(out string error);
-                if (isValid)
+                if (!isValid)
                 {
                     pkt.ReplyError(desc: error);
                     continue;
