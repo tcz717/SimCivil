@@ -24,12 +24,12 @@ namespace SimCivil.Auth
         /// <summary>
         /// Happen when user's role changing.
         /// </summary>
-        event EventHandler<RoleChangeArgs> OnRoleChanging;
+        event EventHandler<RoleChangeArgs> RoleChanging;
 
         /// <summary>
         /// Happen when user's role changed.
         /// </summary>
-        event EventHandler<RoleChangeArgs> OnRoleChanged;
+        event EventHandler<RoleChangeArgs> RoleChanged;
 
         /// <summary>
         /// Login the specified username.

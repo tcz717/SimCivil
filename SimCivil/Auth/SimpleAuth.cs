@@ -31,12 +31,12 @@ namespace SimCivil.Auth
         /// <summary>
         /// Happen when user's role changing.
         /// </summary>
-        public event EventHandler<RoleChangeArgs> OnRoleChanging;
+        public event EventHandler<RoleChangeArgs> RoleChanging;
 
         /// <summary>
         /// Happen when user's role changed.
         /// </summary>
-        public event EventHandler<RoleChangeArgs> OnRoleChanged;
+        public event EventHandler<RoleChangeArgs> RoleChanged;
 
 
         private readonly HashSet<IServerConnection> _readyToLogin;
@@ -51,7 +51,7 @@ namespace SimCivil.Auth
         public IList<Player> OnlinePlayer { get; } = new List<Player>();
 
         /// <summary>
-        /// Constrcutor can be injected.
+        /// Constructor can be injected.
         /// </summary>
         /// <param name="server"></param>
         /// <param name="entityRepository"></param>
@@ -63,7 +63,20 @@ namespace SimCivil.Auth
             server.RegisterPacket(PacketType.Login, LoginHandle);
             server.RegisterPacket(PacketType.QueryRoleList, QueryRoleListHandle);
             server.RegisterPacket(PacketType.SwitchRole, SwitchRoleHandle);
+            server.RegisterPacket(PacketType.GenerateRole, GenerateRoleHandle);
             _entityRepository = entityRepository;
+        }
+
+        private void GenerateRoleHandle(Packet pkt, ref bool isValid)
+        {
+            if (isValid)
+            {
+                GenerateRole request = pkt as GenerateRole;
+                Entity role = Entity.Create();
+                Debug.Assert(request != null, nameof(request) + " != null");
+                role.Name = request.RoleName;
+                role.Meta.Sex = request.Sex;
+            }
         }
 
         private void SwitchRoleHandle(Packet pkt, ref bool isValid)
@@ -80,7 +93,7 @@ namespace SimCivil.Auth
                     Player = pkt.Client.ContextPlayer,
                     Allowed = true,
                 };
-                OnRoleChanging?.Invoke(this, args);
+                RoleChanging?.Invoke(this, args);
 
                 if (args.Allowed)
                 {
@@ -88,14 +101,16 @@ namespace SimCivil.Auth
                         _entityRepository.SaveEntity(args.OldEntity);
                     args.Player.CurrentRole = args.NewEntity;
 
-                    OnRoleChanged?.Invoke(this, args);
+                    RoleChanged?.Invoke(this, args);
 
                     pkt.ReplyOk();
+                    logger.Info($"Switched role of {args.Player} to {args.NewEntity}");
                 }
                 else
                 {
                     isValid = false;
                     pkt.ReplyDeny();
+                    logger.Info($"{args.Player} switches role fail.");
                 }
             }
         }
@@ -111,7 +126,7 @@ namespace SimCivil.Auth
         }
 
         /// <summary>
-        /// Logouts the specified player.
+        /// Logout the specified player.
         /// </summary>
         /// <param name="player">The player.</param>
         /// <inheritdoc />
@@ -149,7 +164,7 @@ namespace SimCivil.Auth
                 else
                 {
                     isValid = false;
-                    p.ReplyError(2, "Player has logined");
+                    p.ReplyError(2, "Player has logged in");
                 }
             }
             _readyToLogin.Remove(p.Client);
