@@ -4,6 +4,7 @@ using System.Reflection;
 using Autofac;
 using Microsoft.Extensions.Configuration;
 using Autofac.Configuration;
+using log4net.Core;
 
 [assembly: log4net.Config.XmlConfigurator(ConfigFile = "log.config", Watch = false)]
 
@@ -45,6 +46,9 @@ namespace SimCivil
                     game.Initialize(info);
                 else
                     game.Load(info);
+
+                ((log4net.Repository.Hierarchy.Hierarchy) LogManager.GetRepository(Assembly.GetEntryAssembly()))
+                    .Threshold = info.Visibility ? Level.Debug : Level.Info;
                 game.Run();
             }
             Console.Read();

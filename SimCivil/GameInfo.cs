@@ -16,6 +16,12 @@ namespace SimCivil
         [SwitchArgument('c', "create", false, Description = "Create new game.")] public bool IsCreate;
 
         /// <summary>
+        /// If create new game.
+        /// </summary>
+        [SwitchArgument('v', false, Description = "Debug visibility.")] public bool Visibility;
+
+
+        /// <summary>
         /// Game's name.
         /// </summary>
         [ValueArgument(typeof(string), 'n', Description = "New game's name.")] public string Name;
