@@ -82,37 +82,52 @@ namespace SimCivil.Auth
         private void SwitchRoleHandle(Packet pkt, ref bool isValid)
         {
             SwitchRole request = pkt as SwitchRole;
+            Debug.Assert(request != null, nameof(request) + " != null");
             if (isValid)
             {
-                Debug.Assert(request != null, nameof(request) + " != null");
-                Entity entity = _entityRepository.LoadEntity(request.RoleGuid);
-                RoleChangeArgs args = new RoleChangeArgs()
+                if (SwitchRole(pkt, _entityRepository.LoadEntity(request.RoleGuid)))
                 {
-                    NewEntity = entity,
-                    OldEntity = pkt.Client.ContextPlayer.CurrentRole,
-                    Player = pkt.Client.ContextPlayer,
-                    Allowed = true,
-                };
-                RoleChanging?.Invoke(this, args);
-
-                if (args.Allowed)
-                {
-                    if (args.OldEntity != null)
-                        _entityRepository.SaveEntity(args.OldEntity);
-                    args.Player.CurrentRole = args.NewEntity;
-
-                    RoleChanged?.Invoke(this, args);
-
                     pkt.ReplyOk();
-                    logger.Info($"Switched role of {args.Player} to {args.NewEntity}");
                 }
                 else
                 {
-                    isValid = false;
                     pkt.ReplyDeny();
-                    logger.Info($"{args.Player} switches role fail.");
                 }
             }
+        }
+
+        /// <summary>
+        /// Switches the role.
+        /// </summary>
+        /// <param name="pkt">The packet.</param>
+        /// <param name="entity">The entity.</param>
+        /// <returns></returns>
+        public bool SwitchRole(Packet pkt, Entity entity)
+        {
+            RoleChangeArgs args = new RoleChangeArgs()
+            {
+                NewEntity = entity,
+                OldEntity = pkt.Client.ContextPlayer.CurrentRole,
+                Player = pkt.Client.ContextPlayer,
+                Allowed = true,
+            };
+            RoleChanging?.Invoke(this, args);
+
+            if (args.Allowed)
+            {
+                if (args.OldEntity != null)
+                    _entityRepository.SaveEntity(args.OldEntity);
+                args.Player.CurrentRole = args.NewEntity;
+
+                RoleChanged?.Invoke(this, args);
+
+                logger.Info($"Switched role of {args.Player} to {args.NewEntity}");
+            }
+            else
+            {
+                logger.Info($"{args.Player} switches role fail.");
+            }
+            return args.Allowed;
         }
 
         private void Server_OnDisconnected(object sender, IServerConnection e)
