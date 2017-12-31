@@ -46,6 +46,9 @@ namespace SimCivil.Model
         /// </value>
         public string Name { get; set; } = "Unknown";
 
+        public EntityType Type { get; set; }
+        
+
         /// <summary>
         /// Gets or sets the position.
         /// </summary>
@@ -100,6 +103,7 @@ namespace SimCivil.Model
                 Name = Name,
                 Position = Cfg.SpawnPoint,
                 Meta = Meta.Clone(),
+                Type = Type
             };
         }
 
@@ -157,5 +161,55 @@ namespace SimCivil.Model
         {
             return Id.GetHashCode();
         }
+
+        /// <summary>
+        /// Gets the data property.
+        /// </summary>
+        /// <typeparam name="T">Property type</typeparam>
+        /// <param name="propertyName">Name of the property.</param>
+        /// <returns></returns>
+        /// <exception cref="System.ArgumentException">message - propertyName</exception>
+        protected T GetDataProperty<T>([CallerMemberName] string propertyName = null)
+        {
+            if (string.IsNullOrWhiteSpace(propertyName))
+            {
+                throw new ArgumentException("message", nameof(propertyName));
+            }
+
+            return (T)Meta[propertyName];
+        }
+
+        /// <summary>
+        /// Sets the data property.
+        /// </summary>
+        /// <typeparam name="T">Property type.</typeparam>
+        /// <param name="value">The value.</param>
+        /// <param name="propertyName">Name of the property.</param>
+        /// <exception cref="System.ArgumentException">message - propertyName</exception>
+        protected void SetDataProperty<T>(T value, [CallerMemberName] string propertyName = null)
+        {
+            if (string.IsNullOrWhiteSpace(propertyName))
+            {
+                throw new ArgumentException("message", nameof(propertyName));
+            }
+
+            Meta[propertyName] = value;
+        }
+    }
+
+    /// <summary>
+    /// Entity Type
+    /// </summary>
+    [Flags]
+    public enum EntityType
+    {
+        /// <summary>
+        /// The none
+        /// </summary>
+        None = 0b0,
+        /// <summary>
+        /// The human
+        /// </summary>
+        Human = 0b1,
     }
 }
