@@ -12,6 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\SimCivil.Rpc\SimCivil.Rpc.csproj" />
     <ProjectReference Include="..\SimCivil\SimCivil.csproj" />
   </ItemGroup>
 

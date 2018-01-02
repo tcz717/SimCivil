@@ -1,0 +1,71 @@
+﻿// Copyright (c) 2017 TPDT
+// 
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+// 
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+// 
+// SimCivil - SimCivil.Rpc - UtilHelper.cs
+// Create Date: 2018/01/01
+// Update Date: 2018/01/01
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+using Autofac;
+using Autofac.Builder;
+
+using Newtonsoft.Json;
+
+namespace SimCivil.Rpc
+{
+    public static class UtilHelper
+    {
+        internal const string RpcServiceMarker = "__RPC__";
+
+        public static JsonSerializerSettings RpcJsonSerializerSettings { get; } = new JsonSerializerSettings
+        {
+            TypeNameHandling = TypeNameHandling.Auto,
+            DateFormatHandling = DateFormatHandling.IsoDateFormat,
+            NullValueHandling = NullValueHandling.Ignore
+        };
+
+        public static IRegistrationBuilder<TProvider, ConcreteReflectionActivatorData, SingleRegistrationStyle>
+            RegisterRpcProvider<TProvider, TService>(this ContainerBuilder builder) where TProvider : TService
+        {
+            return builder.RegisterType<TProvider>().As<TService>().WithMetadata(RpcServiceMarker, typeof(TService)).InstancePerRequest();
+        }
+
+        public static IEnumerable<Type> GetRpcServiceTypes(this IContainer container)
+        {
+            return container.ComponentRegistry.Registrations
+                .Where(r => r.Metadata.ContainsKey(RpcServiceMarker))
+                .Select(r => r.Metadata[RpcServiceMarker] as Type);
+        }
+        public static IRegistrationBuilder<TLimit, TActivatorData, TStyle> InstancePerChannel<TLimit, TActivatorData, TStyle>(this IRegistrationBuilder<TLimit, TActivatorData, TStyle> registration, params object[] lifetimeScopeTags)
+        {
+            if (registration == null)
+                throw new ArgumentNullException(nameof(registration));
+            object[] array = new object[]
+            {
+                RpcServiceMarker
+            }.Concat(lifetimeScopeTags).ToArray();
+            return registration.InstancePerMatchingLifetimeScope(array);
+        }
+    }
+}
