@@ -19,7 +19,7 @@
 // SOFTWARE.
 // 
 // SimCivil - SimCivil.Test - RpcTest.cs
-// Create Date: 2018/01/01
+// Create Date: 2018/01/02
 // Update Date: 2018/01/02
 
 using System;
@@ -34,16 +34,42 @@ using Xunit.Abstractions;
 
 namespace SimCivil.Test
 {
-    public interface ITestService
+    public interface ITestServiceA
     {
         string GetName();
         string HelloWorld(string name);
         int NotImplementedFuc(int i);
+        string GetSession(string key);
     }
 
-    public class TestService : ITestService
+    public interface ITestServiceB
     {
+        void SetSession(string key, string value);
+    }
+
+    class TestServiceB : ITestServiceB
+    {
+        public IRpcSession Session { get; }
+
+        public TestServiceB(IRpcSession session)
+        {
+            Session = session;
+        }
+        public void SetSession(string key, string value)
+        {
+            Session[key] = value;
+        }
+    }
+
+    public class TestServiceA : ITestServiceA
+    {
+        public IRpcSession Session { get; }
         public string Name { get; set; }
+
+        public TestServiceA(IRpcSession session)
+        {
+            Session = session;
+        }
 
         public string GetName()
         {
@@ -61,6 +87,11 @@ namespace SimCivil.Test
         {
             throw new NotImplementedException();
         }
+
+        public string GetSession(string key)
+        {
+            return Session[key].ToString();
+        }
     }
 
     public class RpcTest : IDisposable
@@ -72,7 +103,9 @@ namespace SimCivil.Test
             JsonToMessageDecoder<RpcRequest>.TestHook = s => Output.WriteLine($"Get {nameof(RpcRequest)}: {s}");
 
             var builder = new ContainerBuilder();
-            builder.RegisterRpcProvider<TestService, ITestService>().InstancePerChannel();
+            builder.SupportRpcSession();
+            builder.RegisterRpcProvider<TestServiceA, ITestServiceA>().InstancePerChannel();
+            builder.RegisterRpcProvider<TestServiceB, ITestServiceB>().InstancePerChannel();
 
             Server = new RpcServer(builder.Build());
             Server.Bind(9999);
@@ -95,13 +128,37 @@ namespace SimCivil.Test
             {
                 using (RpcClient client2 = new RpcClient())
                 {
-                    client1.Bind(9999).Connect().Wait();
-                    client2.Bind(9999).Connect().Wait();
+                    client1.Bind(9999).ConnectAsync().Wait();
+                    client2.Bind(9999).ConnectAsync().Wait();
 
-                    var service1 = client1.Import<ITestService>();
-                    var service2 = client2.Import<ITestService>();
+                    var service1 = client1.Import<ITestServiceA>();
+                    var service2 = client2.Import<ITestServiceA>();
 
                     Assert.NotEqual(service1.HelloWorld("1"), service2.HelloWorld("2"));
+                }
+            }
+        }
+        [Fact]
+        public void SessionTest()
+        {
+            using (RpcClient client1 = new RpcClient())
+            {
+                using (RpcClient client2 = new RpcClient())
+                {
+                    client1.Bind(9999).ConnectAsync().Wait();
+                    client2.Bind(9999).ConnectAsync().Wait();
+
+                    var serviceA1 = client1.Import<ITestServiceA>();
+                    var serviceA2 = client2.Import<ITestServiceA>();
+                    var serviceB1 = client1.Import<ITestServiceB>();
+                    var serviceB2 = client2.Import<ITestServiceB>();
+
+                    serviceB1.SetSession("test", "1");
+                    serviceB2.SetSession("test", "2");
+
+                    Assert.NotEqual(serviceA1.GetSession("test"), serviceA2.GetSession("test"));
+                    Assert.Equal(serviceA1.GetSession("test"), "1");
+                    Assert.Equal(serviceA2.GetSession("test"), "2");
                 }
             }
         }
@@ -111,11 +168,11 @@ namespace SimCivil.Test
         {
             using (RpcClient client = new RpcClient())
             {
-                client.Bind(9999).Connect().Wait();
+                client.Bind(9999).ConnectAsync().Wait();
 
                 var name = "test";
 
-                var service = client.Import<ITestService>();
+                var service = client.Import<ITestServiceA>();
 
                 Assert.RaisesAny<EventArgs<RpcRequest>>(
                     e => Server.RemoteCalling += e,
@@ -133,9 +190,9 @@ namespace SimCivil.Test
         {
             using (RpcClient client = new RpcClient())
             {
-                client.Bind(9999).Connect().Wait();
+                client.Bind(9999).ConnectAsync().Wait();
 
-                var service = client.Import<ITestService>();
+                var service = client.Import<ITestServiceA>();
 
                 Assert.ThrowsAny<RemotingException>(() => service.NotImplementedFuc(1));
             }

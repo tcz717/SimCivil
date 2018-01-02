@@ -19,19 +19,18 @@
 // SOFTWARE.
 // 
 // SimCivil - SimCivil.Rpc - RpcServer.cs
-// Create Date: 2017/12/31
+// Create Date: 2018/01/02
 // Update Date: 2018/01/02
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
+using System.Text;
 using System.Threading.Tasks;
 
 using Autofac;
 
 using DotNetty.Codecs;
-using DotNetty.Codecs.Json;
 using DotNetty.Transport.Bootstrapping;
 using DotNetty.Transport.Channels;
 using DotNetty.Transport.Channels.Sockets;
@@ -103,17 +102,13 @@ namespace SimCivil.Rpc
                     .ChildOption(ChannelOption.SoKeepalive, true)
                     .ChildHandler(
                         new ActionChannelInitializer<IChannel>(
-                            channel =>
-                            {
-                                channel.Pipeline
-                                    //                                    .AddLast(new JsonObjectDecoder())
-                                    .AddLast(new LengthFieldPrepender(2))
-                                    .AddLast(new LengthFieldBasedFrameDecoder(ushort.MaxValue, 0, 2, 0, 2))
-                                    .AddLast(new RpcSession())
-                                    .AddLast(new JsonToMessageDecoder<RpcRequest>())
-                                    .AddLast(new MessageToJsonEncoder<RpcResponse>())
-                                    .AddLast(new RpcResolver(this));
-                            }));
+                            channel => channel.Pipeline
+                                .AddLast(new LengthFieldPrepender(2))
+                                .AddLast(new LengthFieldBasedFrameDecoder(ushort.MaxValue, 0, 2, 0, 2))
+                                .AddLast(new JsonToMessageDecoder<RpcRequest>())
+                                .AddLast(new MessageToJsonEncoder<RpcResponse>())
+                                .AddLast(new RpcResolver(this))
+                        ));
 
                 IChannel serverChannel = await bootstrap.BindAsync(EndPoint);
                 ServerChannel = serverChannel;

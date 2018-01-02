@@ -19,7 +19,7 @@
 // SOFTWARE.
 // 
 // SimCivil - SimCivil.Rpc - RpcClient.cs
-// Create Date: 2018/01/01
+// Create Date: 2018/01/02
 // Update Date: 2018/01/02
 
 using System;
@@ -60,6 +60,11 @@ namespace SimCivil.Rpc
             _resolver = new RpcClientResolver(this);
         }
 
+        public RpcClient(IPEndPoint endPoint) : this()
+        {
+            EndPoint = endPoint;
+        }
+
         /// <summary>Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.</summary>
         public void Dispose()
         {
@@ -81,10 +86,12 @@ namespace SimCivil.Rpc
             return this;
         }
 
-        public async Task Connect()
+        public async Task ConnectAsync()
         {
+            if (EndPoint == null)
+                throw new InvalidOperationException(nameof(EndPoint));
             if (Channel?.Open ?? false)
-                throw new InvalidOperationException();
+                throw new InvalidOperationException(nameof(Channel));
 
             IEventLoopGroup loopGroup = new MultithreadEventLoopGroup();
             try
@@ -97,7 +104,6 @@ namespace SimCivil.Rpc
                     .Handler(
                         new ActionChannelInitializer<ISocketChannel>(
                             channel => channel.Pipeline
-                                //                                .AddLast(new JsonObjectDecoder(false))
                                 .AddLast(new LengthFieldPrepender(2))
                                 .AddLast(new LengthFieldBasedFrameDecoder(ushort.MaxValue, 0, 2, 0, 2))
                                 .AddLast(_decoder)
@@ -107,6 +113,7 @@ namespace SimCivil.Rpc
             }
             catch
             {
+                Channel?.CloseAsync().Wait();
                 loopGroup.ShutdownGracefullyAsync().Wait();
 
                 throw;
@@ -116,6 +123,8 @@ namespace SimCivil.Rpc
         public void Disconnect()
         {
             Channel?.DisconnectAsync();
+            Channel = null;
+            ProxyCache.Clear();
         }
 
         public T Import<T>() where T : class

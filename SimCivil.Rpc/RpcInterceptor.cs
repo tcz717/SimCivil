@@ -19,17 +19,13 @@
 // SOFTWARE.
 // 
 // SimCivil - SimCivil.Rpc - RpcInterceptor.cs
-// Create Date: 2018/01/01
-// Update Date: 2018/01/01
+// Create Date: 2018/01/02
+// Update Date: 2018/01/02
 
 using System;
-using System.Diagnostics;
-using System.Reflection;
+using System.Text;
 
-using Castle.Core.Internal;
 using Castle.DynamicProxy;
-
-using DotNetty.Transport.Channels;
 
 namespace SimCivil.Rpc
 {
@@ -51,11 +47,16 @@ namespace SimCivil.Rpc
                 _rpcClient.Channel.WriteAndFlushAsync(request);
                 RpcResponse response = request.WaitResponse(_rpcClient.ResponseTimeout);
 
-                if (!response.ErrorInfo.IsNullOrEmpty())
+                if (!string.IsNullOrEmpty(response.ErrorInfo))
                     throw new RemotingException(response.ErrorInfo, invocation.Method, invocation.Arguments);
 
                 if (!invocation.Method.ReturnType.IsInstanceOfType(response.ReturnValue))
+                {
+                    if (invocation.Method.ReturnType == typeof(void) && response.ReturnValue is null)
+                        return;
+
                     throw new InvalidCastException();
+                }
 
                 invocation.ReturnValue = response.ReturnValue;
             }

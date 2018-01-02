@@ -19,11 +19,12 @@
 // SOFTWARE.
 // 
 // SimCivil - SimCivil.Rpc - RpcRequest.cs
-// Create Date: 2017/12/31
-// Update Date: 2018/01/01
+// Create Date: 2018/01/02
+// Update Date: 2018/01/02
 
 using System;
 using System.Reflection;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -31,13 +32,12 @@ namespace SimCivil.Rpc
 {
     public class RpcRequest
     {
-        private RpcResponse _response;
-        private readonly AutoResetEvent _waitEvent;
         private readonly TaskCompletionSource<RpcResponse> _responseSource;
         public string ServiceName { get; set; }
         public string MethodName { get; set; }
         public object[] Arguments { get; set; }
         public long Sequence { get; set; }
+        public DateTime TimeStamp { get; set; }
 
         public RpcRequest() { }
 
@@ -47,8 +47,8 @@ namespace SimCivil.Rpc
             MethodName = method.Name;
             Arguments = arguments;
             Sequence = sequence;
-            _waitEvent = new AutoResetEvent(false);
-            _responseSource=new TaskCompletionSource<RpcResponse>();
+            TimeStamp = DateTime.Now;
+            _responseSource = new TaskCompletionSource<RpcResponse>();
         }
 
         public void PutResponse(RpcResponse response)
@@ -57,6 +57,7 @@ namespace SimCivil.Rpc
             {
                 throw new NotSupportedException();
             }
+
             _responseSource.SetResult(response ?? throw new ArgumentNullException(nameof(response)));
         }
 
@@ -72,7 +73,7 @@ namespace SimCivil.Rpc
 
         public async Task<RpcResponse> WaitResponseAsync(int millisecondsTimeout)
         {
-            CancellationTokenSource tokenSource = new CancellationTokenSource(millisecondsTimeout);
+            var tokenSource = new CancellationTokenSource(millisecondsTimeout);
             tokenSource.Token.Register(() => _responseSource.TrySetCanceled());
 
             return await _responseSource.Task;

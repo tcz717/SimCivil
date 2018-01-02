@@ -19,8 +19,8 @@
 // SOFTWARE.
 // 
 // SimCivil - SimCivil.Rpc - UtilHelper.cs
-// Create Date: 2018/01/01
-// Update Date: 2018/01/01
+// Create Date: 2018/01/02
+// Update Date: 2018/01/02
 
 using System;
 using System.Collections.Generic;
@@ -48,7 +48,10 @@ namespace SimCivil.Rpc
         public static IRegistrationBuilder<TProvider, ConcreteReflectionActivatorData, SingleRegistrationStyle>
             RegisterRpcProvider<TProvider, TService>(this ContainerBuilder builder) where TProvider : TService
         {
-            return builder.RegisterType<TProvider>().As<TService>().WithMetadata(RpcServiceMarker, typeof(TService)).InstancePerRequest();
+            return builder.RegisterType<TProvider>()
+                .As<TService>()
+                .WithMetadata(RpcServiceMarker, typeof(TService))
+                .InstancePerRequest();
         }
 
         public static IEnumerable<Type> GetRpcServiceTypes(this IContainer container)
@@ -57,14 +60,33 @@ namespace SimCivil.Rpc
                 .Where(r => r.Metadata.ContainsKey(RpcServiceMarker))
                 .Select(r => r.Metadata[RpcServiceMarker] as Type);
         }
-        public static IRegistrationBuilder<TLimit, TActivatorData, TStyle> InstancePerChannel<TLimit, TActivatorData, TStyle>(this IRegistrationBuilder<TLimit, TActivatorData, TStyle> registration, params object[] lifetimeScopeTags)
+
+        public static ContainerBuilder SupportRpcSession(this ContainerBuilder builder)
+        {
+            return builder.SupportRpcSession<LocalRpcSession>();
+        }
+
+        public static ContainerBuilder SupportRpcSession<T>(this ContainerBuilder builder) where T : IRpcSession
+        {
+            builder.RegisterType<T>().As<IRpcSession>().InstancePerChannel();
+
+            return builder;
+        }
+
+        public static IRegistrationBuilder<TLimit, TActivatorData, TStyle>
+            InstancePerChannel<TLimit, TActivatorData, TStyle>(
+                this IRegistrationBuilder<TLimit, TActivatorData, TStyle> registration,
+                params object[] lifetimeScopeTags)
         {
             if (registration == null)
                 throw new ArgumentNullException(nameof(registration));
+
             object[] array = new object[]
-            {
-                RpcServiceMarker
-            }.Concat(lifetimeScopeTags).ToArray();
+                {
+                    RpcServiceMarker
+                }.Concat(lifetimeScopeTags)
+                .ToArray();
+
             return registration.InstancePerMatchingLifetimeScope(array);
         }
     }
