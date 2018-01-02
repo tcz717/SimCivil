@@ -36,13 +36,15 @@ namespace SimCivil.Rpc
 {
     public class JsonToMessageDecoder<T> : MessageToMessageDecoder<IByteBuffer> where T : class
     {
-        public static Action<string> TestHook;
+        // TODO: Remove in future
+        // ReSharper disable once StaticMemberInGenericType
+        public static Action<string> TestHook { get; set; }
 
         protected override void Decode(IChannelHandlerContext context, IByteBuffer message, List<object> output)
         {
             string jsonStr = message.ToString(Encoding.UTF8);
             TestHook?.Invoke(jsonStr);
-            output.Add(JsonConvert.DeserializeObject<T>(jsonStr));
+            output.Add(JsonConvert.DeserializeObject<T>(jsonStr, UtilHelper.RpcJsonSerializerSettings));
         }
     }
 }

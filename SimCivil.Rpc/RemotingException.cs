@@ -29,7 +29,7 @@ using System.Runtime.Serialization;
 namespace SimCivil.Rpc
 {
     [Serializable]
-    internal class RemotingException : Exception
+    public class RemotingException : Exception
     {
         public MethodInfo Method { get; }
         public object[] Arguments { get; }

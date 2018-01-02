@@ -20,12 +20,11 @@
 // 
 // SimCivil - SimCivil.Rpc - RpcClient.cs
 // Create Date: 2018/01/01
-// Update Date: 2018/01/01
+// Update Date: 2018/01/02
 
 using System;
 using System.Collections.Generic;
 using System.Net;
-using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
@@ -33,14 +32,13 @@ using System.Threading.Tasks;
 using Castle.DynamicProxy;
 
 using DotNetty.Codecs;
-using DotNetty.Codecs.Json;
 using DotNetty.Transport.Bootstrapping;
 using DotNetty.Transport.Channels;
 using DotNetty.Transport.Channels.Sockets;
 
 namespace SimCivil.Rpc
 {
-    public class RpcClient
+    public class RpcClient : IDisposable
     {
         private readonly IChannelHandler _decoder = new JsonToMessageDecoder<RpcResponse>();
         private readonly IChannelHandler _encoder = new MessageToJsonEncoder<RpcRequest>();
@@ -62,6 +60,13 @@ namespace SimCivil.Rpc
             _resolver = new RpcClientResolver(this);
         }
 
+        /// <summary>Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.</summary>
+        public void Dispose()
+        {
+            if (Channel?.Open ?? false)
+                Channel.CloseAsync().Wait();
+        }
+
         public RpcClient Bind(int port)
         {
             EndPoint = new IPEndPoint(IPAddress.Loopback, port);
@@ -78,6 +83,9 @@ namespace SimCivil.Rpc
 
         public async Task Connect()
         {
+            if (Channel?.Open ?? false)
+                throw new InvalidOperationException();
+
             IEventLoopGroup loopGroup = new MultithreadEventLoopGroup();
             try
             {

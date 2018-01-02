@@ -18,23 +18,24 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// SimCivil - SimCivil.Rpc - RpcClient.cs
+// SimCivil - SimCivil.Rpc - RpcClientResolver.cs
 // Create Date: 2018/01/01
-// Update Date: 2018/01/01
+// Update Date: 2018/01/02
 
 using System;
+using System.Text;
 
 using DotNetty.Transport.Channels;
 
 namespace SimCivil.Rpc
 {
-    internal class RpcClientResolver:SimpleChannelInboundHandler<RpcResponse>
+    internal class RpcClientResolver : SimpleChannelInboundHandler<RpcResponse>
     {
         private readonly RpcClient _rpcClient;
 
         public RpcClientResolver(RpcClient rpcClient)
         {
-            this._rpcClient = rpcClient;
+            _rpcClient = rpcClient;
         }
 
         protected override void ChannelRead0(IChannelHandlerContext ctx, RpcResponse msg)
@@ -45,7 +46,7 @@ namespace SimCivil.Rpc
             {
                 // TODO
             }
-            
+
             _rpcClient.ResponseWaitlist[msg.Sequence].PutResponse(msg);
         }
     }

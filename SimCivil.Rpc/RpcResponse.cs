@@ -20,9 +20,10 @@
 // 
 // SimCivil - SimCivil.Rpc - RpcResponse.cs
 // Create Date: 2017/12/31
-// Update Date: 2018/01/01
+// Update Date: 2018/01/02
 
 using System;
+using System.Text;
 
 namespace SimCivil.Rpc
 {
@@ -34,10 +35,16 @@ namespace SimCivil.Rpc
 
         public RpcResponse() { }
 
-        public RpcResponse(RpcRequest request, object returnValue)
+        public RpcResponse(RpcRequest request, object returnValue, Exception exception = null)
         {
             ReturnValue = returnValue;
             Sequence = request.Sequence;
+            ErrorInfo = exception?.ToString();
+        }
+
+        public RpcResponse(RpcRequest request, object returnValue, string errorInfo) : this(request, returnValue)
+        {
+            ErrorInfo = errorInfo;
         }
     }
 }

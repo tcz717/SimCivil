@@ -20,17 +20,12 @@
 // 
 // SimCivil - SimCivil.Test - RpcTest.cs
 // Create Date: 2018/01/01
-// Update Date: 2018/01/01
+// Update Date: 2018/01/02
 
 using System;
-using System.Collections.Generic;
 using System.Text;
 
 using Autofac;
-
-using FakeItEasy;
-
-using Newtonsoft.Json;
 
 using SimCivil.Rpc;
 
@@ -41,14 +36,30 @@ namespace SimCivil.Test
 {
     public interface ITestService
     {
+        string GetName();
         string HelloWorld(string name);
+        int NotImplementedFuc(int i);
     }
 
     public class TestService : ITestService
     {
+        public string Name { get; set; }
+
+        public string GetName()
+        {
+            return Name;
+        }
+
         public string HelloWorld(string name)
         {
+            Name = name;
+
             return $"Hello {name}!";
+        }
+
+        public int NotImplementedFuc(int i)
+        {
+            throw new NotImplementedException();
         }
     }
 
@@ -57,15 +68,14 @@ namespace SimCivil.Test
         public RpcTest(ITestOutputHelper output)
         {
             Output = output;
-            JsonToMessageDecoder<RpcResponse>.TestHook = s => output.WriteLine($"Get {nameof(RpcResponse)}: {s}");
-            JsonToMessageDecoder<RpcRequest>.TestHook = s => output.WriteLine($"Get {nameof(RpcRequest)}: {s}");
+            JsonToMessageDecoder<RpcResponse>.TestHook = s => Output.WriteLine($"Get {nameof(RpcResponse)}: {s}");
+            JsonToMessageDecoder<RpcRequest>.TestHook = s => Output.WriteLine($"Get {nameof(RpcRequest)}: {s}");
 
             var builder = new ContainerBuilder();
-            builder.RegisterType<TestService>().As<ITestService>().InstancePerLifetimeScope();
+            builder.RegisterRpcProvider<TestService, ITestService>().InstancePerChannel();
 
             Server = new RpcServer(builder.Build());
-            Server.Bind(9999)
-                .Expose<ITestService>();
+            Server.Bind(9999);
             Server.Run().Wait();
         }
 
@@ -79,18 +89,56 @@ namespace SimCivil.Test
         public ITestOutputHelper Output { get; }
 
         [Fact]
+        public void PerChannelScopeTest()
+        {
+            using (RpcClient client1 = new RpcClient())
+            {
+                using (RpcClient client2 = new RpcClient())
+                {
+                    client1.Bind(9999).Connect().Wait();
+                    client2.Bind(9999).Connect().Wait();
+
+                    var service1 = client1.Import<ITestService>();
+                    var service2 = client2.Import<ITestService>();
+
+                    Assert.NotEqual(service1.HelloWorld("1"), service2.HelloWorld("2"));
+                }
+            }
+        }
+
+        [Fact]
         public void ProxyTest()
         {
-            RpcClient client = new RpcClient();
-            client.Bind(9999).Connect().Wait();
+            using (RpcClient client = new RpcClient())
+            {
+                client.Bind(9999).Connect().Wait();
 
-            string name = "test";
+                var name = "test";
 
-            var service = client.Import<ITestService>();
-            Assert.RaisesAny<EventArgs<RpcRequest>>(
-                e => Server.RemoteCalling += e,
-                e => Server.RemoteCalling -= e,
-                () => { Assert.Equal(service.HelloWorld(name), $"Hello {name}!"); });
+                var service = client.Import<ITestService>();
+
+                Assert.RaisesAny<EventArgs<RpcRequest>>(
+                    e => Server.RemoteCalling += e,
+                    e => Server.RemoteCalling -= e,
+                    () =>
+                    {
+                        Assert.Equal(service.HelloWorld(name), $"Hello {name}!");
+                        Assert.Equal(service.GetName(), name);
+                    });
+            }
+        }
+
+        [Fact]
+        public void ThrowErrorTest()
+        {
+            using (RpcClient client = new RpcClient())
+            {
+                client.Bind(9999).Connect().Wait();
+
+                var service = client.Import<ITestService>();
+
+                Assert.ThrowsAny<RemotingException>(() => service.NotImplementedFuc(1));
+            }
         }
     }
 }

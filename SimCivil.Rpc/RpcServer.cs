@@ -20,10 +20,11 @@
 // 
 // SimCivil - SimCivil.Rpc - RpcServer.cs
 // Create Date: 2017/12/31
-// Update Date: 2018/01/01
+// Update Date: 2018/01/02
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 
@@ -39,7 +40,6 @@ namespace SimCivil.Rpc
 {
     public class RpcServer
     {
-        public event EventHandler<EventArgs<RpcRequest>> RemoteCalling;
         public Dictionary<string, Type> Services { get; private set; } = new Dictionary<string, Type>();
 
         public IPEndPoint EndPoint { get; set; }
@@ -48,12 +48,18 @@ namespace SimCivil.Rpc
 
         public IContainer Container { get; }
 
-        public RpcServer() { }
+        internal RpcServer() { }
 
         public RpcServer(IContainer container)
         {
             Container = container ?? throw new ArgumentNullException(nameof(container));
+            foreach (Type serviceType in container.GetRpcServiceTypes())
+            {
+                Services.Add(serviceType.FullName, serviceType);
+            }
         }
+
+        public event EventHandler<EventArgs<RpcRequest>> RemoteCalling;
 
         public RpcServer Bind(int port)
         {
@@ -100,7 +106,7 @@ namespace SimCivil.Rpc
                             channel =>
                             {
                                 channel.Pipeline
-                                //                                    .AddLast(new JsonObjectDecoder())
+                                    //                                    .AddLast(new JsonObjectDecoder())
                                     .AddLast(new LengthFieldPrepender(2))
                                     .AddLast(new LengthFieldBasedFrameDecoder(ushort.MaxValue, 0, 2, 0, 2))
                                     .AddLast(new RpcSession())

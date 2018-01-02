@@ -25,6 +25,7 @@
 using System;
 using System.Reflection;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace SimCivil.Rpc
 {
@@ -32,6 +33,7 @@ namespace SimCivil.Rpc
     {
         private RpcResponse _response;
         private readonly AutoResetEvent _waitEvent;
+        private readonly TaskCompletionSource<RpcResponse> _responseSource;
         public string ServiceName { get; set; }
         public string MethodName { get; set; }
         public object[] Arguments { get; set; }
@@ -46,36 +48,34 @@ namespace SimCivil.Rpc
             Arguments = arguments;
             Sequence = sequence;
             _waitEvent = new AutoResetEvent(false);
+            _responseSource=new TaskCompletionSource<RpcResponse>();
         }
 
         public void PutResponse(RpcResponse response)
         {
-            if (_waitEvent == null)
+            if (_responseSource == null)
             {
                 throw new NotSupportedException();
             }
-            _response = response ?? throw new ArgumentNullException(nameof(response));
-            _waitEvent.Set();
+            _responseSource.SetResult(response ?? throw new ArgumentNullException(nameof(response)));
         }
 
         public RpcResponse WaitResponse(int millisecondsTimeout)
         {
-            if (_response != null)
-            {
-                return _response;
-            }
-
-            if (!_waitEvent.WaitOne(millisecondsTimeout))
+            if (!_responseSource.Task.Wait(millisecondsTimeout))
             {
                 throw new TimeoutException();
             }
 
-            if (_response == null)
-            {
-                throw new InvalidOperationException(nameof(_response));
-            }
+            return _responseSource.Task.Result;
+        }
 
-            return _response;
+        public async Task<RpcResponse> WaitResponseAsync(int millisecondsTimeout)
+        {
+            CancellationTokenSource tokenSource = new CancellationTokenSource(millisecondsTimeout);
+            tokenSource.Token.Register(() => _responseSource.TrySetCanceled());
+
+            return await _responseSource.Task;
         }
     }
 }

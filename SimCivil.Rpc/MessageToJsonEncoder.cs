@@ -14,7 +14,7 @@ namespace SimCivil.Rpc
 
         protected override void Encode(IChannelHandlerContext context, T message, IByteBuffer output)
         {
-            output.WriteBytes(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(message, Formatting.None)));
+            output.WriteBytes(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(message, UtilHelper.RpcJsonSerializerSettings)));
         }
     }
 }

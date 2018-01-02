@@ -20,14 +20,14 @@
 // 
 // SimCivil - SimCivil.Rpc - RpcResolver.cs
 // Create Date: 2017/12/31
-// Update Date: 2018/01/01
+// Update Date: 2018/01/02
 
 using System;
-using System.Collections.Generic;
+using System.Reflection;
+using System.Text;
 
 using Autofac;
 
-using DotNetty.Codecs;
 using DotNetty.Transport.Channels;
 
 namespace SimCivil.Rpc
@@ -44,7 +44,7 @@ namespace SimCivil.Rpc
 
         public override void ChannelActive(IChannelHandlerContext context)
         {
-            _scope = RpcServer.Container.BeginLifetimeScope();
+            _scope = RpcServer.Container.BeginLifetimeScope(UtilHelper.RpcServiceMarker);
             base.ChannelActive(context);
         }
 
@@ -65,7 +65,43 @@ namespace SimCivil.Rpc
 
             var type = RpcServer.Services[msg.ServiceName];
             var service = _scope.Resolve(type);
-            var returnValue = type.GetMethod(msg.MethodName).Invoke(service, msg.Arguments);
+            var method = type.GetMethod(msg.MethodName);
+            var args = msg.Arguments;
+            var parameters = method.GetParameters();
+            if (parameters.Length != args.Length)
+            {
+                ctx.Channel.WriteAndFlushAsync(new RpcResponse(msg, null, "Wrong arguments count"));
+
+                return;
+            }
+
+            object returnValue;
+            try
+            {
+
+                for (var i = 0; i < args.Length; i++)
+                {
+                    Type parameterType = parameters[i].ParameterType;
+                    if (!parameterType.IsInstanceOfType(args[i]))
+                    {
+                        args[i] = Convert.ChangeType(args[i], parameterType);
+                    }
+                }
+
+                returnValue = method.Invoke(service, args);
+            }
+            catch (TargetInvocationException e)
+            {
+                ctx.Channel.WriteAndFlushAsync(new RpcResponse(msg, null, e.InnerException));
+
+                throw;
+            }
+            catch
+            {
+                ctx.Channel.WriteAndFlushAsync(new RpcResponse(msg, null, "Internal error"));
+                throw;
+            }
+
             ctx.Channel.WriteAndFlushAsync(new RpcResponse(msg, returnValue));
         }
     }
