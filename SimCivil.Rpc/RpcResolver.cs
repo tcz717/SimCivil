@@ -30,6 +30,8 @@ using Autofac;
 
 using DotNetty.Transport.Channels;
 
+using SimCivil.Rpc.Session;
+
 namespace SimCivil.Rpc
 {
     public class RpcResolver : SimpleChannelInboundHandler<RpcRequest>
@@ -45,11 +47,23 @@ namespace SimCivil.Rpc
         public override void ChannelActive(IChannelHandlerContext context)
         {
             _scope = RpcServer.Container.BeginLifetimeScope(UtilHelper.RpcServiceMarker);
+            if (RpcServer.SupportSession)
+            {
+                var session = _scope.Resolve<IRpcSession>();
+                RpcServer.Sessions.OnEntering(session);
+                session.OnEntering(context.Channel.RemoteAddress);
+            }
             base.ChannelActive(context);
         }
 
         public override void ChannelInactive(IChannelHandlerContext context)
         {
+            if (RpcServer.SupportSession)
+            {
+                var session = _scope.Resolve<IRpcSession>();
+                RpcServer.Sessions.OnExiting(session);
+                session.OnExiting();
+            }
             _scope.Dispose();
             base.ChannelInactive(context);
         }
@@ -63,21 +77,20 @@ namespace SimCivil.Rpc
 
             RpcServer.OnRemoteCalling(msg);
 
-            var type = RpcServer.Services[msg.ServiceName];
-            var service = _scope.Resolve(type);
-            var method = type.GetMethod(msg.MethodName);
-            var args = msg.Arguments;
-            var parameters = method.GetParameters();
-            if (parameters.Length != args.Length)
-            {
-                ctx.Channel.WriteAndFlushAsync(new RpcResponse(msg, null, "Wrong arguments count"));
-
-                return;
-            }
-
             object returnValue;
             try
             {
+                var type = RpcServer.Services[msg.ServiceName];
+                var service = _scope.Resolve(type);
+                var method = type.GetMethod(msg.MethodName);
+                var args = msg.Arguments;
+                var parameters = method.GetParameters();
+                if (parameters.Length != args.Length)
+                {
+                    ctx.Channel.WriteAndFlushAsync(new RpcResponse(msg, null, "Wrong arguments count"));
+
+                    return;
+                }
 
                 for (var i = 0; i < args.Length; i++)
                 {

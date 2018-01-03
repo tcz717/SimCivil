@@ -28,6 +28,7 @@ using System.Text;
 using Autofac;
 
 using SimCivil.Rpc;
+using SimCivil.Rpc.Session;
 
 using Xunit;
 using Xunit.Abstractions;
@@ -103,7 +104,7 @@ namespace SimCivil.Test
             JsonToMessageDecoder<RpcRequest>.TestHook = s => Output.WriteLine($"Get {nameof(RpcRequest)}: {s}");
 
             var builder = new ContainerBuilder();
-            builder.SupportRpcSession();
+            builder.UseRpcSession();
             builder.RegisterRpcProvider<TestServiceA, ITestServiceA>().InstancePerChannel();
             builder.RegisterRpcProvider<TestServiceB, ITestServiceB>().InstancePerChannel();
 

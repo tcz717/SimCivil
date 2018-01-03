@@ -24,14 +24,33 @@
 
 using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Text;
 
-namespace SimCivil.Rpc
+namespace SimCivil.Rpc.Session
 {
     public class LocalRpcSession : Dictionary<string, object>, IRpcSession
     {
         public LocalRpcSession() { }
+        public event EventHandler Exiting;
+        public event EventHandler<EventArgs<EndPoint>> Entering;
+
+        public virtual void OnExiting()
+        {
+            Exiting?.Invoke(this, EventArgs.Empty);
+        }
+
+        public virtual void OnEntering(EndPoint endPoint)
+        {
+            Entering?.Invoke(this, new EventArgs<EndPoint>(endPoint));
+        }
     }
 
-    public interface IRpcSession : IDictionary<string, object> { }
+    public interface IRpcSession : IDictionary<string, object>
+    {
+        event EventHandler Exiting;
+        event EventHandler<EventArgs<EndPoint>> Entering;
+        void OnExiting();
+        void OnEntering(EndPoint endPoint);
+    }
 }

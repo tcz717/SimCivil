@@ -32,11 +32,13 @@ using Autofac.Builder;
 
 using Newtonsoft.Json;
 
+using SimCivil.Rpc.Session;
+
 namespace SimCivil.Rpc
 {
     public static class UtilHelper
     {
-        internal const string RpcServiceMarker = "__RPC__";
+        internal const string RpcServiceMarker = "RPC";
 
         public static JsonSerializerSettings RpcJsonSerializerSettings { get; } = new JsonSerializerSettings
         {
@@ -61,12 +63,12 @@ namespace SimCivil.Rpc
                 .Select(r => r.Metadata[RpcServiceMarker] as Type);
         }
 
-        public static ContainerBuilder SupportRpcSession(this ContainerBuilder builder)
+        public static ContainerBuilder UseRpcSession(this ContainerBuilder builder)
         {
-            return builder.SupportRpcSession<LocalRpcSession>();
+            return builder.UseRpcSession<LocalRpcSession>();
         }
 
-        public static ContainerBuilder SupportRpcSession<T>(this ContainerBuilder builder) where T : IRpcSession
+        public static ContainerBuilder UseRpcSession<T>(this ContainerBuilder builder) where T : IRpcSession
         {
             builder.RegisterType<T>().As<IRpcSession>().InstancePerChannel();
 
@@ -81,13 +83,33 @@ namespace SimCivil.Rpc
             if (registration == null)
                 throw new ArgumentNullException(nameof(registration));
 
-            object[] array = new object[]
+            var array = new object[]
                 {
                     RpcServiceMarker
                 }.Concat(lifetimeScopeTags)
                 .ToArray();
 
             return registration.InstancePerMatchingLifetimeScope(array);
+        }
+
+        public static T Get<T>(this IRpcSession session, string key)
+        {
+            return (T) session[key];
+        }
+
+        public static T Get<T>(this IRpcSession session)
+        {
+            return (T) session[typeof(T).FullName];
+        }
+
+        public static void Set<T>(this IRpcSession session, T value)
+        {
+            session[typeof(T).FullName] = value;
+        }
+
+        public static bool IsSet<T>(this IRpcSession session)
+        {
+            return session.ContainsKey(typeof(T).FullName);
         }
     }
 }

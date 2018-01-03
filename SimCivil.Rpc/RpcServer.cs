@@ -35,11 +35,13 @@ using DotNetty.Transport.Bootstrapping;
 using DotNetty.Transport.Channels;
 using DotNetty.Transport.Channels.Sockets;
 
+using SimCivil.Rpc.Session;
+
 namespace SimCivil.Rpc
 {
     public class RpcServer
     {
-        public Dictionary<string, Type> Services { get; private set; } = new Dictionary<string, Type>();
+        public Dictionary<string, Type> Services { get; } = new Dictionary<string, Type>();
 
         public IPEndPoint EndPoint { get; set; }
 
@@ -47,11 +49,19 @@ namespace SimCivil.Rpc
 
         public IContainer Container { get; }
 
-        internal RpcServer() { }
+        public bool SupportSession { get; }
+        public RpcSessionManager Sessions { get; } = new RpcSessionManager();
+
+        internal RpcServer()
+        {
+            // TODO Set InternalLoggerFactory.DefaultFactory
+        }
 
         public RpcServer(IContainer container)
+            : this()
         {
             Container = container ?? throw new ArgumentNullException(nameof(container));
+            SupportSession = container.IsRegistered<IRpcSession>();
             foreach (Type serviceType in container.GetRpcServiceTypes())
             {
                 Services.Add(serviceType.FullName, serviceType);
