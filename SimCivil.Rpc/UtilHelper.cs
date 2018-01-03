@@ -102,9 +102,11 @@ namespace SimCivil.Rpc
             return (T) session[typeof(T).FullName];
         }
 
-        public static void Set<T>(this IRpcSession session, T value)
+        public static IRpcSession Set<T>(this IRpcSession session, T value)
         {
             session[typeof(T).FullName] = value;
+
+            return session;
         }
 
         public static bool IsSet<T>(this IRpcSession session)

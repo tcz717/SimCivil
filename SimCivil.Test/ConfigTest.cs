@@ -11,7 +11,7 @@ namespace SimCivil.Test
 {
     public class ConfigTest : IDisposable
     {
-        private const string workDirectory = "configtest";
+        private const string WorkDirectory = "configtest";
 
         [Fact]
         public void Repository()
@@ -22,7 +22,7 @@ namespace SimCivil.Test
             {
                 Name = "test",
                 Seed = r.Next(),
-                StoreDirectory = workDirectory,
+                StoreDirectory = WorkDirectory,
             };
             using (var services = new AutoFake())
             {
@@ -49,12 +49,12 @@ namespace SimCivil.Test
 
         public void Dispose()
         {
-            Directory.Delete(workDirectory, true);
+            Directory.Delete(WorkDirectory, true);
         }
 
         public ConfigTest()
         {
-            Directory.CreateDirectory(workDirectory);
+            Directory.CreateDirectory(WorkDirectory);
         }
     }
 }
