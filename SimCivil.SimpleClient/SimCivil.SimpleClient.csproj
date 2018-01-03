@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Stateless" Version="4.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SimCivil.Contract\SimCivil.Contract.csproj" />
+    <ProjectReference Include="..\SimCivil.Rpc\SimCivil.Rpc.csproj" />
+  </ItemGroup>
+
+</Project>
