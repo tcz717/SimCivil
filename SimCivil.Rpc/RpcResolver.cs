@@ -101,7 +101,10 @@ namespace SimCivil.Rpc
                     }
                 }
 
-                returnValue = method.Invoke(service, args);
+                using (RpcServer.SetCurrentSession(_scope.Resolve<IRpcSession>()))
+                {
+                    returnValue = method.Invoke(service, args);
+                }
             }
             catch (TargetInvocationException e)
             {

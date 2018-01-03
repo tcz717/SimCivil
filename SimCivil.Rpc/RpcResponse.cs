@@ -32,6 +32,7 @@ namespace SimCivil.Rpc
         public object ReturnValue { get; set; }
         public long Sequence { get; set; }
         public string ErrorInfo { get; set; }
+        public DateTime TimeStamp { get; set; }
 
         public RpcResponse() { }
 
@@ -40,6 +41,7 @@ namespace SimCivil.Rpc
             ReturnValue = returnValue;
             Sequence = request.Sequence;
             ErrorInfo = exception?.ToString();
+            TimeStamp = DateTime.Now;
         }
 
         public RpcResponse(RpcRequest request, object returnValue, string errorInfo) : this(request, returnValue)

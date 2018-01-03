@@ -50,15 +50,9 @@ namespace SimCivil.Test
 
     class TestServiceB : ITestServiceB
     {
-        public IRpcSession Session { get; }
-
-        public TestServiceB(IRpcSession session)
-        {
-            Session = session;
-        }
         public void SetSession(string key, string value)
         {
-            Session[key] = value;
+            RpcServer.Current[key] = value;
         }
     }
 
@@ -106,7 +100,7 @@ namespace SimCivil.Test
             var builder = new ContainerBuilder();
             builder.UseRpcSession();
             builder.RegisterRpcProvider<TestServiceA, ITestServiceA>().InstancePerChannel();
-            builder.RegisterRpcProvider<TestServiceB, ITestServiceB>().InstancePerChannel();
+            builder.RegisterRpcProvider<TestServiceB, ITestServiceB>().SingleInstance();
 
             Server = new RpcServer(builder.Build());
             Server.Bind(9999);
