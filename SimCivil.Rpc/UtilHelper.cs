@@ -113,5 +113,10 @@ namespace SimCivil.Rpc
         {
             return session.ContainsKey(typeof(T).FullName);
         }
+
+        internal static RpcSessionAssigner<T> AssignTo<T>(this IRpcSession session, T service) where T : class
+        {
+            return new RpcSessionAssigner<T>(session, service);
+        }
     }
 }

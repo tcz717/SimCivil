@@ -41,7 +41,6 @@ namespace SimCivil.Rpc
 {
     public class RpcServer
     {
-        [ThreadStatic] private static IRpcSession _currentSession;
         public Dictionary<string, Type> Services { get; } = new Dictionary<string, Type>();
 
         public IPEndPoint EndPoint { get; set; }
@@ -52,18 +51,6 @@ namespace SimCivil.Rpc
 
         public bool SupportSession { get; }
         public RpcSessionManager Sessions { get; } = new RpcSessionManager();
-
-        public static IRpcSession Current
-        {
-            get
-            {
-                if (_currentSession == null)
-                    throw new InvalidOperationException("Not find current session or not support session");
-
-                return _currentSession;
-            }
-        }
-
 
         internal RpcServer()
         {
@@ -79,13 +66,6 @@ namespace SimCivil.Rpc
             {
                 Services.Add(serviceType.FullName, serviceType);
             }
-        }
-
-        internal static RpcSessionPerThreadHandle SetCurrentSession(IRpcSession session)
-        {
-            _currentSession = session ?? throw new ArgumentNullException(nameof(session));
-
-            return new RpcSessionPerThreadHandle(session);
         }
 
         public event EventHandler<EventArgs<RpcRequest>> RemoteCalling;
@@ -159,27 +139,6 @@ namespace SimCivil.Rpc
         public virtual void OnRemoteCalling(RpcRequest e)
         {
             RemoteCalling?.Invoke(this, new EventArgs<RpcRequest>(e));
-        }
-
-        internal class RpcSessionPerThreadHandle : IDisposable
-        {
-            public IRpcSession Session { get; }
-
-            public RpcSessionPerThreadHandle(IRpcSession session)
-            {
-                Session = session;
-            }
-
-            /// <summary>Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.</summary>
-            public void Dispose()
-            {
-                if (!Session.Equals(_currentSession))
-                {
-                    throw new InvalidOperationException("Session changed when leaves");
-                }
-
-                _currentSession = null;
-            }
         }
     }
 }

@@ -26,6 +26,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace SimCivil.Rpc.Session
@@ -54,6 +55,7 @@ namespace SimCivil.Rpc.Session
         public event EventHandler<EventArgs<IRpcSession>> Entering;
         public event EventHandler<EventArgs<IRpcSession>> Exiting;
 
+        [MethodImpl(MethodImplOptions.Synchronized)]
         internal virtual void OnEntering(IRpcSession session)
         {
             if (session == null) throw new ArgumentNullException(nameof(session));
@@ -67,6 +69,7 @@ namespace SimCivil.Rpc.Session
             Collection.Add(session);
         }
 
+        [MethodImpl(MethodImplOptions.Synchronized)]
         internal virtual void OnExiting(IRpcSession session)
         {
             if (session == null) throw new ArgumentNullException(nameof(session));

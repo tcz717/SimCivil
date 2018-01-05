@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 
 using log4net;
 
@@ -39,7 +40,7 @@ namespace SimCivil.Auth
     /// <summary>
     /// Simple auth just make sure username is unique.
     /// </summary>
-    public class SimpleAuth : IAuth, IAuthManager
+    public class SimpleAuth : IAuth, IAuthManager,ISessionRequred
     {
         private static readonly ILog Logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
@@ -73,7 +74,7 @@ namespace SimCivil.Auth
 
             Player player = new Player(username, password);
             OnlinePlayer.Add(player);
-            RpcServer.Current.Set(player).Exiting += Session_Exiting;
+            Session.Value.Set(player).Exiting += Session_Exiting;
             LoggedIn?.Invoke(this, player);
             Logger.Info($"[{username}] login succeed");
 
@@ -85,7 +86,7 @@ namespace SimCivil.Auth
         /// </summary>
         public virtual void LogOut()
         {
-            Player player = RpcServer.Current.Get<Player>();
+            Player player = Session.Value.Get<Player>();
 
             LogOut(player);
         }
@@ -100,7 +101,7 @@ namespace SimCivil.Auth
 
         public virtual string GetToken()
         {
-            return RpcServer.Current.Get<Player>().Username;
+            return Session.Value.Get<Player>().Username;
         }
 
         private void Session_Exiting(object sender, EventArgs e)
@@ -130,5 +131,6 @@ namespace SimCivil.Auth
         /// Happen when user's role changed.
         /// </summary>
         public event EventHandler<RoleChangeArgs> RoleChanged;
+        public ThreadLocal<IRpcSession> Session { get; } = new ThreadLocal<IRpcSession>();
     }
 }

@@ -20,10 +20,12 @@
 // 
 // SimCivil - SimCivil.Test - RpcTest.cs
 // Create Date: 2018/01/02
-// Update Date: 2018/01/02
+// Update Date: 2018/01/04
 
 using System;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
 using Autofac;
 
@@ -48,11 +50,13 @@ namespace SimCivil.Test
         void SetSession(string key, string value);
     }
 
-    class TestServiceB : ITestServiceB
+    class TestServiceB : ITestServiceB, ISessionRequred
     {
+        public ThreadLocal<IRpcSession> Session { get; } = new ThreadLocal<IRpcSession>();
+
         public void SetSession(string key, string value)
         {
-            RpcServer.Current[key] = value;
+            Session.Value[key] = value;
         }
     }
 
@@ -117,6 +121,28 @@ namespace SimCivil.Test
         public ITestOutputHelper Output { get; }
 
         [Fact]
+        public void SessionRequredParallelTest()
+        {
+            Parallel.For(
+                0,
+                100,
+                i =>
+                {
+                    using (RpcClient client = new RpcClient())
+                    {
+                        client.Bind(9999).ConnectAsync().Wait();
+
+                        var serviceA = client.Import<ITestServiceA>();
+                        var serviceB = client.Import<ITestServiceB>();
+
+                        serviceB.SetSession("test", i.ToString());
+
+                        Assert.Equal(serviceA.GetSession("test"), i.ToString());
+                    }
+                });
+        }
+
+        [Fact]
         public void PerChannelScopeTest()
         {
             using (RpcClient client1 = new RpcClient())
@@ -130,30 +156,6 @@ namespace SimCivil.Test
                     var service2 = client2.Import<ITestServiceA>();
 
                     Assert.NotEqual(service1.HelloWorld("1"), service2.HelloWorld("2"));
-                }
-            }
-        }
-        [Fact]
-        public void SessionTest()
-        {
-            using (RpcClient client1 = new RpcClient())
-            {
-                using (RpcClient client2 = new RpcClient())
-                {
-                    client1.Bind(9999).ConnectAsync().Wait();
-                    client2.Bind(9999).ConnectAsync().Wait();
-
-                    var serviceA1 = client1.Import<ITestServiceA>();
-                    var serviceA2 = client2.Import<ITestServiceA>();
-                    var serviceB1 = client1.Import<ITestServiceB>();
-                    var serviceB2 = client2.Import<ITestServiceB>();
-
-                    serviceB1.SetSession("test", "1");
-                    serviceB2.SetSession("test", "2");
-
-                    Assert.NotEqual(serviceA1.GetSession("test"), serviceA2.GetSession("test"));
-                    Assert.Equal(serviceA1.GetSession("test"), "1");
-                    Assert.Equal(serviceA2.GetSession("test"), "2");
                 }
             }
         }
@@ -177,6 +179,31 @@ namespace SimCivil.Test
                         Assert.Equal(service.HelloWorld(name), $"Hello {name}!");
                         Assert.Equal(service.GetName(), name);
                     });
+            }
+        }
+
+        [Fact]
+        public void SessionTest()
+        {
+            using (RpcClient client1 = new RpcClient())
+            {
+                using (RpcClient client2 = new RpcClient())
+                {
+                    client1.Bind(9999).ConnectAsync().Wait();
+                    client2.Bind(9999).ConnectAsync().Wait();
+
+                    var serviceA1 = client1.Import<ITestServiceA>();
+                    var serviceA2 = client2.Import<ITestServiceA>();
+                    var serviceB1 = client1.Import<ITestServiceB>();
+                    var serviceB2 = client2.Import<ITestServiceB>();
+
+                    serviceB1.SetSession("test", "1");
+                    serviceB2.SetSession("test", "2");
+
+                    Assert.NotEqual(serviceA1.GetSession("test"), serviceA2.GetSession("test"));
+                    Assert.Equal(serviceA1.GetSession("test"), "1");
+                    Assert.Equal(serviceA2.GetSession("test"), "2");
+                }
             }
         }
 
