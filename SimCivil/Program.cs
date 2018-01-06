@@ -6,6 +6,8 @@ using Microsoft.Extensions.Configuration;
 using Autofac.Configuration;
 using log4net.Core;
 
+using SimCivil.Rpc;
+
 [assembly: log4net.Config.XmlConfigurator(ConfigFile = "log.config", Watch = false)]
 
 namespace SimCivil
@@ -62,6 +64,7 @@ namespace SimCivil
             var module = new ConfigurationModule(configBuilder.Build());
 
             builder.RegisterModule(module);
+            builder.UseRpcSession();
 
             return builder.Build();
         }

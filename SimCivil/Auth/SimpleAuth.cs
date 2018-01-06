@@ -1,22 +1,116 @@
-﻿using log4net;
-using SimCivil.Model;
-using SimCivil.Net;
-using SimCivil.Net.Packets;
-using SimCivil.Store;
+﻿// Copyright (c) 2017 TPDT
+// 
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+// 
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+// 
+// SimCivil - SimCivil - SimpleAuth.cs
+// Create Date: 2017/09/02
+// Update Date: 2018/01/03
+
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using System.Text;
+using System.Threading;
+
+using log4net;
+
+using SimCivil.Contract;
+using SimCivil.Rpc;
+using SimCivil.Rpc.Session;
 
 namespace SimCivil.Auth
 {
     /// <summary>
     /// Simple auth just make sure username is unique.
     /// </summary>
-    public class SimpleAuth : IAuth
+    public class SimpleAuth : IAuth, IAuthManager,ISessionRequred
     {
-        private static readonly ILog logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly ILog Logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+
+        /// <summary>
+        /// Gets the online player.
+        /// </summary>
+        /// <value>
+        /// The online player.
+        /// </value>
+        public IList<Player> OnlinePlayer { get; } = new List<Player>();
+
+        /// <summary>
+        /// Constructor can be injected.
+        /// </summary>
+        public SimpleAuth()
+        {
+        }
+
+
+        /// <summary>
+        /// Verify a user token and login.
+        /// </summary>
+        /// <param name="username"></param>
+        /// <param name="password"></param>
+        /// <returns>login result</returns>
+        public virtual bool LogIn(string username, string password)
+        {
+            // if already online, deny.
+            if (OnlinePlayer.Any(p => p.Username == username))
+                return false;
+
+            Player player = new Player(username, password);
+            OnlinePlayer.Add(player);
+            Session.Value.Set(player).Exiting += Session_Exiting;
+            LoggedIn?.Invoke(this, player);
+            Logger.Info($"[{username}] login succeed");
+
+            return true;
+        }
+
+        /// <summary>
+        /// Log out.
+        /// </summary>
+        public virtual void LogOut()
+        {
+            Player player = Session.Value.Get<Player>();
+
+            LogOut(player);
+        }
+
+        protected virtual void LogOut(Player player)
+        {
+            if (!OnlinePlayer.Remove(player)) return;
+
+            LoggedOut?.Invoke(this, player);
+            Logger.Info($"[{player.Username}] logout succeed");
+        }
+
+        public virtual string GetToken()
+        {
+            return Session.Value.Get<Player>().Username;
+        }
+
+        private void Session_Exiting(object sender, EventArgs e)
+        {
+            var session = (IRpcSession) sender;
+            session.Exiting -= Session_Exiting;
+            if (session.IsSet<Player>())
+                LogOut(session.Get<Player>());
+        }
 
         /// <summary>
         /// Happen when user are valid.
@@ -37,164 +131,6 @@ namespace SimCivil.Auth
         /// Happen when user's role changed.
         /// </summary>
         public event EventHandler<RoleChangeArgs> RoleChanged;
-
-
-        private readonly HashSet<IServerConnection> _readyToLogin;
-        private readonly IEntityRepository _entityRepository;
-
-        /// <summary>
-        /// Gets the online player.
-        /// </summary>
-        /// <value>
-        /// The online player.
-        /// </value>
-        public IList<Player> OnlinePlayer { get; } = new List<Player>();
-
-        /// <summary>
-        /// Constructor can be injected.
-        /// </summary>
-        /// <param name="server"></param>
-        /// <param name="entityRepository"></param>
-        public SimpleAuth(IServerListener server, IEntityRepository entityRepository)
-        {
-            _readyToLogin = new HashSet<IServerConnection>();
-            server.OnConnected += Server_OnConnected;
-            server.OnDisconnected += Server_OnDisconnected;
-            server.RegisterPacket(PacketType.Login, LoginHandle);
-            server.RegisterPacket(PacketType.QueryRoleList, QueryRoleListHandle);
-            server.RegisterPacket(PacketType.SwitchRole, SwitchRoleHandle);
-            server.RegisterPacket(PacketType.GenerateRole, GenerateRoleHandle);
-            _entityRepository = entityRepository;
-        }
-
-        private void GenerateRoleHandle(Packet pkt, ref bool isValid)
-        {
-            if (isValid)
-            {
-                GenerateRole request = pkt as GenerateRole;
-                Entity role = Entity.Create();
-                Debug.Assert(request != null, nameof(request) + " != null");
-                role.Name = request.RoleName;
-                role.Meta.Sex = request.Sex;
-            }
-        }
-
-        private void SwitchRoleHandle(Packet pkt, ref bool isValid)
-        {
-            SwitchRole request = pkt as SwitchRole;
-            if (isValid)
-            {
-                Debug.Assert(request != null, nameof(request) + " != null");
-                Entity entity = _entityRepository.LoadEntity(request.RoleGuid);
-                RoleChangeArgs args = new RoleChangeArgs()
-                {
-                    NewEntity = entity,
-                    OldEntity = pkt.Client.ContextPlayer.CurrentRole,
-                    Player = pkt.Client.ContextPlayer,
-                    Allowed = true,
-                };
-                RoleChanging?.Invoke(this, args);
-
-                if (args.Allowed)
-                {
-                    if (args.OldEntity != null)
-                        _entityRepository.SaveEntity(args.OldEntity);
-                    args.Player.CurrentRole = args.NewEntity;
-
-                    RoleChanged?.Invoke(this, args);
-
-                    pkt.ReplyOk();
-                    logger.Info($"Switched role of {args.Player} to {args.NewEntity}");
-                }
-                else
-                {
-                    isValid = false;
-                    pkt.ReplyDeny();
-                    logger.Info($"{args.Player} switches role fail.");
-                }
-            }
-        }
-
-        private void Server_OnDisconnected(object sender, IServerConnection e)
-        {
-            if (_readyToLogin.Contains(e))
-                _readyToLogin.Remove(e);
-            if (e.ContextPlayer == null)
-                return;
-            Logout(e.ContextPlayer);
-            e.ContextPlayer = null;
-        }
-
-        /// <summary>
-        /// Logout the specified player.
-        /// </summary>
-        /// <param name="player">The player.</param>
-        /// <inheritdoc />
-        public void Logout(Player player)
-        {
-            if (!OnlinePlayer.Remove(player)) return;
-            LoggedOut?.Invoke(this, player);
-            logger.Info($"[{player.Username}] logout succeed");
-        }
-
-        private void QueryRoleListHandle(Packet pkt, ref bool isValid)
-        {
-            if (isValid)
-                pkt.Reply(new QueryRoleListResponse(_entityRepository.LoadPlayerRoles(pkt.Client.ContextPlayer)));
-        }
-
-        private void LoginHandle(Packet p, ref bool isValid)
-        {
-            LoginRequest pkt = p as LoginRequest;
-            if (isValid)
-            {
-                if (!_readyToLogin.Contains(p.Client))
-                {
-                    isValid = false;
-                    p.ReplyError(desc: "Handshake responses first.");
-                    return;
-                }
-                Debug.Assert(pkt != null, nameof(pkt) + " != null");
-                Player player = Login(pkt.Username, pkt.Token);
-                if (player != null)
-                {
-                    p.Client.ContextPlayer = player;
-                    p.ReplyOk();
-                }
-                else
-                {
-                    isValid = false;
-                    p.ReplyError(2, "Player has logged in");
-                }
-            }
-            _readyToLogin.Remove(p.Client);
-        }
-
-        /// <summary>
-        /// Verify a user token and login.
-        /// </summary>
-        /// <param name="username"></param>
-        /// <param name="token"></param>
-        /// <returns>login result</returns>
-        public Player Login(string username, object token)
-        {
-            // if already online, deny.
-            if (OnlinePlayer.Any(p => p.Username == username))
-                return null;
-            Player player = new Player(username, token);
-            OnlinePlayer.Add(player);
-            LoggedIn?.Invoke(this, player);
-            logger.Info($"[{username}] login succeed");
-            return player;
-        }
-
-        private void Server_OnConnected(object sender, IServerConnection e)
-        {
-            e.SendAndWait<OkResponse>(new Handshake(this), resp =>
-            {
-                logger.Info($"Handshake OK with {resp.Client}");
-                _readyToLogin.Add(e);
-            });
-        }
+        public ThreadLocal<IRpcSession> Session { get; } = new ThreadLocal<IRpcSession>();
     }
 }

@@ -2,7 +2,6 @@
 using Autofac.Extras.FakeItEasy;
 using FakeItEasy;
 using SimCivil.Map;
-using SimCivil.Net;
 using SimCivil.Store;
 using System;
 using System.Collections.Generic;
@@ -13,20 +12,6 @@ namespace SimCivil.Test
 {
     public class SimCivilTest
     {
-        [Fact]
-        public void ContainerTest()
-        {
-            SimCivil game = new SimCivil();
-
-            var first = game.Services.Resolve<IServerListener>();
-            Assert.NotNull(first);
-
-            var second = game.Services.Resolve<IServerListener>();
-            Assert.NotNull(second);
-
-            Assert.Equal(first, second);
-        }
-
         [Fact]
         public void InjectTest()
         {
@@ -39,12 +24,11 @@ namespace SimCivil.Test
             var builder = new ContainerBuilder();
             builder.Register(n => A.Fake<IMapGenerator>());
             builder.Register(n => A.Fake<IMapRepository>());
-            builder.Register(n => A.Fake<IServerListener>());
             builder.RegisterType<MapData>().SingleInstance();
 
-            using (var Services = builder.Build())
+            using (var services = builder.Build())
             {
-                var map = Services.Resolve<MapData>();
+                var map = services.Resolve<MapData>();
                 Assert.IsType<MapData>(map);
             }
         }

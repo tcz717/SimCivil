@@ -14,7 +14,6 @@ namespace SimCivil.Controller
     public class PlayerController : IController
     {
         private readonly MapData _map;
-        private readonly IAuth _auth;
 
         /// <inheritdoc />
         /// <summary>
@@ -64,12 +63,9 @@ namespace SimCivil.Controller
         /// Initializes a new instance of the <see cref="PlayerController"/> class.
         /// </summary>
         /// <param name="map">The map.</param>
-        /// <param name="auth">The authentication.</param>
-        public PlayerController(MapData map, IAuth auth)
+        public PlayerController(MapData map)
         {
             _map = map;
-            _auth = auth;
-            _auth.RoleChanged += Auth_OnRoleChanged;
             _map.Entities.CollectionChanged += Entities_CollectionChanged;
         }
 

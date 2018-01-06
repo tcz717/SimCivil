@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Xml.Schema;
+
 using JetBrains.Annotations;
 using SimCivil.Store.Json;
 using static SimCivil.Config;
@@ -46,6 +48,9 @@ namespace SimCivil.Model
         /// </value>
         public string Name { get; set; } = "Unknown";
 
+        public EntityType Type { get; set; }
+        
+
         /// <summary>
         /// Gets or sets the position.
         /// </summary>
@@ -69,8 +74,7 @@ namespace SimCivil.Model
         /// <value>
         /// The meta.
         /// </value>
-        [JsonConverter(typeof(NullableDynamicObjectConverter))]
-        public dynamic Meta { get; set; }
+        public Dictionary<string,object> Meta { get; set; }
 
         /// <summary>
         /// Occurs when [position changed].
@@ -85,7 +89,7 @@ namespace SimCivil.Model
         {
             return new Entity(Guid.NewGuid())
             {
-                Meta = new NullableDynamicObject(),
+                Meta = new Dictionary<string, object>(),
             };
         }
 
@@ -99,7 +103,8 @@ namespace SimCivil.Model
             {
                 Name = Name,
                 Position = Cfg.SpawnPoint,
-                Meta = Meta.Clone(),
+                Meta = new Dictionary<string, object>(Meta),
+                Type = Type
             };
         }
 
@@ -127,7 +132,7 @@ namespace SimCivil.Model
         /// </returns>
         public bool Equals(Entity other)
         {
-            if (ReferenceEquals(null, other)) return false;
+            if (other is null) return false;
             if (ReferenceEquals(this, other)) return true;
             return Id.Equals(other.Id);
         }
@@ -141,7 +146,7 @@ namespace SimCivil.Model
         /// </returns>
         public override bool Equals(object obj)
         {
-            if (ReferenceEquals(null, obj)) return false;
+            if (obj is null) return false;
             if (ReferenceEquals(this, obj)) return true;
             if (obj.GetType() != GetType()) return false;
             return Equals((Entity) obj);
@@ -157,5 +162,55 @@ namespace SimCivil.Model
         {
             return Id.GetHashCode();
         }
+
+        /// <summary>
+        /// Gets the data property.
+        /// </summary>
+        /// <typeparam name="T">Property type</typeparam>
+        /// <param name="propertyName">Name of the property.</param>
+        /// <returns></returns>
+        /// <exception cref="System.ArgumentException">message - propertyName</exception>
+        protected T GetDataProperty<T>([CallerMemberName] string propertyName = null)
+        {
+            if (string.IsNullOrWhiteSpace(propertyName))
+            {
+                throw new ArgumentException("message", nameof(propertyName));
+            }
+
+            return (T)Meta[propertyName];
+        }
+
+        /// <summary>
+        /// Sets the data property.
+        /// </summary>
+        /// <typeparam name="T">Property type.</typeparam>
+        /// <param name="value">The value.</param>
+        /// <param name="propertyName">Name of the property.</param>
+        /// <exception cref="System.ArgumentException">message - propertyName</exception>
+        protected void SetDataProperty<T>(T value, [CallerMemberName] string propertyName = null)
+        {
+            if (string.IsNullOrWhiteSpace(propertyName))
+            {
+                throw new ArgumentException("message", nameof(propertyName));
+            }
+
+            Meta[propertyName] = value;
+        }
+    }
+
+    /// <summary>
+    /// Entity Type
+    /// </summary>
+    [Flags]
+    public enum EntityType
+    {
+        /// <summary>
+        /// The none
+        /// </summary>
+        None = 0b0,
+        /// <summary>
+        /// The human
+        /// </summary>
+        Human = 0b1,
     }
 }
