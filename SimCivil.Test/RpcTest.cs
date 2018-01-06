@@ -20,15 +20,17 @@
 // 
 // SimCivil - SimCivil.Test - RpcTest.cs
 // Create Date: 2018/01/02
-// Update Date: 2018/01/04
+// Update Date: 2018/01/05
 
 using System;
+using System.Net;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
 using Autofac;
 
+using SimCivil.Model;
 using SimCivil.Rpc;
 using SimCivil.Rpc.Session;
 
@@ -48,6 +50,9 @@ namespace SimCivil.Test
     public interface ITestServiceB
     {
         void SetSession(string key, string value);
+        Task<string> EchoAsync(string s);
+        Task<IPEndPoint> CheckAsync();
+        Entity GetEntity();
     }
 
     class TestServiceB : ITestServiceB, ISessionRequred
@@ -57,6 +62,26 @@ namespace SimCivil.Test
         public void SetSession(string key, string value)
         {
             Session.Value[key] = value;
+        }
+
+        public Task<string> EchoAsync(string s)
+        {
+            return Task.FromResult(s);
+        }
+
+        public async Task<IPEndPoint> CheckAsync()
+        {
+            Assert.NotNull(Session.Value);
+            var session = Session.Value;
+            await Task.Delay(500);
+            Assert.NotNull(session);
+
+            return session.RemoteEndPoint;
+        }
+
+        public Entity GetEntity()
+        {
+            return Entity.Create();
         }
     }
 
@@ -121,25 +146,33 @@ namespace SimCivil.Test
         public ITestOutputHelper Output { get; }
 
         [Fact]
-        public void SessionRequredParallelTest()
+        public void AsyncSessionTest()
         {
-            Parallel.For(
-                0,
-                100,
-                i =>
-                {
-                    using (RpcClient client = new RpcClient())
-                    {
-                        client.Bind(9999).ConnectAsync().Wait();
+            using (RpcClient client = new RpcClient())
+            {
+                client.Bind(9999).ConnectAsync().Wait();
 
-                        var serviceA = client.Import<ITestServiceA>();
-                        var serviceB = client.Import<ITestServiceB>();
+                var service = client.Import<ITestServiceB>();
+                Assert.Equal(service.CheckAsync().Result, client.Channel.LocalAddress);
+            }
+        }
 
-                        serviceB.SetSession("test", i.ToString());
+        [Fact]
+        public void AsyncTest()
+        {
+            using (RpcClient client = new RpcClient())
+            {
+                client.Bind(9999).ConnectAsync().Wait();
 
-                        Assert.Equal(serviceA.GetSession("test"), i.ToString());
-                    }
-                });
+                var service = client.Import<ITestServiceB>();
+
+                string msg = "56456545fsdgfddsfsfs";
+                service.EchoAsync(msg)
+                    .ContinueWith(
+                        resp =>
+                            Assert.Equal(resp.Result, msg))
+                    .Wait();
+            }
         }
 
         [Fact]
@@ -179,7 +212,32 @@ namespace SimCivil.Test
                         Assert.Equal(service.HelloWorld(name), $"Hello {name}!");
                         Assert.Equal(service.GetName(), name);
                     });
+
+                var serviceB = client.Import<ITestServiceB>();
+                serviceB.GetEntity();
             }
+        }
+
+        [Fact]
+        public void SessionRequredParallelTest()
+        {
+            Parallel.For(
+                0,
+                100,
+                i =>
+                {
+                    using (RpcClient client = new RpcClient())
+                    {
+                        client.Bind(9999).ConnectAsync().Wait();
+
+                        var serviceA = client.Import<ITestServiceA>();
+                        var serviceB = client.Import<ITestServiceB>();
+
+                        serviceB.SetSession("test", i.ToString());
+
+                        Assert.Equal(serviceA.GetSession("test"), i.ToString());
+                    }
+                });
         }
 
         [Fact]

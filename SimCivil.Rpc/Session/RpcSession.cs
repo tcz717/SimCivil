@@ -32,6 +32,7 @@ namespace SimCivil.Rpc.Session
     public class LocalRpcSession : Dictionary<string, object>, IRpcSession
     {
         public LocalRpcSession() { }
+        public IPEndPoint RemoteEndPoint { get; set; }
         public event EventHandler Exiting;
         public event EventHandler<EventArgs<EndPoint>> Entering;
 
@@ -48,6 +49,8 @@ namespace SimCivil.Rpc.Session
 
     public interface IRpcSession : IDictionary<string, object>
     {
+        IPEndPoint RemoteEndPoint { get; set; }
+
         event EventHandler Exiting;
         event EventHandler<EventArgs<EndPoint>> Entering;
         void OnExiting();

@@ -20,10 +20,12 @@
 // 
 // SimCivil - SimCivil.Rpc - RpcInterceptor.cs
 // Create Date: 2018/01/02
-// Update Date: 2018/01/02
+// Update Date: 2018/01/05
 
 using System;
+using System.Reflection;
 using System.Text;
+using System.Threading.Tasks;
 
 using Castle.DynamicProxy;
 
@@ -31,6 +33,10 @@ namespace SimCivil.Rpc
 {
     internal class RpcInterceptor : IInterceptor
     {
+        private static readonly MethodInfo AysncReturnHandleInfo = typeof(RpcInterceptor).GetMethod(
+            nameof(AysncReturnHandle),
+            BindingFlags.Instance | BindingFlags.NonPublic);
+
         private readonly RpcClient _rpcClient;
 
         public RpcInterceptor(RpcClient rpcClient)
@@ -42,27 +48,93 @@ namespace SimCivil.Rpc
         {
             RpcRequest request = new RpcRequest(_rpcClient.GetNextSequence(), invocation.Method, invocation.Arguments);
             _rpcClient.ResponseWaitlist.Add(request.Sequence, request);
+            _rpcClient.Channel.WriteAndFlushAsync(request);
+            Type returnType = invocation.Method.ReturnType;
+            switch (returnType.GetDelegateType())
+            {
+                case MethodType.Synchronous:
+                    try
+                    {
+                        RpcResponse response = request.WaitResponse(_rpcClient.ResponseTimeout);
+                        CheckReturn(invocation, response);
+                        invocation.ReturnValue = response.ReturnValue;
+                    }
+                    finally
+                    {
+                        _rpcClient.ResponseWaitlist.Remove(request.Sequence);
+                    }
+
+                    return;
+                case MethodType.AsyncAction:
+                    invocation.ReturnValue = request.WaitResponseAsync(_rpcClient.ResponseTimeout)
+                        .ContinueWith(
+                            t =>
+                            {
+                                try
+                                {
+                                    CheckTaskReturn(invocation, t.Result);
+
+                                    return t.Result;
+                                }
+                                finally
+                                {
+                                    _rpcClient.ResponseWaitlist.Remove(request.Sequence);
+                                }
+                            },
+                            TaskContinuationOptions.AttachedToParent);
+
+                    return;
+                case MethodType.AsyncFunction:
+                    invocation.ReturnValue = AysncReturnHandleInfo.MakeGenericMethod(returnType.GenericTypeArguments)
+                        .Invoke(
+                            this,
+                            new object[] {invocation, request.WaitResponseAsync(_rpcClient.ResponseTimeout), request});
+
+                    return;
+            }
+        }
+
+        private async Task<T> AysncReturnHandle<T>(IInvocation invocation, Task<RpcResponse> resp, RpcRequest request)
+        {
             try
             {
-                _rpcClient.Channel.WriteAndFlushAsync(request);
-                RpcResponse response = request.WaitResponse(_rpcClient.ResponseTimeout);
+                RpcResponse asyncResponse = await resp;
+                CheckTaskReturn(invocation, asyncResponse);
 
-                if (!string.IsNullOrEmpty(response.ErrorInfo))
-                    throw new RemotingException(response.ErrorInfo, invocation.Method, invocation.Arguments);
-
-                if (!invocation.Method.ReturnType.IsInstanceOfType(response.ReturnValue))
-                {
-                    if (invocation.Method.ReturnType == typeof(void) && response.ReturnValue is null)
-                        return;
-
-                    throw new InvalidCastException();
-                }
-
-                invocation.ReturnValue = response.ReturnValue;
+                return (T) asyncResponse.ReturnValue;
             }
             finally
             {
                 _rpcClient.ResponseWaitlist.Remove(request.Sequence);
+            }
+        }
+
+        private static void CheckReturn(IInvocation invocation, RpcResponse response)
+        {
+            if (!string.IsNullOrEmpty(response.ErrorInfo))
+                throw new RemotingException(response.ErrorInfo, invocation.Method, invocation.Arguments);
+
+            Type returnType = invocation.Method.ReturnType;
+
+            if (returnType.IsInstanceOfType(response.ReturnValue)) return;
+            if (returnType == typeof(void) && response.ReturnValue is null)
+                return;
+
+            throw new InvalidCastException($"Return type is {returnType}");
+        }
+
+        private static void CheckTaskReturn(IInvocation invocation, RpcResponse response)
+        {
+            if (!string.IsNullOrEmpty(response.ErrorInfo))
+                throw new RemotingException(response.ErrorInfo, invocation.Method, invocation.Arguments);
+
+            if (invocation.Method.ReturnType == typeof(Task))
+                return;
+
+            Type returnType = invocation.Method.ReturnType.GenericTypeArguments[0];
+            if (!returnType.IsInstanceOfType(response.ReturnValue))
+            {
+                throw new InvalidCastException($"Return type is {response.ReturnValue?.GetType()}");
             }
         }
     }

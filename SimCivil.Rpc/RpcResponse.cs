@@ -19,14 +19,19 @@
 // SOFTWARE.
 // 
 // SimCivil - SimCivil.Rpc - RpcResponse.cs
-// Create Date: 2017/12/31
-// Update Date: 2018/01/02
+// Create Date: 2018/01/02
+// Update Date: 2018/01/05
 
 using System;
 using System.Text;
 
+using Newtonsoft.Json;
+
+using SimCivil.Rpc.Serialize;
+
 namespace SimCivil.Rpc
 {
+    [JsonConverter(typeof(RpcResponseConverter))]
     public class RpcResponse
     {
         public object ReturnValue { get; set; }

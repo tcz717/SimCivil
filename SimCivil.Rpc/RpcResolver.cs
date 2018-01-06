@@ -19,12 +19,14 @@
 // SOFTWARE.
 // 
 // SimCivil - SimCivil.Rpc - RpcResolver.cs
-// Create Date: 2017/12/31
-// Update Date: 2018/01/02
+// Create Date: 2018/01/02
+// Update Date: 2018/01/05
 
 using System;
+using System.Net;
 using System.Reflection;
 using System.Text;
+using System.Threading.Tasks;
 
 using Autofac;
 
@@ -50,9 +52,11 @@ namespace SimCivil.Rpc
             if (RpcServer.SupportSession)
             {
                 var session = _scope.Resolve<IRpcSession>();
+                session.RemoteEndPoint = context.Channel.RemoteAddress as IPEndPoint;
                 RpcServer.Sessions.OnEntering(session);
                 session.OnEntering(context.Channel.RemoteAddress);
             }
+
             base.ChannelActive(context);
         }
 
@@ -64,6 +68,7 @@ namespace SimCivil.Rpc
                 RpcServer.Sessions.OnExiting(session);
                 session.OnExiting();
             }
+
             _scope.Dispose();
             base.ChannelInactive(context);
         }
@@ -77,7 +82,6 @@ namespace SimCivil.Rpc
 
             RpcServer.OnRemoteCalling(msg);
 
-            object returnValue;
             try
             {
                 var type = RpcServer.Services[msg.ServiceName];
@@ -103,7 +107,45 @@ namespace SimCivil.Rpc
 
                 using (_scope.Resolve<IRpcSession>().AssignTo(service))
                 {
-                    returnValue = method.Invoke(service, args);
+                    switch (method.ReturnType.GetDelegateType())
+                    {
+                        case MethodType.Synchronous:
+
+                            object returnValue = method.Invoke(service, args);
+
+                            ctx.Channel.WriteAndFlushAsync(new RpcResponse(msg, returnValue));
+
+                            break;
+                        case MethodType.AsyncAction:
+//                        Task.Run(() =>{
+//                            using (_scope.Resolve<IRpcSession>().AssignTo(service))
+//                            {
+//                                return (Task)method.Invoke(service, args);
+//                            }
+//                        }).ContinueWith(
+//                            _ => ctx.Channel.WriteAndFlushAsync(new RpcResponse(msg, null)));
+
+                            ((Task) method.Invoke(service, args))
+                                .ContinueWith(
+                                    _ => ctx.Channel.WriteAndFlushAsync(new RpcResponse(msg, null)));
+
+                            break;
+                        case MethodType.AsyncFunction:
+                            method.InvokeAsync(service, args)
+                                .ContinueWith(
+                                    t =>
+                                    {
+                                        ctx.Channel.WriteAndFlushAsync(
+                                            t.Exception != null
+                                                ? new RpcResponse(msg, null, t.Exception)
+                                                : new RpcResponse(msg, t.Result));
+                                    });
+
+                            break;
+                        default:
+
+                            throw new ArgumentOutOfRangeException();
+                    }
                 }
             }
             catch (TargetInvocationException e)
@@ -115,10 +157,9 @@ namespace SimCivil.Rpc
             catch
             {
                 ctx.Channel.WriteAndFlushAsync(new RpcResponse(msg, null, "Internal error"));
+
                 throw;
             }
-
-            ctx.Channel.WriteAndFlushAsync(new RpcResponse(msg, returnValue));
         }
     }
 }

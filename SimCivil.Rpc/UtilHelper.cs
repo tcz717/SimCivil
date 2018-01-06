@@ -25,7 +25,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
+using System.Threading.Tasks;
 
 using Autofac;
 using Autofac.Builder;
@@ -125,5 +127,30 @@ namespace SimCivil.Rpc
         {
             return new RpcSessionAssigner<T>(session, service);
         }
+
+        public static MethodType GetDelegateType(this Type type)
+        {
+            if (type == typeof(Task))
+                return MethodType.AsyncAction;
+            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Task<>))
+                return MethodType.AsyncFunction;
+
+            return MethodType.Synchronous;
+        }
+
+        public static async Task<object> InvokeAsync(this MethodInfo @this, object obj, params object[] parameters)
+        {
+            dynamic awaitable = @this.Invoke(obj, parameters);
+            await awaitable;
+
+            return awaitable.GetAwaiter().GetResult();
+        }
+    }
+
+    public enum MethodType
+    {
+        Synchronous,
+        AsyncAction,
+        AsyncFunction
     }
 }

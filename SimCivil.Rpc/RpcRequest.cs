@@ -58,7 +58,7 @@ namespace SimCivil.Rpc
                 throw new NotSupportedException();
             }
 
-            _responseSource.SetResult(response ?? throw new ArgumentNullException(nameof(response)));
+            _responseSource.TrySetResult(response ?? throw new ArgumentNullException(nameof(response)));
         }
 
         public RpcResponse WaitResponse(int millisecondsTimeout)
@@ -71,12 +71,13 @@ namespace SimCivil.Rpc
             return _responseSource.Task.Result;
         }
 
-        public async Task<RpcResponse> WaitResponseAsync(int millisecondsTimeout)
+        public Task<RpcResponse> WaitResponseAsync(int millisecondsTimeout)
         {
             var tokenSource = new CancellationTokenSource(millisecondsTimeout);
-            tokenSource.Token.Register(() => _responseSource.TrySetCanceled());
+            tokenSource.Token.Register(() => 
+                _responseSource.TrySetException(new TimeoutException()));
 
-            return await _responseSource.Task;
+            return _responseSource.Task;
         }
     }
 }
