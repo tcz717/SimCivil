@@ -6,4 +6,4 @@ dist: trusty
 script:
    - dotnet restore SimCivil.sln
    - dotnet build SimCivil.sln
-   - dotnet test SimCivil.Test/SimCivil.Test.csproj
+   - dotnet test SimCivil.Test/SimCivil.Test.csproj -notrait "Categlory=Performance"

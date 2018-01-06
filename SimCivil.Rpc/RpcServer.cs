@@ -112,13 +112,7 @@ namespace SimCivil.Rpc
                     .ChildOption(ChannelOption.SoKeepalive, true)
                     .ChildHandler(
                         new ActionChannelInitializer<IChannel>(
-                            channel => channel.Pipeline
-                                .AddLast(new LengthFieldPrepender(2))
-                                .AddLast(new LengthFieldBasedFrameDecoder(ushort.MaxValue, 0, 2, 0, 2))
-                                .AddLast(new JsonToMessageDecoder<RpcRequest>())
-                                .AddLast(new MessageToJsonEncoder<RpcResponse>())
-                                .AddLast(new RpcResolver(this))
-                        ));
+                            ChildChannelInit));
 
                 IChannel serverChannel = await bootstrap.BindAsync(EndPoint);
                 ServerChannel = serverChannel;
@@ -129,6 +123,15 @@ namespace SimCivil.Rpc
 
                 throw;
             }
+        }
+
+        protected virtual void ChildChannelInit(IChannel channel)
+        {
+            channel.Pipeline.AddLast(new LengthFieldPrepender(2))
+                .AddLast(new LengthFieldBasedFrameDecoder(ushort.MaxValue, 0, 2, 0, 2))
+                .AddLast(new JsonToMessageDecoder<RpcRequest>())
+                .AddLast(new MessageToJsonEncoder<RpcResponse>())
+                .AddLast(new RpcResolver(this));
         }
 
         public void Stop()

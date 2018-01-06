@@ -218,6 +218,7 @@ namespace SimCivil.Test
             }
         }
 
+        [Trait("Category","Performance")]
         [Fact]
         public void SessionRequredParallelTest()
         {
