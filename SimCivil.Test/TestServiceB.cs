@@ -18,42 +18,54 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// SimCivil - SimCivil.Rpc - RpcSession.cs
-// Create Date: 2018/01/02
-// Update Date: 2018/01/02
+// SimCivil - SimCivil.Test - TestServiceB.cs
+// Create Date: 2018/01/07
+// Update Date: 2018/01/07
 
 using System;
-using System.Collections.Generic;
 using System.Net;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
-namespace SimCivil.Rpc.Session
+using SimCivil.Auth;
+using SimCivil.Model;
+using SimCivil.Rpc.Session;
+
+using Xunit;
+
+namespace SimCivil.Test
 {
-    public class LocalRpcSession : Dictionary<string, object>, IRpcSession
+    class TestServiceB : ITestServiceB, ISessionRequred
     {
-        public LocalRpcSession() { }
-        public IPEndPoint RemoteEndPoint { get; set; }
-        public event EventHandler Exiting;
-        public event EventHandler<EventArgs<EndPoint>> Entering;
+        public ThreadLocal<IRpcSession> Session { get; } = new ThreadLocal<IRpcSession>();
 
-        public virtual void OnExiting()
+        public void SetSession(string key, string value)
         {
-            Exiting?.Invoke(this, EventArgs.Empty);
+            Session.Value[key] = value;
         }
 
-        public virtual void OnEntering(EndPoint endPoint)
+        public Task<string> EchoAsync(string s)
         {
-            Entering?.Invoke(this, new EventArgs<EndPoint>(endPoint));
+            return Task.FromResult(s);
         }
-    }
 
-    public interface IRpcSession : IDictionary<string, object>
-    {
-        IPEndPoint RemoteEndPoint { get; set; }
+        public async Task<IPEndPoint> CheckAsync()
+        {
+            Assert.NotNull(Session.Value);
+            var session = Session.Value;
+            await Task.Delay(500);
+            Assert.NotNull(session);
 
-        event EventHandler Exiting;
-        event EventHandler<EventArgs<EndPoint>> Entering;
-        void OnExiting();
-        void OnEntering(EndPoint endPoint);
+            return session.RemoteEndPoint;
+        }
+
+        public Entity GetEntity()
+        {
+            return Entity.Create();
+        }
+
+        [LoginFilter]
+        public void DeniedAction() { }
     }
 }

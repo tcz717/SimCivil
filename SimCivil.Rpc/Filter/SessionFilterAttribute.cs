@@ -18,33 +18,20 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// SimCivil - SimCivil.Rpc - RpcSessionAssigner.cs
-// Create Date: 2018/01/04
-// Update Date: 2018/01/04
+// SimCivil - SimCivil.Rpc - SessionFilterAttribute.cs
+// Create Date: 2018/01/06
+// Update Date: 2018/01/06
 
 using System;
 using System.Text;
 
-namespace SimCivil.Rpc.Session
+using SimCivil.Rpc.Session;
+
+namespace SimCivil.Rpc.Filter
 {
-    internal class RpcSessionAssigner<T> : IDisposable where T : class
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = true, Inherited = false)]
+    public abstract class SessionFilterAttribute : Attribute
     {
-        public IRpcSession Session { get; }
-        public T Service { get; }
-
-        public RpcSessionAssigner(IRpcSession session, T service)
-        {
-            Session = session;
-            Service = service;
-            if (service is ISessionRequred requred)
-                requred.Session.Value = session;
-        }
-
-        /// <summary>Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.</summary>
-        public void Dispose()
-        {
-            if (Service is ISessionRequred requred)
-                requred.Session.Value = null;
-        }
+        public abstract CheckResult CheckPermission(IRpcSession session);
     }
 }

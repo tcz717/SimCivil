@@ -51,6 +51,7 @@ namespace SimCivil.Rpc
 
         public bool SupportSession { get; }
         public RpcSessionManager Sessions { get; } = new RpcSessionManager();
+        public bool Debug { get; set; } = false;
 
         internal RpcServer()
         {

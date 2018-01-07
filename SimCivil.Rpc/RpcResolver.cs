@@ -20,9 +20,10 @@
 // 
 // SimCivil - SimCivil.Rpc - RpcResolver.cs
 // Create Date: 2018/01/02
-// Update Date: 2018/01/05
+// Update Date: 2018/01/07
 
 using System;
+using System.Linq;
 using System.Net;
 using System.Reflection;
 using System.Text;
@@ -32,6 +33,7 @@ using Autofac;
 
 using DotNetty.Transport.Channels;
 
+using SimCivil.Rpc.Filter;
 using SimCivil.Rpc.Session;
 
 namespace SimCivil.Rpc
@@ -84,9 +86,19 @@ namespace SimCivil.Rpc
 
             try
             {
+                var session = _scope.Resolve<IRpcSession>();
                 var type = RpcServer.Services[msg.ServiceName];
                 var service = _scope.Resolve(type);
-                var method = type.GetMethod(msg.MethodName);
+                var method = service.GetType().GetMethod(msg.MethodName);
+
+                var result = CheckFilter(session, method);
+                if (result != null)
+                {
+                    ctx.Channel.WriteAndFlushAsync(new RpcResponse(msg, null, result.ErrorInfo));
+
+                    return;
+                }
+
                 var args = msg.Arguments;
                 var parameters = method.GetParameters();
                 if (parameters.Length != args.Length)
@@ -105,26 +117,17 @@ namespace SimCivil.Rpc
                     }
                 }
 
-                using (_scope.Resolve<IRpcSession>().AssignTo(service))
+                using (session.AssignTo(service))
                 {
                     switch (method.ReturnType.GetDelegateType())
                     {
                         case MethodType.Synchronous:
-
                             object returnValue = method.Invoke(service, args);
 
                             ctx.Channel.WriteAndFlushAsync(new RpcResponse(msg, returnValue));
 
                             break;
                         case MethodType.AsyncAction:
-//                        Task.Run(() =>{
-//                            using (_scope.Resolve<IRpcSession>().AssignTo(service))
-//                            {
-//                                return (Task)method.Invoke(service, args);
-//                            }
-//                        }).ContinueWith(
-//                            _ => ctx.Channel.WriteAndFlushAsync(new RpcResponse(msg, null)));
-
                             ((Task) method.Invoke(service, args))
                                 .ContinueWith(
                                     _ => ctx.Channel.WriteAndFlushAsync(new RpcResponse(msg, null)));
@@ -154,12 +157,31 @@ namespace SimCivil.Rpc
 
                 throw;
             }
-            catch
+            catch (Exception e)
             {
-                ctx.Channel.WriteAndFlushAsync(new RpcResponse(msg, null, "Internal error"));
+                ctx.Channel.WriteAndFlushAsync(
+                    RpcServer.Debug ? new RpcResponse(msg, null, e) : new RpcResponse(msg, null, "Internal error"));
 
                 throw;
             }
         }
+
+
+        private static CheckResult CheckFilter(IRpcSession session, MethodInfo method)
+        {
+            var filterAttributes = method.DeclaringType.GetCustomAttributes<SessionFilterAttribute>()
+                .Concat(
+                    method.GetCustomAttributes<SessionFilterAttribute>());
+
+            return filterAttributes
+                .Select(f => f.CheckPermission(session))
+                .FirstOrDefault(r => !r.Allowed);
+        }
+    }
+
+    public class RemoteDeniedException : Exception
+    {
+        public RemoteDeniedException(string errorInfo)
+            : base(errorInfo) { }
     }
 }

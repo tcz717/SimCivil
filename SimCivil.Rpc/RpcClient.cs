@@ -132,6 +132,11 @@ namespace SimCivil.Rpc
             ProxyCache.Clear();
         }
 
+        /// <summary>
+        /// Imports reomote service.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
         public T Import<T>() where T : class
         {
             if (ProxyCache.TryGetValue(typeof(T), out object service))

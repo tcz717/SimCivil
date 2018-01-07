@@ -18,33 +18,35 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// SimCivil - SimCivil.Rpc - RpcSessionAssigner.cs
-// Create Date: 2018/01/04
-// Update Date: 2018/01/04
+// SimCivil - SimCivil - LoginFilter.cs
+// Create Date: 2018/01/07
+// Update Date: 2018/01/07
 
 using System;
 using System.Text;
 
-namespace SimCivil.Rpc.Session
+using SimCivil.Rpc;
+using SimCivil.Rpc.Filter;
+using SimCivil.Rpc.Session;
+
+namespace SimCivil.Auth
 {
-    internal class RpcSessionAssigner<T> : IDisposable where T : class
+    /// <summary>
+    /// Allowed only logged in
+    /// </summary>
+    /// <seealso>
+    ///     <cref>SimCivil.Rpc.Filter.SessionFilterAttribute</cref>
+    /// </seealso>
+    public class LoginFilterAttribute : SessionFilterAttribute
     {
-        public IRpcSession Session { get; }
-        public T Service { get; }
-
-        public RpcSessionAssigner(IRpcSession session, T service)
+        /// <summary>
+        /// Checks the permission.
+        /// </summary>
+        /// <param name="session">The session.</param>
+        /// <returns></returns>
+        public override CheckResult CheckPermission(IRpcSession session)
         {
-            Session = session;
-            Service = service;
-            if (service is ISessionRequred requred)
-                requred.Session.Value = session;
-        }
-
-        /// <summary>Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.</summary>
-        public void Dispose()
-        {
-            if (Service is ISessionRequred requred)
-                requred.Session.Value = null;
+            return CheckResult.If(session.IsSet<Player>(), "Not logged in");
         }
     }
 }

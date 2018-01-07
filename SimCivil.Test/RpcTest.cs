@@ -20,104 +20,24 @@
 // 
 // SimCivil - SimCivil.Test - RpcTest.cs
 // Create Date: 2018/01/02
-// Update Date: 2018/01/05
+// Update Date: 2018/01/06
 
 using System;
-using System.Net;
+using System.Diagnostics;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
 using Autofac;
 
-using SimCivil.Model;
 using SimCivil.Rpc;
-using SimCivil.Rpc.Session;
 
 using Xunit;
 using Xunit.Abstractions;
 
 namespace SimCivil.Test
 {
-    public interface ITestServiceA
-    {
-        string GetName();
-        string HelloWorld(string name);
-        int NotImplementedFuc(int i);
-        string GetSession(string key);
-    }
-
-    public interface ITestServiceB
-    {
-        void SetSession(string key, string value);
-        Task<string> EchoAsync(string s);
-        Task<IPEndPoint> CheckAsync();
-        Entity GetEntity();
-    }
-
-    class TestServiceB : ITestServiceB, ISessionRequred
-    {
-        public ThreadLocal<IRpcSession> Session { get; } = new ThreadLocal<IRpcSession>();
-
-        public void SetSession(string key, string value)
-        {
-            Session.Value[key] = value;
-        }
-
-        public Task<string> EchoAsync(string s)
-        {
-            return Task.FromResult(s);
-        }
-
-        public async Task<IPEndPoint> CheckAsync()
-        {
-            Assert.NotNull(Session.Value);
-            var session = Session.Value;
-            await Task.Delay(500);
-            Assert.NotNull(session);
-
-            return session.RemoteEndPoint;
-        }
-
-        public Entity GetEntity()
-        {
-            return Entity.Create();
-        }
-    }
-
-    public class TestServiceA : ITestServiceA
-    {
-        public IRpcSession Session { get; }
-        public string Name { get; set; }
-
-        public TestServiceA(IRpcSession session)
-        {
-            Session = session;
-        }
-
-        public string GetName()
-        {
-            return Name;
-        }
-
-        public string HelloWorld(string name)
-        {
-            Name = name;
-
-            return $"Hello {name}!";
-        }
-
-        public int NotImplementedFuc(int i)
-        {
-            throw new NotImplementedException();
-        }
-
-        public string GetSession(string key)
-        {
-            return Session[key].ToString();
-        }
-    }
-
     public class RpcTest : IDisposable
     {
         public RpcTest(ITestOutputHelper output)
@@ -131,7 +51,7 @@ namespace SimCivil.Test
             builder.RegisterRpcProvider<TestServiceA, ITestServiceA>().InstancePerChannel();
             builder.RegisterRpcProvider<TestServiceB, ITestServiceB>().SingleInstance();
 
-            Server = new RpcServer(builder.Build());
+            Server = new RpcServer(builder.Build()) {Debug = true};
             Server.Bind(9999);
             Server.Run().Wait();
         }
@@ -173,6 +93,38 @@ namespace SimCivil.Test
                             Assert.Equal(resp.Result, msg))
                     .Wait();
             }
+        }
+
+        [Trait("Category", "Performance")]
+        [Fact]
+        public void AyncParallelTest()
+        {
+            const int testNum = 1000;
+            Task[] tasks = new Task[testNum];
+            Stopwatch[] stopwatches = new Stopwatch[testNum];
+            using (RpcClient client = new RpcClient())
+            {
+                client.Bind(9999).ConnectAsync().Wait();
+
+                var serviceB = client.Import<ITestServiceB>();
+                for (var i = 0; i < tasks.Length; i++)
+                {
+                    int _i = i;
+                    stopwatches[i] = Stopwatch.StartNew();
+                    tasks[i] = serviceB.EchoAsync(i.ToString())
+                        .ContinueWith(
+                            t =>
+                            {
+                                stopwatches[_i].Stop();
+                                Assert.Equal(_i.ToString(), t.Result);
+                            });
+                }
+
+                Task.WaitAll(tasks);
+            }
+
+            Output.WriteLine(
+                $"Average [EchoAsync] time cost is {stopwatches.Select(s => s.ElapsedMilliseconds).Average()} ms.");
         }
 
         [Fact]
@@ -218,15 +170,19 @@ namespace SimCivil.Test
             }
         }
 
-        [Trait("Category","Performance")]
+        [Trait("Category", "Performance")]
         [Fact]
         public void SessionRequredParallelTest()
         {
-            Parallel.For(
+            const int testNum = 100;
+            long sum = 0;
+            Parallel.For<long>(
                 0,
-                100,
-                i =>
+                testNum,
+                () => 0,
+                (i, state, total) =>
                 {
+                    Stopwatch stopwatch = new Stopwatch();
                     using (RpcClient client = new RpcClient())
                     {
                         client.Bind(9999).ConnectAsync().Wait();
@@ -236,9 +192,16 @@ namespace SimCivil.Test
 
                         serviceB.SetSession("test", i.ToString());
 
-                        Assert.Equal(serviceA.GetSession("test"), i.ToString());
+                        stopwatch.Start();
+                        string expected = serviceA.GetSession("test");
+                        stopwatch.Stop();
+                        Assert.Equal(expected, i.ToString());
                     }
-                });
+
+                    return stopwatch.ElapsedMilliseconds + total;
+                },
+                total => Interlocked.Add(ref sum, total));
+            Output.WriteLine($"Average [GetSession] time cost is {sum / (double) testNum} ms.");
         }
 
         [Fact]
@@ -276,6 +239,19 @@ namespace SimCivil.Test
                 var service = client.Import<ITestServiceA>();
 
                 Assert.ThrowsAny<RemotingException>(() => service.NotImplementedFuc(1));
+            }
+        }
+
+        [Fact]
+        public void FilterTest()
+        {
+            using (RpcClient client = new RpcClient())
+            {
+                client.Bind(9999).ConnectAsync().Wait();
+
+                var service = client.Import<ITestServiceB>();
+
+                Assert.Throws<RemotingException>(() => service.DeniedAction());
             }
         }
     }
