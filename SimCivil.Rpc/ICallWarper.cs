@@ -18,28 +18,20 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// SimCivil - SimCivil.Rpc - CheckResult.cs
+// SimCivil - SimCivil.Rpc - ICallWarper.cs
 // Create Date: 2018/01/07
 // Update Date: 2018/01/07
 
 using System;
 using System.Text;
 
-namespace SimCivil.Rpc.Filter
+using SimCivil.Rpc.Session;
+
+namespace SimCivil.Rpc
 {
-    public class CheckResult
+    public interface ICallWarper
     {
-        internal static readonly CheckResult Allow = new CheckResult {Allowed = true};
-
-        public string ErrorInfo { get; set; }
-
-        public bool Allowed { get; set; }
-
-        public static CheckResult If(bool condition, string errInfo)
-        {
-            return condition
-                ? Allow
-                : new CheckResult {Allowed = false, ErrorInfo = errInfo};
-        }
+        void BeforeCall(IRpcSession session);
+        void AfterCall(IRpcSession session);
     }
 }

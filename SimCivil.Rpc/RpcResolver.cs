@@ -92,7 +92,7 @@ namespace SimCivil.Rpc
                 var method = service.GetType().GetMethod(msg.MethodName);
 
                 var result = CheckFilter(session, method);
-                if (result != null)
+                if (!result.Allowed)
                 {
                     ctx.Channel.WriteAndFlushAsync(new RpcResponse(msg, null, result.ErrorInfo));
 
@@ -117,6 +117,8 @@ namespace SimCivil.Rpc
                     }
                 }
 
+                ICallWarper warper = service as ICallWarper;
+                warper?.BeforeCall(session);
                 using (session.AssignTo(service))
                 {
                     switch (method.ReturnType.GetDelegateType())
@@ -130,7 +132,14 @@ namespace SimCivil.Rpc
                         case MethodType.AsyncAction:
                             ((Task) method.Invoke(service, args))
                                 .ContinueWith(
-                                    _ => ctx.Channel.WriteAndFlushAsync(new RpcResponse(msg, null)));
+                                    t =>
+                                    {
+                                        warper?.AfterCall(session);
+                                        ctx.Channel.WriteAndFlushAsync(
+                                            t.Exception != null
+                                                ? new RpcResponse(msg, null, t.Exception)
+                                                : new RpcResponse(msg, null));
+                                    });
 
                             break;
                         case MethodType.AsyncFunction:
@@ -138,6 +147,7 @@ namespace SimCivil.Rpc
                                 .ContinueWith(
                                     t =>
                                     {
+                                        warper?.AfterCall(session);
                                         ctx.Channel.WriteAndFlushAsync(
                                             t.Exception != null
                                                 ? new RpcResponse(msg, null, t.Exception)
@@ -174,8 +184,8 @@ namespace SimCivil.Rpc
                     method.GetCustomAttributes<SessionFilterAttribute>());
 
             return filterAttributes
-                .Select(f => f.CheckPermission(session))
-                .FirstOrDefault(r => !r.Allowed);
+                       .Select(f => f.CheckPermission(session))
+                       .FirstOrDefault(r => !r.Allowed) ?? CheckResult.Allow;
         }
     }
 
