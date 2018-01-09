@@ -25,7 +25,7 @@ namespace SimCivil.Store
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns></returns>
-        public Entity LoadEntity(Guid id)
+        public virtual Entity LoadEntity(Guid id)
         {
             return Entities[id];
         }
@@ -34,7 +34,7 @@ namespace SimCivil.Store
         /// Saves the entity.
         /// </summary>
         /// <param name="entity">The entity.</param>
-        public void SaveEntity(Entity entity)
+        public virtual void SaveEntity(Entity entity)
         {
             Entities[entity.Id] = entity;
         }

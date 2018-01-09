@@ -18,42 +18,39 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// SimCivil - SimCivil.Rpc - RpcSession.cs
-// Create Date: 2018/01/02
-// Update Date: 2018/01/02
+// SimCivil - SimCivil.Contract - IRoleManger.cs
+// Create Date: 2018/01/06
+// Update Date: 2018/01/06
 
 using System;
-using System.Collections.Generic;
-using System.Net;
 using System.Text;
+using System.Threading.Tasks;
 
-namespace SimCivil.Rpc.Session
+namespace SimCivil.Contract
 {
-    public class LocalRpcSession : Dictionary<string, object>, IRpcSession
+    public interface IRoleManger
     {
-        public LocalRpcSession() { }
-        public IPEndPoint RemoteEndPoint { get; set; }
-        public event EventHandler Exiting;
-        public event EventHandler<EventArgs<EndPoint>> Entering;
-
-        public virtual void OnExiting()
-        {
-            Exiting?.Invoke(this, EventArgs.Empty);
-        }
-
-        public virtual void OnEntering(EndPoint endPoint)
-        {
-            Entering?.Invoke(this, new EventArgs<EndPoint>(endPoint));
-        }
-    }
-
-    public interface IRpcSession : IDictionary<string, object>
-    {
-        IPEndPoint RemoteEndPoint { get; set; }
-
-        event EventHandler Exiting;
-        event EventHandler<EventArgs<EndPoint>> Entering;
-        void OnExiting();
-        void OnEntering(EndPoint endPoint);
+        /// <summary>
+        /// Creates the role.
+        /// </summary>
+        /// <param name="option">The option.</param>
+        /// <returns></returns>
+        Task<bool> CreateRole(CreateRoleOption option);
+        /// <summary>
+        /// Gets the role list.
+        /// </summary>
+        /// <returns></returns>
+        Task<RoleSummary[]> GetRoleList();
+        /// <summary>
+        /// Uses the role.
+        /// </summary>
+        /// <param name="eid">The eid.</param>
+        /// <returns></returns>
+        Task<bool> UseRole(Guid eid);
+        /// <summary>
+        /// Releases the role.
+        /// </summary>
+        /// <returns></returns>
+        Task<bool> ReleaseRole();
     }
 }

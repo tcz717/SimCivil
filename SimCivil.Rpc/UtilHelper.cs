@@ -146,11 +146,4 @@ namespace SimCivil.Rpc
             return awaitable.GetAwaiter().GetResult();
         }
     }
-
-    public enum MethodType
-    {
-        Synchronous,
-        AsyncAction,
-        AsyncFunction
-    }
 }

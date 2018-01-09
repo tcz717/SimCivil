@@ -87,6 +87,11 @@ namespace SimCivil
         public const string DefaultConfigFile = "configuration.json";
 
         /// <summary>
+        /// The prefab name key
+        /// </summary>
+        public const string PrefabNameKey = "PrefabName";
+
+        /// <summary>
         /// Gets or sets the plant height limit.
         /// </summary>
         /// <value>

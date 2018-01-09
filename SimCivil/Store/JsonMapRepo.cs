@@ -15,7 +15,7 @@ namespace SimCivil.Store
     /// </summary>
     public class JsonMapRepo : MemoryMapRepo, IPersistable
     {
-        private static readonly ILog logger = LogManager.GetLogger(typeof(JsonMapRepo));
+        private static readonly ILog Logger = LogManager.GetLogger(typeof(JsonMapRepo));
 
         /// <summary>
         /// Gets the root path.
@@ -52,7 +52,7 @@ namespace SimCivil.Store
             var fullPath = Path.Combine(path, $"{nameof(AtlasIndex)}.json");
             RootPath = path;
             AtlasIndex = JsonConvert.DeserializeObject<HashSet<(int X, int Y)>>(File.ReadAllText(fullPath));
-            logger.Info($"Loaded atlas index file in {fullPath}.");
+            Logger.Info($"Loaded atlas index file in {fullPath}.");
         }
 
         /// <summary>
@@ -63,13 +63,13 @@ namespace SimCivil.Store
         {
             var fullPath = Path.Combine(path, $"{nameof(AtlasIndex)}.json");
             File.WriteAllText(fullPath, JsonConvert.SerializeObject(AtlasIndex));
-            logger.Info($"Saved atlas index file in {fullPath}.");
+            Logger.Info($"Saved atlas index file in {fullPath}.");
 
             foreach (var key in AtlasStore.Keys)
             {
                 fullPath = Path.Combine(path, $"{key.X}_{key.Y}.json");
                 File.WriteAllText(fullPath, JsonConvert.SerializeObject(AtlasStore[key]));
-                logger.Info($"Saved ${key} atlas file in {fullPath}.");
+                Logger.Info($"Saved ${key} atlas file in {fullPath}.");
             }
         }
 
@@ -87,11 +87,16 @@ namespace SimCivil.Store
             return atlas;
         }
 
+        /// <summary>
+        /// Loads the atlas.
+        /// </summary>
+        /// <param name="atlasIndex">Index of the atlas.</param>
+        /// <returns></returns>
         private Atlas LoadAtlas((int X, int Y) atlasIndex)
         {
             var fullPath = Path.Combine(RootPath, $"{atlasIndex.X}_{atlasIndex.Y}.json");
             Atlas atlas = JsonConvert.DeserializeObject<Atlas>(File.ReadAllText(fullPath));
-            logger.Info($"Loaded ${atlasIndex} atlas file from {fullPath}.");
+            Logger.Info($"Loaded ${atlasIndex} atlas file from {fullPath}.");
             return atlas;
         }
 
@@ -105,7 +110,7 @@ namespace SimCivil.Store
             var fullPath = Path.Combine(path, $"{nameof(AtlasIndex)}.json");
             RootPath = path;
             AtlasIndex = JsonConvert.DeserializeObject<HashSet<(int X, int Y)>>(await File.ReadAllTextAsync(fullPath));
-            logger.Info($"Loaded atlas index file in {fullPath}.");
+            Logger.Info($"Loaded atlas index file in {fullPath}.");
         }
 
         /// <summary>
@@ -117,13 +122,13 @@ namespace SimCivil.Store
         {
             var fullPath = Path.Combine(path, $"{nameof(AtlasIndex)}.json");
             await File.WriteAllTextAsync(fullPath, JsonConvert.SerializeObject(AtlasIndex));
-            logger.Info($"Saved atlas index file in {fullPath}.");
+            Logger.Info($"Saved atlas index file in {fullPath}.");
 
             var writeTasks = AtlasStore.Select(async a =>
             {
                 fullPath = Path.Combine(path, $"{a.Key.X}_{a.Key.Y}.json");
                 await File.WriteAllTextAsync(fullPath, JsonConvert.SerializeObject(a.Value));
-                logger.Info($"Saved ${a.Key} atlas file in {fullPath}.");
+                Logger.Info($"Saved ${a.Key} atlas file in {fullPath}.");
             });
             await Task.WhenAll(writeTasks);
         }

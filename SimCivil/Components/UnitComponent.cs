@@ -18,33 +18,48 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// SimCivil - SimCivil.Rpc - RpcSessionAssigner.cs
-// Create Date: 2018/01/04
-// Update Date: 2018/01/04
+// SimCivil - SimCivil - UnitComponent.cs
+// Create Date: 2018/01/07
+// Update Date: 2018/01/07
 
 using System;
-using System.Text;
 
-namespace SimCivil.Rpc.Session
+using SimCivil.Contract.Model;
+
+namespace SimCivil.Components
 {
-    internal class RpcSessionAssigner<T> : IDisposable where T : class
+    /// <summary>
+    /// Data related to unit infomation.
+    /// </summary>
+    /// <seealso>
+    ///     <cref>SimCivil.Components.IComponent</cref>
+    /// </seealso>
+    public class UnitComponent : IComponent
     {
-        public IRpcSession Session { get; }
-        public T Service { get; }
+        public Guid EntityId { get; set; }
 
-        public RpcSessionAssigner(IRpcSession session, T service)
+        /// <summary>
+        /// Clones with specified new identifier.
+        /// </summary>
+        /// <param name="newId">The new identifier.</param>
+        /// <returns></returns>
+        public IComponent Clone(Guid newId)
         {
-            Session = session;
-            Service = service;
-            if (service is ISessionRequred requred)
-                requred.Session.Value = session;
+            UnitComponent component = (UnitComponent) MemberwiseClone();
+            component.EntityId = newId;
+
+            return component;
         }
 
-        /// <summary>Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.</summary>
-        public void Dispose()
+        public string Name { get; set; }
+        public Gender Gender { get; set; }
+        public Race Race { get; set; }
+
+        /// <summary>Creates a new object that is a copy of the current instance.</summary>
+        /// <returns>A new object that is a copy of this instance.</returns>
+        public object Clone()
         {
-            if (Service is ISessionRequred requred)
-                requred.Session.Value = null;
+            return Clone(EntityId);
         }
     }
 }

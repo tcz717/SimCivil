@@ -40,6 +40,7 @@ namespace SimCivil.Rpc
 {
     public class RpcClient : IDisposable
     {
+        public event EventHandler<EventArgs<string>> DecodeFail;
         private readonly IChannelHandler _decoder = new JsonToMessageDecoder<RpcResponse>();
         private readonly IChannelHandler _encoder = new MessageToJsonEncoder<RpcRequest>();
 
@@ -103,12 +104,7 @@ namespace SimCivil.Rpc
                     .Option(ChannelOption.TcpNodelay, true)
                     .Handler(
                         new ActionChannelInitializer<ISocketChannel>(
-                            channel => channel.Pipeline
-                                .AddLast(new LengthFieldPrepender(2))
-                                .AddLast(new LengthFieldBasedFrameDecoder(ushort.MaxValue, 0, 2, 0, 2))
-                                .AddLast(_decoder)
-                                .AddLast(_encoder)
-                                .AddLast(_resolver)));
+                            ChannelInit));
                 Channel = await bootstrap.ConnectAsync(EndPoint);
             }
             catch
@@ -120,6 +116,15 @@ namespace SimCivil.Rpc
             }
         }
 
+        protected virtual void ChannelInit(ISocketChannel channel)
+        {
+            channel.Pipeline.AddLast(new LengthFieldPrepender(2))
+                .AddLast(new LengthFieldBasedFrameDecoder(ushort.MaxValue, 0, 2, 0, 2))
+                .AddLast(_decoder)
+                .AddLast(_encoder)
+                .AddLast(_resolver);
+        }
+
         public void Disconnect()
         {
             Channel?.DisconnectAsync();
@@ -127,6 +132,11 @@ namespace SimCivil.Rpc
             ProxyCache.Clear();
         }
 
+        /// <summary>
+        /// Imports reomote service.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
         public T Import<T>() where T : class
         {
             if (ProxyCache.TryGetValue(typeof(T), out object service))
@@ -144,6 +154,11 @@ namespace SimCivil.Rpc
         public long GetNextSequence()
         {
             return _nextSeq++;
+        }
+
+        protected virtual void OnDecodeFail(EventArgs<string> e)
+        {
+            DecodeFail?.Invoke(this, e);
         }
     }
 }

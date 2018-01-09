@@ -18,33 +18,20 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// SimCivil - SimCivil.Rpc - RpcSessionAssigner.cs
-// Create Date: 2018/01/04
-// Update Date: 2018/01/04
+// SimCivil - SimCivil.Rpc - ICallWarper.cs
+// Create Date: 2018/01/07
+// Update Date: 2018/01/07
 
 using System;
 using System.Text;
 
-namespace SimCivil.Rpc.Session
+using SimCivil.Rpc.Session;
+
+namespace SimCivil.Rpc
 {
-    internal class RpcSessionAssigner<T> : IDisposable where T : class
+    public interface ICallWarper
     {
-        public IRpcSession Session { get; }
-        public T Service { get; }
-
-        public RpcSessionAssigner(IRpcSession session, T service)
-        {
-            Session = session;
-            Service = service;
-            if (service is ISessionRequred requred)
-                requred.Session.Value = session;
-        }
-
-        /// <summary>Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.</summary>
-        public void Dispose()
-        {
-            if (Service is ISessionRequred requred)
-                requred.Session.Value = null;
-        }
+        void BeforeCall(IRpcSession session);
+        void AfterCall(IRpcSession session);
     }
 }

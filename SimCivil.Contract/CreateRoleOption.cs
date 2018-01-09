@@ -18,33 +18,21 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// SimCivil - SimCivil.Rpc - RpcSessionAssigner.cs
-// Create Date: 2018/01/04
-// Update Date: 2018/01/04
+// SimCivil - SimCivil.Contract - CreateRoleOption.cs
+// Create Date: 2018/01/07
+// Update Date: 2018/01/07
 
 using System;
 using System.Text;
 
-namespace SimCivil.Rpc.Session
+using SimCivil.Contract.Model;
+
+namespace SimCivil.Contract
 {
-    internal class RpcSessionAssigner<T> : IDisposable where T : class
+    public class CreateRoleOption
     {
-        public IRpcSession Session { get; }
-        public T Service { get; }
-
-        public RpcSessionAssigner(IRpcSession session, T service)
-        {
-            Session = session;
-            Service = service;
-            if (service is ISessionRequred requred)
-                requred.Session.Value = session;
-        }
-
-        /// <summary>Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.</summary>
-        public void Dispose()
-        {
-            if (Service is ISessionRequred requred)
-                requred.Session.Value = null;
-        }
+        public string Name { get; set; }
+        public Gender Gender { get; set; }
+        public Race Race { get; set; }
     }
 }

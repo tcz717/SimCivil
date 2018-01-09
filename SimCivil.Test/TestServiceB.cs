@@ -18,33 +18,54 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// SimCivil - SimCivil.Rpc - RpcSessionAssigner.cs
-// Create Date: 2018/01/04
-// Update Date: 2018/01/04
+// SimCivil - SimCivil.Test - TestServiceB.cs
+// Create Date: 2018/01/07
+// Update Date: 2018/01/07
 
 using System;
+using System.Net;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
-namespace SimCivil.Rpc.Session
+using SimCivil.Auth;
+using SimCivil.Model;
+using SimCivil.Rpc.Session;
+
+using Xunit;
+
+namespace SimCivil.Test
 {
-    internal class RpcSessionAssigner<T> : IDisposable where T : class
+    class TestServiceB : ITestServiceB, ISessionRequred
     {
-        public IRpcSession Session { get; }
-        public T Service { get; }
+        public ThreadLocal<IRpcSession> Session { get; } = new ThreadLocal<IRpcSession>();
 
-        public RpcSessionAssigner(IRpcSession session, T service)
+        public void SetSession(string key, string value)
         {
-            Session = session;
-            Service = service;
-            if (service is ISessionRequred requred)
-                requred.Session.Value = session;
+            Session.Value[key] = value;
         }
 
-        /// <summary>Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.</summary>
-        public void Dispose()
+        public Task<string> EchoAsync(string s)
         {
-            if (Service is ISessionRequred requred)
-                requred.Session.Value = null;
+            return Task.FromResult(s);
         }
+
+        public async Task<IPEndPoint> CheckAsync()
+        {
+            Assert.NotNull(Session.Value);
+            var session = Session.Value;
+            await Task.Delay(500);
+            Assert.NotNull(session);
+
+            return session.RemoteEndPoint;
+        }
+
+        public Entity GetEntity()
+        {
+            return Entity.Create();
+        }
+
+        [LoginFilter]
+        public void DeniedAction() { }
     }
 }

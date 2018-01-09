@@ -18,33 +18,32 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// SimCivil - SimCivil.Rpc - RpcSessionAssigner.cs
-// Create Date: 2018/01/04
-// Update Date: 2018/01/04
+// SimCivil - SimCivil.Rpc - RpcSession.cs
+// Create Date: 2018/01/02
+// Update Date: 2018/01/02
 
 using System;
+using System.Collections.Generic;
+using System.Net;
 using System.Text;
 
 namespace SimCivil.Rpc.Session
 {
-    internal class RpcSessionAssigner<T> : IDisposable where T : class
+    public class LocalRpcSession : Dictionary<string, object>, IRpcSession
     {
-        public IRpcSession Session { get; }
-        public T Service { get; }
+        public LocalRpcSession() { }
+        public IPEndPoint RemoteEndPoint { get; set; }
+        public event EventHandler Exiting;
+        public event EventHandler<EventArgs<EndPoint>> Entering;
 
-        public RpcSessionAssigner(IRpcSession session, T service)
+        public virtual void OnExiting()
         {
-            Session = session;
-            Service = service;
-            if (service is ISessionRequred requred)
-                requred.Session.Value = session;
+            Exiting?.Invoke(this, EventArgs.Empty);
         }
 
-        /// <summary>Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.</summary>
-        public void Dispose()
+        public virtual void OnEntering(EndPoint endPoint)
         {
-            if (Service is ISessionRequred requred)
-                requred.Session.Value = null;
+            Entering?.Invoke(this, new EventArgs<EndPoint>(endPoint));
         }
     }
 }

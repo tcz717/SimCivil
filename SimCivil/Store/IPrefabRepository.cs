@@ -18,33 +18,30 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// SimCivil - SimCivil.Rpc - RpcSessionAssigner.cs
-// Create Date: 2018/01/04
-// Update Date: 2018/01/04
+// SimCivil - SimCivil - IPrefabRepository.cs
+// Create Date: 2018/01/07
+// Update Date: 2018/01/07
 
-using System;
-using System.Text;
+using SimCivil.Model;
 
-namespace SimCivil.Rpc.Session
+namespace SimCivil.Store
 {
-    internal class RpcSessionAssigner<T> : IDisposable where T : class
+    /// <summary>
+    /// Prefab Repository
+    /// </summary>
+    public interface IPrefabRepository
     {
-        public IRpcSession Session { get; }
-        public T Service { get; }
-
-        public RpcSessionAssigner(IRpcSession session, T service)
-        {
-            Session = session;
-            Service = service;
-            if (service is ISessionRequred requred)
-                requred.Session.Value = session;
-        }
-
-        /// <summary>Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.</summary>
-        public void Dispose()
-        {
-            if (Service is ISessionRequred requred)
-                requred.Session.Value = null;
-        }
+        /// <summary>
+        /// Gets the prefab.
+        /// </summary>
+        /// <param name="tag">The tag.</param>
+        /// <returns></returns>
+        Entity GetPrefab(string tag);
+        /// <summary>
+        /// Sets the prefab.
+        /// </summary>
+        /// <param name="tag">The tag.</param>
+        /// <param name="prefab">The prefab.</param>
+        void SetPrefab(string tag, Entity prefab);
     }
 }

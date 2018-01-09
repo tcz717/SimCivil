@@ -18,72 +18,54 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// SimCivil - SimCivil - Player.cs
-// Create Date: 2017/08/27
-// Update Date: 2018/01/02
+// SimCivil - SimCivil - GeneratingEventHandler.cs
+// Create Date: 2018/01/07
+// Update Date: 2018/01/08
 
 using System;
-using System.Collections.Generic;
 using System.Text;
 
-using Newtonsoft.Json;
-
-using SimCivil.Model;
-
-namespace SimCivil.Auth
+namespace SimCivil.Map
 {
     /// <summary>
-    /// Represent a human player.
+    /// Represent a new atlas generating.
     /// </summary>
-    public class Player
+    /// <seealso cref="System.EventArgs" />
+    public class GeneratingEventArgs : EventArgs
     {
         /// <summary>
-        /// Gets or sets the username.
+        /// Gets or sets the position.
         /// </summary>
         /// <value>
-        /// The username.
+        /// The position.
         /// </value>
-        public string Username { get; set; }
+        public (int X, int Y) Position { get; set; }
 
         /// <summary>
-        /// Gets or sets the token.
+        /// Gets or sets the tile.
         /// </summary>
         /// <value>
-        /// The token.
+        /// The tile.
         /// </value>
-        public object Token { get; set; }
+        public Tile Tile { get; set; }
 
+        /// <inheritdoc />
         /// <summary>
-        /// Gets or sets the name of the player.
+        /// Initializes a new instance of the <see cref="T:SimCivil.Map.GeneratingEventArgs" /> class.
         /// </summary>
-        /// <value>
-        /// The name of the player.
-        /// </value>
-        public string PlayerName { get; set; }
-
-        /// <summary>
-        /// Gets or sets the roles.
-        /// </summary>
-        /// <value>
-        /// The roles.
-        /// </value>
-        public List<Guid> Roles { get; set; }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="Player"/> class.
-        /// </summary>
-        /// <param name="username">The username.</param>
-        /// <param name="token">The token.</param>
-        public Player(string username, object token)
+        /// <param name="position">The position.</param>
+        /// <param name="tile">The tile.</param>
+        public GeneratingEventArgs((int X, int Y) position, Tile tile)
         {
-            Username = username;
-            Token = token;
-            Roles = new List<Guid>();
+            Position = position;
+            Tile = tile;
         }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="Player"/> class.
-        /// </summary>
-        public Player() { }
     }
+
+    /// <summary>
+    /// When a new atlas is generating.
+    /// </summary>
+    /// <param name="sender">The sender.</param>
+    /// <param name="args">The <see cref="GeneratingEventArgs"/> instance containing the event data.</param>
+    public delegate void GeneratingEventHandler(IMapGenerator sender, GeneratingEventArgs args);
 }
