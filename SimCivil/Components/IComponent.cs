@@ -18,23 +18,32 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// SimCivil - SimCivil.SimpleClient - Program.cs
-// Create Date: 2018/01/02
-// Update Date: 2018/01/02
+// SimCivil - SimCivil - IComponent.cs
+// Create Date: 2018/01/07
+// Update Date: 2018/01/07
 
 using System;
 using System.Text;
 
-namespace SimCivil.SimpleClient
+namespace SimCivil.Components
 {
-    class Program
+    /// <summary>
+    /// Component Interface
+    /// </summary>
+    public interface IComponent : ICloneable
     {
-        static void Main(string[] args)
-        {
-            using (var client = new SimCivilClient())
-            {
-                client.Run(args);
-            }
-        }
+        /// <summary>
+        /// Gets or sets the entity identifier.
+        /// </summary>
+        /// <value>
+        /// The entity identifier.
+        /// </value>
+        Guid EntityId { get; set; }
+        /// <summary>
+        /// Clones with specified new identifier.
+        /// </summary>
+        /// <param name="newId">The new identifier.</param>
+        /// <returns></returns>
+        IComponent Clone(Guid newId);
     }
 }

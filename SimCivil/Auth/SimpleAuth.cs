@@ -20,7 +20,7 @@
 // 
 // SimCivil - SimCivil - SimpleAuth.cs
 // Create Date: 2017/09/02
-// Update Date: 2018/01/03
+// Update Date: 2018/01/07
 
 using System;
 using System.Collections.Generic;
@@ -40,24 +40,14 @@ namespace SimCivil.Auth
     /// <summary>
     /// Simple auth just make sure username is unique.
     /// </summary>
-    public class SimpleAuth : IAuth, IAuthManager,ISessionRequred
+    public class SimpleAuth : IAuth, IAuthManager, ISessionRequred
     {
         private static readonly ILog Logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
         /// <summary>
-        /// Gets the online player.
-        /// </summary>
-        /// <value>
-        /// The online player.
-        /// </value>
-        public IList<Player> OnlinePlayer { get; } = new List<Player>();
-
-        /// <summary>
         /// Constructor can be injected.
         /// </summary>
-        public SimpleAuth()
-        {
-        }
+        public SimpleAuth() { }
 
 
         /// <summary>
@@ -91,26 +81,18 @@ namespace SimCivil.Auth
             LogOut(player);
         }
 
-        protected virtual void LogOut(Player player)
-        {
-            if (!OnlinePlayer.Remove(player)) return;
-
-            LoggedOut?.Invoke(this, player);
-            Logger.Info($"[{player.Username}] logout succeed");
-        }
-
         public virtual string GetToken()
         {
             return Session.Value.Get<Player>().Username;
         }
 
-        private void Session_Exiting(object sender, EventArgs e)
-        {
-            var session = (IRpcSession) sender;
-            session.Exiting -= Session_Exiting;
-            if (session.IsSet<Player>())
-                LogOut(session.Get<Player>());
-        }
+        /// <summary>
+        /// Gets the online player.
+        /// </summary>
+        /// <value>
+        /// The online player.
+        /// </value>
+        public IList<Player> OnlinePlayer { get; } = new List<Player>();
 
         /// <summary>
         /// Happen when user are valid.
@@ -121,16 +103,26 @@ namespace SimCivil.Auth
         /// Happen when user exits.
         /// </summary>
         public event EventHandler<Player> LoggedOut;
-
-        /// <summary>
-        /// Happen when user's role changing.
-        /// </summary>
-        public event EventHandler<RoleChangeArgs> RoleChanging;
-
-        /// <summary>
-        /// Happen when user's role changed.
-        /// </summary>
-        public event EventHandler<RoleChangeArgs> RoleChanged;
         public ThreadLocal<IRpcSession> Session { get; } = new ThreadLocal<IRpcSession>();
+
+        /// <summary>
+        /// Logs out.
+        /// </summary>
+        /// <param name="player">The player.</param>
+        protected virtual void LogOut(Player player)
+        {
+            if (!OnlinePlayer.Remove(player)) return;
+
+            LoggedOut?.Invoke(this, player);
+            Logger.Info($"[{player.Username}] logout succeed");
+        }
+
+        private void Session_Exiting(object sender, EventArgs e)
+        {
+            var session = (IRpcSession) sender;
+            session.Exiting -= Session_Exiting;
+            if (session.IsSet<Player>())
+                LogOut(session.Get<Player>());
+        }
     }
 }

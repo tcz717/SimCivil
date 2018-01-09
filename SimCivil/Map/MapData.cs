@@ -151,7 +151,7 @@ namespace SimCivil.Map
             MapGenerator = mapGenerator;
             MapRepository = mapRepository;
 
-            Entities.CollectionChanged += Entities_CollectionChanged;
+            //Entities.CollectionChanged += Entities_CollectionChanged;
         }
 
         private static (int X, int Y) Pos2AtlasIndex((int x, int y) pos)
@@ -159,32 +159,32 @@ namespace SimCivil.Map
             return (X: pos.x % DefaultAtlasWidth, Y: pos.y % DefaultAtlasHeight);
         }
 
-        private void Entities_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
-        {
-            switch (e.Action)
-            {
-                case NotifyCollectionChangedAction.Add:
-                    foreach (Entity item in e.NewItems.Cast<Entity>())
-                    {
-                        EntitiesPositionDictionary[item.Position] = item;
-                        item.PositionChanged += Item_PositionChanged;
-                    }
+        //private void Entities_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        //{
+        //    switch (e.Action)
+        //    {
+        //        case NotifyCollectionChangedAction.Add:
+        //            foreach (Entity item in e.NewItems.Cast<Entity>())
+        //            {
+        //                EntitiesPositionDictionary[item.Position] = item;
+        //                item.PositionChanged += Item_PositionChanged;
+        //            }
 
-                    break;
-                case NotifyCollectionChangedAction.Reset:
-                case NotifyCollectionChangedAction.Remove:
-                    foreach (Entity item in e.OldItems.Cast<Entity>()) EntitiesPositionDictionary.Remove(item.Position);
+        //            break;
+        //        case NotifyCollectionChangedAction.Reset:
+        //        case NotifyCollectionChangedAction.Remove:
+        //            foreach (Entity item in e.OldItems.Cast<Entity>()) EntitiesPositionDictionary.Remove(item.Position);
 
-                    break;
-                case NotifyCollectionChangedAction.Move:
-                case NotifyCollectionChangedAction.Replace:
+        //            break;
+        //        case NotifyCollectionChangedAction.Move:
+        //        case NotifyCollectionChangedAction.Replace:
 
-                    throw new NotSupportedException();
-                default:
+        //            throw new NotSupportedException();
+        //        default:
 
-                    throw new ArgumentOutOfRangeException();
-            }
-        }
+        //            throw new ArgumentOutOfRangeException();
+        //    }
+        //}
 
         private void Item_PositionChanged(object sender, PropertyChangedEventArgs<(int X, int Y)> e)
         {

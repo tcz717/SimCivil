@@ -18,23 +18,30 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// SimCivil - SimCivil.SimpleClient - Program.cs
-// Create Date: 2018/01/02
-// Update Date: 2018/01/02
+// SimCivil - SimCivil - IPrefabRepository.cs
+// Create Date: 2018/01/07
+// Update Date: 2018/01/07
 
-using System;
-using System.Text;
+using SimCivil.Model;
 
-namespace SimCivil.SimpleClient
+namespace SimCivil.Store
 {
-    class Program
+    /// <summary>
+    /// Prefab Repository
+    /// </summary>
+    public interface IPrefabRepository
     {
-        static void Main(string[] args)
-        {
-            using (var client = new SimCivilClient())
-            {
-                client.Run(args);
-            }
-        }
+        /// <summary>
+        /// Gets the prefab.
+        /// </summary>
+        /// <param name="tag">The tag.</param>
+        /// <returns></returns>
+        Entity GetPrefab(string tag);
+        /// <summary>
+        /// Sets the prefab.
+        /// </summary>
+        /// <param name="tag">The tag.</param>
+        /// <param name="prefab">The prefab.</param>
+        void SetPrefab(string tag, Entity prefab);
     }
 }

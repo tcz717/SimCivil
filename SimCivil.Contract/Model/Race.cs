@@ -18,23 +18,17 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// SimCivil - SimCivil.SimpleClient - Program.cs
-// Create Date: 2018/01/02
-// Update Date: 2018/01/02
+// SimCivil - SimCivil.Contract - Race.cs
+// Create Date: 2018/01/06
+// Update Date: 2018/01/06
 
 using System;
 using System.Text;
 
-namespace SimCivil.SimpleClient
+namespace SimCivil.Contract.Model
 {
-    class Program
+    public enum Race
     {
-        static void Main(string[] args)
-        {
-            using (var client = new SimCivilClient())
-            {
-                client.Run(args);
-            }
-        }
+        Human,
     }
 }

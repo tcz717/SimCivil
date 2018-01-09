@@ -6,6 +6,8 @@ using Microsoft.Extensions.Configuration;
 using Autofac.Configuration;
 using log4net.Core;
 
+using SimCivil.Auth;
+using SimCivil.Contract;
 using SimCivil.Rpc;
 
 [assembly: log4net.Config.XmlConfigurator(ConfigFile = "log.config", Watch = false)]
@@ -65,6 +67,7 @@ namespace SimCivil
 
             builder.RegisterModule(module);
             builder.UseRpcSession();
+            builder.RegisterRpcProvider<RoleManager, IRoleManger>().InstancePerChannel();
 
             return builder.Build();
         }

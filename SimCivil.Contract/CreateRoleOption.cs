@@ -18,23 +18,21 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// SimCivil - SimCivil.SimpleClient - Program.cs
-// Create Date: 2018/01/02
-// Update Date: 2018/01/02
+// SimCivil - SimCivil.Contract - CreateRoleOption.cs
+// Create Date: 2018/01/07
+// Update Date: 2018/01/07
 
 using System;
 using System.Text;
 
-namespace SimCivil.SimpleClient
+using SimCivil.Contract.Model;
+
+namespace SimCivil.Contract
 {
-    class Program
+    public class CreateRoleOption
     {
-        static void Main(string[] args)
-        {
-            using (var client = new SimCivilClient())
-            {
-                client.Run(args);
-            }
-        }
+        public string Name { get; set; }
+        public Gender Gender { get; set; }
+        public Race Race { get; set; }
     }
 }

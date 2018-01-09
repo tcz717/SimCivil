@@ -2,7 +2,7 @@
   "profiles": {
     "SimCivil": {
       "commandName": "Project",
-      "commandLineArgs": "-c -n test -d .\\save\\test"
+      "commandLineArgs": "-d .\\save\\test"
     }
   }
 }

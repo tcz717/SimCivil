@@ -1,14 +1,37 @@
-﻿using Newtonsoft.Json;
+﻿// Copyright (c) 2017 TPDT
+// 
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+// 
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+// 
+// SimCivil - SimCivil - Entity.cs
+// Create Date: 2017/08/25
+// Update Date: 2018/01/08
+
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
-using System.Xml.Schema;
 
-using JetBrains.Annotations;
+using Newtonsoft.Json;
+
+using SimCivil.Components;
 using SimCivil.Store.Json;
-using static SimCivil.Config;
 
 namespace SimCivil.Model
 {
@@ -19,9 +42,71 @@ namespace SimCivil.Model
     ///     <cref>System.IEquatable{SimCivil.Model.Entity}</cref>
     /// </seealso>
     /// <seealso cref="System.ICloneable" />
+    [JsonObject(ItemTypeNameHandling = TypeNameHandling.Auto)]
     public class Entity : ICloneable, IEquatable<Entity>
     {
-        private (int x, int y) _position;
+        /// <summary>
+        /// Gets or sets the identifier.
+        /// </summary>
+        /// <value>
+        /// The identifier.
+        /// </value>
+        public Guid Id { get; }
+
+        /// <summary>
+        /// Gets or sets the components.
+        /// </summary>
+        /// <value>
+        /// The components.
+        /// </value>
+        [JsonProperty(ItemTypeNameHandling = TypeNameHandling.Auto)]
+        public Dictionary<string, IComponent> Components { get; set; }
+
+        /// <summary>
+        /// Gets or sets the <see cref="System.Object"/> with the specified type name.
+        /// </summary>
+        /// <value>
+        /// The <see cref="System.Object"/>.
+        /// </value>
+        /// <param name="typeName">Name of the type.</param>
+        /// <returns></returns>
+        public IComponent this[string typeName]
+        {
+            get => Components[typeName];
+            set => Components[typeName] = value;
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether this <see cref="Entity"/> is dirty.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if dirty; otherwise, <c>false</c>.
+        /// </value>
+        [JsonIgnore]
+        public bool Dirty { get; private set; } = false;
+
+        /// <summary>
+        /// Gets or sets the <see cref="System.Object"/> with the specified type.
+        /// </summary>
+        /// <value>
+        /// The <see cref="System.Object"/>.
+        /// </value>
+        /// <param name="type">The type.</param>
+        /// <returns></returns>
+        public IComponent this[Type type]
+        {
+            get => Components[type.FullName];
+            set => Components[type.FullName] = value;
+        }
+
+        /// <summary>
+        /// Gets or sets the meta.
+        /// </summary>
+        /// <value>
+        /// The meta.
+        /// </value>
+        [JsonExtensionData]
+        public Dictionary<string, object> Meta { get; set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Entity"/> class.
@@ -32,95 +117,9 @@ namespace SimCivil.Model
             Id = id;
         }
 
-        /// <summary>
-        /// Gets or sets the identifier.
-        /// </summary>
-        /// <value>
-        /// The identifier.
-        /// </value>
-        public Guid Id { get; }
-
-        /// <summary>
-        /// Gets or sets the name.
-        /// </summary>
-        /// <value>
-        /// The name.
-        /// </value>
-        public string Name { get; set; } = "Unknown";
-
-        public EntityType Type { get; set; }
-        
-
-        /// <summary>
-        /// Gets or sets the position.
-        /// </summary>
-        /// <value>
-        /// The position.
-        /// </value>
-        public (int x, int y) Position
-        {
-            get => _position;
-            set
-            {
-                if (value.Equals(_position)) return;
-                OnPositionChanged(_position, value);
-                _position = value;
-            }
-        }
-
-        /// <summary>
-        /// Gets or sets the meta.
-        /// </summary>
-        /// <value>
-        /// The meta.
-        /// </value>
-        public Dictionary<string,object> Meta { get; set; }
-
-        /// <summary>
-        /// Occurs when [position changed].
-        /// </summary>
-        public event EventHandler<PropertyChangedEventArgs<(int X, int Y)>> PositionChanged;
-
-        /// <summary>
-        /// Creates new Entity.
-        /// </summary>
-        /// <returns></returns>
-        public static Entity Create()
-        {
-            return new Entity(Guid.NewGuid())
-            {
-                Meta = new Dictionary<string, object>(),
-            };
-        }
-
-        /// <summary>
-        /// Clones this instance.
-        /// </summary>
-        /// <returns></returns>
-        public Entity Clone()
-        {
-            return new Entity(Guid.NewGuid())
-            {
-                Name = Name,
-                Position = Cfg.SpawnPoint,
-                Meta = new Dictionary<string, object>(Meta),
-                Type = Type
-            };
-        }
-
         object ICloneable.Clone()
         {
             return Clone();
-        }
-
-        /// <summary>
-        /// Called when [position changed].
-        /// </summary>
-        /// <param name="oldValue">The old value.</param>
-        /// <param name="newValue">The new value.</param>
-        protected virtual void OnPositionChanged((int X, int Y) oldValue, (int X, int Y) newValue)
-        {
-            PositionChanged?.Invoke(this, new PropertyChangedEventArgs<(int X, int Y)>(oldValue, newValue));
         }
 
         /// <summary>
@@ -133,8 +132,67 @@ namespace SimCivil.Model
         public bool Equals(Entity other)
         {
             if (other is null) return false;
-            if (ReferenceEquals(this, other)) return true;
-            return Id.Equals(other.Id);
+
+            return ReferenceEquals(this, other) || Id.Equals(other.Id);
+        }
+
+        /// <summary>
+        /// Gets component.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public T Get<T>() where T : class
+        {
+            return this[typeof(T)] as T;
+        }
+
+        /// <summary>
+        /// Sets the component.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="component">The component.</param>
+        public void Set<T>(T component) where T : IComponent
+        {
+            this[typeof(T)] = component;
+        }
+
+        /// <summary>
+        /// Creates new Entity.
+        /// </summary>
+        /// <returns></returns>
+        public static Entity Create()
+        {
+            return new Entity(Guid.NewGuid())
+            {
+                Meta = new Dictionary<string, object>(),
+                Components = new Dictionary<string, IComponent>()
+            };
+        }
+
+        /// <summary>
+        /// Clones this instance.
+        /// </summary>
+        /// <returns></returns>
+        public Entity Clone()
+        {
+            return Clone(false);
+        }
+
+        /// <summary>
+        /// Clones this instance.
+        /// </summary>
+        /// <returns></returns>
+        public Entity Clone(bool full)
+        {
+            Guid id = Guid.NewGuid();
+
+            return new Entity(id)
+            {
+                Meta = full ? new Dictionary<string, object>(Meta) : new Dictionary<string, object>(),
+                Components = new Dictionary<string, IComponent>(
+                    Components.Select(
+                        n => new KeyValuePair<string, IComponent>(n.Key, n.Value.Clone(id))))
+            };
         }
 
         /// <summary>
@@ -148,8 +206,8 @@ namespace SimCivil.Model
         {
             if (obj is null) return false;
             if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != GetType()) return false;
-            return Equals((Entity) obj);
+
+            return obj.GetType() == GetType() && Equals((Entity) obj);
         }
 
         /// <summary>
@@ -170,14 +228,14 @@ namespace SimCivil.Model
         /// <param name="propertyName">Name of the property.</param>
         /// <returns></returns>
         /// <exception cref="System.ArgumentException">message - propertyName</exception>
-        protected T GetDataProperty<T>([CallerMemberName] string propertyName = null)
+        protected T GetMetaProperty<T>([CallerMemberName] string propertyName = null)
         {
             if (string.IsNullOrWhiteSpace(propertyName))
             {
                 throw new ArgumentException("message", nameof(propertyName));
             }
 
-            return (T)Meta[propertyName];
+            return (T) Meta[propertyName];
         }
 
         /// <summary>
@@ -187,7 +245,7 @@ namespace SimCivil.Model
         /// <param name="value">The value.</param>
         /// <param name="propertyName">Name of the property.</param>
         /// <exception cref="System.ArgumentException">message - propertyName</exception>
-        protected void SetDataProperty<T>(T value, [CallerMemberName] string propertyName = null)
+        protected void SetMetaProperty<T>(T value, [CallerMemberName] string propertyName = null)
         {
             if (string.IsNullOrWhiteSpace(propertyName))
             {
@@ -196,21 +254,5 @@ namespace SimCivil.Model
 
             Meta[propertyName] = value;
         }
-    }
-
-    /// <summary>
-    /// Entity Type
-    /// </summary>
-    [Flags]
-    public enum EntityType
-    {
-        /// <summary>
-        /// The none
-        /// </summary>
-        None = 0b0,
-        /// <summary>
-        /// The human
-        /// </summary>
-        Human = 0b1,
     }
 }

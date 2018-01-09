@@ -18,23 +18,29 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// SimCivil - SimCivil.SimpleClient - Program.cs
-// Create Date: 2018/01/02
-// Update Date: 2018/01/02
+// SimCivil - SimCivil.Contract - RoleSummary.cs
+// Create Date: 2018/01/07
+// Update Date: 2018/01/07
 
 using System;
 using System.Text;
 
-namespace SimCivil.SimpleClient
+using SimCivil.Contract.Model;
+
+namespace SimCivil.Contract
 {
-    class Program
+    public class RoleSummary
     {
-        static void Main(string[] args)
+        public Guid Id { get; set; }
+        public string Name { get; set; }
+        public Gender Gender { get; set; }
+        public Race Race { get; set; }
+
+        /// <summary>Returns a string that represents the current object.</summary>
+        /// <returns>A string that represents the current object.</returns>
+        public override string ToString()
         {
-            using (var client = new SimCivilClient())
-            {
-                client.Run(args);
-            }
+            return $"{nameof(Id)}: {Id}, {nameof(Name)}: {Name}, {nameof(Gender)}: {Gender}, {nameof(Race)}: {Race}";
         }
     }
 }

@@ -13,10 +13,17 @@
       ]
     },
     {
-      "type": "SimCivil.Store.MemoryEntityRepo",
+      "type": "SimCivil.Store.JsonEntityRepo",
+      "instanceScope": "singleinstance",
       "services": [
         {
           "type": "SimCivil.Store.IEntityRepository"
+        },
+        {
+          "type": "SimCivil.Store.IPersistable"
+        },
+        {
+          "type": "SimCivil.Store.IPrefabRepository"
         }
       ]
     },
@@ -46,6 +53,9 @@
       "services": [
         {
           "type": "SimCivil.Contract.IAuth, SimCivil.Contract"
+        },
+        {
+          "type": "SimCivil.Auth.IAuthManager"
         }
       ]
     },

@@ -49,11 +49,11 @@ namespace SimCivil.Test
         public void JsonEntityTest()
         {
             Entity entity = Entity.Create();
-            entity.Components["Magic"] = 100L;
+            entity.Meta["Magic"] = 100L;
             string json = JsonConvert.SerializeObject(entity);
             Entity loadEntity = JsonConvert.DeserializeObject<Entity>(json);
             Assert.Equal(entity, loadEntity);
-            Assert.Equal(entity.Components["Magic"], loadEntity.Components["Magic"]);
+            Assert.Equal(entity.Meta["Magic"], loadEntity.Meta["Magic"]);
 
             JsonSerializerSettings settings = new JsonSerializerSettings()
             {

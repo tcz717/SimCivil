@@ -2,37 +2,16 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Text;
+
 using log4net.Appender;
 using log4net.Core;
-using log4net.Layout;
 using log4net.Util;
+
 using SharpRaven;
 using SharpRaven.Data;
 
-namespace SimCivil.Profile
-{
-    /// <summary>
-    /// 
-    /// </summary>
-    public class SentryTag
-    {
-        /// <summary>
-        /// Gets or sets the name.
-        /// </summary>
-        /// <value>
-        /// The name.
-        /// </value>
-        public string Name { get; set; }
-
-        /// <summary>
-        /// Gets or sets the layout.
-        /// </summary>
-        /// <value>
-        /// The layout.
-        /// </value>
-        public IRawLayout Layout { get; set; }
-    }
-
+namespace SimCivil.Profile {
     /// <summary>
     /// 
     /// </summary>

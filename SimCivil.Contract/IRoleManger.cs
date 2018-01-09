@@ -18,23 +18,39 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// SimCivil - SimCivil.SimpleClient - Program.cs
-// Create Date: 2018/01/02
-// Update Date: 2018/01/02
+// SimCivil - SimCivil.Contract - IRoleManger.cs
+// Create Date: 2018/01/06
+// Update Date: 2018/01/06
 
 using System;
 using System.Text;
+using System.Threading.Tasks;
 
-namespace SimCivil.SimpleClient
+namespace SimCivil.Contract
 {
-    class Program
+    public interface IRoleManger
     {
-        static void Main(string[] args)
-        {
-            using (var client = new SimCivilClient())
-            {
-                client.Run(args);
-            }
-        }
+        /// <summary>
+        /// Creates the role.
+        /// </summary>
+        /// <param name="option">The option.</param>
+        /// <returns></returns>
+        Task<bool> CreateRole(CreateRoleOption option);
+        /// <summary>
+        /// Gets the role list.
+        /// </summary>
+        /// <returns></returns>
+        Task<RoleSummary[]> GetRoleList();
+        /// <summary>
+        /// Uses the role.
+        /// </summary>
+        /// <param name="eid">The eid.</param>
+        /// <returns></returns>
+        Task<bool> UseRole(Guid eid);
+        /// <summary>
+        /// Releases the role.
+        /// </summary>
+        /// <returns></returns>
+        Task<bool> ReleaseRole();
     }
 }
