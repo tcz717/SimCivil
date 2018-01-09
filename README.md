@@ -19,7 +19,7 @@ SimCivil
 - 错误日志汇总可以在[sentry](https://sentry.io/tpdt/simcivil/)上查看
 
 ## 配置开发环境
-- [参考wiki](http://gitlab.tancoder.com/TPDT/sim-civil/wikis/%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE)
+- [参考wiki](https://github.com/tcz717/SimCivil/wiki/%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE)
 
 ## 主要模块
 
@@ -30,7 +30,7 @@ SimCivil
 - 其他辅助算法如A*寻路算法、Perlin地图生成算法等
 
 ## 主要概念
-- [参考Wiki](/../wikis/home#核心概念)
+- [参考Wiki](https://github.com/tcz717/SimCivil/wiki)
 
 ## 项目依赖
 
