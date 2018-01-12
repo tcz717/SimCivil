@@ -37,6 +37,7 @@ using log4net;
 using SimCivil.Contract;
 using SimCivil.Map;
 using SimCivil.Rpc;
+using SimCivil.Rpc.Session;
 using SimCivil.Store;
 
 using static SimCivil.Config;
@@ -62,6 +63,12 @@ namespace SimCivil
         /// A container used for dependencies injecting.
         /// </summary>
         public IContainer Services { get; }
+        /// <summary>
+        /// Gets the RPC server.
+        /// </summary>
+        /// <value>
+        /// The RPC server.
+        /// </value>
         public RpcServer RpcServer { get; }
 
         /// <summary>
@@ -185,6 +192,11 @@ namespace SimCivil
                 tickCount++;
             }
 
+            foreach (var session in RpcServer.Sessions)
+            {
+                session.OnExiting();
+            }
+            RpcServer.Stop();
             Save();
             //Stop tickers
             foreach (var ticker in tickers)

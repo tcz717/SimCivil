@@ -18,24 +18,77 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// SimCivil - SimCivil - UnitComponent.cs
-// Create Date: 2018/01/07
-// Update Date: 2018/01/07
+// SimCivil - SimCivil - PositionComponent.cs
+// Create Date: 2018/01/10
+// Update Date: 2018/01/10
 
 using System;
+using System.Text;
 
-using SimCivil.Contract.Model;
+using Newtonsoft.Json;
 
 namespace SimCivil.Components
 {
     /// <summary>
-    /// Data related to unit infomation.
+    /// Position Component
     /// </summary>
     /// <seealso>
     ///     <cref>SimCivil.Components.IComponent</cref>
     /// </seealso>
-    public class UnitComponent : IComponent
+    public class PositionComponent : IComponent
     {
+        /// <summary>
+        /// Gets or sets the x.
+        /// </summary>
+        /// <value>
+        /// The x.
+        /// </value>
+        public float X { get; set; }
+        /// <summary>
+        /// Gets or sets the y.
+        /// </summary>
+        /// <value>
+        /// The y.
+        /// </value>
+        public float Y { get; set; }
+
+        /// <summary>
+        /// Gets or sets the position.
+        /// </summary>
+        /// <value>
+        /// The position.
+        /// </value>
+        [JsonIgnore]
+        public (float, float) Pos
+        {
+            get => (X, Y);
+            set => (X, Y) = value;
+        }
+
+        /// <summary>
+        /// Gets the tile x.
+        /// </summary>
+        /// <value>
+        /// The tile x.
+        /// </value>
+        [JsonIgnore]
+        public int TileX => (int) Math.Truncate(X);
+        /// <summary>
+        /// Gets the tile y.
+        /// </summary>
+        /// <value>
+        /// The tile y.
+        /// </value>
+        [JsonIgnore]
+        public int TileY => (int) Math.Truncate(Y);
+
+        /// <summary>Creates a new object that is a copy of the current instance.</summary>
+        /// <returns>A new object that is a copy of this instance.</returns>
+        public object Clone()
+        {
+            return MemberwiseClone();
+        }
+
         /// <summary>
         /// Gets or sets the entity identifier.
         /// </summary>
@@ -51,39 +104,21 @@ namespace SimCivil.Components
         /// <returns></returns>
         public IComponent Clone(Guid newId)
         {
-            UnitComponent component = (UnitComponent) MemberwiseClone();
-            component.EntityId = newId;
+            IComponent comp = (IComponent) MemberwiseClone();
+            comp.EntityId = newId;
 
-            return component;
+            return comp;
         }
 
         /// <summary>
-        /// Gets or sets the name.
+        /// Deconstructs the specified x and y.
         /// </summary>
-        /// <value>
-        /// The name.
-        /// </value>
-        public string Name { get; set; }
-        /// <summary>
-        /// Gets or sets the gender.
-        /// </summary>
-        /// <value>
-        /// The gender.
-        /// </value>
-        public Gender Gender { get; set; }
-        /// <summary>
-        /// Gets or sets the race.
-        /// </summary>
-        /// <value>
-        /// The race.
-        /// </value>
-        public Race Race { get; set; }
-
-        /// <summary>Creates a new object that is a copy of the current instance.</summary>
-        /// <returns>A new object that is a copy of this instance.</returns>
-        public object Clone()
+        /// <param name="x">The x.</param>
+        /// <param name="y">The y.</param>
+        public void Deconstruct(out float x, out float y)
         {
-            return Clone(EntityId);
+            x = X;
+            y = Y;
         }
     }
 }

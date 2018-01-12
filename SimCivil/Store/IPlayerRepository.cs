@@ -18,36 +18,41 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// SimCivil - SimCivil - IAuthManager.cs
-// Create Date: 2018/01/03
-// Update Date: 2018/01/03
+// SimCivil - SimCivil - IPlayerRepository.cs
+// Create Date: 2018/01/09
+// Update Date: 2018/01/09
 
-using System;
-using System.Collections.Generic;
-using System.Text;
+using System.Threading.Tasks;
 
-namespace SimCivil.Auth
+using SimCivil.Auth;
+
+namespace SimCivil.Store
 {
     /// <summary>
-    /// Authentic Manager
+    /// Player Repository
     /// </summary>
-    public interface IAuthManager
+    public interface IPlayerRepository
     {
         /// <summary>
-        /// Gets the online players.
+        /// Adds the player.
         /// </summary>
-        /// <value>
-        /// The online player.
-        /// </value>
-        IList<Player> OnlinePlayers { get; }
-
+        /// <param name="player">The player.</param>
+        Task AddPlayerAsync(Player player);
         /// <summary>
-        /// Occurs when [logged in].
+        /// Updates the player.
         /// </summary>
-        event EventHandler<Player> LoggedIn;
+        /// <param name="player">The player.</param>
+        Task UpdatePlayerAsync(Player player);
         /// <summary>
-        /// Occurs when [logged out].
+        /// Determines whether the specified player name is exsist.
         /// </summary>
-        event EventHandler<Player> LoggedOut;
+        /// <param name="name">The name.</param>
+        bool IsExsist(string name);
+        /// <summary>
+        /// Gets the player.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <returns></returns>
+        Player GetPlayer(string name);
     }
 }

@@ -6,9 +6,12 @@ using Microsoft.Extensions.Configuration;
 using Autofac.Configuration;
 using log4net.Core;
 
+using MongoDB.Driver;
+
 using SimCivil.Auth;
 using SimCivil.Contract;
 using SimCivil.Rpc;
+using SimCivil.Store;
 
 [assembly: log4net.Config.XmlConfigurator(ConfigFile = "log.config", Watch = false)]
 
@@ -68,6 +71,8 @@ namespace SimCivil
             builder.RegisterModule(module);
             builder.UseRpcSession();
             builder.RegisterRpcProvider<RoleManager, IRoleManger>().InstancePerChannel();
+            builder.RegisterType<MongoDbPlayerRepo>().AsImplementedInterfaces();
+            builder.RegisterInstance(new MongoClient().GetDatabase(nameof(SimCivil)));
 
             return builder.Build();
         }

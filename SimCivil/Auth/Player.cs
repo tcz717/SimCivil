@@ -20,15 +20,14 @@
 // 
 // SimCivil - SimCivil - Player.cs
 // Create Date: 2017/08/27
-// Update Date: 2018/01/02
+// Update Date: 2018/01/10
 
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-using Newtonsoft.Json;
-
-using SimCivil.Model;
+using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson.Serialization.IdGenerators;
 
 namespace SimCivil.Auth
 {
@@ -37,6 +36,14 @@ namespace SimCivil.Auth
     /// </summary>
     public class Player
     {
+        /// <summary>
+        /// Gets or sets the identifier.
+        /// </summary>
+        /// <value>
+        /// The identifier.
+        /// </value>
+        [BsonId(IdGenerator = typeof(GuidGenerator))]
+        public Guid Id { get; set; }
         /// <summary>
         /// Gets or sets the username.
         /// </summary>
@@ -52,14 +59,6 @@ namespace SimCivil.Auth
         /// The token.
         /// </value>
         public object Token { get; set; }
-
-        /// <summary>
-        /// Gets or sets the name of the player.
-        /// </summary>
-        /// <value>
-        /// The name of the player.
-        /// </value>
-        public string PlayerName { get; set; }
 
         /// <summary>
         /// Gets or sets the roles.

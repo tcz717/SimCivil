@@ -34,6 +34,7 @@ using log4net;
 using SimCivil.Contract;
 using SimCivil.Rpc;
 using SimCivil.Rpc.Session;
+using SimCivil.Store;
 
 namespace SimCivil.Auth
 {
@@ -42,12 +43,22 @@ namespace SimCivil.Auth
     /// </summary>
     public class SimpleAuth : IAuth, IAuthManager, ISessionRequred
     {
+        /// <summary>
+        /// Gets the player repository.
+        /// </summary>
+        /// <value>
+        /// The player repository.
+        /// </value>
+        public IPlayerRepository PlayerRepository { get; }
         private static readonly ILog Logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
         /// <summary>
         /// Constructor can be injected.
         /// </summary>
-        public SimpleAuth() { }
+        public SimpleAuth(IPlayerRepository playerRepository)
+        {
+            PlayerRepository = playerRepository;
+        }
 
 
         /// <summary>
@@ -59,11 +70,22 @@ namespace SimCivil.Auth
         public virtual bool LogIn(string username, string password)
         {
             // if already online, deny.
-            if (OnlinePlayer.Any(p => p.Username == username))
+            if (OnlinePlayers.Any(p => p.Username == username))
                 return false;
 
-            Player player = new Player(username, password);
-            OnlinePlayer.Add(player);
+            if (!PlayerRepository.IsExsist(username))
+            {
+                return false;
+            }
+
+            Player player = PlayerRepository.GetPlayer(username);
+
+            if (player.Token.ToString() != password)
+            {
+                return false;
+            }
+
+            OnlinePlayers.Add(player);
             Session.Value.Set(player).Exiting += Session_Exiting;
             LoggedIn?.Invoke(this, player);
             Logger.Info($"[{username}] login succeed");
@@ -81,6 +103,10 @@ namespace SimCivil.Auth
             LogOut(player);
         }
 
+        /// <summary>
+        /// Gets the token.
+        /// </summary>
+        /// <returns></returns>
         public virtual string GetToken()
         {
             return Session.Value.Get<Player>().Username;
@@ -92,7 +118,7 @@ namespace SimCivil.Auth
         /// <value>
         /// The online player.
         /// </value>
-        public IList<Player> OnlinePlayer { get; } = new List<Player>();
+        public IList<Player> OnlinePlayers { get; } = new List<Player>();
 
         /// <summary>
         /// Happen when user are valid.
@@ -103,6 +129,12 @@ namespace SimCivil.Auth
         /// Happen when user exits.
         /// </summary>
         public event EventHandler<Player> LoggedOut;
+        /// <summary>
+        /// Gets the session.
+        /// </summary>
+        /// <value>
+        /// The session.
+        /// </value>
         public ThreadLocal<IRpcSession> Session { get; } = new ThreadLocal<IRpcSession>();
 
         /// <summary>
@@ -111,8 +143,9 @@ namespace SimCivil.Auth
         /// <param name="player">The player.</param>
         protected virtual void LogOut(Player player)
         {
-            if (!OnlinePlayer.Remove(player)) return;
+            if (!OnlinePlayers.Remove(player)) return;
 
+            PlayerRepository.UpdatePlayerAsync(player);
             LoggedOut?.Invoke(this, player);
             Logger.Info($"[{player.Username}] logout succeed");
         }

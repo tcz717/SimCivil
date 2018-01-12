@@ -55,6 +55,7 @@ namespace SimCivil.SimpleClient
             ClientStateMachine.Configure(ClientState.WaitCommand)
                 .SubstateOf(ClientState.Connected)
                 .PermitReentry(ClientTriger.Retry)
+                .Permit(ClientTriger.LostConnection,ClientState.GetIpAndPort)
                 .OnEntry(WaitInput);
         }
 
@@ -62,6 +63,12 @@ namespace SimCivil.SimpleClient
         {
             Console.Out.Write(">");
             string input = Console.ReadLine();
+
+            if (!(RpcClient?.Channel.Active ?? false))
+            {
+                Console.Out.WriteLine("Lost connection...");
+                ClientStateMachine.Fire(ClientTriger.LostConnection);
+            }
 
             if (input == null)
             {
@@ -183,7 +190,8 @@ namespace SimCivil.SimpleClient
             Connect,
             FetaError,
             LogIn,
-            LogInSuccess
+            LogInSuccess,
+            LostConnection
         }
 
         internal enum ClientState

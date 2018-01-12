@@ -23,5 +23,14 @@ namespace SimCivil.Store
         /// </summary>
         /// <param name="entity">The entity.</param>
         void SaveEntity(Entity entity);
+
+        /// <summary>
+        /// Determines whether [contains] [the specified identifier].
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <returns>
+        ///   <c>true</c> if [contains] [the specified identifier]; otherwise, <c>false</c>.
+        /// </returns>
+        bool Contains(Guid id);
     }
 }
