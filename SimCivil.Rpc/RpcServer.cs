@@ -31,6 +31,7 @@ using System.Threading.Tasks;
 using Autofac;
 
 using DotNetty.Codecs;
+using DotNetty.Common.Concurrency;
 using DotNetty.Transport.Bootstrapping;
 using DotNetty.Transport.Channels;
 using DotNetty.Transport.Channels.Sockets;
@@ -98,15 +99,16 @@ namespace SimCivil.Rpc
             return this;
         }
 
+        private readonly IEventLoopGroup _workerGroup = new MultithreadEventLoopGroup();
+
         public async Task Run()
         {
             IEventLoopGroup bossGroup = new MultithreadEventLoopGroup();
-            IEventLoopGroup workerGroup = new MultithreadEventLoopGroup();
             try
             {
                 ServerBootstrap bootstrap = new ServerBootstrap();
                 bootstrap
-                    .Group(bossGroup, workerGroup)
+                    .Group(bossGroup, _workerGroup)
                     .Channel<TcpServerSocketChannel>()
                     .Option(ChannelOption.SoBacklog, 100)
                     .ChildOption(ChannelOption.TcpNodelay, true)
@@ -120,7 +122,7 @@ namespace SimCivil.Rpc
             }
             catch
             {
-                Task.WaitAll(bossGroup.ShutdownGracefullyAsync(), workerGroup.ShutdownGracefullyAsync());
+                Task.WaitAll(bossGroup.ShutdownGracefullyAsync(), _workerGroup.ShutdownGracefullyAsync());
 
                 throw;
             }
@@ -129,6 +131,7 @@ namespace SimCivil.Rpc
         protected virtual void ChildChannelInit(IChannel channel)
         {
             channel.Pipeline.AddLast(new LengthFieldPrepender(2))
+                .AddLast(new Log4NetHandler())
                 .AddLast(new LengthFieldBasedFrameDecoder(ushort.MaxValue, 0, 2, 0, 2))
                 .AddLast(new JsonToMessageDecoder<RpcRequest>())
                 .AddLast(new MessageToJsonEncoder<RpcResponse>())
@@ -137,7 +140,8 @@ namespace SimCivil.Rpc
 
         public void Stop()
         {
-            ServerChannel?.CloseAsync();
+            _workerGroup.ShutdownGracefullyAsync().Wait();
+            ServerChannel?.CloseAsync().Wait();
         }
 
         public virtual void OnRemoteCalling(RpcRequest e)
