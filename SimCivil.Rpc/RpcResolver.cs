@@ -33,6 +33,7 @@ using Autofac;
 
 using DotNetty.Transport.Channels;
 
+using SimCivil.Rpc.Callback;
 using SimCivil.Rpc.Filter;
 using SimCivil.Rpc.Session;
 
@@ -41,21 +42,22 @@ namespace SimCivil.Rpc
     public class RpcResolver : SimpleChannelInboundHandler<RpcRequest>
     {
         private ILifetimeScope _scope;
-        public RpcServer RpcServer { get; }
+        public RpcServer Server { get; }
+        private CallbackProxyBuilder _proxyBuilder = new CallbackProxyBuilder();
 
         public RpcResolver(RpcServer rpcServer)
         {
-            RpcServer = rpcServer;
+            Server = rpcServer;
         }
 
         public override void ChannelActive(IChannelHandlerContext context)
         {
-            _scope = RpcServer.Container.BeginLifetimeScope(UtilHelper.RpcServiceMarker);
-            if (RpcServer.SupportSession)
+            _scope = Server.Container.BeginLifetimeScope(UtilHelper.RpcServiceMarker);
+            if (Server.SupportSession)
             {
                 var session = _scope.Resolve<IRpcSession>();
                 session.RemoteEndPoint = context.Channel.RemoteAddress as IPEndPoint;
-                RpcServer.Sessions.OnEntering(session);
+                Server.Sessions.OnEntering(session);
                 session.OnEntering(context.Channel.RemoteAddress);
             }
 
@@ -64,10 +66,10 @@ namespace SimCivil.Rpc
 
         public override void ChannelInactive(IChannelHandlerContext context)
         {
-            if (RpcServer.SupportSession)
+            if (Server.SupportSession)
             {
                 var session = _scope.Resolve<IRpcSession>();
-                RpcServer.Sessions.OnExiting(session);
+                Server.Sessions.OnExiting(session);
                 session.OnExiting();
             }
 
@@ -77,17 +79,17 @@ namespace SimCivil.Rpc
 
         protected override void ChannelRead0(IChannelHandlerContext ctx, RpcRequest msg)
         {
-            if (!RpcServer.Services.ContainsKey(msg.ServiceName))
+            if (!Server.Services.ContainsKey(msg.ServiceName))
             {
                 throw new ArgumentException(nameof(msg.ServiceName));
             }
 
-            RpcServer.OnRemoteCalling(msg);
+            Server.OnRemoteCalling(msg);
 
             try
             {
                 var session = _scope.Resolve<IRpcSession>();
-                var type = RpcServer.Services[msg.ServiceName];
+                var type = Server.Services[msg.ServiceName];
                 var service = _scope.Resolve(type);
                 var method = service.GetType().GetMethod(msg.MethodName);
 
@@ -111,6 +113,10 @@ namespace SimCivil.Rpc
                 for (var i = 0; i < args.Length; i++)
                 {
                     Type parameterType = parameters[i].ParameterType;
+                    if (typeof(Delegate).IsAssignableFrom(parameterType))
+                    {
+                        args[i] = _proxyBuilder.Build(parameterType, Convert.ToInt32(args[i]), ctx.Channel);
+                    }
                     if (!parameterType.IsInstanceOfType(args[i]))
                     {
                         args[i] = Convert.ChangeType(args[i], parameterType);
@@ -170,7 +176,7 @@ namespace SimCivil.Rpc
             catch (Exception e)
             {
                 ctx.Channel.WriteAndFlushAsync(
-                    RpcServer.Debug ? new RpcResponse(msg, null, e) : new RpcResponse(msg, null, "Internal error"));
+                    Server.Debug ? new RpcResponse(msg, null, e) : new RpcResponse(msg, null, "Internal error"));
 
                 throw;
             }

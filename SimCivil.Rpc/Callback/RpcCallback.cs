@@ -18,21 +18,29 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// SimCivil - SimCivil.Test - ITestServiceA.cs
-// Create Date: 2018/01/07
-// Update Date: 2018/01/07
+// SimCivil - SimCivil.Rpc - RpcCallback.cs
+// Create Date: 2018/01/30
+// Update Date: 2018/01/30
 
 using System;
 using System.Text;
 
-namespace SimCivil.Test
+namespace SimCivil.Rpc.Callback
 {
-    public interface ITestServiceA
+    public class RpcCallback
     {
-        string GetName();
-        string HelloWorld(string name);
-        int NotImplementedFuc(int i);
-        string GetSession(string key);
-        void Echo(string str, Action<string> callback);
+        public int CallbackId { get; set; }
+        public object[] Parameters { get; set; }
+
+        public DateTime TimeStamp { get; set; }
+
+        public RpcCallback() { }
+
+        public RpcCallback(int callbackId, object[] parameters)
+        {
+            CallbackId = callbackId;
+            Parameters = parameters;
+            TimeStamp = DateTime.Now;
+        }
     }
 }

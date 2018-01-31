@@ -31,11 +31,11 @@ using System.Threading.Tasks;
 using Autofac;
 
 using DotNetty.Codecs;
-using DotNetty.Common.Concurrency;
 using DotNetty.Transport.Bootstrapping;
 using DotNetty.Transport.Channels;
 using DotNetty.Transport.Channels.Sockets;
 
+using SimCivil.Rpc.Callback;
 using SimCivil.Rpc.Session;
 
 namespace SimCivil.Rpc
@@ -133,8 +133,9 @@ namespace SimCivil.Rpc
             channel.Pipeline.AddLast(new LengthFieldPrepender(2))
                 .AddLast(new Log4NetHandler())
                 .AddLast(new LengthFieldBasedFrameDecoder(ushort.MaxValue, 0, 2, 0, 2))
-                .AddLast(new JsonToMessageDecoder<RpcRequest>())
+                .AddLast(new JsonToMessageDecoder())
                 .AddLast(new MessageToJsonEncoder<RpcResponse>())
+                .AddLast(new MessageToJsonEncoder<RpcCallback>())
                 .AddLast(new RpcResolver(this));
         }
 

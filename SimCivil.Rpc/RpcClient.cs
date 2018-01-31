@@ -20,13 +20,14 @@
 // 
 // SimCivil - SimCivil.Rpc - RpcClient.cs
 // Create Date: 2018/01/02
-// Update Date: 2018/01/02
+// Update Date: 2018/01/30
 
 using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 using Castle.DynamicProxy;
@@ -36,18 +37,22 @@ using DotNetty.Transport.Bootstrapping;
 using DotNetty.Transport.Channels;
 using DotNetty.Transport.Channels.Sockets;
 
+using SimCivil.Rpc.Callback;
+
 namespace SimCivil.Rpc
 {
     public class RpcClient : IDisposable
     {
-        public event EventHandler<EventArgs<string>> DecodeFail;
-        private readonly IChannelHandler _decoder = new JsonToMessageDecoder<RpcResponse>();
+        private readonly IChannelHandler _resolver;
+        private readonly IChannelHandler _callbackResolver;
+        private readonly IChannelHandler _decoder = new JsonToMessageDecoder();
         private readonly IChannelHandler _encoder = new MessageToJsonEncoder<RpcRequest>();
 
         private readonly ProxyGenerator _generator = new ProxyGenerator();
-        private readonly IChannelHandler _resolver;
+        private int _nextCallbackId;
 
         private long _nextSeq;
+
         public IPEndPoint EndPoint { get; private set; }
         public IChannel Channel { get; private set; }
         public Dictionary<Type, object> ProxyCache { get; } = new Dictionary<Type, object>();
@@ -55,10 +60,13 @@ namespace SimCivil.Rpc
         public int ResponseTimeout { get; set; } = 3000;
         public IInterceptor Interceptor { get; }
 
+        public Dictionary<int, Delegate> CallBackList { get; } = new Dictionary<int, Delegate>();
+
         public RpcClient()
         {
             Interceptor = new RpcInterceptor(this);
             _resolver = new RpcClientResolver(this);
+            _callbackResolver = new RpcCallbackResolver(this);
         }
 
         public RpcClient(IPEndPoint endPoint) : this()
@@ -72,6 +80,8 @@ namespace SimCivil.Rpc
             if (Channel?.Open ?? false)
                 Channel.CloseAsync().Wait();
         }
+
+        public event EventHandler<EventArgs<string>> DecodeFail;
 
         public RpcClient Bind(int port)
         {
@@ -122,7 +132,8 @@ namespace SimCivil.Rpc
                 .AddLast(new LengthFieldBasedFrameDecoder(ushort.MaxValue, 0, 2, 0, 2))
                 .AddLast(_decoder)
                 .AddLast(_encoder)
-                .AddLast(_resolver);
+                .AddLast(_resolver)
+                .AddLast(_callbackResolver);
         }
 
         public void Disconnect()
@@ -159,6 +170,14 @@ namespace SimCivil.Rpc
         protected virtual void OnDecodeFail(EventArgs<string> e)
         {
             DecodeFail?.Invoke(this, e);
+        }
+
+        public int AttachCallback(Delegate @delegate)
+        {
+            int id = Interlocked.Increment(ref _nextCallbackId);
+            CallBackList[id] = @delegate;
+
+            return id;
         }
     }
 }
