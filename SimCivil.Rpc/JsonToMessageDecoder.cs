@@ -19,8 +19,8 @@
 // SOFTWARE.
 // 
 // SimCivil - SimCivil.Rpc - JsonToMessageDecoder.cs
-// Create Date: 2017/12/31
-// Update Date: 2018/01/01
+// Create Date: 2018/01/02
+// Update Date: 2018/01/30
 
 using System;
 using System.Collections.Generic;
@@ -45,6 +45,20 @@ namespace SimCivil.Rpc
             string jsonStr = message.ToString(Encoding.UTF8);
             TestHook?.Invoke(jsonStr);
             output.Add(JsonConvert.DeserializeObject<T>(jsonStr, UtilHelper.RpcJsonSerializerSettings));
+        }
+    }
+
+    public class JsonToMessageDecoder : MessageToMessageDecoder<IByteBuffer>
+    {
+        // TODO: Remove in future
+        // ReSharper disable once StaticMemberInGenericType
+        public static Action<string> TestHook { get; set; }
+
+        protected override void Decode(IChannelHandlerContext context, IByteBuffer message, List<object> output)
+        {
+            string jsonStr = message.ToString(Encoding.UTF8);
+            TestHook?.Invoke(jsonStr);
+            output.Add(JsonConvert.DeserializeObject(jsonStr, UtilHelper.RpcJsonSerializerSettings));
         }
     }
 }

@@ -18,21 +18,40 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// SimCivil - SimCivil.Test - ITestServiceA.cs
-// Create Date: 2018/01/07
-// Update Date: 2018/01/07
+// SimCivil - SimCivil.Rpc - Log4NetHandler.cs
+// Create Date: 2018/01/09
+// Update Date: 2018/01/09
 
 using System;
+using System.Reflection;
 using System.Text;
 
-namespace SimCivil.Test
+using DotNetty.Transport.Channels;
+
+using log4net;
+
+namespace SimCivil.Rpc
 {
-    public interface ITestServiceA
+    public class Log4NetHandler : ChannelHandlerAdapter
     {
-        string GetName();
-        string HelloWorld(string name);
-        int NotImplementedFuc(int i);
-        string GetSession(string key);
-        void Echo(string str, Action<string> callback);
+        internal static readonly ILog Logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+
+        public override void ChannelActive(IChannelHandlerContext context)
+        {
+            Logger.Info($"Channel [{context.Channel.RemoteAddress}] connected");
+            base.ChannelActive(context);
+        }
+
+        public override void ChannelInactive(IChannelHandlerContext context)
+        {
+            Logger.Info($"Channel [{context.Channel.RemoteAddress}] disconnected");
+            base.ChannelInactive(context);
+        }
+
+        public override void ExceptionCaught(IChannelHandlerContext context, Exception exception)
+        {
+            Logger.Error(exception);
+            base.ExceptionCaught(context, exception);
+        }
     }
 }

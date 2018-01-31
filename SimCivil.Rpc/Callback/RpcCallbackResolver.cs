@@ -18,21 +18,35 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// SimCivil - SimCivil.Test - ITestServiceA.cs
-// Create Date: 2018/01/07
-// Update Date: 2018/01/07
+// SimCivil - SimCivil.Rpc - RpcCallbackResolver.cs
+// Create Date: 2018/01/30
+// Update Date: 2018/01/30
 
 using System;
 using System.Text;
 
-namespace SimCivil.Test
+using DotNetty.Transport.Channels;
+
+namespace SimCivil.Rpc.Callback
 {
-    public interface ITestServiceA
+    public class RpcCallbackResolver : SimpleChannelInboundHandler<RpcCallback>
     {
-        string GetName();
-        string HelloWorld(string name);
-        int NotImplementedFuc(int i);
-        string GetSession(string key);
-        void Echo(string str, Action<string> callback);
+        public RpcClient RpcClient { get; }
+
+        public RpcCallbackResolver(RpcClient rpcClient)
+        {
+            RpcClient = rpcClient;
+        }
+
+        protected override void ChannelRead0(IChannelHandlerContext ctx, RpcCallback msg)
+        {
+            if (!RpcClient.CallBackList.TryGetValue(msg.CallbackId, out Delegate d))
+            {
+                // TODO: Notify callback not exsist
+                throw new NotImplementedException();
+            }
+
+            d.DynamicInvoke(msg.Parameters);
+        }
     }
 }

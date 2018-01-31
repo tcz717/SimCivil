@@ -38,5 +38,17 @@ namespace SimCivil.Store
         {
             Entities[entity.Id] = entity;
         }
+
+        /// <summary>
+        /// Determines whether [contains] [the specified identifier].
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <returns>
+        ///   <c>true</c> if [contains] [the specified identifier]; otherwise, <c>false</c>.
+        /// </returns>
+        public bool Contains(Guid id)
+        {
+            return Entities.ContainsKey(id);
+        }
     }
 }

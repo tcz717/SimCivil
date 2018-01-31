@@ -49,12 +49,15 @@ namespace SimCivil.Auth
     internal class RoleManager : IRoleManger, ICallWarper
     {
         private static readonly ILog Logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+
         protected static IMapper Mapper =
-            new Mapper(new MapperConfiguration(cfg =>
-            {
-                cfg.CreateMap<UnitComponent, RoleSummary>();
-                cfg.CreateMap<CreateRoleOption, UnitComponent>();
-            }));
+            new Mapper(
+                new MapperConfiguration(
+                    cfg =>
+                    {
+                        cfg.CreateMap<UnitComponent, RoleSummary>();
+                        cfg.CreateMap<CreateRoleOption, UnitComponent>();
+                    }));
 
         public IRpcSession Session { get; }
         public IEntityRepository EntityRepository { get; }
@@ -81,7 +84,7 @@ namespace SimCivil.Auth
         {
             if (Roles != null)
             {
-                Session.Get<Player>().Roles = Roles.Select(r=>r.Id).ToList();
+                Session.Get<Player>().Roles = Roles.Select(r => r.Id).ToList();
             }
         }
 
@@ -110,6 +113,7 @@ namespace SimCivil.Auth
             }
 
             Mapper.Map(option, role.Get<UnitComponent>());
+            role.Get<PositionComponent>().Pos = Config.Cfg.SpawnPoint;
             EntityRepository.SaveEntity(role);
             Roles.Add(role);
 
@@ -120,19 +124,29 @@ namespace SimCivil.Auth
 
         public Task<RoleSummary[]> GetRoleList()
         {
-            var roleSummaries = Roles.Select(r =>
-            {
-                var summary = Mapper.Map<RoleSummary>(r.Get<UnitComponent>());
-                summary.Id = r.Id;
-                return summary;
-            });
+            var roleSummaries = Roles.Select(
+                r =>
+                {
+                    var summary = Mapper.Map<RoleSummary>(r.Get<UnitComponent>());
+                    summary.Id = r.Id;
+
+                    return summary;
+                });
 
             return Task.FromResult(roleSummaries.ToArray());
         }
 
         public Task<bool> UseRole(Guid eid)
         {
-            throw new NotImplementedException();
+            if (!EntityRepository.Contains(eid))
+                return Task.FromResult(false);
+
+            Entity role = EntityRepository.LoadEntity(eid);
+            OnRoleChanging(new RoleChangeArgs {Player = Session.Get<Player>(), NewEntity = role});
+            Session.Set(role);
+            OnRoleChanging(new RoleChangeArgs {Player = Session.Get<Player>(), NewEntity = role});
+
+            return Task.FromResult(true);
         }
 
         public Task<bool> ReleaseRole()
@@ -149,5 +163,15 @@ namespace SimCivil.Auth
         /// Happen when user's role changed.
         /// </summary>
         public event EventHandler<RoleChangeArgs> RoleChanged;
+
+        protected virtual void OnRoleChanging(RoleChangeArgs e)
+        {
+            RoleChanging?.Invoke(this, e);
+        }
+
+        protected virtual void OnRoleChanged(RoleChangeArgs e)
+        {
+            RoleChanged?.Invoke(this, e);
+        }
     }
 }

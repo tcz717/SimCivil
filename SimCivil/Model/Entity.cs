@@ -20,7 +20,7 @@
 // 
 // SimCivil - SimCivil - Entity.cs
 // Create Date: 2017/08/25
-// Update Date: 2018/01/08
+// Update Date: 2018/01/10
 
 using System;
 using System.Collections.Generic;
@@ -31,7 +31,6 @@ using System.Text;
 using Newtonsoft.Json;
 
 using SimCivil.Components;
-using SimCivil.Store.Json;
 
 namespace SimCivil.Model
 {
@@ -77,13 +76,13 @@ namespace SimCivil.Model
         }
 
         /// <summary>
-        /// Gets a value indicating whether this <see cref="Entity"/> is dirty.
+        /// Gets a value indicating whether this <see cref="Entity"/> is dirty (has some change not sync).
         /// </summary>
         /// <value>
         ///   <c>true</c> if dirty; otherwise, <c>false</c>.
         /// </value>
         [JsonIgnore]
-        public bool Dirty { get; private set; } = false;
+        public bool Dirty { get; private set; }
 
         /// <summary>
         /// Gets or sets the <see cref="System.Object"/> with the specified type.
@@ -165,7 +164,8 @@ namespace SimCivil.Model
             return new Entity(Guid.NewGuid())
             {
                 Meta = new Dictionary<string, object>(),
-                Components = new Dictionary<string, IComponent>()
+                Components = new Dictionary<string, IComponent>(),
+                Dirty = true
             };
         }
 
@@ -191,7 +191,8 @@ namespace SimCivil.Model
                 Meta = full ? new Dictionary<string, object>(Meta) : new Dictionary<string, object>(),
                 Components = new Dictionary<string, IComponent>(
                     Components.Select(
-                        n => new KeyValuePair<string, IComponent>(n.Key, n.Value.Clone(id))))
+                        n => new KeyValuePair<string, IComponent>(n.Key, n.Value.Clone(id)))),
+                Dirty = true
             };
         }
 

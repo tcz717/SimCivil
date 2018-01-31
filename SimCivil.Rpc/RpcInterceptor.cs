@@ -29,6 +29,9 @@ using System.Threading.Tasks;
 
 using Castle.DynamicProxy;
 
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+
 namespace SimCivil.Rpc
 {
     internal class RpcInterceptor : IInterceptor
@@ -46,6 +49,7 @@ namespace SimCivil.Rpc
 
         public void Intercept(IInvocation invocation)
         {
+            ReplaceCallback(invocation.Arguments);
             RpcRequest request = new RpcRequest(_rpcClient.GetNextSequence(), invocation.Method, invocation.Arguments);
             _rpcClient.ResponseWaitlist.Add(request.Sequence, request);
             _rpcClient.Channel.WriteAndFlushAsync(request);
@@ -94,18 +98,50 @@ namespace SimCivil.Rpc
             }
         }
 
+        private void ReplaceCallback(object[] arguments)
+        {
+            for (int i = 0; i < arguments.Length; i++)
+            {
+                if (!(arguments[i] is Delegate))
+                {
+                    continue;
+                }
+
+                Delegate d = (Delegate) arguments[i];
+
+                if (d.Method.ReturnType != typeof(void))
+                    throw new NotSupportedException();
+                
+                arguments[i] = _rpcClient.AttachCallback(d);
+            }
+        }
+
         private async Task<T> AysncReturnHandle<T>(IInvocation invocation, Task<RpcResponse> resp, RpcRequest request)
         {
             try
             {
                 RpcResponse asyncResponse = await resp;
                 CheckTaskReturn(invocation, asyncResponse);
-
                 return (T) asyncResponse.ReturnValue;
             }
             finally
             {
                 _rpcClient.ResponseWaitlist.Remove(request.Sequence);
+            }
+        }
+
+        /// <summary>
+        /// Fixes ugly if return value is JObject.
+        /// </summary>
+        /// <param name="returnType">Type of the return.</param>
+        /// <param name="rpcResponse">The RPC response.</param>
+        private static void FixJObject(Type returnType, RpcResponse rpcResponse)
+        {
+            if (rpcResponse.ReturnValue is JObject obj)
+            {
+                rpcResponse.ReturnValue = obj.ToObject(
+                    returnType,
+                    JsonSerializer.Create(UtilHelper.RpcJsonSerializerSettings));
             }
         }
 
@@ -115,6 +151,8 @@ namespace SimCivil.Rpc
                 throw new RemotingException(response.ErrorInfo, invocation.Method, invocation.Arguments);
 
             Type returnType = invocation.Method.ReturnType;
+
+            FixJObject(returnType, response);
 
             if (returnType.IsInstanceOfType(response.ReturnValue)) return;
             if (returnType == typeof(void) && response.ReturnValue is null)
@@ -132,6 +170,7 @@ namespace SimCivil.Rpc
                 return;
 
             Type returnType = invocation.Method.ReturnType.GenericTypeArguments[0];
+            FixJObject(returnType, response);
             if (!returnType.IsInstanceOfType(response.ReturnValue))
             {
                 throw new InvalidCastException($"Return type is {response.ReturnValue?.GetType()}");

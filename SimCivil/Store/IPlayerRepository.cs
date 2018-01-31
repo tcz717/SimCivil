@@ -18,21 +18,41 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// SimCivil - SimCivil.Test - ITestServiceA.cs
-// Create Date: 2018/01/07
-// Update Date: 2018/01/07
+// SimCivil - SimCivil - IPlayerRepository.cs
+// Create Date: 2018/01/09
+// Update Date: 2018/01/09
 
-using System;
-using System.Text;
+using System.Threading.Tasks;
 
-namespace SimCivil.Test
+using SimCivil.Auth;
+
+namespace SimCivil.Store
 {
-    public interface ITestServiceA
+    /// <summary>
+    /// Player Repository
+    /// </summary>
+    public interface IPlayerRepository
     {
-        string GetName();
-        string HelloWorld(string name);
-        int NotImplementedFuc(int i);
-        string GetSession(string key);
-        void Echo(string str, Action<string> callback);
+        /// <summary>
+        /// Adds the player.
+        /// </summary>
+        /// <param name="player">The player.</param>
+        Task AddPlayerAsync(Player player);
+        /// <summary>
+        /// Updates the player.
+        /// </summary>
+        /// <param name="player">The player.</param>
+        Task UpdatePlayerAsync(Player player);
+        /// <summary>
+        /// Determines whether the specified player name is exsist.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        bool IsExsist(string name);
+        /// <summary>
+        /// Gets the player.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <returns></returns>
+        Player GetPlayer(string name);
     }
 }

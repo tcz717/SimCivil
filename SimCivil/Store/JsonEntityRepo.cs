@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -53,7 +54,7 @@ namespace SimCivil.Store
     /// </seealso>
     public class JsonEntityRepo : MemoryEntityRepo, IPrefabRepository, IPersistable
     {
-        private static readonly ILog Logger = LogManager.GetLogger(typeof(JsonMapRepo));
+        private static readonly ILog Logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
         /// <summary>
         /// Gets or sets the root path.
@@ -103,7 +104,7 @@ namespace SimCivil.Store
             Logger.Info($"Loaded {entities.Count} entities in {fullPath}.");
 
             Entities = entities.ToDictionary(e => e.Id);
-            Prefabs = entities.Where(e => e.Meta.ContainsKey(PrefabNameKey))
+            Prefabs = entities.Where(e => e.Meta?.ContainsKey(PrefabNameKey) ?? false)
                 .ToDictionary(e => e.Meta[PrefabNameKey].ToString());
             Logger.Info($"Found {Prefabs.Count} prefabs.");
         }

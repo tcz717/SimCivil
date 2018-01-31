@@ -45,6 +45,7 @@ namespace SimCivil.Test
             Output = output;
             JsonToMessageDecoder<RpcResponse>.TestHook = s => Output.WriteLine($"Get {nameof(RpcResponse)}: {s}");
             JsonToMessageDecoder<RpcRequest>.TestHook = s => Output.WriteLine($"Get {nameof(RpcRequest)}: {s}");
+            JsonToMessageDecoder.TestHook = s => Output.WriteLine($"Get: {s}");
 
             var builder = new ContainerBuilder();
             builder.UseRpcSession();
@@ -252,6 +253,19 @@ namespace SimCivil.Test
                 var service = client.Import<ITestServiceB>();
 
                 Assert.Throws<RemotingException>(() => service.DeniedAction());
+            }
+        }
+
+        [Fact]
+        public void CallbackProxyTest()
+        {
+            using (RpcClient client = new RpcClient())
+            {
+                client.Bind(9999).ConnectAsync().Wait();
+
+                var service = client.Import<ITestServiceA>();
+
+                service.Echo("123", s => Assert.Equal(s, "123"));
             }
         }
     }

@@ -18,21 +18,31 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// SimCivil - SimCivil.Test - ITestServiceA.cs
-// Create Date: 2018/01/07
-// Update Date: 2018/01/07
+// SimCivil - SimCivil.Rpc - CallbackProxyBuilder.cs
+// Create Date: 2018/01/29
+// Update Date: 2018/01/29
 
 using System;
-using System.Text;
 
-namespace SimCivil.Test
+using DotNetty.Transport.Channels;
+
+namespace SimCivil.Rpc.Callback
 {
-    public interface ITestServiceA
+    internal class CallbackContext
     {
-        string GetName();
-        string HelloWorld(string name);
-        int NotImplementedFuc(int i);
-        string GetSession(string key);
-        void Echo(string str, Action<string> callback);
+        public int CallbackId { get; }
+        public IChannel Channel { get; }
+
+        public CallbackContext(int callbackId, IChannel channel)
+        {
+            CallbackId = callbackId;
+            Channel = channel;
+        }
+
+        public void Call(object[] parameters)
+        {
+            RpcCallback callback = new RpcCallback(CallbackId, parameters);
+            Channel.WriteAsync(callback);
+        }
     }
 }

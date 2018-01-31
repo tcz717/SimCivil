@@ -28,11 +28,26 @@ using System.Text;
 
 namespace SimCivil.Auth
 {
+    /// <summary>
+    /// Authentic Manager
+    /// </summary>
     public interface IAuthManager
     {
-        IList<Player> OnlinePlayer { get; }
+        /// <summary>
+        /// Gets the online players.
+        /// </summary>
+        /// <value>
+        /// The online player.
+        /// </value>
+        IList<Player> OnlinePlayers { get; }
 
+        /// <summary>
+        /// Occurs when [logged in].
+        /// </summary>
         event EventHandler<Player> LoggedIn;
+        /// <summary>
+        /// Occurs when [logged out].
+        /// </summary>
         event EventHandler<Player> LoggedOut;
     }
 }

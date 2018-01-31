@@ -35,5 +35,10 @@ namespace SimCivil.Test {
         {
             return Session[key].ToString();
         }
+
+        public void Echo(string str, Action<string> callback)
+        {
+            callback(str);
+        }
     }
 }

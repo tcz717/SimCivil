@@ -1,4 +1,9 @@
-﻿using Newtonsoft.Json;
+﻿using System;
+
+using Newtonsoft.Json;
+
+using SimCivil.Model;
+
 using static SimCivil.Config;
 
 namespace SimCivil.Map
@@ -24,7 +29,7 @@ namespace SimCivil.Map
         /// <item>Centor</item>
         /// </list>
         /// </summary>
-        public Slot[] Slots { get; set; }
+        public Guid[] Slots { get; set; }
 
         /// <summary>
         /// Four sides:
@@ -35,7 +40,7 @@ namespace SimCivil.Map
         /// <item>Right</item>
         /// </list>
         /// </summary>
-        public Side[] Sides { get; set; }
+        public Guid[] Sides { get; set; }
 
         /// <summary>
         /// Tile's surface texture.
@@ -67,8 +72,8 @@ namespace SimCivil.Map
                 Meta = new NullableDynamicObject(),
                 Position = pos,
                 Surface = surface,
-                Slots = new Slot[5],
-                Sides = new Side[4],
+                Slots = new Guid[5],
+                Sides = new Guid[4],
             };
             return e;
         }
