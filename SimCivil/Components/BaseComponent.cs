@@ -18,34 +18,63 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// SimCivil - SimCivil - IComponent.cs
-// Create Date: 2018/01/07
-// Update Date: 2018/02/01
+// SimCivil - SimCivil - BaseComponent.cs
+// Create Date: 2018/01/31
+// Update Date: 2018/01/31
 
 using System;
 using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using System.Text;
+
+using JetBrains.Annotations;
 
 namespace SimCivil.Components
 {
-    /// <summary>
-    /// Component Interface
-    /// </summary>
-    public interface IComponent : ICloneable, INotifyPropertyChanged
-    {
+    /// <inheritdoc />
+    public abstract class BaseComponent : IComponent {
+        /// <summary>Creates a new object that is a copy of the current instance.</summary>
+        /// <returns>A new object that is a copy of this instance.</returns>
+        public object Clone()
+        {
+            return MemberwiseClone();
+        }
+
         /// <summary>
         /// Gets or sets the entity identifier.
         /// </summary>
         /// <value>
         /// The entity identifier.
         /// </value>
-        Guid EntityId { get; set; }
+        public Guid EntityId { get; set; }
 
         /// <summary>
         /// Clones with specified new identifier.
         /// </summary>
         /// <param name="newId">The new identifier.</param>
         /// <returns></returns>
-        IComponent Clone(Guid newId);
+        public IComponent Clone(Guid newId)
+        {
+            IComponent comp = (IComponent)MemberwiseClone();
+            comp.EntityId = newId;
+
+            return comp;
+        }
+
+        /// <summary>
+        /// Occurs when a property value changes.
+        /// </summary>
+        /// <returns></returns>
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        /// <summary>
+        /// Called when [property changed].
+        /// </summary>
+        /// <param name="propertyName">Name of the property.</param>
+        [NotifyPropertyChangedInvocator]
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
     }
 }

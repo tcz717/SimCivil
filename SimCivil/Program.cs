@@ -10,8 +10,10 @@ using MongoDB.Driver;
 
 using SimCivil.Auth;
 using SimCivil.Contract;
+using SimCivil.Model;
 using SimCivil.Rpc;
 using SimCivil.Store;
+using SimCivil.Sync;
 
 [assembly: log4net.Config.XmlConfigurator(ConfigFile = "log.config", Watch = false)]
 
@@ -19,7 +21,7 @@ namespace SimCivil
 {
     internal class Program
     {
-        public static readonly ILog logger = LogManager.GetLogger(Assembly.GetExecutingAssembly(), "Global");
+        public static readonly ILog Logger = LogManager.GetLogger(Assembly.GetExecutingAssembly(), "Global");
 
         private static void Main(string[] args)
         {
@@ -44,7 +46,7 @@ namespace SimCivil
                 {
                     Random r = new Random();
                     info.Seed = r.Next(int.MinValue, int.MaxValue);
-                    logger.Info($"Using auto seed {info.Seed}");
+                    Logger.Info($"Using auto seed {info.Seed}");
                 }
                 SimCivil game = !string.IsNullOrWhiteSpace(info.Config)
                     ? new SimCivil(LoadConfiguration(info.Config))
@@ -71,6 +73,8 @@ namespace SimCivil
             builder.RegisterModule(module);
             builder.UseRpcSession();
             builder.RegisterRpcProvider<RoleManager, IRoleManger>().InstancePerChannel();
+            builder.RegisterRpcProvider<ChunkViewSynchronizer, IViewSynchronizer>().SingleInstance();
+            builder.RegisterRpcProvider<LocalEntityManager, IEntityManager>().SingleInstance();
             builder.RegisterType<MongoDbPlayerRepo>().AsImplementedInterfaces();
             builder.RegisterInstance(new MongoClient().GetDatabase(nameof(SimCivil)));
 
@@ -79,7 +83,7 @@ namespace SimCivil
 
         private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
-            logger.Fatal("UnhandledException!", e.ExceptionObject as Exception);
+            Logger.Fatal("UnhandledException!", e.ExceptionObject as Exception);
         }
     }
 }
