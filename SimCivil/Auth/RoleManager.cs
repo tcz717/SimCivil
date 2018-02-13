@@ -46,7 +46,7 @@ using SimCivil.Store;
 namespace SimCivil.Auth
 {
     [LoginFilter]
-    internal class RoleManager : IRoleManger, ICallWarper
+    internal class RoleManager : IRoleManager, ICallWarper
     {
         private static readonly ILog Logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 

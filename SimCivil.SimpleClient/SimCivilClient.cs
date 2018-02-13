@@ -46,7 +46,7 @@ namespace SimCivil.SimpleClient
                 .SubstateOf(ClientState.Disconnected)
                 .OnEntryFrom(ConnectTriger, Connect)
                 .Permit(ClientTriger.LogIn, ClientState.LoggingIn)
-                .Permit(ClientTriger.FetaError, ClientState.GetIpAndPort);
+                .Permit(ClientTriger.FetalError, ClientState.GetIpAndPort);
             ClientStateMachine.Configure(ClientState.LoggingIn)
                 .SubstateOf(ClientState.Connected)
                 .OnEntry(LogIn)
@@ -83,7 +83,7 @@ namespace SimCivil.SimpleClient
                 switch (args[0].ToLower())
                 {
                     case "cr":
-                        bool result = RoleManger.CreateRole(
+                        bool result = RoleManager.CreateRole(
                                 new CreateRoleOption
                                 {
                                     Name = args[1]
@@ -93,7 +93,7 @@ namespace SimCivil.SimpleClient
 
                         break;
                     case "lr":
-                        var summaries = RoleManger.GetRoleList().Result;
+                        var summaries = RoleManager.GetRoleList().Result;
                         for (var i = 0; i < summaries.Length; i++)
                         {
                             RoleSummary summary = summaries[i];
@@ -124,7 +124,7 @@ namespace SimCivil.SimpleClient
 
             if (AuthService.LogIn(username, password))
             {
-                RoleManger = RpcClient.Import<IRoleManger>();
+                RoleManager = RpcClient.Import<IRoleManager>();
                 ClientStateMachine.Fire(ClientTriger.LogInSuccess);
             }
             else
@@ -133,7 +133,7 @@ namespace SimCivil.SimpleClient
             }
         }
 
-        public IRoleManger RoleManger { get; set; }
+        public IRoleManager RoleManager { get; set; }
 
         protected void Connect(IPEndPoint endPoint)
         {
@@ -149,7 +149,7 @@ namespace SimCivil.SimpleClient
             {
                 Console.WriteLine(e);
 
-                ClientStateMachine.Fire(ClientTriger.FetaError);
+                ClientStateMachine.Fire(ClientTriger.FetalError);
             }
         }
 
@@ -188,7 +188,7 @@ namespace SimCivil.SimpleClient
             Start,
             Retry,
             Connect,
-            FetaError,
+            FetalError,
             LogIn,
             LogInSuccess,
             LostConnection

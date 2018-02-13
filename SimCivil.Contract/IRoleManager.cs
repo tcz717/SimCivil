@@ -28,7 +28,7 @@ using System.Threading.Tasks;
 
 namespace SimCivil.Contract
 {
-    public interface IRoleManger
+    public interface IRoleManager
     {
         /// <summary>
         /// Creates the role.

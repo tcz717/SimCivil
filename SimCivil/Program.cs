@@ -72,7 +72,7 @@ namespace SimCivil
 
             builder.RegisterModule(module);
             builder.UseRpcSession();
-            builder.RegisterRpcProvider<RoleManager, IRoleManger>().InstancePerChannel();
+            builder.RegisterRpcProvider<RoleManager, IRoleManager>().InstancePerChannel();
             builder.RegisterRpcProvider<ChunkViewSynchronizer, IViewSynchronizer>().SingleInstance();
             builder.RegisterRpcProvider<LocalEntityManager, IEntityManager>().SingleInstance();
             builder.RegisterType<MongoDbPlayerRepo>().AsImplementedInterfaces();
