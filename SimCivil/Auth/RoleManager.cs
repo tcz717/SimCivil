@@ -20,7 +20,7 @@
 // 
 // SimCivil - SimCivil - RoleManager.cs
 // Create Date: 2018/01/07
-// Update Date: 2018/01/08
+// Update Date: 2018/01/31
 
 using System;
 using System.Collections.Generic;
@@ -60,14 +60,20 @@ namespace SimCivil.Auth
                     }));
 
         public IRpcSession Session { get; }
+        public IEntityManager EntityManager { get; }
         public IEntityRepository EntityRepository { get; }
         public IPrefabRepository PrefabRepository { get; }
 
         public List<Entity> Roles { get; set; }
 
-        public RoleManager(IRpcSession session, IEntityRepository entityRepository, IPrefabRepository prefabRepository)
+        public RoleManager(
+            IRpcSession session,
+            IEntityManager entityManager,
+            IEntityRepository entityRepository,
+            IPrefabRepository prefabRepository)
         {
             Session = session;
+            EntityManager = entityManager;
             EntityRepository = entityRepository;
             PrefabRepository = prefabRepository;
         }
@@ -113,6 +119,7 @@ namespace SimCivil.Auth
             }
 
             Mapper.Map(option, role.Get<UnitComponent>());
+            role.Name = option.Name;
             role.Get<PositionComponent>().Pos = Config.Cfg.SpawnPoint;
             EntityRepository.SaveEntity(role);
             Roles.Add(role);
@@ -129,6 +136,7 @@ namespace SimCivil.Auth
                 {
                     var summary = Mapper.Map<RoleSummary>(r.Get<UnitComponent>());
                     summary.Id = r.Id;
+                    summary.Name = r.Name;
 
                     return summary;
                 });
@@ -144,14 +152,23 @@ namespace SimCivil.Auth
             Entity role = EntityRepository.LoadEntity(eid);
             OnRoleChanging(new RoleChangeArgs {Player = Session.Get<Player>(), NewEntity = role});
             Session.Set(role);
-            OnRoleChanging(new RoleChangeArgs {Player = Session.Get<Player>(), NewEntity = role});
+            EntityManager.AttachEntity(role);
+            OnRoleChanged(new RoleChangeArgs {Player = Session.Get<Player>(), NewEntity = role});
 
             return Task.FromResult(true);
         }
 
         public Task<bool> ReleaseRole()
         {
-            throw new NotImplementedException();
+            Entity role = Session.Get<Entity>();
+            OnRoleChanging(new RoleChangeArgs { Player = Session.Get<Player>(), OldEntity = role });
+            Session.Set<Entity>(null);
+            EntityManager.DettachEntity(role);
+            OnRoleChanged(new RoleChangeArgs { Player = Session.Get<Player>(), OldEntity = role });
+
+            EntityRepository.SaveEntity(role);
+
+            return Task.FromResult(true);
         }
 
         /// <summary>

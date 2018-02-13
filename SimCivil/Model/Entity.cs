@@ -20,13 +20,16 @@
 // 
 // SimCivil - SimCivil - Entity.cs
 // Create Date: 2017/08/25
-// Update Date: 2018/01/10
+// Update Date: 2018/02/02
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
+
+using JetBrains.Annotations;
 
 using Newtonsoft.Json;
 
@@ -42,7 +45,7 @@ namespace SimCivil.Model
     /// </seealso>
     /// <seealso cref="System.ICloneable" />
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.Auto)]
-    public class Entity : ICloneable, IEquatable<Entity>
+    public class Entity : ICloneable, IEquatable<Entity>, INotifyCollectionChanged
     {
         /// <summary>
         /// Gets or sets the identifier.
@@ -50,7 +53,15 @@ namespace SimCivil.Model
         /// <value>
         /// The identifier.
         /// </value>
-        public Guid Id { get; }
+        public Guid Id { get; protected set; }
+
+        /// <summary>
+        /// Gets or sets the name.
+        /// </summary>
+        /// <value>
+        /// The name.
+        /// </value>
+        public string Name { get; set; }
 
         /// <summary>
         /// Gets or sets the components.
@@ -67,12 +78,27 @@ namespace SimCivil.Model
         /// <value>
         /// The <see cref="System.Object"/>.
         /// </value>
-        /// <param name="typeName">Name of the type.</param>
+        /// <param name="name">Name of the type.</param>
         /// <returns></returns>
-        public IComponent this[string typeName]
+        public IComponent this[string name]
         {
-            get => Components[typeName];
-            set => Components[typeName] = value;
+            get => Components[name];
+            set
+            {
+                Components.TryGetValue(name, out IComponent oldValue);
+
+                if (ReferenceEquals(oldValue, value)) return;
+
+                Components[name] = value;
+                if (oldValue == null)
+                    OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, value));
+                else if (value == null)
+                    OnCollectionChanged(
+                        new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, oldValue));
+                else
+                    OnCollectionChanged(
+                        new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, value, oldValue));
+            }
         }
 
         /// <summary>
@@ -95,7 +121,7 @@ namespace SimCivil.Model
         public IComponent this[Type type]
         {
             get => Components[type.FullName];
-            set => Components[type.FullName] = value;
+            set => this[type.FullName] = value;
         }
 
         /// <summary>
@@ -136,6 +162,43 @@ namespace SimCivil.Model
         }
 
         /// <summary>
+        /// Occurs when the collection changes.
+        /// </summary>
+        /// <returns></returns>
+        public event NotifyCollectionChangedEventHandler CollectionChanged;
+
+        /// <summary>
+        /// Clones the specified clone to.
+        /// </summary>
+        /// <param name="cloneTo">The clone to.</param>
+        public void Clone(Entity cloneTo)
+        {
+            cloneTo.Reset();
+            foreach (var (key, component) in Components)
+            {
+                cloneTo.Components.Add(key, component);
+            }
+
+            foreach (var (key, m) in Meta)
+            {
+                cloneTo.Meta.Add(key, m);
+            }
+        }
+
+        /// <summary>
+        /// Resets this instance.
+        /// </summary>
+        public void Reset()
+        {
+            Id = Guid.NewGuid();
+            OnCollectionChanged(
+                new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset, Components.Values));
+            Components.Clear();
+            Meta.Clear();
+            Dirty = true;
+        }
+
+        /// <summary>
         /// Gets component.
         /// </summary>
         /// <typeparam name="T"></typeparam>
@@ -146,6 +209,18 @@ namespace SimCivil.Model
         }
 
         /// <summary>
+        /// Determines whether [has].
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns>
+        ///   <c>true</c> if [has]; otherwise, <c>false</c>.
+        /// </returns>
+        public bool Has<T>()
+        {
+            return Has(typeof(T));
+        }
+
+        /// <summary>
         /// Sets the component.
         /// </summary>
         /// <typeparam name="T"></typeparam>
@@ -153,6 +228,47 @@ namespace SimCivil.Model
         public void Set<T>(T component) where T : IComponent
         {
             this[typeof(T)] = component;
+        }
+
+        /// <summary>
+        /// Adds new component.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public Entity Add<T>() where T : IComponent, new()
+        {
+            T component = new T {EntityId = Id};
+            Set(component);
+
+            return this;
+        }
+
+        /// <summary>
+        /// Adds new component.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="init">The initialize.</param>
+        /// <returns></returns>
+        public Entity Add<T>(Action<T> init) where T : IComponent, new()
+        {
+            T component = new T {EntityId = Id};
+            Set(component);
+            init(component);
+
+            return this;
+        }
+
+        /// <summary>
+        /// Adds the specified component.
+        /// </summary>
+        /// <param name="component">The component.</param>
+        /// <returns></returns>
+        public Entity Add(IComponent component)
+        {
+            component.EntityId = Id;
+            Set(component);
+
+            return this;
         }
 
         /// <summary>
@@ -254,6 +370,52 @@ namespace SimCivil.Model
             }
 
             Meta[propertyName] = value;
+        }
+
+        /// <summary>Returns a string that represents the current object.</summary>
+        /// <returns>A string that represents the current object.</returns>
+        public override string ToString()
+        {
+            return
+                $"{nameof(Id)}: {Id}, {nameof(Components)}: {Components.Count}, {nameof(Dirty)}: {Dirty}, {nameof(Meta)}: {Meta.Count}";
+        }
+
+        /// <summary>
+        /// Determines whether [has] [the specified type].
+        /// </summary>
+        /// <param name="type">The type.</param>
+        /// <returns>
+        ///   <c>true</c> if [has] [the specified type]; otherwise, <c>false</c>.
+        /// </returns>
+        public bool Has(Type type)
+        {
+            return Components.ContainsKey(type.FullName);
+        }
+
+        /// <summary>
+        /// Raises the <see cref="E:CollectionChanged" /> event.
+        /// </summary>
+        /// <param name="e">The <see cref="System.Collections.Specialized.NotifyCollectionChangedEventArgs" /> instance containing the event data.</param>
+        protected virtual void OnCollectionChanged(NotifyCollectionChangedEventArgs e)
+        {
+            CollectionChanged?.Invoke(this, e);
+        }
+
+        /// <summary>
+        /// Tries to get.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public bool TryGet<T>([CanBeNull] out T component) where T : class
+        {
+            if (!Components.ContainsKey(typeof(T).FullName))
+            {
+                component = null;
+                return false;
+            }
+
+            component = this[typeof(T)] as T;
+            return true;
         }
     }
 }

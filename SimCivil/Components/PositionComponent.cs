@@ -20,12 +20,14 @@
 // 
 // SimCivil - SimCivil - PositionComponent.cs
 // Create Date: 2018/01/10
-// Update Date: 2018/01/10
+// Update Date: 2018/02/04
 
 using System;
 using System.Text;
 
 using Newtonsoft.Json;
+
+using SimCivil.Model;
 
 namespace SimCivil.Components
 {
@@ -35,22 +37,63 @@ namespace SimCivil.Components
     /// <seealso>
     ///     <cref>SimCivil.Components.IComponent</cref>
     /// </seealso>
-    public class PositionComponent : IComponent
+    public class PositionComponent : BaseComponent
     {
+        private (float X, float Y) _toSync;
+        private float _x;
+        private float _y;
+
+        /// <summary>Returns a string that represents the current object.</summary>
+        /// <returns>A string that represents the current object.</returns>
+        public override string ToString()
+        {
+            return $"{nameof(Pos)}: {Pos}, {nameof(PreviousPos)}: {PreviousPos}";
+        }
+
+        /// <summary>
+        /// Gets the previous position.
+        /// </summary>
+        /// <value>
+        /// The previous position.
+        /// </value>
+        [JsonIgnore]
+        public (float X, float Y) PreviousPos { get; private set; }
+
         /// <summary>
         /// Gets or sets the x.
         /// </summary>
         /// <value>
         /// The x.
         /// </value>
-        public float X { get; set; }
+        public float X
+        {
+            get => _x;
+            set
+            {
+                if (value.Equals(_x)) return;
+
+                _x = value;
+                OnPropertyChanged(nameof(Pos));
+            }
+        }
+
         /// <summary>
         /// Gets or sets the y.
         /// </summary>
         /// <value>
         /// The y.
         /// </value>
-        public float Y { get; set; }
+        public float Y
+        {
+            get => _y;
+            set
+            {
+                if (value.Equals(_y)) return;
+
+                _y = value;
+                OnPropertyChanged(nameof(Pos));
+            }
+        }
 
         /// <summary>
         /// Gets or sets the position.
@@ -59,10 +102,16 @@ namespace SimCivil.Components
         /// The position.
         /// </value>
         [JsonIgnore]
-        public (float, float) Pos
+        public (float X, float Y) Pos
         {
             get => (X, Y);
-            set => (X, Y) = value;
+            set
+            {
+                if (value.Equals((_x, _y))) return;
+
+                (_x, _y) = value;
+                OnPropertyChanged();
+            }
         }
 
         /// <summary>
@@ -82,34 +131,6 @@ namespace SimCivil.Components
         [JsonIgnore]
         public int TileY => (int) Math.Truncate(Y);
 
-        /// <summary>Creates a new object that is a copy of the current instance.</summary>
-        /// <returns>A new object that is a copy of this instance.</returns>
-        public object Clone()
-        {
-            return MemberwiseClone();
-        }
-
-        /// <summary>
-        /// Gets or sets the entity identifier.
-        /// </summary>
-        /// <value>
-        /// The entity identifier.
-        /// </value>
-        public Guid EntityId { get; set; }
-
-        /// <summary>
-        /// Clones with specified new identifier.
-        /// </summary>
-        /// <param name="newId">The new identifier.</param>
-        /// <returns></returns>
-        public IComponent Clone(Guid newId)
-        {
-            IComponent comp = (IComponent) MemberwiseClone();
-            comp.EntityId = newId;
-
-            return comp;
-        }
-
         /// <summary>
         /// Deconstructs the specified x and y.
         /// </summary>
@@ -119,6 +140,33 @@ namespace SimCivil.Components
         {
             x = X;
             y = Y;
+        }
+
+        /// <summary>
+        /// Synchronic the previous position.
+        /// </summary>
+        /// <returns></returns>
+        public (float X, float Y) Sync()
+        {
+            PreviousPos = _toSync;
+            _toSync = Pos;
+
+            return PreviousPos;
+        }
+    }
+
+    public static partial class EntityExtenstion
+    {
+        private static readonly string PositionName = typeof(PositionComponent).FullName;
+        /// <summary>
+        /// Gets the position.
+        /// </summary>
+        /// <param name="entity">The entity.</param>
+        /// <returns></returns>
+        public static PositionComponent GetPos(this Entity entity)
+        {
+
+            return (PositionComponent) entity[PositionName];
         }
     }
 }

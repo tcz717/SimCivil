@@ -34,36 +34,8 @@ namespace SimCivil.Components
     /// <seealso>
     ///     <cref>SimCivil.Components.IComponent</cref>
     /// </seealso>
-    public class UnitComponent : IComponent
+    public class UnitComponent : BaseComponent
     {
-        /// <summary>
-        /// Gets or sets the entity identifier.
-        /// </summary>
-        /// <value>
-        /// The entity identifier.
-        /// </value>
-        public Guid EntityId { get; set; }
-
-        /// <summary>
-        /// Clones with specified new identifier.
-        /// </summary>
-        /// <param name="newId">The new identifier.</param>
-        /// <returns></returns>
-        public IComponent Clone(Guid newId)
-        {
-            UnitComponent component = (UnitComponent) MemberwiseClone();
-            component.EntityId = newId;
-
-            return component;
-        }
-
-        /// <summary>
-        /// Gets or sets the name.
-        /// </summary>
-        /// <value>
-        /// The name.
-        /// </value>
-        public string Name { get; set; }
         /// <summary>
         /// Gets or sets the gender.
         /// </summary>
@@ -78,12 +50,5 @@ namespace SimCivil.Components
         /// The race.
         /// </value>
         public Race Race { get; set; }
-
-        /// <summary>Creates a new object that is a copy of the current instance.</summary>
-        /// <returns>A new object that is a copy of this instance.</returns>
-        public object Clone()
-        {
-            return Clone(EntityId);
-        }
     }
 }

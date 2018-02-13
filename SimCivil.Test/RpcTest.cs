@@ -20,7 +20,7 @@
 // 
 // SimCivil - SimCivil.Test - RpcTest.cs
 // Create Date: 2018/01/02
-// Update Date: 2018/01/06
+// Update Date: 2018/01/31
 
 using System;
 using System.Diagnostics;
@@ -38,15 +38,12 @@ using Xunit.Abstractions;
 
 namespace SimCivil.Test
 {
-    public class RpcTest : IDisposable
+    public class ServerFixture : IDisposable
     {
-        public RpcTest(ITestOutputHelper output)
-        {
-            Output = output;
-            JsonToMessageDecoder<RpcResponse>.TestHook = s => Output.WriteLine($"Get {nameof(RpcResponse)}: {s}");
-            JsonToMessageDecoder<RpcRequest>.TestHook = s => Output.WriteLine($"Get {nameof(RpcRequest)}: {s}");
-            JsonToMessageDecoder.TestHook = s => Output.WriteLine($"Get: {s}");
+        public RpcServer Server { get; set; }
 
+        public ServerFixture()
+        {
             var builder = new ContainerBuilder();
             builder.UseRpcSession();
             builder.RegisterRpcProvider<TestServiceA, ITestServiceA>().InstancePerChannel();
@@ -57,12 +54,28 @@ namespace SimCivil.Test
             Server.Run().Wait();
         }
 
+        /// <summary>Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.</summary>
         public void Dispose()
         {
             Server?.Stop();
         }
+    }
 
-        public RpcServer Server { get; private set; }
+    public class RpcTest : IDisposable, IClassFixture<ServerFixture>
+    {
+        public RpcTest(ITestOutputHelper output, ServerFixture server)
+        {
+            Output = output;
+            JsonToMessageDecoder<RpcResponse>.TestHook = s => output.WriteLine($"Get {nameof(RpcResponse)}: {s}");
+            JsonToMessageDecoder<RpcRequest>.TestHook = s => output.WriteLine($"Get {nameof(RpcRequest)}: {s}");
+            JsonToMessageDecoder.TestHook = s => output.WriteLine($"Get: {s}");
+
+            Server = server.Server;
+        }
+
+        public RpcServer Server { get; set; }
+
+        public void Dispose() { }
 
         public ITestOutputHelper Output { get; }
 
@@ -126,6 +139,32 @@ namespace SimCivil.Test
 
             Output.WriteLine(
                 $"Average [EchoAsync] time cost is {stopwatches.Select(s => s.ElapsedMilliseconds).Average()} ms.");
+        }
+
+        [Fact]
+        public void CallbackProxyTest()
+        {
+            using (RpcClient client = new RpcClient())
+            {
+                client.Bind(9999).ConnectAsync().Wait();
+
+                var service = client.Import<ITestServiceA>();
+
+                service.Echo("123", s => Assert.Equal(s, "123"));
+            }
+        }
+
+        [Fact]
+        public void FilterTest()
+        {
+            using (RpcClient client = new RpcClient())
+            {
+                client.Bind(9999).ConnectAsync().Wait();
+
+                var service = client.Import<ITestServiceB>();
+
+                Assert.Throws<RemotingException>(() => service.DeniedAction());
+            }
         }
 
         [Fact]
@@ -240,32 +279,6 @@ namespace SimCivil.Test
                 var service = client.Import<ITestServiceA>();
 
                 Assert.ThrowsAny<RemotingException>(() => service.NotImplementedFuc(1));
-            }
-        }
-
-        [Fact]
-        public void FilterTest()
-        {
-            using (RpcClient client = new RpcClient())
-            {
-                client.Bind(9999).ConnectAsync().Wait();
-
-                var service = client.Import<ITestServiceB>();
-
-                Assert.Throws<RemotingException>(() => service.DeniedAction());
-            }
-        }
-
-        [Fact]
-        public void CallbackProxyTest()
-        {
-            using (RpcClient client = new RpcClient())
-            {
-                client.Bind(9999).ConnectAsync().Wait();
-
-                var service = client.Import<ITestServiceA>();
-
-                service.Echo("123", s => Assert.Equal(s, "123"));
             }
         }
     }
