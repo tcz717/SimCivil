@@ -24,16 +24,11 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Collections.Specialized;
-using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
-
-using JetBrains.Annotations;
 
 using log4net;
 
-using SimCivil.Model;
 using SimCivil.Store;
 
 using static SimCivil.Config;
@@ -43,9 +38,9 @@ namespace SimCivil.Map
     /// <summary>
     ///     Map consists of Atlas.
     /// </summary>
-    public class MapData
+    public class TileMap
     {
-        internal static readonly ILog Logger = LogManager.GetLogger(typeof(MapData));
+        private static readonly ILog Logger = LogManager.GetLogger(typeof(TileMap));
 
         /// <summary>
         ///     Gets the atlas collection.
@@ -76,22 +71,6 @@ namespace SimCivil.Map
         /// </summary>
         public bool AllowExpanding { get; set; } = true;
 
-        /// <summary>
-        ///     Gets the entities.
-        /// </summary>
-        /// <value>
-        ///     The entities.
-        /// </value>
-        public ObservableCollection<Entity> Entities { get; } = new ObservableCollection<Entity>();
-
-        /// <summary>
-        ///     Gets or sets the entities position dictionary.
-        /// </summary>
-        /// <value>
-        ///     The entities position dictionary.
-        /// </value>
-        public Dictionary<(int X, int Y), Entity> EntitiesPositionDictionary { get; } =
-            new Dictionary<(int X, int Y), Entity>();
 
         /// <summary>
         ///     Get tile by position.
@@ -129,7 +108,10 @@ namespace SimCivil.Map
                     throw new IndexOutOfRangeException();
                 }
 
-                return atlas.Tiles[x, y];
+                return atlas.Tiles[
+                    ModPositive(x, DefaultAtlasWidth),
+                    ModPositive(y, DefaultAtlasHeight)
+                ];
             }
         }
 
@@ -146,95 +128,44 @@ namespace SimCivil.Map
         /// </summary>
         /// <param name="mapGenerator">Object to generate new atlas.</param>
         /// <param name="mapRepository">Object to generate load existed atlas.</param>
-        public MapData(IMapGenerator mapGenerator, IMapRepository mapRepository)
+        public TileMap(IMapGenerator mapGenerator, IMapRepository mapRepository)
         {
             MapGenerator = mapGenerator;
             MapRepository = mapRepository;
+        }
 
-            //Entities.CollectionChanged += Entities_CollectionChanged;
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static int ModPositive(int a, int b)
+        {
+            return (a % b + b) % b;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static int DivDown(int a, int b)
+        {
+            return (a - (a % b + b) % b) / b;
         }
 
         private static (int X, int Y) Pos2AtlasIndex((int x, int y) pos)
         {
-            return (X: pos.x % DefaultAtlasWidth, Y: pos.y % DefaultAtlasHeight);
+            return (DivDown(pos.x, DefaultAtlasWidth), DivDown(pos.y, DefaultAtlasHeight));
         }
 
-        //private void Entities_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
-        //{
-        //    switch (e.Action)
-        //    {
-        //        case NotifyCollectionChangedAction.Add:
-        //            foreach (Entity item in e.NewItems.Cast<Entity>())
-        //            {
-        //                EntitiesPositionDictionary[item.Position] = item;
-        //                item.PositionChanged += Item_PositionChanged;
-        //            }
-
-        //            break;
-        //        case NotifyCollectionChangedAction.Reset:
-        //        case NotifyCollectionChangedAction.Remove:
-        //            foreach (Entity item in e.OldItems.Cast<Entity>()) EntitiesPositionDictionary.Remove(item.Position);
-
-        //            break;
-        //        case NotifyCollectionChangedAction.Move:
-        //        case NotifyCollectionChangedAction.Replace:
-
-        //            throw new NotSupportedException();
-        //        default:
-
-        //            throw new ArgumentOutOfRangeException();
-        //    }
-        //}
-
-        private void Item_PositionChanged(object sender, PropertyChangedEventArgs<(int X, int Y)> e)
+        /// <summary>
+        /// Selects the range.
+        /// </summary>
+        /// <param name="position">The position.</param>
+        /// <param name="viewDistance">The view distance.</param>
+        /// <returns></returns>
+        public IEnumerable<Tile> SelectRange((int x, int y) position, uint viewDistance)
         {
-            EntitiesPositionDictionary.Remove(e.OldValue);
-            EntitiesPositionDictionary.Add(e.NewValue, sender as Entity);
-        }
-
-//        private void FullViewSyncHandle(Packet pkt, ref bool isValid)
-//        {
-//            if (pkt.Client.ContextPlayer?.CurrentRole == null)
-//            {
-//                isValid = false;
-//                return;
-//            }
-//            var entity = pkt.Client.ContextPlayer.CurrentRole;
-//            IEnumerable<Tile> view = SelectRange(entity.Position, entity.Meta.ViewDistence);
-//            pkt.Reply(new FullViewSyncResponse(entity.Position, entity.Meta.ViewDistence, view));
-//        }
-
-        private IEnumerable<Tile> SelectRange((int x, int y) position, int viewDistance)
-        {
-            (int x, int y) lt = (position.x - viewDistance, position.y - viewDistance),
+            (long x, long y) lt = (position.x - viewDistance, position.y - viewDistance),
                 lb = (position.x - viewDistance, position.y + viewDistance),
                 rt = (position.x + viewDistance, position.y - viewDistance);
 
-            for (int i = lt.y; i < lb.y; i++)
-            for (int j = lt.x; j < rt.x; j++)
+            for (int i = (int) lt.y; i < lb.y; i++)
+            for (int j = (int) lt.x; j < rt.x; j++)
                 yield return this[i, j];
-        }
-
-        /// <summary>
-        ///     Attaches the entity.
-        /// </summary>
-        /// <param name="entity">The entity.</param>
-        public void AttachEntity([NotNull] Entity entity)
-        {
-            if (entity == null) throw new ArgumentNullException(nameof(entity));
-
-            Entities.Add(entity);
-        }
-
-        /// <summary>
-        ///     Detaches the entity.
-        /// </summary>
-        /// <param name="entity">The entity.</param>
-        public void DetachEntity([NotNull] Entity entity)
-        {
-            if (entity == null) throw new ArgumentNullException(nameof(entity));
-
-            Entities.Remove(entity);
         }
     }
 }
