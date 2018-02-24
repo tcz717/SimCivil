@@ -57,7 +57,7 @@ namespace SimCivil
         /// <summary>
         /// Game's map data.
         /// </summary>
-        public MapData Map { get; private set; }
+        public TileMap Map { get; private set; }
 
         /// <summary>
         /// A container used for dependencies injecting.
@@ -167,7 +167,7 @@ namespace SimCivil
             //Get tickers
             var tickers = Services.Resolve<IEnumerable<ITicker>>().OrderByDescending(t => t.Priority).ToList();
             int tickCount = 0;
-            Map = Services.Resolve<MapData>();
+            Map = Services.Resolve<TileMap>();
 
             foreach (var ticker in tickers)
             {

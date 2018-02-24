@@ -18,53 +18,53 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// SimCivil - SimCivil - UnitComponent.cs
-// Create Date: 2018/01/07
-// Update Date: 2018/01/07
+// SimCivil - SimCivil - MovableComponent.cs
+// Create Date: 2018/02/09
+// Update Date: 2018/02/10
 
 using System;
+using System.Text;
 
-using SimCivil.Contract.Model;
+using SimCivil.Model;
 
 namespace SimCivil.Components
 {
     /// <summary>
-    /// Data related to unit infomation.
+    /// 
     /// </summary>
     /// <seealso>
-    ///     <cref>SimCivil.Components.IComponent</cref>
+    ///     <cref>SimCivil.Components.BaseComponent</cref>
     /// </seealso>
-    public class UnitComponent : BaseComponent
+    public class MovableComponent : BaseComponent
     {
         /// <summary>
-        /// Gets or sets the gender.
+        /// Gets or sets the direction.
         /// </summary>
         /// <value>
-        /// The gender.
+        /// The direction.
         /// </value>
-        public Gender Gender { get; set; }
+        public (float X, float Y) Direction { get; set; }
         /// <summary>
-        /// Gets or sets the race.
+        /// Gets or sets the speed.
         /// </summary>
         /// <value>
-        /// The race.
+        /// The speed.
         /// </value>
-        public Race Race { get; set; }
+        public float Speed { get; set; }
+    }
+
+    public static partial class EntityExtenstion
+    {
+        private static readonly string MovableName = typeof(MovableComponent).FullName;
 
         /// <summary>
-        /// Gets or sets the move speed.
+        /// Gets the MovableComponent.
         /// </summary>
-        /// <value>
-        /// The move speed.
-        /// </value>
-        public float MoveSpeed { get; set; }
-
-        /// <summary>
-        /// Gets or sets the sight range.
-        /// </summary>
-        /// <value>
-        /// The sight range.
-        /// </value>
-        public float SightRange { get; set; }
+        /// <param name="entity">The entity.</param>
+        /// <returns></returns>
+        public static MovableComponent GetMovable(this Entity entity)
+        {
+            return (MovableComponent) entity.Components[MovableName];
+        }
     }
 }

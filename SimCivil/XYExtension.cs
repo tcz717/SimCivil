@@ -18,33 +18,37 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// SimCivil - SimCivil.Rpc - RpcSession.cs
-// Create Date: 2018/01/02
-// Update Date: 2018/01/02
+// SimCivil - SimCivil - XYExtension.cs
+// Create Date: 2018/02/11
+// Update Date: 2018/02/11
 
 using System;
-using System.Collections.Generic;
-using System.Net;
-using System.Text;
 
-namespace SimCivil.Rpc.Session
+namespace SimCivil
 {
-    // TODO: Imply INotifyChangeCollection
-    public class LocalRpcSession : Dictionary<string, object>, IRpcSession
+    /// <summary>
+    /// 
+    /// </summary>
+    public static class XYExtension
     {
-        public LocalRpcSession() { }
-        public IPEndPoint RemoteEndPoint { get; set; }
-        public event EventHandler Exiting;
-        public event EventHandler<EventArgs<EndPoint>> Entering;
-
-        public virtual void OnExiting()
+        /// <summary>
+        /// Gets the length.
+        /// </summary>
+        /// <param name="tuple">The tuple.</param>
+        /// <returns></returns>
+        public static float GetLength(this (float X, float Y) tuple)
         {
-            Exiting?.Invoke(this, EventArgs.Empty);
+            return MathF.Sqrt(tuple.X * tuple.X + tuple.Y * tuple.Y);
         }
-
-        public virtual void OnEntering(EndPoint endPoint)
+        /// <summary>
+        /// Adds the specified tuple2.
+        /// </summary>
+        /// <param name="tuple1">The tuple1.</param>
+        /// <param name="tuple2">The tuple2.</param>
+        /// <returns></returns>
+        public static (float X, float Y) Add(this (float X, float Y) tuple1, (float X, float Y) tuple2)
         {
-            Entering?.Invoke(this, new EventArgs<EndPoint>(endPoint));
+            return (tuple1.X + tuple2.X, tuple1.Y + tuple2.Y);
         }
     }
 }

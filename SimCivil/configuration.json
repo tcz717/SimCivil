@@ -36,7 +36,7 @@
       ]
     },
     {
-      "type": "SimCivil.Map.MapData",
+      "type": "SimCivil.Map.TileMap",
       "instanceScope": "singleinstance"
     },
     {
@@ -56,17 +56,6 @@
         },
         {
           "type": "SimCivil.Auth.IAuthManager"
-        }
-      ]
-    },
-    {
-      "type": "SimCivil.Controller.PlayerController",
-      "services": [
-        {
-          "type": "SimCivil.Controller.IController"
-        },
-        {
-          "type": "SimCivil.ITicker"
         }
       ]
     }

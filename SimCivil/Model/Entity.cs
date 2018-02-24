@@ -26,7 +26,6 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Text;
 
 using JetBrains.Annotations;
@@ -111,10 +110,10 @@ namespace SimCivil.Model
         public bool Dirty { get; private set; }
 
         /// <summary>
-        /// Gets or sets the <see cref="System.Object"/> with the specified type.
+        /// Gets or sets the <see cref="IComponent"/> with the specified type.
         /// </summary>
         /// <value>
-        /// The <see cref="System.Object"/>.
+        /// The <see cref="IComponent"/>.
         /// </value>
         /// <param name="type">The type.</param>
         /// <returns></returns>
@@ -335,41 +334,8 @@ namespace SimCivil.Model
         /// </returns>
         public override int GetHashCode()
         {
+            // ReSharper disable once NonReadonlyMemberInGetHashCode
             return Id.GetHashCode();
-        }
-
-        /// <summary>
-        /// Gets the data property.
-        /// </summary>
-        /// <typeparam name="T">Property type</typeparam>
-        /// <param name="propertyName">Name of the property.</param>
-        /// <returns></returns>
-        /// <exception cref="System.ArgumentException">message - propertyName</exception>
-        protected T GetMetaProperty<T>([CallerMemberName] string propertyName = null)
-        {
-            if (string.IsNullOrWhiteSpace(propertyName))
-            {
-                throw new ArgumentException("message", nameof(propertyName));
-            }
-
-            return (T) Meta[propertyName];
-        }
-
-        /// <summary>
-        /// Sets the data property.
-        /// </summary>
-        /// <typeparam name="T">Property type.</typeparam>
-        /// <param name="value">The value.</param>
-        /// <param name="propertyName">Name of the property.</param>
-        /// <exception cref="System.ArgumentException">message - propertyName</exception>
-        protected void SetMetaProperty<T>(T value, [CallerMemberName] string propertyName = null)
-        {
-            if (string.IsNullOrWhiteSpace(propertyName))
-            {
-                throw new ArgumentException("message", nameof(propertyName));
-            }
-
-            Meta[propertyName] = value;
         }
 
         /// <summary>Returns a string that represents the current object.</summary>
@@ -406,7 +372,7 @@ namespace SimCivil.Model
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public bool TryGet<T>([CanBeNull] out T component) where T : class
+        public bool TryGet<T>(out T component) where T : class
         {
             if (!Components.ContainsKey(typeof(T).FullName))
             {

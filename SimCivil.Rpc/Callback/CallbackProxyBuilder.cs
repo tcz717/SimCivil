@@ -54,9 +54,8 @@ namespace SimCivil.Rpc.Callback
         private DynamicMethod DoBuild(Type delegateType)
         {
             MethodInfo invoke = delegateType.GetMethod("Invoke");
-            Type[] parameters = invoke.GetParameters()
-                .Select(p => p.ParameterType)
-                .Prepend(typeof(CallbackContext))
+            Type[] parameters = new []{typeof(CallbackContext)}.Concat(
+                invoke.GetParameters().Select(p => p.ParameterType))
                 .ToArray();
             DynamicMethod method = new DynamicMethod(
                 delegateType.Name,

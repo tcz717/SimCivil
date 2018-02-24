@@ -18,33 +18,33 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// SimCivil - SimCivil.Rpc - RpcSession.cs
-// Create Date: 2018/01/02
-// Update Date: 2018/01/02
+// SimCivil - SimCivil - RoleRequiredAttrabution.cs
+// Create Date: 2018/02/09
+// Update Date: 2018/02/09
 
-using System;
-using System.Collections.Generic;
-using System.Net;
-using System.Text;
+using SimCivil.Model;
+using SimCivil.Rpc;
+using SimCivil.Rpc.Filter;
+using SimCivil.Rpc.Session;
 
-namespace SimCivil.Rpc.Session
+namespace SimCivil.Auth
 {
-    // TODO: Imply INotifyChangeCollection
-    public class LocalRpcSession : Dictionary<string, object>, IRpcSession
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <seealso>
+    ///     <cref>SimCivil.Rpc.Filter.SessionFilterAttribute</cref>
+    /// </seealso>
+    public class RoleRequiredAttribute : SessionFilterAttribute
     {
-        public LocalRpcSession() { }
-        public IPEndPoint RemoteEndPoint { get; set; }
-        public event EventHandler Exiting;
-        public event EventHandler<EventArgs<EndPoint>> Entering;
-
-        public virtual void OnExiting()
+        /// <summary>
+        /// Checks the permission.
+        /// </summary>
+        /// <param name="session">The session.</param>
+        /// <returns></returns>
+        public override CheckResult CheckPermission(IRpcSession session)
         {
-            Exiting?.Invoke(this, EventArgs.Empty);
-        }
-
-        public virtual void OnEntering(EndPoint endPoint)
-        {
-            Entering?.Invoke(this, new EventArgs<EndPoint>(endPoint));
+            return CheckResult.If(session.IsSet<Entity>(),"Please select a role first.");
         }
     }
 }

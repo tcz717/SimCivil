@@ -20,15 +20,20 @@
 // 
 // SimCivil - SimCivil.Test - ViewSynchronizerTest.cs
 // Create Date: 2018/02/05
-// Update Date: 2018/02/05
+// Update Date: 2018/02/08
 
 using System;
 using System.Collections.Immutable;
 using System.Diagnostics;
+using System.Text;
+
+using Autofac;
 
 using SimCivil.Components;
 using SimCivil.Contract;
+using SimCivil.Map;
 using SimCivil.Model;
+using SimCivil.Store;
 using SimCivil.Sync;
 
 using Xunit;
@@ -38,89 +43,24 @@ namespace SimCivil.Test
 {
     public class ViewSynchronizerTest
     {
+        public ViewSynchronizerTest(ITestOutputHelper output)
+        {
+            Output = output;
+            var builder = new ContainerBuilder();
+            builder.RegisterType<LocalEntityManager>().AsImplementedInterfaces().SingleInstance();
+            builder.RegisterType<TileMap>();
+            builder.RegisterType<MemoryMapRepo>().AsImplementedInterfaces();
+            builder.RegisterType<RandomMapGen>().AsImplementedInterfaces();
+            builder.RegisterType<ChunkViewSynchronizer>();
+            var container = builder.Build();
+            Entities = container.Resolve<IEntityManager>();
+            Synchronizer = container.Resolve<ChunkViewSynchronizer>();
+        }
+
         public ITestOutputHelper Output { get; }
         public ChunkViewSynchronizer Synchronizer { get; set; }
 
         public IEntityManager Entities { get; set; }
-
-        public ViewSynchronizerTest(ITestOutputHelper output)
-        {
-            Output = output;
-            Entities = new LocalEntityManager();
-            Synchronizer = new ChunkViewSynchronizer(Entities);
-        }
-
-        [Fact]
-        public void PartialViewSyncTest()
-        {
-            int callbackCount = 0;
-
-            Entity npc = Entities.CreateEntity()
-                .Add<PositionComponent>();
-            Entity player = Entities.CreateEntity();
-
-            void SyncCallback(ViewChange obj)
-            {
-                callbackCount++;
-                Output.WriteLine($"{nameof(obj.TickCount)} {obj.TickCount}");
-                Output.WriteLine(obj.ToString());
-
-                if (obj.EntityChange != null)
-                    foreach (EntityDto entityDto in obj.EntityChange)
-                    {
-                        Output.WriteLine(entityDto.ToString());
-                    }
-
-                Output.WriteLine("npc:{0}", npc.GetPos());
-                Output.WriteLine("player:{0}", player.GetPos());
-
-                switch (obj.TickCount)
-                {
-                    case 0:
-
-                        break;
-                    case 1:
-                        Assert.Equal(obj.EntityChange?.Length, 0);
-                        Assert.Equal(obj.Events?.Length, 1);
-
-                        break;
-                    case 2:
-                        Assert.Equal(obj.EntityChange?.Length, 1);
-                        Assert.Equal(obj.Events?.Length, 0);
-
-                        break;
-                    default:
-                        Assert.False(true);
-
-                        break;
-                }
-            }
-
-            player.Add<PositionComponent>()
-                .Add<ObserverComponent>(
-                    c =>
-                    {
-                        c.NotityRange = 5;
-                        c.Callback = SyncCallback;
-                    });
-
-            foreach (Entity entity in Entities.All.Entities)
-            {
-                Output.WriteLine(entity.ToString());
-            }
-
-            Assert.Equal(Entities.All.Entities.Count, 2);
-
-            Synchronizer.Update(0);
-
-            npc.Get<PositionComponent>().Pos = (8, 0);
-            Synchronizer.Update(1);
-
-            player.Get<PositionComponent>().Pos = (4, 4);
-            Synchronizer.Update(2);
-
-            Assert.Equal(callbackCount, 3);
-        }
 
         [Theory, Trait("Category", "Performance")]
         [InlineData(50, 100, 100, 10)]
@@ -196,6 +136,79 @@ namespace SimCivil.Test
                 $"Average {nameof(Synchronizer.Update)} time cost is {stopwatch.ElapsedMilliseconds / (double) testNum} ms.");
             Output.WriteLine($"Total {nameof(entityChangeCount)} count is {entityChangeCount}.");
             Output.WriteLine($"Average {nameof(entityChangeCount)} count is {entityChangeCount / (double) testNum}.");
+            Output.WriteLine("Memory Usage: {0}", GC.GetTotalMemory(false));
+        }
+
+        [Fact]
+        public void PartialViewSyncTest()
+        {
+            int callbackCount = 0;
+
+            Entity npc = Entities.CreateEntity()
+                .Add<PositionComponent>();
+            Entity player = Entities.CreateEntity();
+
+            void SyncCallback(ViewChange obj)
+            {
+                callbackCount++;
+                Output.WriteLine($"{nameof(obj.TickCount)} {obj.TickCount}");
+                Output.WriteLine(obj.ToString());
+
+                if (obj.EntityChange != null)
+                    foreach (EntityDto entityDto in obj.EntityChange)
+                    {
+                        Output.WriteLine(entityDto.ToString());
+                    }
+
+                Output.WriteLine("npc:{0}", npc.GetPos());
+                Output.WriteLine("player:{0}", player.GetPos());
+
+                switch (obj.TickCount)
+                {
+                    case 0:
+
+                        break;
+                    case 1:
+                        Assert.Equal(obj.EntityChange?.Length, 0);
+                        Assert.Equal(obj.Events?.Length, 1);
+
+                        break;
+                    case 2:
+                        Assert.Equal(obj.EntityChange?.Length, 1);
+                        Assert.Equal(obj.Events?.Length, 0);
+
+                        break;
+                    default:
+                        Assert.False(true);
+
+                        break;
+                }
+            }
+
+            player.Add<PositionComponent>()
+                .Add<ObserverComponent>(
+                    c =>
+                    {
+                        c.NotityRange = 5;
+                        c.Callback = SyncCallback;
+                    });
+
+            foreach (Entity entity in Entities.All.Entities)
+            {
+                Output.WriteLine(entity.ToString());
+            }
+
+            Assert.Equal(Entities.All.Entities.Count, 2);
+
+            Synchronizer.Update(0);
+
+            npc.Get<PositionComponent>().Pos = (8, 0);
+            Synchronizer.Update(1);
+
+            player.Get<PositionComponent>().Pos = (4, 4);
+            Synchronizer.Update(2);
+
+            Assert.Equal(callbackCount, 3);
         }
     }
 }

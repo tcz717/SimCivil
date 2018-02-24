@@ -4,6 +4,5 @@ mono: none
 dotnet: 2.0.0
 dist: trusty
 script:
-   - dotnet restore SimCivil.sln
-   - dotnet build SimCivil.sln
-   - dotnet test SimCivil.Test/SimCivil.Test.csproj --filter "Category!=Performance"
+   - dotnet build SimCivil
+   - dotnet test SimCivil.Test --filter "Category!=Performance" 

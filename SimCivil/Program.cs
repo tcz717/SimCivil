@@ -10,6 +10,7 @@ using MongoDB.Driver;
 
 using SimCivil.Auth;
 using SimCivil.Contract;
+using SimCivil.Controller;
 using SimCivil.Model;
 using SimCivil.Rpc;
 using SimCivil.Store;
@@ -46,7 +47,6 @@ namespace SimCivil
                 {
                     Random r = new Random();
                     info.Seed = r.Next(int.MinValue, int.MaxValue);
-                    Logger.Info($"Using auto seed {info.Seed}");
                 }
                 SimCivil game = !string.IsNullOrWhiteSpace(info.Config)
                     ? new SimCivil(LoadConfiguration(info.Config))
@@ -73,10 +73,11 @@ namespace SimCivil
             builder.RegisterModule(module);
             builder.UseRpcSession();
             builder.RegisterRpcProvider<RoleManager, IRoleManager>().InstancePerChannel();
-            builder.RegisterRpcProvider<ChunkViewSynchronizer, IViewSynchronizer>().SingleInstance();
+            builder.RegisterRpcProvider<ChunkViewSynchronizer, IViewSynchronizer>().SingleInstance().As<ITicker>();
             builder.RegisterRpcProvider<LocalEntityManager, IEntityManager>().SingleInstance();
             builder.RegisterType<MongoDbPlayerRepo>().AsImplementedInterfaces();
             builder.RegisterInstance(new MongoClient().GetDatabase(nameof(SimCivil)));
+            builder.RegisterRpcProvider<PlayerController, IPlayerController>().InstancePerChannel();
 
             return builder.Build();
         }
