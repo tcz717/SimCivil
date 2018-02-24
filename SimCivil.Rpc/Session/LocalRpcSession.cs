@@ -29,6 +29,7 @@ using System.Text;
 
 namespace SimCivil.Rpc.Session
 {
+    // TODO: Imply INotifyChangeCollection
     public class LocalRpcSession : Dictionary<string, object>, IRpcSession
     {
         public LocalRpcSession() { }

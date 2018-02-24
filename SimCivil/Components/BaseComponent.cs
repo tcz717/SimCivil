@@ -20,7 +20,7 @@
 // 
 // SimCivil - SimCivil - BaseComponent.cs
 // Create Date: 2018/01/31
-// Update Date: 2018/01/31
+// Update Date: 2018/02/09
 
 using System;
 using System.ComponentModel;
@@ -32,7 +32,8 @@ using JetBrains.Annotations;
 namespace SimCivil.Components
 {
     /// <inheritdoc />
-    public abstract class BaseComponent : IComponent {
+    public abstract class BaseComponent : IComponent
+    {
         /// <summary>Creates a new object that is a copy of the current instance.</summary>
         /// <returns>A new object that is a copy of this instance.</returns>
         public object Clone()
@@ -55,7 +56,7 @@ namespace SimCivil.Components
         /// <returns></returns>
         public IComponent Clone(Guid newId)
         {
-            IComponent comp = (IComponent)MemberwiseClone();
+            IComponent comp = (IComponent) MemberwiseClone();
             comp.EntityId = newId;
 
             return comp;
