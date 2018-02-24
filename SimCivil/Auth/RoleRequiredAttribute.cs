@@ -18,53 +18,33 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// SimCivil - SimCivil - UnitComponent.cs
-// Create Date: 2018/01/07
-// Update Date: 2018/01/07
+// SimCivil - SimCivil - RoleRequiredAttrabution.cs
+// Create Date: 2018/02/09
+// Update Date: 2018/02/09
 
-using System;
+using SimCivil.Model;
+using SimCivil.Rpc;
+using SimCivil.Rpc.Filter;
+using SimCivil.Rpc.Session;
 
-using SimCivil.Contract.Model;
-
-namespace SimCivil.Components
+namespace SimCivil.Auth
 {
     /// <summary>
-    /// Data related to unit infomation.
+    /// 
     /// </summary>
     /// <seealso>
-    ///     <cref>SimCivil.Components.IComponent</cref>
+    ///     <cref>SimCivil.Rpc.Filter.SessionFilterAttribute</cref>
     /// </seealso>
-    public class UnitComponent : BaseComponent
+    public class RoleRequiredAttribute : SessionFilterAttribute
     {
         /// <summary>
-        /// Gets or sets the gender.
+        /// Checks the permission.
         /// </summary>
-        /// <value>
-        /// The gender.
-        /// </value>
-        public Gender Gender { get; set; }
-        /// <summary>
-        /// Gets or sets the race.
-        /// </summary>
-        /// <value>
-        /// The race.
-        /// </value>
-        public Race Race { get; set; }
-
-        /// <summary>
-        /// Gets or sets the move speed.
-        /// </summary>
-        /// <value>
-        /// The move speed.
-        /// </value>
-        public float MoveSpeed { get; set; }
-
-        /// <summary>
-        /// Gets or sets the sight range.
-        /// </summary>
-        /// <value>
-        /// The sight range.
-        /// </value>
-        public float SightRange { get; set; }
+        /// <param name="session">The session.</param>
+        /// <returns></returns>
+        public override CheckResult CheckPermission(IRpcSession session)
+        {
+            return CheckResult.If(session.IsSet<Entity>(),"Please select a role first.");
+        }
     }
 }

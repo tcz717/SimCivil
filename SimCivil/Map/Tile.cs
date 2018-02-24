@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
+
+using JetBrains.Annotations;
 
 using Newtonsoft.Json;
 
@@ -20,27 +23,13 @@ namespace SimCivil.Map
         public int Height { get; set; }
 
         /// <summary>
-        /// Five slots:
-        /// <list type="bullet">
-        /// <item>TopLeft</item>
-        /// <item>TopRight</item>
-        /// <item>BottomLeft</item>
-        /// <item>BottomRight</item>
-        /// <item>Centor</item>
-        /// </list>
+        /// Gets or sets the items.
         /// </summary>
-        public Guid[] Slots { get; set; }
-
-        /// <summary>
-        /// Four sides:
-        /// <list type="bullet">
-        /// <item>Top</item>
-        /// <item>Bottom</item>
-        /// <item>Left</item>
-        /// <item>Right</item>
-        /// </list>
-        /// </summary>
-        public Guid[] Sides { get; set; }
+        /// <value>
+        /// The items.
+        /// </value>
+        [CanBeNull]
+        public List<Guid> Items { get; set; }
 
         /// <summary>
         /// Tile's surface texture.
@@ -72,8 +61,6 @@ namespace SimCivil.Map
                 Meta = new NullableDynamicObject(),
                 Position = pos,
                 Surface = surface,
-                Slots = new Guid[5],
-                Sides = new Guid[4],
             };
             return e;
         }

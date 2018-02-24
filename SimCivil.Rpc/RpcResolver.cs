@@ -20,7 +20,7 @@
 // 
 // SimCivil - SimCivil.Rpc - RpcResolver.cs
 // Create Date: 2018/01/02
-// Update Date: 2018/01/07
+// Update Date: 2018/02/22
 
 using System;
 using System.Linq;
@@ -41,9 +41,9 @@ namespace SimCivil.Rpc
 {
     public class RpcResolver : SimpleChannelInboundHandler<RpcRequest>
     {
+        private readonly CallbackProxyBuilder _proxyBuilder = new CallbackProxyBuilder();
         private ILifetimeScope _scope;
         public RpcServer Server { get; }
-        private CallbackProxyBuilder _proxyBuilder = new CallbackProxyBuilder();
 
         public RpcResolver(RpcServer rpcServer)
         {
@@ -117,7 +117,7 @@ namespace SimCivil.Rpc
                     {
                         args[i] = _proxyBuilder.Build(parameterType, Convert.ToInt32(args[i]), ctx.Channel);
                     }
-                    if (!parameterType.IsInstanceOfType(args[i]))
+                    else if (!TryConvert(ref args[i], parameterType) && !parameterType.IsInstanceOfType(args[i]))
                     {
                         args[i] = Convert.ChangeType(args[i], parameterType);
                     }
@@ -131,6 +131,7 @@ namespace SimCivil.Rpc
                     {
                         case MethodType.Synchronous:
                             object returnValue = method.Invoke(service, args);
+                            warper?.AfterCall(session);
 
                             ctx.Channel.WriteAndFlushAsync(new RpcResponse(msg, returnValue));
 
@@ -180,6 +181,19 @@ namespace SimCivil.Rpc
 
                 throw;
             }
+        }
+
+        private static bool TryConvert(ref object o, Type type)
+        {
+            if (o is string s && type == typeof(Guid) &&
+                Guid.TryParse(s, out Guid result))
+            {
+                o = result;
+
+                return true;
+            }
+
+            return false;
         }
 
 

@@ -18,53 +18,37 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// SimCivil - SimCivil - UnitComponent.cs
-// Create Date: 2018/01/07
-// Update Date: 2018/01/07
+// SimCivil - SimCivil - XYExtension.cs
+// Create Date: 2018/02/11
+// Update Date: 2018/02/11
 
 using System;
 
-using SimCivil.Contract.Model;
-
-namespace SimCivil.Components
+namespace SimCivil
 {
     /// <summary>
-    /// Data related to unit infomation.
+    /// 
     /// </summary>
-    /// <seealso>
-    ///     <cref>SimCivil.Components.IComponent</cref>
-    /// </seealso>
-    public class UnitComponent : BaseComponent
+    public static class XYExtension
     {
         /// <summary>
-        /// Gets or sets the gender.
+        /// Gets the length.
         /// </summary>
-        /// <value>
-        /// The gender.
-        /// </value>
-        public Gender Gender { get; set; }
+        /// <param name="tuple">The tuple.</param>
+        /// <returns></returns>
+        public static float GetLength(this (float X, float Y) tuple)
+        {
+            return MathF.Sqrt(tuple.X * tuple.X + tuple.Y * tuple.Y);
+        }
         /// <summary>
-        /// Gets or sets the race.
+        /// Adds the specified tuple2.
         /// </summary>
-        /// <value>
-        /// The race.
-        /// </value>
-        public Race Race { get; set; }
-
-        /// <summary>
-        /// Gets or sets the move speed.
-        /// </summary>
-        /// <value>
-        /// The move speed.
-        /// </value>
-        public float MoveSpeed { get; set; }
-
-        /// <summary>
-        /// Gets or sets the sight range.
-        /// </summary>
-        /// <value>
-        /// The sight range.
-        /// </value>
-        public float SightRange { get; set; }
+        /// <param name="tuple1">The tuple1.</param>
+        /// <param name="tuple2">The tuple2.</param>
+        /// <returns></returns>
+        public static (float X, float Y) Add(this (float X, float Y) tuple1, (float X, float Y) tuple2)
+        {
+            return (tuple1.X + tuple2.X, tuple1.Y + tuple2.Y);
+        }
     }
 }

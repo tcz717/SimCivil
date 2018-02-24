@@ -1,4 +1,28 @@
-﻿using System;
+﻿// Copyright (c) 2017 TPDT
+// 
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+// 
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+// 
+// SimCivil - SimCivil.SimpleClient - SimCivilClient.cs
+// Create Date: 2018/01/07
+// Update Date: 2018/02/22
+
+using System;
 using System.Linq;
 using System.Net;
 using System.Text;
@@ -12,6 +36,7 @@ namespace SimCivil.SimpleClient
 {
     internal class SimCivilClient : IDisposable
     {
+        private RoleSummary[] _roleList;
         public RpcClient RpcClient { get; private set; }
 
         protected StateMachine<ClientState, ClientTriger> ClientStateMachine { get; set; }
@@ -19,6 +44,10 @@ namespace SimCivil.SimpleClient
         protected StateMachine<ClientState, ClientTriger>.TriggerWithParameters<IPEndPoint> ConnectTriger { get; set; }
 
         public IAuth AuthService { get; set; }
+
+        public IViewSynchronizer Synchronizer { get; set; }
+
+        public IRoleManager RoleManager { get; set; }
 
         public SimCivilClient()
         {
@@ -55,7 +84,7 @@ namespace SimCivil.SimpleClient
             ClientStateMachine.Configure(ClientState.WaitCommand)
                 .SubstateOf(ClientState.Connected)
                 .PermitReentry(ClientTriger.Retry)
-                .Permit(ClientTriger.LostConnection,ClientState.GetIpAndPort)
+                .Permit(ClientTriger.LostConnection, ClientState.GetIpAndPort)
                 .OnEntry(WaitInput);
         }
 
@@ -94,11 +123,26 @@ namespace SimCivil.SimpleClient
                         break;
                     case "lr":
                         var summaries = RoleManager.GetRoleList().Result;
+                        _roleList = summaries;
                         for (var i = 0; i < summaries.Length; i++)
                         {
                             RoleSummary summary = summaries[i];
                             Console.Out.WriteLine($"summary[{i}] = {summary}");
                         }
+
+                        break;
+                    case "s":
+                        if (!int.TryParse(args[1], out int index))
+                        {
+                            Console.Out.WriteLine("Wrong index");
+
+                            return;
+                        }
+
+                        result = RoleManager.UseRole(_roleList[index].Id).Result;
+                        Console.Out.WriteLine("result = {0}", result);
+                        if (result)
+                            RegisterSync();
 
                         break;
                     default:
@@ -113,6 +157,31 @@ namespace SimCivil.SimpleClient
             }
 
             ClientStateMachine.Fire(ClientTriger.Retry);
+        }
+
+        private void RegisterSync()
+        {
+            Synchronizer = RpcClient.Import<IViewSynchronizer>();
+            Synchronizer.RegisterViewSync(
+                change =>
+                {
+                    if (change.EntityChange != null)
+                        foreach (EntityDto entityDto in change.EntityChange)
+                        {
+                            Console.Out.WriteLine(entityDto);
+                        }
+
+                    if (change.Events != null)
+                        foreach (ViewEvent viewEvent in change.Events)
+                        {
+                            Console.Out.WriteLine(viewEvent);
+                        }
+                    if (change.TileChange != null)
+                        foreach (TileDto tileDto in change.TileChange)
+                        {
+                            Console.Out.WriteLine(tileDto);
+                        }
+                });
         }
 
         protected void LogIn()
@@ -132,8 +201,6 @@ namespace SimCivil.SimpleClient
                 ClientStateMachine.Fire(ClientTriger.Retry);
             }
         }
-
-        public IRoleManager RoleManager { get; set; }
 
         protected void Connect(IPEndPoint endPoint)
         {

@@ -20,7 +20,7 @@
 // 
 // SimCivil - SimCivil - PositionComponent.cs
 // Create Date: 2018/01/10
-// Update Date: 2018/02/04
+// Update Date: 2018/02/08
 
 using System;
 using System.Text;
@@ -37,18 +37,12 @@ namespace SimCivil.Components
     /// <seealso>
     ///     <cref>SimCivil.Components.IComponent</cref>
     /// </seealso>
+    [JsonObject(MemberSerialization.OptIn)]
     public class PositionComponent : BaseComponent
     {
         private (float X, float Y) _toSync;
         private float _x;
         private float _y;
-
-        /// <summary>Returns a string that represents the current object.</summary>
-        /// <returns>A string that represents the current object.</returns>
-        public override string ToString()
-        {
-            return $"{nameof(Pos)}: {Pos}, {nameof(PreviousPos)}: {PreviousPos}";
-        }
 
         /// <summary>
         /// Gets the previous position.
@@ -56,7 +50,6 @@ namespace SimCivil.Components
         /// <value>
         /// The previous position.
         /// </value>
-        [JsonIgnore]
         public (float X, float Y) PreviousPos { get; private set; }
 
         /// <summary>
@@ -65,6 +58,7 @@ namespace SimCivil.Components
         /// <value>
         /// The x.
         /// </value>
+        [JsonProperty]
         public float X
         {
             get => _x;
@@ -83,6 +77,7 @@ namespace SimCivil.Components
         /// <value>
         /// The y.
         /// </value>
+        [JsonProperty]
         public float Y
         {
             get => _y;
@@ -101,7 +96,6 @@ namespace SimCivil.Components
         /// <value>
         /// The position.
         /// </value>
-        [JsonIgnore]
         public (float X, float Y) Pos
         {
             get => (X, Y);
@@ -120,7 +114,6 @@ namespace SimCivil.Components
         /// <value>
         /// The tile x.
         /// </value>
-        [JsonIgnore]
         public int TileX => (int) Math.Truncate(X);
         /// <summary>
         /// Gets the tile y.
@@ -128,8 +121,21 @@ namespace SimCivil.Components
         /// <value>
         /// The tile y.
         /// </value>
-        [JsonIgnore]
         public int TileY => (int) Math.Truncate(Y);
+        /// <summary>
+        /// Gets the tile.
+        /// </summary>
+        /// <value>
+        /// The tile.
+        /// </value>
+        public (int X, int Y) Tile => ((int) Math.Truncate(X), (int) Math.Truncate(Y));
+
+        /// <summary>Returns a string that represents the current object.</summary>
+        /// <returns>A string that represents the current object.</returns>
+        public override string ToString()
+        {
+            return $"{nameof(Pos)}: {Pos}, {nameof(PreviousPos)}: {PreviousPos}";
+        }
 
         /// <summary>
         /// Deconstructs the specified x and y.
@@ -155,9 +161,13 @@ namespace SimCivil.Components
         }
     }
 
+    /// <summary>
+    /// The extenstion that helps get component from entity
+    /// </summary>
     public static partial class EntityExtenstion
     {
         private static readonly string PositionName = typeof(PositionComponent).FullName;
+
         /// <summary>
         /// Gets the position.
         /// </summary>
@@ -165,7 +175,6 @@ namespace SimCivil.Components
         /// <returns></returns>
         public static PositionComponent GetPos(this Entity entity)
         {
-
             return (PositionComponent) entity[PositionName];
         }
     }

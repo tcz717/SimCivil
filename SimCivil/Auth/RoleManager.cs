@@ -76,14 +76,30 @@ namespace SimCivil.Auth
             EntityManager = entityManager;
             EntityRepository = entityRepository;
             PrefabRepository = prefabRepository;
+
+            Session.Exiting += Session_Exiting;
+        }
+
+        private void Session_Exiting(object sender, EventArgs e)
+        {
+            if (Session.IsSet<Entity>())
+            {
+                ReleaseRole();
+            }
+
+            Session.Exiting -= Session_Exiting;
         }
 
         public void BeforeCall(IRpcSession session)
         {
-            if (Roles == null)
+            if (Roles != null) return;
+
+            var player = Session.Get<Player>();
+            if (player.Roles is null)
             {
-                Roles = Session.Get<Player>().Roles.Select(id => EntityRepository.LoadEntity(id)).ToList();
+                player.Roles = new List<Guid>();
             }
+            Roles = player.Roles.Select(id => EntityRepository.LoadEntity(id)).ToList();
         }
 
         public void AfterCall(IRpcSession session)

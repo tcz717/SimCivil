@@ -20,20 +20,24 @@
 // 
 // SimCivil - SimCivil - ChunkViewSynchronizer.cs
 // Create Date: 2018/01/31
-// Update Date: 2018/02/05
+// Update Date: 2018/02/08
 
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 
 using AutoMapper;
 
+using log4net;
+
 using SimCivil.Auth;
 using SimCivil.Components;
 using SimCivil.Contract;
+using SimCivil.Map;
 using SimCivil.Model;
 using SimCivil.Rpc;
 using SimCivil.Rpc.Session;
@@ -49,6 +53,8 @@ namespace SimCivil.Sync
     [LoginFilter]
     public class ChunkViewSynchronizer : IViewSynchronizer, ITicker, ISessionRequred
     {
+        private static readonly ILog Logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+
         private static readonly IMapper Mapper =
             new Mapper(
                 new MapperConfiguration(
@@ -57,12 +63,13 @@ namespace SimCivil.Sync
                         cfg.CreateMap<Entity, EntityDto>()
                             .ForMember(dto => dto.Pos, n => n.MapFrom(e => e.GetPos().Pos));
                         cfg.CreateMap<ObserverComponent, ViewChange>();
+                        cfg.CreateMap<Tile, TileDto>();
                     }));
 
         private static readonly (int X, int Y)[] Offsets =
             {(0, 0), (1, 0), (0, 1), (-1, 0), (0, -1), (1, 1), (-1, -1), (1, -1), (-1, 1)};
 
-        private readonly ConcurrentQueue<Entity> _changedEntities = new ConcurrentQueue<Entity>();
+        private readonly ConcurrentQueue<Entity> _movedEntities = new ConcurrentQueue<Entity>();
 
         private readonly Dictionary<(int, int), HashSet<Entity>>
             _chunks = new Dictionary<(int, int), HashSet<Entity>>();
@@ -74,6 +81,13 @@ namespace SimCivil.Sync
         /// The entity manager.
         /// </value>
         public IEntityManager EntityManager { get; }
+        /// <summary>
+        /// Gets the map.
+        /// </summary>
+        /// <value>
+        /// The map.
+        /// </value>
+        public TileMap Map { get; }
 
         /// <summary>
         /// Gets or sets the event consumer.
@@ -103,15 +117,19 @@ namespace SimCivil.Sync
         /// Initializes a new instance of the <see cref="ChunkViewSynchronizer"/> class.
         /// </summary>
         /// <param name="entityManager">The entity manager.</param>
-        public ChunkViewSynchronizer(IEntityManager entityManager)
+        /// <param name="map"></param>
+        public ChunkViewSynchronizer(IEntityManager entityManager, TileMap map)
         {
             EntityManager = entityManager;
+            Map = map;
             ObserverGroup = entityManager.Group<PositionComponent, ObserverComponent>();
             MovableEntities = entityManager.Group<PositionComponent>();
             foreach (Entity entity in MovableEntities.Entities)
             {
                 AddProduer(entity);
             }
+
+            Logger.Info($"Init: {MovableEntities.Entities.Count} entities attached");
 
             MovableEntities.EntityAdded += EventConsumer_EntityAdded;
             MovableEntities.EntityRemoved += EventConsumer_EntityRemoved;
@@ -123,7 +141,7 @@ namespace SimCivil.Sync
         /// <value>
         /// The session.
         /// </value>
-        public ThreadLocal<IRpcSession> Session { get; set; }
+        public ThreadLocal<IRpcSession> Session { get; } = new ThreadLocal<IRpcSession>();
 
         /// <summary>
         /// Called when tick.
@@ -131,10 +149,10 @@ namespace SimCivil.Sync
         /// <param name="tickCount">Total tick.</param>
         public void Update(int tickCount)
         {
-            var changedEntities = new HashSet<Entity>();
-            while (_changedEntities.TryDequeue(out Entity entity))
+            var movedEntities = new HashSet<Entity>();
+            while (_movedEntities.TryDequeue(out Entity entity))
             {
-                changedEntities.Add(entity);
+                movedEntities.Add(entity);
             }
 
             foreach (Entity entity in MovableEntities.Entities)
@@ -142,13 +160,21 @@ namespace SimCivil.Sync
                 entity.GetPos().Sync();
             }
 
-            foreach (Entity changedEntity in changedEntities)
+            Logger.Debug($"{movedEntities.Count} entities have moved");
+
+            foreach (Entity movedEntity in movedEntities)
             {
-                var position = changedEntity.GetPos();
+                PositionComponent position = movedEntity.GetPos();
                 (int X, int Y) prevChunk = GetChunkIdx(position.PreviousPos);
                 (int X, int Y) currentChunk = GetChunkIdx(position.Pos);
 
-                MoveChunk(changedEntity, prevChunk, currentChunk);
+                if (movedEntity.TryGet(out ObserverComponent observer))
+                {
+                    observer.TileChange.AddRange(
+                        Map.SelectRange(position.Tile, observer.NotityRange).Select(Mapper.Map<TileDto>));
+                }
+
+                MoveChunk(movedEntity, prevChunk, currentChunk);
 
                 var effectChunks = Offsets.Select(o => (prevChunk.X + o.X, prevChunk.Y + o.Y))
                     .Union(Offsets.Select(o => (currentChunk.X + o.X, currentChunk.Y + o.Y)));
@@ -159,12 +185,12 @@ namespace SimCivil.Sync
 
                     foreach (Entity effectedEntity in entities)
                     {
-                        if (Equals(effectedEntity, changedEntity)) continue;
+                        if (Equals(effectedEntity, movedEntity)) continue;
 
                         if (effectedEntity.Has<ObserverComponent>())
-                            UpdateChange(changedEntity, effectedEntity);
-                        if (changedEntity.Has<ObserverComponent>())
-                            UpdateChange(effectedEntity, changedEntity);
+                            UpdateChange(movedEntity, effectedEntity);
+                        if (movedEntity.Has<ObserverComponent>())
+                            UpdateChange(effectedEntity, movedEntity);
                     }
                 }
             }
@@ -179,28 +205,6 @@ namespace SimCivil.Sync
                 viewChange.TickCount = tickCount;
                 consumer.Callback(viewChange);
                 consumer.Reset();
-            }
-        }
-
-        private static void UpdateChange(Entity sourceEntity, Entity targetEntity)
-        {
-            var targetPos = targetEntity.GetPos();
-            var sourcePos = sourceEntity.GetPos();
-            var observerComponent = targetEntity.Get<ObserverComponent>();
-            float prevDistance = Max(
-                Abs(targetPos.PreviousPos.X - sourcePos.PreviousPos.X),
-                Abs(targetPos.PreviousPos.Y - sourcePos.PreviousPos.Y));
-            float currentDistance = Max(Abs(targetPos.X - sourcePos.X), Abs(targetPos.Y - sourcePos.Y));
-            uint range = observerComponent.NotityRange;
-
-            if (currentDistance < range)
-            {
-                observerComponent.EntityChange.Add(
-                    Mapper.Map<EntityDto>(sourceEntity));
-            }
-            else if (prevDistance < range)
-            {
-                observerComponent.Events.Add(ViewEvent.EntityLeave(sourceEntity.Id));
             }
         }
 
@@ -232,7 +236,31 @@ namespace SimCivil.Sync
                 throw new NotSupportedException(nameof(ObserverGroup));
             }
 
+            Logger.Info($"[{Session.Value.Get<Player>().Username}] registered a callback at entity {role}]");
             role.Get<ObserverComponent>().Callback = callback;
+            OnEntityChanged(role);
+        }
+
+        private static void UpdateChange(Entity sourceEntity, Entity targetEntity)
+        {
+            PositionComponent targetPos = targetEntity.GetPos();
+            PositionComponent sourcePos = sourceEntity.GetPos();
+            var observerComponent = targetEntity.Get<ObserverComponent>();
+            float prevDistance = Max(
+                Abs(targetPos.PreviousPos.X - sourcePos.PreviousPos.X),
+                Abs(targetPos.PreviousPos.Y - sourcePos.PreviousPos.Y));
+            float currentDistance = Max(Abs(targetPos.X - sourcePos.X), Abs(targetPos.Y - sourcePos.Y));
+            uint range = observerComponent.NotityRange;
+
+            if (currentDistance < range)
+            {
+                observerComponent.EntityChange.Add(
+                    Mapper.Map<EntityDto>(sourceEntity));
+            }
+            else if (prevDistance < range)
+            {
+                observerComponent.Events.Add(ViewEvent.EntityLeave(sourceEntity.Id));
+            }
         }
 
         private void MoveChunk(Entity entity, (int X, int Y) prevChunk, (int X, int Y) currentChunk)
@@ -273,6 +301,7 @@ namespace SimCivil.Sync
             {
                 entities = new HashSet<Entity> {entity};
                 _chunks.Add(chunkIdx, entities);
+                Logger.Info($"Created new chunk at {chunkIdx}");
             }
 
             OnEntityChanged(entity);
@@ -296,7 +325,7 @@ namespace SimCivil.Sync
 
         private void OnEntityChanged(Entity entity)
         {
-            _changedEntities.Enqueue(entity);
+            _movedEntities.Enqueue(entity);
         }
     }
 }

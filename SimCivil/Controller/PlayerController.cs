@@ -1,107 +1,179 @@
-﻿using SimCivil.Auth;
-using SimCivil.Map;
+﻿// Copyright (c) 2017 TPDT
+// 
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+// 
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+// 
+// SimCivil - SimCivil - PlayerController.cs
+// Create Date: 2017/08/25
+// Update Date: 2018/02/10
+
 using System;
-using System.Collections.Generic;
-using System.Collections.Specialized;
-using System.Linq;
+using System.Text;
+
+using SimCivil.Auth;
+using SimCivil.Components;
+using SimCivil.Contract;
 using SimCivil.Model;
+using SimCivil.Rpc;
+using SimCivil.Rpc.Session;
 
 namespace SimCivil.Controller
 {
     /// <summary>
     /// Handle all player's action.
     /// </summary>
-    public class PlayerController : IController
+    [RoleRequired]
+    public class PlayerController : IPlayerController, ICallWarper
     {
-        private readonly MapData _map;
-
-        /// <inheritdoc />
         /// <summary>
-        /// Gets the priority.
+        /// Gets the session.
         /// </summary>
         /// <value>
-        /// The priority.
+        /// The session.
         /// </value>
-        public int Priority { get; } = 800;
+        public IRpcSession Session { get; }
 
         /// <summary>
-        /// Gets or sets the role entities.
+        /// Gets the role.
         /// </summary>
         /// <value>
-        /// The role entities.
+        /// The role.
         /// </value>
-        public HashSet<Entity> RoleEntities { get; } = new HashSet<Entity>();
+        public Entity Role { get; private set; }
 
         /// <summary>
-        /// Updates the specified tick count.
+        /// Gets the unit.
         /// </summary>
-        /// <param name="tickCount">The tick count.</param>
-        public void Update(int tickCount)
-        {
-            //TODO
-        }
+        /// <value>
+        /// The unit.
+        /// </value>
+        public UnitComponent Unit { get; private set; }
 
-        /// <inheritdoc />
         /// <summary>
-        /// Starts this instance.
+        /// Gets the position.
         /// </summary>
-        public void Start()
+        /// <value>
+        /// The position.
+        /// </value>
+        public PositionComponent Position { get; private set; }
+
+        /// <summary>
+        /// Gets the state of the move.
+        /// </summary>
+        /// <value>
+        /// The state of the move.
+        /// </value>
+        public MovableComponent MoveState { get; private set; }
+
+        /// <summary>Initializes a new instance of the <see cref="T:System.Object"></see> class.</summary>
+        public PlayerController(IRpcSession session)
         {
-            //TODO
+            Session = session;
         }
 
-        /// <inheritdoc />
+        /// <summary>
+        /// Befores the call.
+        /// </summary>
+        /// <param name="session">The session.</param>
+        public void BeforeCall(IRpcSession session)
+        {
+            // TODO: Use INotifyChangeCollection to set up
+            Role = session.Get<Entity>();
+            MoveState = Role.GetMovable();
+            Position = Role.GetPos();
+            Unit = Role.Get<UnitComponent>();
+        }
+
+        /// <summary>
+        /// Afters the call.
+        /// </summary>
+        /// <param name="session">The session.</param>
+        public void AfterCall(IRpcSession session) { }
+
+        /// <summary>
+        /// Gets the state of the move.
+        /// </summary>
+        /// <returns></returns>
+        public (float X, float Y, float Speed) GetMoveState()
+        {
+            return (MoveState.Direction.X, MoveState.Direction.Y, MoveState.Speed);
+        }
+
+        /// <summary>
+        /// Moves the specified direction.
+        /// </summary>
+        /// <param name="direction">The direction.</param>
+        /// <param name="speed">The speed.</param>
+        /// <returns></returns>
+        public (float X, float Y, float Speed) Move((float X, float Y) direction, float speed)
+        {
+            float directionLength = direction.GetLength();
+
+            if (!(directionLength > 0))
+                throw new ArgumentOutOfRangeException(nameof(direction));
+            if (!(speed >= 0 && speed <= Unit.MoveSpeed))
+                throw new ArgumentOutOfRangeException(nameof(speed));
+
+            direction = (direction.X / directionLength, direction.Y / directionLength);
+            MoveState.Direction = direction;
+            MoveState.Speed = speed;
+
+            return (MoveState.Direction.X, MoveState.Direction.Y, MoveState.Speed);
+        }
+
+        /// <summary>
+        /// Moves the percentage.
+        /// </summary>
+        /// <param name="direction">The direction.</param>
+        /// <param name="relativeSpeed">The relative speed.</param>
+        /// <returns></returns>
+        public (float X, float Y, float Speed) MovePercentage((float X, float Y) direction, float relativeSpeed)
+        {
+            // TODO
+            return (MoveState.Direction.X, MoveState.Direction.Y, MoveState.Speed);
+        }
+
         /// <summary>
         /// Stops this instance.
         /// </summary>
         public void Stop()
         {
-            //TODO
+            MoveState.Speed = 0;
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="PlayerController"/> class.
+        /// Interactions the specified target.
         /// </summary>
-        /// <param name="map">The map.</param>
-        public PlayerController(MapData map)
+        /// <param name="target">The target.</param>
+        /// <param name="interactionType">Type of the interaction.</param>
+        public void Interaction(Guid target, InteractionType interactionType)
         {
-            _map = map;
-            _map.Entities.CollectionChanged += Entities_CollectionChanged;
+            throw new NotImplementedException();
         }
 
-        private void Entities_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        /// <summary>
+        /// Builds the specified tile element.
+        /// </summary>
+        /// <param name="tileElement">The tile element.</param>
+        /// <param name="position">The position.</param>
+        public void Build(Guid tileElement, (int X, int Y) position)
         {
-            switch (e.Action)
-            {
-                case NotifyCollectionChangedAction.Add:
-                    foreach (Entity entity in e.NewItems)
-                    {
-                        if (RoleEntities.Contains(entity))
-                        {
-                            throw new InvalidOperationException($"{entity} has existed in {nameof(PlayerController)}");
-                        }
-                        RoleEntities.Add(entity);
-                    }
-                    break;
-                case NotifyCollectionChangedAction.Reset:
-                case NotifyCollectionChangedAction.Remove:
-                    foreach (Entity entity in e.OldItems)
-                    {
-                        RoleEntities.Remove(entity);
-                    }
-                    break;
-                case NotifyCollectionChangedAction.Move:
-                case NotifyCollectionChangedAction.Replace:
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
-        }
-
-        private void Auth_OnRoleChanged(object sender, RoleChangeArgs e)
-        {
-            if (e.OldEntity != null) _map.DetachEntity(e.OldEntity);
-            _map.AttachEntity(e.NewEntity);
+            throw new NotImplementedException();
         }
     }
 }
