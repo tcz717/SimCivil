@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.27130.2010
+VisualStudioVersion = 15.0.27130.2026
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SimCivil", "SimCivil\SimCivil.csproj", "{E5FC1944-C7FF-4F69-87F9-4194572EE718}"
 EndProject
@@ -9,9 +9,17 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SimCivil.Test", "SimCivil.T
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SimCivil.Rpc", "SimCivil.Rpc\SimCivil.Rpc.csproj", "{2DFAF40E-E810-4F94-A9C3-63DE31B85B6E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimCivil.Contract", "SimCivil.Contract\SimCivil.Contract.csproj", "{298AD044-D099-47E3-B4BF-A7ED8B2F022A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SimCivil.Contract", "SimCivil.Contract\SimCivil.Contract.csproj", "{298AD044-D099-47E3-B4BF-A7ED8B2F022A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimCivil.SimpleClient", "SimCivil.SimpleClient\SimCivil.SimpleClient.csproj", "{E4693A54-1C42-42A7-9410-C4FC1E599261}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SimCivil.SimpleClient", "SimCivil.SimpleClient\SimCivil.SimpleClient.csproj", "{E4693A54-1C42-42A7-9410-C4FC1E599261}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SimCivil.Orleans.Interfaces", "SimCivil.Orleans.Interfaces\SimCivil.Orleans.Interfaces.csproj", "{0B2CF7EE-E60D-4E34-8365-E01411DB7E5D}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SimCivil.Orleans.Grains", "SimCivil.Orleans.Grains\SimCivil.Orleans.Grains.csproj", "{BDA135D5-455C-410D-94DF-F5CFCFED6339}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimCivil.Orleans.Server", "SimCivil.Orleans.Server\SimCivil.Orleans.Server.csproj", "{05A81D03-3D21-44F9-AEFF-45610789E56A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimCivl.Orleans.Test", "SimCivl.Orleans.Test\SimCivl.Orleans.Test.csproj", "{F082F571-AD03-46D4-A03D-BE5C4046659E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +47,22 @@ Global
 		{E4693A54-1C42-42A7-9410-C4FC1E599261}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E4693A54-1C42-42A7-9410-C4FC1E599261}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E4693A54-1C42-42A7-9410-C4FC1E599261}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0B2CF7EE-E60D-4E34-8365-E01411DB7E5D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0B2CF7EE-E60D-4E34-8365-E01411DB7E5D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0B2CF7EE-E60D-4E34-8365-E01411DB7E5D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0B2CF7EE-E60D-4E34-8365-E01411DB7E5D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BDA135D5-455C-410D-94DF-F5CFCFED6339}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BDA135D5-455C-410D-94DF-F5CFCFED6339}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BDA135D5-455C-410D-94DF-F5CFCFED6339}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BDA135D5-455C-410D-94DF-F5CFCFED6339}.Release|Any CPU.Build.0 = Release|Any CPU
+		{05A81D03-3D21-44F9-AEFF-45610789E56A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{05A81D03-3D21-44F9-AEFF-45610789E56A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{05A81D03-3D21-44F9-AEFF-45610789E56A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{05A81D03-3D21-44F9-AEFF-45610789E56A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F082F571-AD03-46D4-A03D-BE5C4046659E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F082F571-AD03-46D4-A03D-BE5C4046659E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F082F571-AD03-46D4-A03D-BE5C4046659E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F082F571-AD03-46D4-A03D-BE5C4046659E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

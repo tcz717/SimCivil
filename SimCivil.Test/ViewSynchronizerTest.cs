@@ -169,13 +169,13 @@ namespace SimCivil.Test
 
                         break;
                     case 1:
-                        Assert.Equal(obj.EntityChange?.Length, 0);
-                        Assert.Equal(obj.Events?.Length, 1);
+                        Assert.Equal(0, obj.EntityChange?.Length);
+                        Assert.Equal(1, obj.Events?.Length);
 
                         break;
                     case 2:
-                        Assert.Equal(obj.EntityChange?.Length, 1);
-                        Assert.Equal(obj.Events?.Length, 0);
+                        Assert.Equal(1, obj.EntityChange?.Length);
+                        Assert.Equal(0, obj.Events?.Length);
 
                         break;
                     default:
@@ -198,7 +198,7 @@ namespace SimCivil.Test
                 Output.WriteLine(entity.ToString());
             }
 
-            Assert.Equal(Entities.All.Entities.Count, 2);
+            Assert.Equal(2, Entities.All.Entities.Count);
 
             Synchronizer.Update(0);
 
@@ -208,7 +208,7 @@ namespace SimCivil.Test
             player.Get<PositionComponent>().Pos = (4, 4);
             Synchronizer.Update(2);
 
-            Assert.Equal(callbackCount, 3);
+            Assert.Equal(3, callbackCount);
         }
     }
 }
