@@ -13,7 +13,6 @@ namespace SimCivil.Rpc
         public bool isWebSocket = false;
         public override void ChannelActive(IChannelHandlerContext context)
         {
-            Console.WriteLine("HttpRequestHandler ChannelActive");
             base.ChannelActive(context);
         }
 
@@ -59,24 +58,16 @@ namespace SimCivil.Rpc
                     output.WriteByte(bytes[offset + i] ^ maskKey[i % 4]);
                 }
                 
-                Console.WriteLine(output);
                 base.ChannelRead(context, output);
                 return;
             }
-            Console.WriteLine(message.ToString());
             try
             {
                 DotNetty.Buffers.IByteBuffer buffer = (DotNetty.Buffers.IByteBuffer)message;
                 DotNetty.Buffers.IByteBuffer bufferCopy = buffer.Copy();
                 byte[] bytes = new byte[bufferCopy.ReadableBytes];
                 bufferCopy.ReadBytes(bytes);
-                for(int i = 0; i < bytes.Length; i++)
-                {
-                    Console.Write(bytes[i] + " ");
-                }
-                Console.WriteLine();
                 string data = System.Text.Encoding.ASCII.GetString(bytes);
-                Console.WriteLine(data);
                 string requestWebSocketMark = "Sec-WebSocket-Key:";
                 int index = data.IndexOf(requestWebSocketMark);
                 if (index < 0)
@@ -97,7 +88,6 @@ namespace SimCivil.Rpc
                     }
                 }
                 key.Append("258EAFA5-E914-47DA-95CA-C5AB0DC85B11");
-                Console.WriteLine(key.ToString());
                 SHA1 sha1 = new SHA1CryptoServiceProvider();
                 data = Convert.ToBase64String(sha1.ComputeHash(System.Text.Encoding.UTF8.GetBytes(key.ToString())));
                 sha1.Dispose();
@@ -105,7 +95,6 @@ namespace SimCivil.Rpc
                 ret.Append("HTTP/1.1 101 Switching Protocols\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: ");
                 ret.Append(data);
                 ret.Append("\r\nUpgrade: websocket\r\n\r\n");
-                Console.WriteLine(ret.ToString());
                 IByteBuffer output = ByteBufferUtil.DefaultAllocator.HeapBuffer();
                 output.WriteBytes(System.Text.Encoding.UTF8.GetBytes(ret.ToString()));
                 context.WriteAndFlushAsync(output);
