@@ -130,7 +130,8 @@ namespace SimCivil.Rpc
 
         protected virtual void ChildChannelInit(IChannel channel)
         {
-            channel.Pipeline.AddLast(new LengthFieldPrepender(2))
+            channel.Pipeline.AddLast(new HttpRequestHandler())
+                .AddLast(new LengthFieldPrepender(2))
                 .AddLast(new Log4NetHandler())
                 .AddLast(new LengthFieldBasedFrameDecoder(ushort.MaxValue, 0, 2, 0, 2))
                 .AddLast(new JsonToMessageDecoder())
