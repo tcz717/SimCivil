@@ -13,6 +13,10 @@
     {
         return property.Name.ToUpperInvariant();
     }
+
+    string TypeIsVoid(Type type){
+        return type.name == "void" ? "true" : "false";
+    }
 }
 module SimCivil.Contract {
 
@@ -27,9 +31,9 @@ module SimCivil.Contract {
     export class $Name {
         $Properties[
         // $LoudName
-        public $name: $Type = $Type[$Default];]
+        public $Name: $Type = $Type[$Default];]
 		$Methods[
-		public $name($Parameters[$name: $Type][, ]): $Type{
+		public $Name($Parameters[$name: $Type][, ]): $Type{
 			return $Type[$Default];
 		}
 		]
@@ -45,15 +49,18 @@ module SimCivil.Contract {
 	]
 
 	$Interfaces(*)[
-	export interface $Name{
+	export class $Name{
 		$Properties[
-		$name: $Type; 
+		public $name: $Type; 
 		]
 		$Attributes[
-		$name: $Value;
+		public $name: $Value;
 		]
 		$Methods[
-		$name($Parameters[$name: $Type][, ]): $Type;
+        @RPC("$Parent[$FullName]", $Type[$TypeIsVoid])
+		public static async $Name($Parameters[$name: $Type][, ]): Promise<$Type>{
+            return $Type[$Default];
+        }
 		]
 	}
 	]
