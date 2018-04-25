@@ -5,12 +5,21 @@ using System.Text;
 using System.Net;
 using System.Security.Cryptography;
 using DotNetty.Buffers;
+using System.Threading.Tasks;
+using DotNetty.Codecs;
 
 namespace SimCivil.Rpc
 {
     class HttpRequestHandler : ChannelHandlerAdapter
     {
         public bool isWebSocket = false;
+        public LengthFieldPrepender lengthFieldPrepender;
+        public LengthFieldBasedFrameDecoder lengthFieldBasedFrameDecoder;
+        public HttpRequestHandler(LengthFieldPrepender lengthFieldPrepender, LengthFieldBasedFrameDecoder lengthFieldBasedFrameDecoder)
+        {
+            this.lengthFieldPrepender = lengthFieldPrepender;
+            this.lengthFieldBasedFrameDecoder = lengthFieldBasedFrameDecoder;
+        }
         public override void ChannelActive(IChannelHandlerContext context)
         {
             base.ChannelActive(context);
@@ -24,6 +33,12 @@ namespace SimCivil.Rpc
                 DotNetty.Buffers.IByteBuffer bufferCopy = buffer.Copy();
                 byte[] bytes = new byte[bufferCopy.ReadableBytes];
                 bufferCopy.ReadBytes(bytes);
+                if((bytes[0] & 8) == 8)
+                {
+                    //操作码位8表示断开连接
+                    context.CloseAsync();
+                    return;
+                }
                 byte[] maskKey = new byte[4] { 0, 0, 0, 0 };
                 bool masked = false;
                 if (bytes[1] >= 128)
@@ -111,6 +126,53 @@ namespace SimCivil.Rpc
                 {
                     context.Channel.Pipeline.Remove(this);
                 }
+                else
+                {
+                    context.Channel.Pipeline.Remove(lengthFieldPrepender);
+                    context.Channel.Pipeline.Remove(lengthFieldBasedFrameDecoder);
+                }
+            }
+        }
+
+
+
+        public override Task WriteAsync(IChannelHandlerContext context, object message)
+        {
+            if (isWebSocket == false)
+            {
+                return base.WriteAsync(context, message);
+            }
+            else
+            {
+                DotNetty.Buffers.IByteBuffer buffer = (DotNetty.Buffers.IByteBuffer)message;
+                IByteBuffer output = ByteBufferUtil.DefaultAllocator.HeapBuffer();
+                //1000 0010，（0010表示这一帧是binary frame）
+                output.WriteByte(130);
+                //这里按照定义来讲最长应该是64位表示的长度，也就是应该用ulong表示。但是我并不认为一个包长度能超过Int32..
+                int len = buffer.ReadableBytes;
+                if (len <=125){
+                    output.WriteByte(len);
+                }
+                else if(len < 65536)
+                {
+                    output.WriteByte(126);
+                    output.WriteByte(len & 0xff00);
+                    output.WriteByte(len & 0xff);
+                }
+                else
+                {
+                    output.WriteByte(127);
+                    output.WriteByte(0);
+                    output.WriteByte(0);
+                    output.WriteByte(0);
+                    output.WriteByte(0);
+                    output.WriteByte((int)((uint)len & 0xff000000));
+                    output.WriteByte(len & 0xff0000);
+                    output.WriteByte(len & 0xff00);
+                    output.WriteByte(len & 0xff);
+                }
+                output.WriteBytes(buffer);
+                return context.WriteAndFlushAsync(output);
             }
         }
 
