@@ -23,28 +23,32 @@
 // Update Date: 2018/02/25
 
 using System;
-using System.Text;
+using System.Threading.Tasks;
 
+using Microsoft.Extensions.Logging;
+
+using Orleans.Hosting;
 using Orleans.Runtime.Configuration;
-using Orleans.Runtime.Host;
 
 namespace SimCivil.Orleans.Server
 {
     class Program
     {
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
-            var siloConfig = ClusterConfiguration.LocalhostPrimarySilo();
-            var silo = new SiloHost("SimCivil", siloConfig);
-            silo.InitializeOrleansSilo();
-            silo.StartOrleansSilo();
+            var siloBuilder = new SiloHostBuilder()
+                .UseLocalhostClustering()
+                .ConfigureLogging(
+                    logging => { logging.AddConsole(); });
+            var silo = siloBuilder.Build();
+            await silo.StartAsync();
 
             Console.WriteLine("Press Enter to close.");
             // wait here
             Console.ReadLine();
 
             // shut the silo down after we are done.
-            silo.ShutdownOrleansSilo();
+            await silo.StopAsync();
         }
     }
 }

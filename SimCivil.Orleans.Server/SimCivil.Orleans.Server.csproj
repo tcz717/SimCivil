@@ -6,12 +6,25 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Orleans.Server" Version="2.0.0-beta3" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="2.0.0" />
+    <PackageReference Include="Microsoft.Orleans.Server" Version="2.0.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\SimCivil.Orleans.Grains\SimCivil.Orleans.Grains.csproj" />
     <ProjectReference Include="..\SimCivil.Orleans.Interfaces\SimCivil.Orleans.Interfaces.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Microsoft.Extensions.Logging.Console">
+      <HintPath>..\packages\Microsoft.Extensions.Logging.Console.2.0.0\lib\netstandard2.0\Microsoft.Extensions.Logging.Console.dll</HintPath>
+    </Reference>
+    <Reference Include="Orleans.Core">
+      <HintPath>..\packages\Microsoft.Orleans.Core.2.0.0-beta3\lib\netstandard2.0\Orleans.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Orleans.Runtime">
+      <HintPath>..\packages\Microsoft.Orleans.OrleansRuntime.2.0.0-beta3\lib\netstandard2.0\Orleans.Runtime.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
 </Project>
