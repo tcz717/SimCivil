@@ -6,3 +6,5 @@ dist: trusty
 script:
    - dotnet build SimCivil
    - dotnet test SimCivil.Test --filter "Category!=Performance" 
+notifications:
+    slack: tpdt:fmYoCUlHFzbEE9YxZctMJjJl

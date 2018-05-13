@@ -1,8 +1,10 @@
 SimCivil
 =======================
-[![Travis-CI Build Status](https://travis-ci.com/tcz717/SimCivil.svg?token=yfj7KWUzZasJmgSkLsTx&branch=master)](https://travis-ci.com/tcz717/SimCivil)
+![Travis-CI Build Status](https://travis-ci.org/tcz717/SimCivil.svg?branch=master)
 
 此项目主要是游戏的服务端，负责核心逻辑处理
+
+A C# game server simulating a civilization world allowing roles free interacting. The key goals of the game are to dynamically generate any skills, technologies, recipes, and objects according to role behavior, and imitating real-world roles interacting logic as much as possible.
 
 ## 介绍
 服务器模拟一个非常自由或者说内容设定丰富的世界，世界里面的 **所有人形生物** 都是玩家写脚本自动控制的。游戏不提供官方的客户端，玩家可以选择使用人工智能、有限状态机、甚至手动控制的方式，利用服务器提供的API控制玩家的角色在游戏内生存、发展和竞争。
