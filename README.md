@@ -1,6 +1,6 @@
 SimCivil
 =======================
-[![Travis-CI Build Status](https://travis-ci.org/tcz717/SimCivil.svg?branch=master)
+![Travis-CI Build Status](https://travis-ci.org/tcz717/SimCivil.svg?branch=master)
 
 此项目主要是游戏的服务端，负责核心逻辑处理
 
