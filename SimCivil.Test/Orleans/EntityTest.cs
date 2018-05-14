@@ -18,46 +18,41 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// SimCivil - SimCivl.Orleans.Test - EntityTest.cs
-// Create Date: 2018/02/25
-// Update Date: 2018/02/25
+// SimCivil - SimCivil.Test - EntityTest.cs
+// Create Date: 2018/05/14
+// Update Date: 2018/05/14
 
 using System;
 using System.Linq;
 using System.Text;
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-
 using Orleans;
-using Orleans.Runtime.Configuration;
 using Orleans.TestingHost;
 
 using SimCivil.Orleans.Interfaces;
 
-namespace SimCivl.Orleans.Test
-{
-    [TestClass]
-    public class EntityTest
-    {
-        public TestCluster Cluster { get; set; }
+using Xunit;
 
-        [TestInitialize]
-        public void Init()
+namespace SimCivil.Test.Orleans
+{
+    public class EntityTest : IClassFixture<OrleansFixture>
+    {
+        public EntityTest(OrleansFixture orleans)
         {
-            Cluster = new TestCluster();
-            Cluster.ClusterConfiguration.AddMemoryStorageProvider();
-            Cluster.Deploy();
+            Cluster = orleans.Cluster;
         }
 
-        [TestMethod]
+        public TestCluster Cluster { get; }
+
+        [Fact]
         public void ComponentManageTest()
         {
             var entity = Cluster.GrainFactory.GetGrain<IEntity>(Guid.NewGuid());
             entity.Enable().Wait();
-            Assert.IsTrue(entity.IsEnabled().Result);
+            Assert.True(entity.IsEnabled().Result);
             var entities = Cluster.GrainFactory.GetGrain<IEntityGroup>(0).GetEntities().Result.ToArray();
-            Assert.AreEqual(1, entities.Length);
-            Assert.IsTrue(entities.Contains(entity.GetPrimaryKey()));
+            Assert.Single(entities);
+            Assert.Contains(entity.GetPrimaryKey(), entities);
         }
     }
 }

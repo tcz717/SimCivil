@@ -19,7 +19,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SimCivil.Orleans.Grains", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimCivil.Orleans.Server", "SimCivil.Orleans.Server\SimCivil.Orleans.Server.csproj", "{05A81D03-3D21-44F9-AEFF-45610789E56A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimCivl.Orleans.Test", "SimCivl.Orleans.Test\SimCivl.Orleans.Test.csproj", "{F082F571-AD03-46D4-A03D-BE5C4046659E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
