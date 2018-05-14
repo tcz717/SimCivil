@@ -20,13 +20,15 @@
 // 
 // SimCivil - SimCivil.Orleans.Grains - AtlasGrain.cs
 // Create Date: 2018/02/25
-// Update Date: 2018/02/26
+// Update Date: 2018/05/12
 
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 using System.Threading.Tasks;
+
+using Microsoft.Extensions.Logging;
 
 using Orleans;
 using Orleans.Runtime;
@@ -43,6 +45,7 @@ namespace SimCivil.Orleans.Grains
     public class AtlasGrain : Grain<AtlasState>, IAtlas
     {
         public IMapGenerator Generator { get; }
+        public ILogger<AtlasGrain> Logger { get; }
         public (int X, int Y) AltasIndex { get; set; }
         public int Left => AltasIndex.X * DefaultAtlasWidth;
 
@@ -61,9 +64,10 @@ namespace SimCivil.Orleans.Grains
         /// </summary>
         public int Bottom => AltasIndex.Y * DefaultAtlasHeight + DefaultAtlasHeight;
 
-        public AtlasGrain(IMapGenerator generator)
+        public AtlasGrain(IMapGenerator generator, ILogger<AtlasGrain> logger)
         {
             Generator = generator;
+            Logger = logger;
         }
 
         public Task<IEnumerable<Tile>> SelectRange((int X, int Y) leftTop, int width, int height)
@@ -119,7 +123,7 @@ namespace SimCivil.Orleans.Grains
                 if (State.Tiles.Length != DefaultAtlasWidth * DefaultAtlasHeight)
                     throw new ArgumentOutOfRangeException(nameof(State.Tiles));
 
-                GetLogger().Info($"Atlas {AltasIndex} was created.");
+                Logger.Info($"Atlas {AltasIndex} was created.");
             }
         }
     }

@@ -29,6 +29,15 @@ namespace SimCivil.Orleans.Interfaces.Components
 {
     public class Position
     {
+        public Position(float x, float y)
+        {
+            X = x;
+            Y = y;
+        }
+
+        /// <summary>Initializes a new instance of the <see cref="T:System.Object"></see> class.</summary>
+        public Position() { }
+
         public float X { get; set; }
         public float Y { get; set; }
         public (int X, int Y) Tile => ((int) Math.Truncate(X), (int) Math.Truncate(Y));

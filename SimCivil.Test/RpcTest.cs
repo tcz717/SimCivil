@@ -150,7 +150,7 @@ namespace SimCivil.Test
 
                 var service = client.Import<ITestServiceA>();
 
-                service.Echo("123", s => Assert.Equal(s, "123"));
+                service.Echo("123", s => Assert.Equal("123", s));
             }
         }
 
@@ -263,8 +263,8 @@ namespace SimCivil.Test
                     serviceB2.SetSession("test", "2");
 
                     Assert.NotEqual(serviceA1.GetSession("test"), serviceA2.GetSession("test"));
-                    Assert.Equal(serviceA1.GetSession("test"), "1");
-                    Assert.Equal(serviceA2.GetSession("test"), "2");
+                    Assert.Equal("1", serviceA1.GetSession("test"));
+                    Assert.Equal("2", serviceA2.GetSession("test"));
                 }
             }
         }

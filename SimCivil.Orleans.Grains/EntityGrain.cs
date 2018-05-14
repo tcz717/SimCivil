@@ -55,6 +55,11 @@ namespace SimCivil.Orleans.Grains
             return Task.CompletedTask;
         }
 
+        public Task<T> Get<T>() where T : IComponent
+        {
+            return Task.FromResult(Has<T>().Result ? GrainFactory.GetGrain<T>(this.GetPrimaryKey()) : default(T));
+        }
+
         public async Task Enable()
         {
             if (State.Enabled) return;

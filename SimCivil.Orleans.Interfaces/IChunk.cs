@@ -27,11 +27,15 @@ using System.Text;
 using System.Threading.Tasks;
 
 using Orleans;
+using Orleans.Concurrency;
+
+using SimCivil.Orleans.Interfaces.Components;
 
 namespace SimCivil.Orleans.Interfaces
 {
     public interface IChunk : IGrainWithIntegerKey
     {
-        Task OnEntityMoved(Guid entityGuid, (float X, float Y) previousPos, (float X, float Y) currentPos);
+        [OneWay]
+        Task OnEntityMoved(Guid entityGuid, Position previousPos, Position currentPos);
     }
 }

@@ -28,7 +28,6 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 
 using Orleans.Hosting;
-using Orleans.Runtime.Configuration;
 
 namespace SimCivil.Orleans.Server
 {

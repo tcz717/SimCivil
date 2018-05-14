@@ -90,5 +90,12 @@ namespace SimCivil.Orleans.Grains
                 (long) primaryKey.X | ((long) primaryKey.Y << 32),
                 grainClassNamePrefix);
         }
+
+        public static (int X, int Y) GetPrimaryKeyXY(this IGrain grain)
+        {
+            long key = grain.GetPrimaryKeyLong();
+
+            return ((int X, int Y)) (key & uint.MaxValue, key >> 32);
+        }
     }
 }

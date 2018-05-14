@@ -26,6 +26,8 @@ using System;
 using System.Text;
 using System.Threading.Tasks;
 
+using Microsoft.Extensions.Logging;
+
 using Orleans;
 using Orleans.Runtime;
 
@@ -35,16 +37,26 @@ namespace SimCivil.Orleans.Grains
 {
     public class GameGrain : Grain<Config>, IGame
     {
+        public ILogger<GameGrain> Logger { get; }
+
+        /// <summary>
+        /// This constructor should never be invoked. We expose it so that client code (subclasses of this class) do not have to add a constructor.
+        /// Client code should use the GrainFactory to get a reference to a Grain.
+        /// </summary>
+        public GameGrain(ILogger<GameGrain> logger)
+        {
+            Logger = logger;
+        }
+
         public Task InitGame(Config config)
         {
-            Logger logger = GetLogger();
             if (State != null)
             {
-                logger.Warn(0, "An existed game config has been overwritten");
+                Logger.Warn(0, "An existed game config has been overwritten");
             }
 
             State = config;
-            logger.Info($"Init Game:{config.Name} (SW: {config.SpawnPoint})");
+            Logger.Info($"Init Game:{config.Name} (SW: {config.SpawnPoint})");
 
             return Task.CompletedTask;
         }

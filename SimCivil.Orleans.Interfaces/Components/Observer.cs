@@ -18,30 +18,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// SimCivil - SimCivil.Orleans.Interfaces - IEntity.cs
-// Create Date: 2018/02/24
+// SimCivil - SimCivil.Orleans.Interfaces - Observer.cs
+// Create Date: 2018/05/12
 // Update Date: 2018/05/12
 
-using System;
-using System.Text;
-using System.Threading.Tasks;
-
-using JetBrains.Annotations;
-
-using Orleans;
-
-namespace SimCivil.Orleans.Interfaces
+namespace SimCivil.Orleans.Interfaces.Components
 {
-    public interface IEntity : IGrainWithGuidKey
+    public class Observer
     {
-        Task<bool> Has<T>() where T : IComponent;
-        Task Add<T>() where T : IComponent;
-        Task Remove<T>() where T : IComponent;
-        [CanBeNull]
-        Task<T> Get<T>() where T : IComponent;
-
-        Task Enable();
-        Task Disable();
-        Task<bool> IsEnabled();
+        public uint NotityRange { get; set; }
     }
 }
