@@ -1,7 +1,7 @@
 language: csharp
 solution: SimCivil.sln
 mono: none
-dotnet: 2.1.3
+dotnet: 2.1.4
 dist: trusty
 script:
    - dotnet build SimCivil
