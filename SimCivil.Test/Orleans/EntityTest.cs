@@ -20,7 +20,7 @@
 // 
 // SimCivil - SimCivil.Test - EntityTest.cs
 // Create Date: 2018/05/14
-// Update Date: 2018/05/14
+// Update Date: 2018/05/17
 
 using System;
 using System.Linq;
@@ -35,11 +35,11 @@ using Xunit;
 
 namespace SimCivil.Test.Orleans
 {
-    public class EntityTest : IClassFixture<OrleansFixture>
+    public class EntityTest
     {
-        public EntityTest(OrleansFixture orleans)
+        public EntityTest()
         {
-            Cluster = orleans.Cluster;
+            Cluster = OrleansFixture.Single.Cluster;
         }
 
         public TestCluster Cluster { get; }
@@ -51,7 +51,7 @@ namespace SimCivil.Test.Orleans
             entity.Enable().Wait();
             Assert.True(entity.IsEnabled().Result);
             var entities = Cluster.GrainFactory.GetGrain<IEntityGroup>(0).GetEntities().Result.ToArray();
-            Assert.Single(entities);
+            Assert.NotEmpty(entities);
             Assert.Contains(entity.GetPrimaryKey(), entities);
         }
     }

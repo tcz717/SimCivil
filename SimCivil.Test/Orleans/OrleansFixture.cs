@@ -20,7 +20,7 @@
 // 
 // SimCivil - SimCivil.Test - OrleansFixture.cs
 // Create Date: 2018/05/12
-// Update Date: 2018/05/14
+// Update Date: 2018/05/17
 
 using System;
 using System.Text;
@@ -40,6 +40,7 @@ namespace SimCivil.Test.Orleans
 {
     public class OrleansFixture : IDisposable
     {
+        public static OrleansFixture Single { get; } = new OrleansFixture();
         public TestCluster Cluster { get; }
 
         public OrleansFixture( /*ITestOutputHelper outputHelper*/)

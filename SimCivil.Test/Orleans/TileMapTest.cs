@@ -34,13 +34,13 @@ using Xunit;
 
 namespace SimCivil.Test.Orleans
 {
-    public class TileMapTest : IClassFixture<OrleansFixture>
+    public class TileMapTest
     {
         public TestCluster Cluster { get; set; }
 
-        public TileMapTest(OrleansFixture orleans)
+        public TileMapTest()
         {
-            Cluster = orleans.Cluster;
+            Cluster = OrleansFixture.Single.Cluster;
         }
 
         [Fact]

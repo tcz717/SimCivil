@@ -20,7 +20,7 @@
 // 
 // SimCivil - SimCivil.Test - ChunkTest.cs
 // Create Date: 2018/05/12
-// Update Date: 2018/05/12
+// Update Date: 2018/05/17
 
 using System;
 using System.Text;
@@ -36,11 +36,11 @@ using Xunit;
 
 namespace SimCivil.Test.Orleans
 {
-    public class ChunkTest : IClassFixture<OrleansFixture>
+    public class ChunkTest
     {
-        public ChunkTest(OrleansFixture orleans)
+        public ChunkTest()
         {
-            Cluster = orleans.Cluster;
+            Cluster = OrleansFixture.Single.Cluster;
         }
 
         public TestCluster Cluster { get; }
@@ -62,6 +62,8 @@ namespace SimCivil.Test.Orleans
             await testEntity.Add<IComponent<Position>>();
             await Cluster.GrainFactory.GetGrain<IComponent<Position>>(testEntity.GetPrimaryKey())
                 .SetData(new Position(100f, 104f));
+
+            await Task.Delay(100);
 
             Assert.NotEmpty(await observer.PopAllEntities());
         }
