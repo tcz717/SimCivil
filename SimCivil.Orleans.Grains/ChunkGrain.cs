@@ -20,7 +20,7 @@
 // 
 // SimCivil - SimCivil.Orleans.Grains - ChunkGrain.cs
 // Create Date: 2018/03/27
-// Update Date: 2018/05/12
+// Update Date: 2018/05/17
 
 using System;
 using System.Collections.Generic;
@@ -53,7 +53,7 @@ namespace SimCivil.Orleans.Grains
         {
             Logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
-        
+
         public async Task OnEntityMoved(Guid entityGuid, Position previousPos, Position currentPos)
         {
             Logger.Debug($"{entityGuid} entity have moved");
@@ -98,7 +98,9 @@ namespace SimCivil.Orleans.Grains
                 }
             }
 
-            if (currentPos.Tile.DivDown(Config.ChunkSize) == this.GetPrimaryKeyXY())
+            var currentChunk = currentPos.Tile.DivDown(Config.ChunkSize);
+            var thisChunk = this.GetPrimaryKeyXY();
+            if (currentChunk.X == thisChunk.X && currentChunk.Y == thisChunk.Y)
             {
                 Entities[entityGuid] = currentPos;
             }
