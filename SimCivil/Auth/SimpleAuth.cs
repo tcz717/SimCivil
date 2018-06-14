@@ -135,7 +135,7 @@ namespace SimCivil.Auth
         /// <value>
         /// The session.
         /// </value>
-        public ThreadLocal<IRpcSession> Session { get; } = new ThreadLocal<IRpcSession>();
+        public AsyncLocal<IRpcSession> Session { get; } = new AsyncLocal<IRpcSession>();
 
         /// <summary>
         /// Logs out.

@@ -30,6 +30,6 @@ namespace SimCivil.Rpc.Session
 {
     public interface ISessionRequred
     {
-        ThreadLocal<IRpcSession> Session { get; }
+        AsyncLocal<IRpcSession> Session { get; }
     }
 }
