@@ -38,7 +38,7 @@ namespace SimCivil.Test
 {
     class TestServiceB : ITestServiceB, ISessionRequred
     {
-        public ThreadLocal<IRpcSession> Session { get; } = new ThreadLocal<IRpcSession>();
+        public AsyncLocal<IRpcSession> Session { get; } = new AsyncLocal<IRpcSession>();
 
         public void SetSession(string key, string value)
         {
