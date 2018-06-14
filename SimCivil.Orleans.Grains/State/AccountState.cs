@@ -18,33 +18,28 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// SimCivil - SimCivil.Orleans.Interfaces - IAccount.cs
-// Create Date: 2018/02/26
-// Update Date: 2018/02/26
+// SimCivil - SimCivil.Orleans.Grains - AccountState.cs
+// Create Date: 2018/05/13
+// Update Date: 2018/05/14
 
 using System;
-using System.Collections.Generic;
 using System.Text;
-using System.Threading.Tasks;
 
-using Orleans;
-
-using SimCivil.Contract;
-
-namespace SimCivil.Orleans.Interfaces
+namespace SimCivil.Orleans.Grains.State
 {
-    public interface IAccount : IGrainWithStringKey
+    public class AccountState
     {
-        Task<bool> IsExisted();
-        Task<bool> Register(string token);
-        Task<bool> Login(string token);
-        Task Logout();
+        public string Token { get; set; }
+        public bool Online { get; set; }
+        public DateTime LastOnlineTime { get; set; }
+        public bool Enabled { get; set; }
 
-        Task<IEnumerable<Guid>> GetRoleList();
-        Task<Guid> CreateRole(CreateRoleOption option);
-        Task<Guid> GetCurrentRole();
-        Task UseRole(Guid roleGuid);
-        Task ReleaseRole(Guid roleGuid);
-        Task DeleteRole(Guid roleGuid);
+        public AccountState(string token)
+        {
+            Token = token;
+            Enabled = true;
+        }
+
+        public AccountState() { }
     }
 }

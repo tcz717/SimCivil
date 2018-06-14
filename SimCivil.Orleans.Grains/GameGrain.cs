@@ -35,7 +35,7 @@ using SimCivil.Orleans.Interfaces;
 
 namespace SimCivil.Orleans.Grains
 {
-    public class GameGrain : Grain<Config>, IGame
+    public class GameGrain : Grain<GameState>, IGame
     {
         public ILogger<GameGrain> Logger { get; }
 
@@ -48,17 +48,16 @@ namespace SimCivil.Orleans.Grains
             Logger = logger;
         }
 
-        public Task InitGame(Config config)
+        public async Task InitGame(Config config)
         {
             if (State != null)
             {
                 Logger.Warn(0, "An existed game config has been overwritten");
             }
 
-            State = config;
+            State = new GameState {Config = config};
             Logger.Info($"Init Game:{config.Name} (SW: {config.SpawnPoint})");
-
-            return Task.CompletedTask;
+            await WriteStateAsync();
         }
 
         public Task<Config> GetConfig()
@@ -68,7 +67,28 @@ namespace SimCivil.Orleans.Grains
                 throw new InvalidOperationException("Game is not initilized");
             }
 
-            return Task.FromResult(State);
+            return Task.FromResult(State.Config);
+        }
+
+        public async Task OnAccountLogin(IAccount account)
+        {
+            State.OnlineAccounts.Add(account);
+            await WriteStateAsync();
+        }
+
+        public async Task OnAccountLogout(IAccount account)
+        {
+            State.OnlineAccounts.Remove(account);
+            await WriteStateAsync();
+        }
+
+        /// <summary>
+        /// Gets the online accounts count.
+        /// </summary>
+        /// <returns></returns>
+        public Task<int> GetOnlineAccountsCount()
+        {
+            return Task.FromResult(State.OnlineAccounts.Count);
         }
     }
 }

@@ -27,6 +27,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 using Orleans;
+using Orleans.Concurrency;
 
 namespace SimCivil.Orleans.Interfaces
 {
@@ -34,5 +35,12 @@ namespace SimCivil.Orleans.Interfaces
     {
         Task InitGame(Config config);
         Task<Config> GetConfig();
+
+        [OneWay]
+        Task OnAccountLogin(IAccount account);
+        [OneWay]
+        Task OnAccountLogout(IAccount account);
+
+        Task<int> GetOnlineAccountsCount();
     }
 }

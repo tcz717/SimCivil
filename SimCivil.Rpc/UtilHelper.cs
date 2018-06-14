@@ -108,19 +108,23 @@ namespace SimCivil.Rpc
 
         public static T Get<T>(this IRpcSession session)
         {
-            return (T) session[typeof(T).FullName];
+            return (T) session[typeof(T).FullName ?? throw new InvalidOperationException()];
+        }
+        public static void UnSet<T>(this IRpcSession session)
+        {
+            session.Remove(typeof(T).FullName ?? throw new InvalidOperationException());
         }
 
         public static IRpcSession Set<T>(this IRpcSession session, T value)
         {
-            session[typeof(T).FullName] = value;
+            session[typeof(T).FullName ?? throw new InvalidOperationException()] = value;
 
             return session;
         }
 
         public static bool IsSet<T>(this IRpcSession session)
         {
-            return session.ContainsKey(typeof(T).FullName);
+            return session.ContainsKey(typeof(T).FullName ?? throw new InvalidOperationException());
         }
 
         internal static RpcSessionAssigner<T> AssignTo<T>(this IRpcSession session, T service) where T : class

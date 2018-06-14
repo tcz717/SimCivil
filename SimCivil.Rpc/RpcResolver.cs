@@ -88,7 +88,7 @@ namespace SimCivil.Rpc
 
             try
             {
-                var session = _scope.Resolve<IRpcSession>();
+                var session = _scope.Resolve<IRpcSession>() ?? throw new ArgumentNullException("session");
                 var type = Server.Services[msg.ServiceName];
                 var service = _scope.Resolve(type);
                 var method = service.GetType().GetMethod(msg.MethodName);
