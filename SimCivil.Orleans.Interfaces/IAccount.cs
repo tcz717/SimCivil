@@ -40,11 +40,11 @@ namespace SimCivil.Orleans.Interfaces
         Task<bool> Login(string token);
         Task Logout();
 
-        Task<IEnumerable<Guid>> GetRoleList();
-        Task<Guid> CreateRole(CreateRoleOption option);
-        Task<Guid> GetCurrentRole();
-        Task UseRole(Guid roleGuid);
-        Task ReleaseRole(Guid roleGuid);
-        Task DeleteRole(Guid roleGuid);
+        Task<IEnumerable<IEntity>> GetRoleList();
+        Task<IEntity> CreateRole(CreateRoleOption option);
+        Task<IEntity> GetCurrentRole();
+        Task UseRole(IEntity role);
+        Task ReleaseRole();
+        Task DeleteRole(IEntity role);
     }
 }

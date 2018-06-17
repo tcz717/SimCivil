@@ -35,6 +35,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 using Orleans;
+using Orleans.Runtime;
 
 using SharpRaven;
 using SharpRaven.Data;
@@ -67,11 +68,27 @@ namespace SimCivil.Gate
             };
 
             await server.Bind(20170).Run();
+            server.Container.Resolve<OrleansChunkViewSynchronizer>().StartSync(server);
 
-            Console.Out.WriteLine(
-                $"register {await client.ServiceProvider.GetService<IGrainFactory>().GetGrain<IAccount>("admin").Register("")}");
+            await PrepareTest(client);
 
             Console.ReadKey();
+        }
+
+        private static async Task PrepareTest(IClusterClient client)
+        {
+            var factory = client.ServiceProvider.GetService<IGrainFactory>();
+            var logger = client.ServiceProvider.GetService<ILogger<Program>>();
+            logger.Info(
+                $"Register {await factory.GetGrain<IAccount>("admin").Register("")}");
+
+            var human = factory.GetGrain<IEntity>(Guid.NewGuid());
+            await human.Add<IObserver>();
+            await human.Add<IPosition>();
+            await human.Add<IUnit>();
+
+            await factory.GetGrain<IPrefabManager>(0).Set("human.init", human);
+            await factory.GetGrain<IGame>(0).InitGame(new Config {SpawnPoint = (0, 0), Seed = 0});
         }
 
         private static ContainerBuilder LoadConfiguration(string config = "configuration.json")
@@ -89,7 +106,7 @@ namespace SimCivil.Gate
             builder.UseRpcSession();
             builder.RegisterRpcProvider<OrleansAuth, IAuth>().SingleInstance();
             builder.RegisterRpcProvider<OrleansRoleManager, IRoleManager>().InstancePerChannel();
-//            builder.RegisterRpcProvider<OrleansChunkViewSynchronizer, IViewSynchronizer>().SingleInstance();
+            builder.RegisterRpcProvider<OrleansChunkViewSynchronizer, IViewSynchronizer>().SingleInstance().AsSelf();
 //            builder.RegisterRpcProvider<OrleansPlayerController, IPlayerController>().InstancePerChannel();
 
             return builder;

@@ -18,44 +18,53 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// SimCivil - SimCivil.Orleans.Grains - PositionGrain.cs
-// Create Date: 2018/06/14
-// Update Date: 2018/06/16
+// SimCivil - SimCivil.Orleans.Grains - PrefabManager.cs
+// Create Date: 2018/06/15
+// Update Date: 2018/06/15
 
 using System;
-using System.Linq;
+using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 
 using Orleans;
 
 using SimCivil.Orleans.Interfaces;
-using SimCivil.Orleans.Interfaces.Components;
 
-namespace SimCivil.Orleans.Grains.Components
+namespace SimCivil.Orleans.Grains
 {
-    public class PositionGrain : BaseGrain<Position>, IPosition
+    public class PrefabManager : Grain<State.PrefabState>, IPrefabManager
     {
-        private static readonly (int X, int Y)[] Offsets =
-            {(0, 0), (1, 0), (0, 1), (-1, 0), (0, -1), (1, 1), (-1, -1), (1, -1), (-1, 1)};
-
-        public override async Task SetData(Position component)
+        public async Task<IEntity> Clone(string name, string key)
         {
-            if (!component.Equals(State))
-            {
-                (int X, int Y) prevChunk = (State ?? component).Tile.DivDown(Config.ChunkSize);
-                (int X, int Y) currentChunk = component.Tile.DivDown(Config.ChunkSize);
-                var effectChunks = Offsets.Select(o => (prevChunk.X + o.X, prevChunk.Y + o.Y))
-                    .Union(Offsets.Select(o => (currentChunk.X + o.X, currentChunk.Y + o.Y)));
+            var entity = GrainFactory.GetGrain<IEntity>(Guid.NewGuid());
+            var prefab = State.Prefabs[key];
 
-                Guid entityGuid = this.GetPrimaryKey();
-                await Task.WhenAll(
-                    effectChunks.Select(
-                        chunk => GrainFactory.GetGrain<IChunk>(chunk)
-                            .OnEntityMoved(entityGuid, (State ?? component), component)));
+            await prefab.CopyTo(entity);
+
+            return entity;
+        }
+
+        public Task Set(string key, IEntity prefab)
+        {
+            State.Prefabs[key] = prefab;
+
+            return Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// This method is called at the end of the process of activating a grain.
+        /// It is called before any messages have been dispatched to the grain.
+        /// For grains with declared persistent state, this method is called after the State property has been populated.
+        /// </summary>
+        public override Task OnActivateAsync()
+        {
+            if (State.Prefabs == null)
+            {
+                State.Prefabs = new Dictionary<string, IEntity>();
             }
 
-            await base.SetData(component);
+            return base.OnActivateAsync();
         }
     }
 }

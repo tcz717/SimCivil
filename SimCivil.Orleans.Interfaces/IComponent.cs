@@ -18,9 +18,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// SimCivil - SimCivil.Orleans.Interfaces - IComponentGrain.cs
-// Create Date: 2018/02/24
-// Update Date: 2018/02/24
+// SimCivil - SimCivil.Orleans.Interfaces - IComponent.cs
+// Create Date: 2018/06/14
+// Update Date: 2018/06/16
 
 using System;
 using System.Text;
@@ -28,12 +28,14 @@ using System.Threading.Tasks;
 
 using Orleans;
 
-
 namespace SimCivil.Orleans.Interfaces
 {
-    public interface IComponent : IGrainWithGuidKey { }
+    public interface IComponent : IGrainWithGuidKey
+    {
+        Task CopyTo(IEntity target);
+    }
 
-    public interface IComponent<T> : IComponent
+    public interface IComponent<T> : IComponent where T : new()
     {
         Task<T> GetData();
         Task SetData(T component);

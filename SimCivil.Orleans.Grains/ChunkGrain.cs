@@ -59,32 +59,35 @@ namespace SimCivil.Orleans.Grains
             Logger.Debug($"{entityGuid} entity have moved");
 
             var movedEntity = GrainFactory.GetGrain<IEntity>(entityGuid);
-            var movedObserver = await movedEntity.Get<IObserver>();
-            foreach (var entity in Entities)
+            foreach (var e in Entities)
             {
-                if (entityGuid == entity.Key) continue;
+                if (entityGuid == e.Key) continue;
+
+                var entity = GrainFactory.GetGrain<IEntity>(e.Key);
 
                 float prevDistance = Max(
-                    Abs(previousPos.X - entity.Value.X),
-                    Abs(previousPos.Y - entity.Value.Y));
-                float currentDistance = Max(Abs(currentPos.X - entity.Value.X), Abs(currentPos.Y - entity.Value.Y));
-                var effectedObserver = await GrainFactory.GetGrain<IEntity>(entity.Key).Get<IObserver>();
-                if (movedObserver != null)
+                    Abs(previousPos.X - e.Value.X),
+                    Abs(previousPos.Y - e.Value.Y));
+                float currentDistance = Max(Abs(currentPos.X - e.Value.X), Abs(currentPos.Y - e.Value.Y));
+
+                if (await movedEntity.Has<IObserver>())
                 {
+                    var movedObserver = GrainFactory.Get<IObserver>(movedEntity);
                     uint range = await movedObserver.GetNotifyRange();
 
                     if (currentDistance < range)
                     {
-                        await movedObserver.OnEntityEntered(entity.Key);
+                        await movedObserver.OnEntityEntered(e.Key);
                     }
                     else if (prevDistance < range)
                     {
-                        await movedObserver.OnEntityLeft(entity.Key);
+                        await movedObserver.OnEntityLeft(e.Key);
                     }
                 }
 
-                if (effectedObserver != null)
+                if (await entity.Has<IObserver>())
                 {
+                    var effectedObserver = GrainFactory.Get<IObserver>(entity);
                     uint range = await effectedObserver.GetNotifyRange();
 
                     if (currentDistance < range)

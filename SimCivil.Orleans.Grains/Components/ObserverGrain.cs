@@ -19,8 +19,8 @@
 // SOFTWARE.
 // 
 // SimCivil - SimCivil.Orleans.Grains - ObserverGrain.cs
-// Create Date: 2018/05/13
-// Update Date: 2018/05/13
+// Create Date: 2018/06/14
+// Update Date: 2018/06/17
 
 using System;
 using System.Collections.Generic;
@@ -28,6 +28,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using SimCivil.Contract;
 using SimCivil.Orleans.Interfaces;
 using SimCivil.Orleans.Interfaces.Components;
 
@@ -74,6 +75,28 @@ namespace SimCivil.Orleans.Grains.Components
             Entities = new HashSet<Guid>();
 
             return base.OnActivateAsync();
+        }
+
+        public async Task<ViewChange> UpdateView()
+        {
+            var viewChange = new ViewChange();
+
+            var entities = await Task.WhenAll(
+                Entities.Select(
+                    async e =>
+                    {
+                        var dto = new EntityDto();
+                        var entity = GrainFactory.GetGrain<IEntity>(e);
+
+                        dto.Name = await entity.GetName();
+
+                        return dto;
+                    }));
+            Entities.Clear();
+
+            viewChange.EntityChange = entities;
+
+            return viewChange;
         }
     }
 }

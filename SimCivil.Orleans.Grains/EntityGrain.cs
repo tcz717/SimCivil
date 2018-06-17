@@ -19,8 +19,8 @@
 // SOFTWARE.
 // 
 // SimCivil - SimCivil.Orleans.Grains - EntityGrain.cs
-// Create Date: 2018/02/24
-// Update Date: 2018/02/24
+// Create Date: 2018/06/14
+// Update Date: 2018/06/16
 
 using System;
 using System.Linq;
@@ -38,34 +38,30 @@ namespace SimCivil.Orleans.Grains
     {
         public Task<bool> Has<T>() where T : IComponent
         {
-            return Task.FromResult(State.ComponentNames.Contains(typeof(T).FullName));
+            return Task.FromResult(State.Components.Contains(GrainFactory.GetGrain<T>(this.GetPrimaryKey())));
         }
 
         public Task Add<T>() where T : IComponent
         {
-            State.ComponentNames.Add(typeof(T).FullName);
+            State.Components.Add(GrainFactory.GetGrain<T>(this.GetPrimaryKey()));
 
             return Task.CompletedTask;
         }
 
         public Task Remove<T>() where T : IComponent
         {
-            State.ComponentNames.Remove(typeof(T).FullName);
+            State.Components.Remove(GrainFactory.GetGrain<T>(this.GetPrimaryKey()));
 
             return Task.CompletedTask;
-        }
-
-        public Task<T> Get<T>() where T : IComponent
-        {
-            return Task.FromResult(Has<T>().Result ? GrainFactory.GetGrain<T>(this.GetPrimaryKey()) : default(T));
         }
 
         public async Task Enable()
         {
             if (State.Enabled) return;
+
             await GrainFactory.GetGrain<IEntityGroup>(0).AddEntity(this.GetPrimaryKey());
             await Task.WhenAll(
-                State.ComponentNames.Select(
+                State.Components.Select(
                     c => GrainFactory.GetGrain<IEntityGroup>(c.GetHashCode()).AddEntity(this.GetPrimaryKey())));
             State.Enabled = true;
         }
@@ -73,9 +69,10 @@ namespace SimCivil.Orleans.Grains
         public async Task Disable()
         {
             if (!State.Enabled) return;
+
             await GrainFactory.GetGrain<IEntityGroup>(0).RemoveEntity(this.GetPrimaryKey());
             await Task.WhenAll(
-                State.ComponentNames.Select(
+                State.Components.Select(
                     c => GrainFactory.GetGrain<IEntityGroup>(c.GetHashCode()).RemoveEntity(this.GetPrimaryKey())));
             State.Enabled = false;
         }
@@ -85,15 +82,24 @@ namespace SimCivil.Orleans.Grains
             return Task.FromResult(State.Enabled);
         }
 
-        public override async Task OnActivateAsync()
+        public async Task CopyTo(IEntity targetEntity)
         {
-            if (State == null)
-            {
-                State = new EntityState();
-                await Enable();
-            }
+            await Task.WhenAll(
+                State.Components.Select(
+                        component => component.CopyTo(this))
+                    .ToArray());
+        }
 
-            await base.OnActivateAsync();
+        public Task SetName(string name)
+        {
+            State.Name = name;
+
+            return Task.CompletedTask;
+        }
+
+        public Task<string> GetName()
+        {
+            return Task.FromResult(State.Name);
         }
     }
 }

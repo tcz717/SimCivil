@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 
+using SimCivil.Contract;
 using SimCivil.Orleans.Interfaces.Components;
 
 namespace SimCivil.Orleans.Interfaces
@@ -38,5 +39,6 @@ namespace SimCivil.Orleans.Interfaces
 
         Task<uint> GetNotifyRange();
         Task<IEnumerable<Guid>> PopAllEntities();
+        Task<ViewChange> UpdateView();
     }
 }

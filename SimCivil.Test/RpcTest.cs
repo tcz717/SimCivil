@@ -146,11 +146,14 @@ namespace SimCivil.Test
         {
             using (RpcClient client = new RpcClient())
             {
+                AutoResetEvent resetEvent = new AutoResetEvent(false);
                 client.Bind(9999).ConnectAsync().Wait();
 
                 var service = client.Import<ITestServiceA>();
+                
+                service.Echo("123", s => resetEvent.Set());
 
-                service.Echo("123", s => Assert.Equal("123", s));
+                Assert.True(resetEvent.WaitOne(1000));
             }
         }
 

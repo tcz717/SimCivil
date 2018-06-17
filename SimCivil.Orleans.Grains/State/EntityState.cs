@@ -24,11 +24,14 @@
 
 using System.Collections.Generic;
 
+using SimCivil.Orleans.Interfaces;
+
 namespace SimCivil.Orleans.Grains.State
 {
     public class EntityState
     {
-        public HashSet<string> ComponentNames { get; set; } = new HashSet<string>();
+        public HashSet<IComponent> Components { get; set; } = new HashSet<IComponent>();
         public bool Enabled { get; set; } = false;
+        public string Name { get; set; }
     }
 }

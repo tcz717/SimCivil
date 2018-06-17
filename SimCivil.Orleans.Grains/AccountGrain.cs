@@ -19,8 +19,8 @@
 // SOFTWARE.
 // 
 // SimCivil - SimCivil.Orleans.Grains - AccountGrain.cs
-// Create Date: 2018/05/13
-// Update Date: 2018/06/13
+// Create Date: 2018/06/14
+// Update Date: 2018/06/16
 
 using System;
 using System.Collections.Generic;
@@ -33,8 +33,10 @@ using Orleans;
 using Orleans.Runtime;
 
 using SimCivil.Contract;
+using SimCivil.Contract.Model;
 using SimCivil.Orleans.Grains.State;
 using SimCivil.Orleans.Interfaces;
+using SimCivil.Orleans.Interfaces.Components;
 
 namespace SimCivil.Orleans.Grains
 {
@@ -64,6 +66,8 @@ namespace SimCivil.Orleans.Grains
         public async Task<bool> Register(string token)
         {
             if (await IsExisted())
+                return false;
+            if (this.GetPrimaryKeyString().Length < 3)
                 return false;
 
             State = new AccountState(token);
@@ -126,9 +130,9 @@ namespace SimCivil.Orleans.Grains
         /// </summary>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public Task<IEnumerable<Guid>> GetRoleList()
+        public Task<IEnumerable<IEntity>> GetRoleList()
         {
-            throw new NotImplementedException();
+            return Task.FromResult((IEnumerable<IEntity>) State.Roles);
         }
 
         /// <summary>
@@ -136,51 +140,57 @@ namespace SimCivil.Orleans.Grains
         /// </summary>
         /// <param name="option">The option.</param>
         /// <returns></returns>
-        /// <exception cref="NotImplementedException"></exception>
-        public Task<Guid> CreateRole(CreateRoleOption option)
+        public async Task<IEntity> CreateRole(CreateRoleOption option)
+        {
+            IEntity role;
+            switch (option.Race)
+            {
+                case Race.Human:
+                    role = await GrainFactory.GetGrain<IPrefabManager>(0).Clone(option.Name, "human.init");
+
+                    break;
+                default:
+
+                    throw new ArgumentOutOfRangeException(nameof(option.Race));
+            }
+
+            var unit = GrainFactory.Get<IUnit>(role);
+            var pos = GrainFactory.Get<IPosition>(role);
+            await unit.Fill(option);
+            await pos.SetData(new Position((await GrainFactory.GetGrain<IGame>(0).GetConfig()).SpawnPoint));
+            await role.SetName(option.Name);
+
+            State.Roles.Add(role);
+            await WriteStateAsync();
+
+            Logger.Info($"New role {option.Race}: {option.Name} ({this.GetPrimaryKeyString()}) has been added");
+
+            return role;
+        }
+
+        public Task<IEntity> GetCurrentRole()
         {
             throw new NotImplementedException();
         }
 
-        /// <summary>
-        /// Gets the current role.
-        /// </summary>
-        /// <returns></returns>
-        /// <exception cref="NotImplementedException"></exception>
-        public Task<Guid> GetCurrentRole()
+        public async Task UseRole(IEntity role)
+        {
+            if (!State.Roles.Contains(role))
+            {
+                throw new KeyNotFoundException($"Role: {role.GetPrimaryKey()}");
+            }
+
+            State.CurrentRole = role;
+
+            await role.Enable();
+        }
+
+        public Task ReleaseRole()
         {
             throw new NotImplementedException();
         }
 
-        /// <summary>
-        /// Uses the role.
-        /// </summary>
-        /// <param name="roleGuid">The role unique identifier.</param>
-        /// <returns></returns>
-        /// <exception cref="NotImplementedException"></exception>
-        public Task UseRole(Guid roleGuid)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// Releases the role.
-        /// </summary>
-        /// <param name="roleGuid">The role unique identifier.</param>
-        /// <returns></returns>
-        /// <exception cref="NotImplementedException"></exception>
-        public Task ReleaseRole(Guid roleGuid)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// Deletes the role.
-        /// </summary>
-        /// <param name="roleGuid">The role unique identifier.</param>
-        /// <returns></returns>
-        /// <exception cref="NotImplementedException"></exception>
-        public Task DeleteRole(Guid roleGuid)
+        public Task DeleteRole(IEntity role)
         {
             throw new NotImplementedException();
         }

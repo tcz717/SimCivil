@@ -37,11 +37,20 @@ namespace SimCivil.Orleans.Interfaces
         Task<bool> Has<T>() where T : IComponent;
         Task Add<T>() where T : IComponent;
         Task Remove<T>() where T : IComponent;
-        [CanBeNull]
-        Task<T> Get<T>() where T : IComponent;
 
         Task Enable();
         Task Disable();
         Task<bool> IsEnabled();
+        Task CopyTo(IEntity targetEntity);
+        Task SetName(string name);
+        Task<string> GetName();
+    }
+
+    public static class EntityExtention
+    {
+        public static T Get<T>(this IGrainFactory factory, IEntity entity) where T : IComponent
+        {
+            return factory.GetGrain<T>(entity.GetPrimaryKey());
+        }
     }
 }

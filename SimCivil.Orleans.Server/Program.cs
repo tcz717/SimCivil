@@ -20,26 +20,37 @@
 // 
 // SimCivil - SimCivil.Orleans.Server - Program.cs
 // Create Date: 2018/02/25
-// Update Date: 2018/02/25
+// Update Date: 2018/05/14
 
 using System;
+using System.Net;
+using System.Text;
 using System.Threading.Tasks;
 
 using Microsoft.Extensions.Logging;
 
+using Orleans.Configuration;
 using Orleans.Hosting;
+
+using SharpRaven;
+using SharpRaven.Data;
 
 namespace SimCivil.Orleans.Server
 {
     class Program
     {
+        public static RavenClient Raven { get; } =
+            new RavenClient("https://c091709188504c39a331cc91794fa4f4@sentry.io/216217");
+
         static async Task Main(string[] args)
         {
-            var siloBuilder = new SiloHostBuilder()
-                .UseLocalhostClustering()
+            AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
+            ISiloHostBuilder siloBuilder = new SiloHostBuilder()
+                .UseLocalhostClustering(clusterId: "tpdt-dev")
+                .AddMemoryGrainStorageAsDefault()
                 .ConfigureLogging(
-                    logging => { logging.AddConsole(); });
-            var silo = siloBuilder.Build();
+                    logging => logging.AddConsole());
+            ISiloHost silo = siloBuilder.Build();
             await silo.StartAsync();
 
             Console.WriteLine("Press Enter to close.");
@@ -48,6 +59,11 @@ namespace SimCivil.Orleans.Server
 
             // shut the silo down after we are done.
             await silo.StopAsync();
+        }
+
+        private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
+        {
+            Raven.Capture(new SentryEvent((Exception) e.ExceptionObject));
         }
     }
 }

@@ -28,6 +28,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 
 using log4net;
 
@@ -93,6 +94,11 @@ namespace SimCivil.Auth
             return true;
         }
 
+        public Task<bool> LogInAsync(string username, string password)
+        {
+            throw new NotImplementedException();
+        }
+
         /// <summary>
         /// Log out.
         /// </summary>
@@ -103,6 +109,11 @@ namespace SimCivil.Auth
             LogOut(player);
         }
 
+        public Task LogOutAsync()
+        {
+            throw new NotImplementedException();
+        }
+
         /// <summary>
         /// Gets the token.
         /// </summary>
@@ -110,6 +121,11 @@ namespace SimCivil.Auth
         public virtual string GetToken()
         {
             return Session.Value.Get<Player>().Username;
+        }
+
+        public Task<bool> Register(string username, string password)
+        {
+            throw new NotImplementedException();
         }
 
         /// <summary>

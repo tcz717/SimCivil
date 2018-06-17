@@ -19,16 +19,21 @@
 // SOFTWARE.
 // 
 // SimCivil - SimCivil.Orleans.Interfaces - Position.cs
-// Create Date: 2018/02/26
-// Update Date: 2018/02/26
+// Create Date: 2018/06/14
+// Update Date: 2018/06/16
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 
 namespace SimCivil.Orleans.Interfaces.Components
 {
     public class Position
     {
+        public float X { get; set; }
+        public float Y { get; set; }
+        public (int X, int Y) Tile => ((int) Math.Truncate(X), (int) Math.Truncate(Y));
+
         public Position(float x, float y)
         {
             X = x;
@@ -38,9 +43,7 @@ namespace SimCivil.Orleans.Interfaces.Components
         /// <summary>Initializes a new instance of the <see cref="T:System.Object"></see> class.</summary>
         public Position() { }
 
-        public float X { get; set; }
-        public float Y { get; set; }
-        public (int X, int Y) Tile => ((int) Math.Truncate(X), (int) Math.Truncate(Y));
+        public Position((int X, int Y) pos) : this(pos.X, pos.Y) { }
 
         public static implicit operator (float X, float Y)(Position position)
         {
@@ -66,6 +69,7 @@ namespace SimCivil.Orleans.Interfaces.Components
 
         /// <summary>Serves as the default hash function.</summary>
         /// <returns>A hash code for the current object.</returns>
+        [SuppressMessage("ReSharper", "NonReadonlyMemberInGetHashCode")]
         public override int GetHashCode()
         {
             unchecked

@@ -18,44 +18,26 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// SimCivil - SimCivil.Orleans.Grains - PositionGrain.cs
-// Create Date: 2018/06/14
+// SimCivil - SimCivil.Orleans.Grains - UnitGrain.cs
+// Create Date: 2018/06/16
 // Update Date: 2018/06/16
 
 using System;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using Orleans;
-
+using SimCivil.Contract;
 using SimCivil.Orleans.Interfaces;
 using SimCivil.Orleans.Interfaces.Components;
 
 namespace SimCivil.Orleans.Grains.Components
 {
-    public class PositionGrain : BaseGrain<Position>, IPosition
+    public class UnitGrain : BaseGrain<Unit>, IUnit
     {
-        private static readonly (int X, int Y)[] Offsets =
-            {(0, 0), (1, 0), (0, 1), (-1, 0), (0, -1), (1, 1), (-1, -1), (1, -1), (-1, 1)};
-
-        public override async Task SetData(Position component)
+        public Task Fill(CreateRoleOption option)
         {
-            if (!component.Equals(State))
-            {
-                (int X, int Y) prevChunk = (State ?? component).Tile.DivDown(Config.ChunkSize);
-                (int X, int Y) currentChunk = component.Tile.DivDown(Config.ChunkSize);
-                var effectChunks = Offsets.Select(o => (prevChunk.X + o.X, prevChunk.Y + o.Y))
-                    .Union(Offsets.Select(o => (currentChunk.X + o.X, currentChunk.Y + o.Y)));
-
-                Guid entityGuid = this.GetPrimaryKey();
-                await Task.WhenAll(
-                    effectChunks.Select(
-                        chunk => GrainFactory.GetGrain<IChunk>(chunk)
-                            .OnEntityMoved(entityGuid, (State ?? component), component)));
-            }
-
-            await base.SetData(component);
+            State.Gender = option.Gender;
+            return Task.CompletedTask;
         }
     }
 }

@@ -19,8 +19,8 @@
 // SOFTWARE.
 // 
 // SimCivil - SimCivil.Orleans.Grains - GameGrain.cs
-// Create Date: 2018/02/25
-// Update Date: 2018/02/25
+// Create Date: 2018/06/14
+// Update Date: 2018/06/16
 
 using System;
 using System.Text;
@@ -50,7 +50,7 @@ namespace SimCivil.Orleans.Grains
 
         public async Task InitGame(Config config)
         {
-            if (State != null)
+            if (State.Config != null)
             {
                 Logger.Warn(0, "An existed game config has been overwritten");
             }
@@ -62,7 +62,7 @@ namespace SimCivil.Orleans.Grains
 
         public Task<Config> GetConfig()
         {
-            if (State == null)
+            if (State.Config == null)
             {
                 throw new InvalidOperationException("Game is not initilized");
             }

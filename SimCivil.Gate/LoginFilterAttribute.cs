@@ -18,31 +18,36 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// SimCivil - SimCivil.Contract - IAuth.cs
-// Create Date: 2018/01/04
-// Update Date: 2018/06/17
+// SimCivil - SimCivil.Gate - LoginFilterAttribute.cs
+// Create Date: 2018/06/14
+// Update Date: 2018/06/14
 
 using System;
 using System.Text;
-using System.Threading.Tasks;
 
-namespace SimCivil.Contract
+using SimCivil.Orleans.Interfaces;
+using SimCivil.Rpc;
+using SimCivil.Rpc.Filter;
+using SimCivil.Rpc.Session;
+
+namespace SimCivil.Gate
 {
-    public interface IAuth
+    /// <summary>
+    /// Allowed only logged in
+    /// </summary>
+    /// <seealso>
+    ///     <cref>SimCivil.Rpc.Filter.SessionFilterAttribute</cref>
+    /// </seealso>
+    public class LoginFilterAttribute : SessionFilterAttribute
     {
-        [Obsolete]
-        bool LogIn(string username, string password);
-
-        Task<bool> LogInAsync(string username, string password);
-
-        [Obsolete]
-        void LogOut();
-
-        Task LogOutAsync();
-
-        [Obsolete]
-        string GetToken();
-
-        Task<bool> Register(string username, string password);
+        /// <summary>
+        /// Checks the permission.
+        /// </summary>
+        /// <param name="session">The session.</param>
+        /// <returns></returns>
+        public override CheckResult CheckPermission(IRpcSession session)
+        {
+            return CheckResult.If(session.IsSet<IAccount>(), "Not logged in");
+        }
     }
 }

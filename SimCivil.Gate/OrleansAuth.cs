@@ -19,13 +19,15 @@
 // SOFTWARE.
 // 
 // SimCivil - SimCivil.Gate - OrleansAuth.cs
-// Create Date: 2018/05/14
-// Update Date: 2018/05/18
+// Create Date: 2018/06/14
+// Update Date: 2018/06/17
 
 using System;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+
+using JetBrains.Annotations;
 
 using Microsoft.Extensions.Logging;
 
@@ -88,12 +90,17 @@ namespace SimCivil.Gate
 
         public string GetToken()
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException();
         }
 
-        public async Task<string> GetTokenAsync()
+        public async Task<bool> Register(string username, string password)
         {
-            throw new NotImplementedException();
+            if (username == null) return false;
+            if (password == null) return false;
+
+            var account = GrainFactory.GetGrain<IAccount>(username);
+
+            return await account.Register(password);
         }
 
         public AsyncLocal<IRpcSession> Session { get; set; } = new AsyncLocal<IRpcSession>();

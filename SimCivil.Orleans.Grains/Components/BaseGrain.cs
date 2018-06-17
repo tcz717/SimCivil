@@ -45,5 +45,10 @@ namespace SimCivil.Orleans.Grains.Components
 
             return Task.CompletedTask;
         }
+
+        public virtual Task CopyTo(IEntity target)
+        {
+            return GrainFactory.GetGrain<IComponent<TComponent>>(target.GetPrimaryKey()).SetData(State);
+        }
     }
 }

@@ -19,11 +19,14 @@
 // SOFTWARE.
 // 
 // SimCivil - SimCivil.Orleans.Grains - AccountState.cs
-// Create Date: 2018/05/13
-// Update Date: 2018/05/14
+// Create Date: 2018/06/14
+// Update Date: 2018/06/16
 
 using System;
+using System.Collections.Generic;
 using System.Text;
+
+using SimCivil.Orleans.Interfaces;
 
 namespace SimCivil.Orleans.Grains.State
 {
@@ -33,11 +36,14 @@ namespace SimCivil.Orleans.Grains.State
         public bool Online { get; set; }
         public DateTime LastOnlineTime { get; set; }
         public bool Enabled { get; set; }
+        public List<IEntity> Roles { get; set; }
+        public IEntity CurrentRole { get; set; }
 
         public AccountState(string token)
         {
             Token = token;
             Enabled = true;
+            Roles = new List<IEntity>();
         }
 
         public AccountState() { }
