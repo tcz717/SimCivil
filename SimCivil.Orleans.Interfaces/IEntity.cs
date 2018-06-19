@@ -18,31 +18,39 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// SimCivil - SimCivil.Contract - IAuth.cs
-// Create Date: 2018/01/04
-// Update Date: 2018/06/17
+// SimCivil - SimCivil.Orleans.Interfaces - IEntity.cs
+// Create Date: 2018/02/24
+// Update Date: 2018/05/12
 
 using System;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SimCivil.Contract
+using JetBrains.Annotations;
+
+using Orleans;
+
+namespace SimCivil.Orleans.Interfaces
 {
-    public interface IAuth
+    public interface IEntity : IGrainWithGuidKey
     {
-        [Obsolete]
-        bool LogIn(string username, string password);
+        Task<bool> Has<T>() where T : IComponent;
+        Task Add<T>() where T : IComponent;
+        Task Remove<T>() where T : IComponent;
 
-        Task<bool> LogInAsync(string username, string password);
+        Task Enable();
+        Task Disable();
+        Task<bool> IsEnabled();
+        Task CopyTo(IEntity targetEntity);
+        Task SetName(string name);
+        Task<string> GetName();
+    }
 
-        [Obsolete]
-        void LogOut();
-
-        Task LogOutAsync();
-
-        [Obsolete]
-        string GetToken();
-
-        Task<bool> Register(string username, string password);
+    public static class EntityExtention
+    {
+        public static T Get<T>(this IGrainFactory factory, IEntity entity) where T : IComponent
+        {
+            return factory.GetGrain<T>(entity.GetPrimaryKey());
+        }
     }
 }

@@ -146,11 +146,14 @@ namespace SimCivil.Test
         {
             using (RpcClient client = new RpcClient())
             {
+                AutoResetEvent resetEvent = new AutoResetEvent(false);
                 client.Bind(9999).ConnectAsync().Wait();
 
                 var service = client.Import<ITestServiceA>();
+                
+                service.Echo("123", s => resetEvent.Set());
 
-                service.Echo("123", s => Assert.Equal(s, "123"));
+                Assert.True(resetEvent.WaitOne(1000));
             }
         }
 
@@ -263,8 +266,8 @@ namespace SimCivil.Test
                     serviceB2.SetSession("test", "2");
 
                     Assert.NotEqual(serviceA1.GetSession("test"), serviceA2.GetSession("test"));
-                    Assert.Equal(serviceA1.GetSession("test"), "1");
-                    Assert.Equal(serviceA2.GetSession("test"), "2");
+                    Assert.Equal("1", serviceA1.GetSession("test"));
+                    Assert.Equal("2", serviceA2.GetSession("test"));
                 }
             }
         }

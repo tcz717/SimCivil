@@ -18,31 +18,26 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// SimCivil - SimCivil.Contract - IAuth.cs
-// Create Date: 2018/01/04
-// Update Date: 2018/06/17
+// SimCivil - SimCivil.Orleans.Interfaces - IComponent.cs
+// Create Date: 2018/06/14
+// Update Date: 2018/06/16
 
 using System;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SimCivil.Contract
+using Orleans;
+
+namespace SimCivil.Orleans.Interfaces
 {
-    public interface IAuth
+    public interface IComponent : IGrainWithGuidKey
     {
-        [Obsolete]
-        bool LogIn(string username, string password);
+        Task CopyTo(IEntity target);
+    }
 
-        Task<bool> LogInAsync(string username, string password);
-
-        [Obsolete]
-        void LogOut();
-
-        Task LogOutAsync();
-
-        [Obsolete]
-        string GetToken();
-
-        Task<bool> Register(string username, string password);
+    public interface IComponent<T> : IComponent where T : new()
+    {
+        Task<T> GetData();
+        Task SetData(T component);
     }
 }

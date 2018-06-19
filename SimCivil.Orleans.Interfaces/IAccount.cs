@@ -18,31 +18,33 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// SimCivil - SimCivil.Contract - IAuth.cs
-// Create Date: 2018/01/04
-// Update Date: 2018/06/17
+// SimCivil - SimCivil.Orleans.Interfaces - IAccount.cs
+// Create Date: 2018/02/26
+// Update Date: 2018/02/26
 
 using System;
+using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SimCivil.Contract
+using Orleans;
+
+using SimCivil.Contract;
+
+namespace SimCivil.Orleans.Interfaces
 {
-    public interface IAuth
+    public interface IAccount : IGrainWithStringKey
     {
-        [Obsolete]
-        bool LogIn(string username, string password);
+        Task<bool> IsExisted();
+        Task<bool> Register(string token);
+        Task<bool> Login(string token);
+        Task Logout();
 
-        Task<bool> LogInAsync(string username, string password);
-
-        [Obsolete]
-        void LogOut();
-
-        Task LogOutAsync();
-
-        [Obsolete]
-        string GetToken();
-
-        Task<bool> Register(string username, string password);
+        Task<IEnumerable<IEntity>> GetRoleList();
+        Task<IEntity> CreateRole(CreateRoleOption option);
+        Task<IEntity> GetCurrentRole();
+        Task UseRole(IEntity role);
+        Task ReleaseRole();
+        Task DeleteRole(IEntity role);
     }
 }

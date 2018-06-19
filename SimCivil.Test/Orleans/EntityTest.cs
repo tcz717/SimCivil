@@ -18,31 +18,41 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// SimCivil - SimCivil.Contract - IAuth.cs
-// Create Date: 2018/01/04
-// Update Date: 2018/06/17
+// SimCivil - SimCivil.Test - EntityTest.cs
+// Create Date: 2018/05/14
+// Update Date: 2018/05/17
 
 using System;
+using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
-namespace SimCivil.Contract
+using Orleans;
+using Orleans.TestingHost;
+
+using SimCivil.Orleans.Interfaces;
+
+using Xunit;
+
+namespace SimCivil.Test.Orleans
 {
-    public interface IAuth
+    public class EntityTest
     {
-        [Obsolete]
-        bool LogIn(string username, string password);
+        public EntityTest()
+        {
+            Cluster = OrleansFixture.Single.Cluster;
+        }
 
-        Task<bool> LogInAsync(string username, string password);
+        public TestCluster Cluster { get; }
 
-        [Obsolete]
-        void LogOut();
-
-        Task LogOutAsync();
-
-        [Obsolete]
-        string GetToken();
-
-        Task<bool> Register(string username, string password);
+        [Fact]
+        public void ComponentManageTest()
+        {
+            var entity = Cluster.GrainFactory.GetGrain<IEntity>(Guid.NewGuid());
+            entity.Enable().Wait();
+            Assert.True(entity.IsEnabled().Result);
+            var entities = Cluster.GrainFactory.GetGrain<IEntityGroup>(0).GetEntities().Result.ToArray();
+            Assert.NotEmpty(entities);
+            Assert.Contains(entity.GetPrimaryKey(), entities);
+        }
     }
 }

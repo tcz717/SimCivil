@@ -18,31 +18,34 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// SimCivil - SimCivil.Contract - IAuth.cs
-// Create Date: 2018/01/04
-// Update Date: 2018/06/17
+// SimCivil - SimCivil.Orleans.Grains - AccountState.cs
+// Create Date: 2018/06/14
+// Update Date: 2018/06/16
 
 using System;
+using System.Collections.Generic;
 using System.Text;
-using System.Threading.Tasks;
 
-namespace SimCivil.Contract
+using SimCivil.Orleans.Interfaces;
+
+namespace SimCivil.Orleans.Grains.State
 {
-    public interface IAuth
+    public class AccountState
     {
-        [Obsolete]
-        bool LogIn(string username, string password);
+        public string Token { get; set; }
+        public bool Online { get; set; }
+        public DateTime LastOnlineTime { get; set; }
+        public bool Enabled { get; set; }
+        public List<IEntity> Roles { get; set; }
+        public IEntity CurrentRole { get; set; }
 
-        Task<bool> LogInAsync(string username, string password);
+        public AccountState(string token)
+        {
+            Token = token;
+            Enabled = true;
+            Roles = new List<IEntity>();
+        }
 
-        [Obsolete]
-        void LogOut();
-
-        Task LogOutAsync();
-
-        [Obsolete]
-        string GetToken();
-
-        Task<bool> Register(string username, string password);
+        public AccountState() { }
     }
 }
