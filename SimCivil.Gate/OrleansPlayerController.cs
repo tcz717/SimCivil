@@ -18,37 +18,54 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// SimCivil - SimCivil.Orleans.Grains - BaseGrain.cs
-// Create Date: 2018/02/26
-// Update Date: 2018/02/26
+// SimCivil - SimCivil.Gate - OrleansPlayerController.cs
+// Create Date: 2018/09/27
+// Update Date: 2018/09/27
 
 using System;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 using Orleans;
 
+using SimCivil.Contract;
 using SimCivil.Orleans.Interfaces;
+using SimCivil.Orleans.Interfaces.Component;
+using SimCivil.Rpc;
+using SimCivil.Rpc.Session;
 
-namespace SimCivil.Orleans.Grains.Components
+namespace SimCivil.Gate
 {
-    public abstract class BaseGrain<TComponent> : Grain<TComponent>, IComponent<TComponent> where TComponent : new()
+    [LoginFilter]
+    public class OrleansPlayerController : IPlayerController, ISessionRequred
     {
-        public virtual Task<TComponent> GetData()
+        public IGrainFactory Factory { get; }
+
+        public OrleansPlayerController(IGrainFactory factory)
         {
-            return Task.FromResult(State);
+            Factory = factory;
         }
 
-        public virtual Task SetData(TComponent component)
+        /// <summary>
+        /// Moves the specified direction.
+        /// </summary>
+        /// <param name="direction">The direction.</param>
+        /// <param name="speed">The speed.</param>
+        /// <returns></returns>
+        public async Task Move((float X, float Y) direction, float speed)
         {
-            State = component;
+            var controller = Factory.GetGrain<IUnitController>(Session.Value.Get<IEntity>().GetPrimaryKey());
 
-            return Task.CompletedTask;
+            await controller.Move(direction, speed);
         }
 
-        public virtual Task CopyTo(IEntity target)
+        public async Task Stop()
         {
-            return GrainFactory.GetGrain<IComponent<TComponent>>(target.GetPrimaryKey()).SetData(State);
+            var controller = Factory.GetGrain<IUnitController>(Session.Value.Get<IEntity>().GetPrimaryKey());
+            await controller.Stop();
         }
+
+        public AsyncLocal<IRpcSession> Session { get; set; }
     }
 }

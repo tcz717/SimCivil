@@ -18,26 +18,18 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// SimCivil - SimCivil.Contract - IPlayerController.cs
-// Create Date: 2018/02/09
-// Update Date: 2018/02/09
+// SimCivil - SimCivil.Orleans.Interfaces - IPosition.cs
+// Create Date: 2018/06/14
+// Update Date: 2018/09/26
 
 using System;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SimCivil.Contract
+namespace SimCivil.Orleans.Interfaces.Component
 {
-    public interface IPlayerController
+    public interface IPosition : IComponent<Position>
     {
-        /// <summary>
-        /// Moves the specified direction.
-        /// </summary>
-        /// <param name="direction">The direction.</param>
-        /// <param name="speed">The speed.</param>
-        /// <returns></returns>
-        Task Move((float X, float Y) direction, float speed);
-
-        Task Stop();
+        Task<Position> Add((int X, int Y) offset);
     }
 }

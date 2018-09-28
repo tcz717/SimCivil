@@ -30,7 +30,7 @@ using Orleans;
 using Orleans.TestingHost;
 
 using SimCivil.Orleans.Interfaces;
-using SimCivil.Orleans.Interfaces.Components;
+using SimCivil.Orleans.Interfaces.Component;
 
 using Xunit;
 

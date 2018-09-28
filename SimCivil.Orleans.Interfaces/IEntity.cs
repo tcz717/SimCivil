@@ -19,14 +19,12 @@
 // SOFTWARE.
 // 
 // SimCivil - SimCivil.Orleans.Interfaces - IEntity.cs
-// Create Date: 2018/02/24
-// Update Date: 2018/05/12
+// Create Date: 2018/06/14
+// Update Date: 2018/09/27
 
 using System;
 using System.Text;
 using System.Threading.Tasks;
-
-using JetBrains.Annotations;
 
 using Orleans;
 
@@ -48,9 +46,24 @@ namespace SimCivil.Orleans.Interfaces
 
     public static class EntityExtention
     {
+        public static T Get<T>(this IGrainFactory factory, Guid entityId) where T : IComponent
+        {
+            return factory.GetGrain<T>(entityId);
+        }
+
         public static T Get<T>(this IGrainFactory factory, IEntity entity) where T : IComponent
         {
             return factory.GetGrain<T>(entity.GetPrimaryKey());
+        }
+
+        public static T Get<T>(this IGrainFactory factory, IGrainWithGuidKey grain) where T : IComponent
+        {
+            return factory.GetGrain<T>(grain.GetPrimaryKey());
+        }
+
+        public static IEntity GetEntity(this IGrainFactory factory, IGrainWithGuidKey grain)
+        {
+            return factory.GetGrain<IEntity>(grain.GetPrimaryKey());
         }
     }
 }

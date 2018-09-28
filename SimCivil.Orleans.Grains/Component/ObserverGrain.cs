@@ -30,9 +30,9 @@ using System.Threading.Tasks;
 
 using SimCivil.Contract;
 using SimCivil.Orleans.Interfaces;
-using SimCivil.Orleans.Interfaces.Components;
+using SimCivil.Orleans.Interfaces.Component;
 
-namespace SimCivil.Orleans.Grains.Components
+namespace SimCivil.Orleans.Grains.Component
 {
     public class ObserverGrain : BaseGrain<Observer>, IObserver
     {

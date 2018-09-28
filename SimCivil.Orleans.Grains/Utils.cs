@@ -18,21 +18,24 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// SimCivil - SimCivil.Orleans.Interfaces - IPrefabManager.cs
-// Create Date: 2018/06/14
-// Update Date: 2018/06/15
+// SimCivil - SimCivil.Orleans.Grains - Utils.cs
+// Create Date: 2018/09/26
+// Update Date: 2018/09/26
 
 using System;
-using System.Text;
-using System.Threading.Tasks;
 
-using Orleans;
-
-namespace SimCivil.Orleans.Interfaces
+namespace SimCivil.Orleans.Grains
 {
-    public interface IPrefabManager : IGrainWithIntegerKey
+    public class Utils
     {
-        Task<IEntity> Clone(string name, string key);
-        Task Set(string key, IEntity prefab);
+        public static (float X, float Y) Normalize((float X, float Y) v)
+        {
+            float len = (float) Math.Sqrt(v.X * v.X + v.Y * v.Y);
+
+            if (len < 0.0001f)
+                return (0, 0);
+
+            return (v.X / len, v.Y / len);
+        }
     }
 }

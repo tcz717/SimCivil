@@ -18,26 +18,25 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// SimCivil - SimCivil.Contract - IPlayerController.cs
-// Create Date: 2018/02/09
-// Update Date: 2018/02/09
+// SimCivil - SimCivil.Orleans.Grains - UnitGrain.cs
+// Create Date: 2018/06/16
+// Update Date: 2018/06/16
 
 using System;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SimCivil.Contract
-{
-    public interface IPlayerController
-    {
-        /// <summary>
-        /// Moves the specified direction.
-        /// </summary>
-        /// <param name="direction">The direction.</param>
-        /// <param name="speed">The speed.</param>
-        /// <returns></returns>
-        Task Move((float X, float Y) direction, float speed);
+using SimCivil.Contract;
+using SimCivil.Orleans.Interfaces.Component;
 
-        Task Stop();
+namespace SimCivil.Orleans.Grains.Component
+{
+    public class UnitGrain : BaseGrain<Unit>, IUnit
+    {
+        public Task Fill(CreateRoleOption option)
+        {
+            State.Gender = option.Gender;
+            return Task.CompletedTask;
+        }
     }
 }

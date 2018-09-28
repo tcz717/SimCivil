@@ -32,6 +32,7 @@ using Orleans;
 
 using SimCivil.Contract;
 using SimCivil.Orleans.Interfaces;
+using SimCivil.Orleans.Interfaces.Component;
 using SimCivil.Rpc;
 using SimCivil.Rpc.Session;
 

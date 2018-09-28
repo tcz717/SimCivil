@@ -30,9 +30,9 @@ using System.Threading.Tasks;
 using Orleans;
 
 using SimCivil.Orleans.Interfaces;
-using SimCivil.Orleans.Interfaces.Components;
+using SimCivil.Orleans.Interfaces.Component;
 
-namespace SimCivil.Orleans.Grains.Components
+namespace SimCivil.Orleans.Grains.Component
 {
     public class PositionGrain : BaseGrain<Position>, IPosition
     {
@@ -56,6 +56,15 @@ namespace SimCivil.Orleans.Grains.Components
             }
 
             await base.SetData(component);
+        }
+
+        public async Task<Position> Add((int X, int Y) offset)
+        {
+            Position pos = await GetData();
+            pos += offset;
+            await SetData(pos);
+
+            return pos;
         }
     }
 }

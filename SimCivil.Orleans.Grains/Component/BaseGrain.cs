@@ -18,54 +18,37 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// SimCivil - SimCivil.Orleans.Grains - PrefabManager.cs
-// Create Date: 2018/06/15
-// Update Date: 2018/06/15
+// SimCivil - SimCivil.Orleans.Grains - BaseGrain.cs
+// Create Date: 2018/02/26
+// Update Date: 2018/02/26
 
 using System;
-using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 
 using Orleans;
 
 using SimCivil.Orleans.Interfaces;
-using SimCivil.Orleans.Interfaces.System;
 
-namespace SimCivil.Orleans.Grains
+namespace SimCivil.Orleans.Grains.Component
 {
-    public class PrefabManager : Grain<State.PrefabState>, IPrefabManager
+    public abstract class BaseGrain<TComponent> : Grain<TComponent>, IComponent<TComponent> where TComponent : new()
     {
-        public async Task<IEntity> Clone(string name, string key)
+        public virtual Task<TComponent> GetData()
         {
-            var entity = GrainFactory.GetGrain<IEntity>(Guid.NewGuid());
-            var prefab = State.Prefabs[key];
-
-            await prefab.CopyTo(entity);
-
-            return entity;
+            return Task.FromResult(State);
         }
 
-        public Task Set(string key, IEntity prefab)
+        public virtual Task SetData(TComponent component)
         {
-            State.Prefabs[key] = prefab;
+            State = component;
 
             return Task.CompletedTask;
         }
 
-        /// <summary>
-        /// This method is called at the end of the process of activating a grain.
-        /// It is called before any messages have been dispatched to the grain.
-        /// For grains with declared persistent state, this method is called after the State property has been populated.
-        /// </summary>
-        public override Task OnActivateAsync()
+        public virtual Task CopyTo(IEntity target)
         {
-            if (State.Prefabs == null)
-            {
-                State.Prefabs = new Dictionary<string, IEntity>();
-            }
-
-            return base.OnActivateAsync();
+            return GrainFactory.GetGrain<IComponent<TComponent>>(target.GetPrimaryKey()).SetData(State);
         }
     }
 }

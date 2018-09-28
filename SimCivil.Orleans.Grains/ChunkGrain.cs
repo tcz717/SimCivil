@@ -33,7 +33,7 @@ using Orleans;
 using Orleans.Runtime;
 
 using SimCivil.Orleans.Interfaces;
-using SimCivil.Orleans.Interfaces.Components;
+using SimCivil.Orleans.Interfaces.Component;
 
 using static System.Math;
 

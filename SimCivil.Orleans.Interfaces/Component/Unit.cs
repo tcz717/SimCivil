@@ -3,7 +3,7 @@ using System.Text;
 
 using SimCivil.Contract.Model;
 
-namespace SimCivil.Orleans.Interfaces.Components
+namespace SimCivil.Orleans.Interfaces.Component
 {
     public class Unit
     {

@@ -29,7 +29,7 @@ using System.Threading.Tasks;
 using Orleans;
 using Orleans.Concurrency;
 
-using SimCivil.Orleans.Interfaces.Components;
+using SimCivil.Orleans.Interfaces.Component;
 
 namespace SimCivil.Orleans.Interfaces
 {

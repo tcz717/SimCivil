@@ -18,16 +18,20 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// SimCivil - SimCivil.Orleans.Interfaces - IPosition.cs
+// SimCivil - SimCivil.Orleans.Interfaces - IUnit.cs
 // Create Date: 2018/06/14
-// Update Date: 2018/06/16
+// Update Date: 2018/06/14
 
 using System;
 using System.Text;
+using System.Threading.Tasks;
 
-using SimCivil.Orleans.Interfaces.Components;
+using SimCivil.Contract;
 
-namespace SimCivil.Orleans.Interfaces
+namespace SimCivil.Orleans.Interfaces.Component
 {
-    public interface IPosition : IComponent<Position> { }
+    public interface IUnit : IComponent<Unit>
+    {
+        Task Fill(CreateRoleOption option);
+    }
 }

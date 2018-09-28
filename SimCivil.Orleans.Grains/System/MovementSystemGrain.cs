@@ -18,40 +18,28 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// SimCivil - SimCivil.Orleans.Grains - PrefabManager.cs
-// Create Date: 2018/06/15
-// Update Date: 2018/06/15
+// SimCivil - SimCivil.Orleans.Grains - MovementSystemGrain.cs
+// Create Date: 2018/09/27
+// Update Date: 2018/09/27
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 using Orleans;
 
 using SimCivil.Orleans.Interfaces;
+using SimCivil.Orleans.Interfaces.Component;
 using SimCivil.Orleans.Interfaces.System;
 
-namespace SimCivil.Orleans.Grains
+namespace SimCivil.Orleans.Grains.System
 {
-    public class PrefabManager : Grain<State.PrefabState>, IPrefabManager
+    public class MovementSystemGrain : Grain, IMovementSystem
     {
-        public async Task<IEntity> Clone(string name, string key)
-        {
-            var entity = GrainFactory.GetGrain<IEntity>(Guid.NewGuid());
-            var prefab = State.Prefabs[key];
-
-            await prefab.CopyTo(entity);
-
-            return entity;
-        }
-
-        public Task Set(string key, IEntity prefab)
-        {
-            State.Prefabs[key] = prefab;
-
-            return Task.CompletedTask;
-        }
+        private Dictionary<Guid, (float X, float Y)> _activeEntities;
 
         /// <summary>
         /// This method is called at the end of the process of activating a grain.
@@ -60,12 +48,33 @@ namespace SimCivil.Orleans.Grains
         /// </summary>
         public override Task OnActivateAsync()
         {
-            if (State.Prefabs == null)
-            {
-                State.Prefabs = new Dictionary<string, IEntity>();
-            }
-
+            RegisterTimer(Update, null, TimeSpan.Zero, TimeSpan.FromMilliseconds(50));
+            _activeEntities = new Dictionary<Guid, (float X, float Y)>();
             return base.OnActivateAsync();
+        }
+
+        private async Task Update(object arg)
+        {
+            var tasks = _activeEntities.Select(
+                async e =>
+                {
+                    float maxMoveSpeed = (await GrainFactory.Get<IUnit>(e.Key).GetData()).MoveSpeed;
+                    await GrainFactory.Get<IPosition>(e.Key)
+                        .Add(((int X, int Y)) (maxMoveSpeed * e.Value.X, maxMoveSpeed * e.Value.Y));
+                });
+            await Task.WhenAll(tasks);
+        }
+
+        public Task Move(Guid entityId, (float X, float Y) speed)
+        {
+            _activeEntities.Add(entityId,speed);
+            return Task.CompletedTask;
+        }
+
+        public Task Stop(Guid entityId)
+        {
+            _activeEntities.Remove(entityId);
+            return Task.CompletedTask;
         }
     }
 }

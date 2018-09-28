@@ -19,20 +19,21 @@
 // SOFTWARE.
 // 
 // SimCivil - SimCivil.Orleans.Interfaces - Position.cs
-// Create Date: 2018/06/14
-// Update Date: 2018/06/16
+// Create Date: 2018/06/22
+// Update Date: 2018/09/26
 
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
 
-namespace SimCivil.Orleans.Interfaces.Components
+namespace SimCivil.Orleans.Interfaces.Component
 {
     public class Position
     {
         public float X { get; set; }
         public float Y { get; set; }
         public (int X, int Y) Tile => ((int) Math.Truncate(X), (int) Math.Truncate(Y));
+        public static Position Zero { get; } = new Position();
 
         public Position(float x, float y)
         {
@@ -48,6 +49,14 @@ namespace SimCivil.Orleans.Interfaces.Components
         public static implicit operator (float X, float Y)(Position position)
         {
             return (position.X, position.Y);
+        }
+
+        public static Position operator +(Position pos, (float X, float Y) offset)
+        {
+            pos.X += offset.X;
+            pos.Y += offset.Y;
+
+            return pos;
         }
 
         protected bool Equals(Position other)

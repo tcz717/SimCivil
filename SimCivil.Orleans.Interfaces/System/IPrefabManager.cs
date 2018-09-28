@@ -18,27 +18,21 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// SimCivil - SimCivil.Orleans.Interfaces - IObserver.cs
-// Create Date: 2018/05/12
-// Update Date: 2018/05/12
+// SimCivil - SimCivil.Orleans.Interfaces - IPrefabManager.cs
+// Create Date: 2018/06/14
+// Update Date: 2018/06/15
 
 using System;
-using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 
-using SimCivil.Contract;
-using SimCivil.Orleans.Interfaces.Components;
+using Orleans;
 
-namespace SimCivil.Orleans.Interfaces
+namespace SimCivil.Orleans.Interfaces.System
 {
-    public interface IObserver : IComponent<Observer>
+    public interface IPrefabManager : IGrainWithIntegerKey
     {
-        Task OnEntityEntered(Guid id);
-        Task OnEntityLeft(Guid id);
-
-        Task<uint> GetNotifyRange();
-        Task<IEnumerable<Guid>> PopAllEntities();
-        Task<ViewChange> UpdateView();
+        Task<IEntity> Clone(string name, string key);
+        Task Set(string key, IEntity prefab);
     }
 }

@@ -36,7 +36,8 @@ using SimCivil.Contract;
 using SimCivil.Contract.Model;
 using SimCivil.Orleans.Grains.State;
 using SimCivil.Orleans.Interfaces;
-using SimCivil.Orleans.Interfaces.Components;
+using SimCivil.Orleans.Interfaces.Component;
+using SimCivil.Orleans.Interfaces.System;
 
 namespace SimCivil.Orleans.Grains
 {

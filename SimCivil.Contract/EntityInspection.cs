@@ -18,14 +18,23 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// SimCivil - SimCivil.Orleans.Interfaces - Observer.cs
-// Create Date: 2018/05/12
-// Update Date: 2018/05/12
+// SimCivil - SimCivil.Contract - EntityInspection.cs
+// Create Date: 2018/09/25
+// Update Date: 2018/09/25
 
-namespace SimCivil.Orleans.Interfaces.Components
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace SimCivil.Contract
 {
-    public class Observer
+    public class EntityInspection
     {
-        public uint NotityRange { get; set; }
+        public Guid EntityId { get; set; }
+        public DateTime TimeStamp { get; set; }
+        public Guid ObserverId { get; set; }
+        public Dictionary<string, EntityInspectionValue> Values { get; set; }
     }
+
+    public class EntityInspectionValue { }
 }

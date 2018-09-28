@@ -18,17 +18,21 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// SimCivil - SimCivil.Contract - IPlayerController.cs
-// Create Date: 2018/02/09
-// Update Date: 2018/02/09
+// SimCivil - SimCivil.Orleans.Interfaces - IPlayerController.cs
+// Create Date: 2018/07/11
+// Update Date: 2018/09/26
 
 using System;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SimCivil.Contract
+using Orleans;
+
+using SimCivil.Contract;
+
+namespace SimCivil.Orleans.Interfaces.Component
 {
-    public interface IPlayerController
+    public interface IUnitController : IComponent
     {
         /// <summary>
         /// Moves the specified direction.
@@ -39,5 +43,14 @@ namespace SimCivil.Contract
         Task Move((float X, float Y) direction, float speed);
 
         Task Stop();
+
+        Task Drop(IEntity target);
+
+        Task Attack(IEntity target);
+
+        Task Use(IEntity target);
+
+        Task<EntityInspection> Inspect(IEntity target);
+        Task<(float X, float Y)> GetSpeed();
     }
 }

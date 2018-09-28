@@ -18,26 +18,17 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// SimCivil - SimCivil.Orleans.Grains - UnitGrain.cs
-// Create Date: 2018/06/16
-// Update Date: 2018/06/16
+// SimCivil - SimCivil.Orleans.Interfaces - Observer.cs
+// Create Date: 2018/05/12
+// Update Date: 2018/05/12
 
 using System;
 using System.Text;
-using System.Threading.Tasks;
 
-using SimCivil.Contract;
-using SimCivil.Orleans.Interfaces;
-using SimCivil.Orleans.Interfaces.Components;
-
-namespace SimCivil.Orleans.Grains.Components
+namespace SimCivil.Orleans.Interfaces.Component
 {
-    public class UnitGrain : BaseGrain<Unit>, IUnit
+    public class Observer
     {
-        public Task Fill(CreateRoleOption option)
-        {
-            State.Gender = option.Gender;
-            return Task.CompletedTask;
-        }
+        public uint NotityRange { get; set; }
     }
 }

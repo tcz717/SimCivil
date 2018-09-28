@@ -18,21 +18,26 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// SimCivil - SimCivil.Orleans.Interfaces - IUnit.cs
-// Create Date: 2018/06/14
-// Update Date: 2018/06/14
+// SimCivil - SimCivil.Orleans.Interfaces - IObserver.cs
+// Create Date: 2018/05/12
+// Update Date: 2018/05/12
 
 using System;
+using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 
 using SimCivil.Contract;
-using SimCivil.Orleans.Interfaces.Components;
 
-namespace SimCivil.Orleans.Interfaces
+namespace SimCivil.Orleans.Interfaces.Component
 {
-    public interface IUnit : IComponent<Unit>
+    public interface IObserver : IComponent<Observer>
     {
-        Task Fill(CreateRoleOption option);
+        Task OnEntityEntered(Guid id);
+        Task OnEntityLeft(Guid id);
+
+        Task<uint> GetNotifyRange();
+        Task<IEnumerable<Guid>> PopAllEntities();
+        Task<ViewChange> UpdateView();
     }
 }

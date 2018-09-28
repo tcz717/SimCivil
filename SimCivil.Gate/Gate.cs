@@ -18,9 +18,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// SimCivil - SimCivil.Gate - Program.cs
+// SimCivil - SimCivil.Gate - Gate.cs
 // Create Date: 2018/06/14
-// Update Date: 2018/06/14
+// Update Date: 2018/09/28
 
 using System;
 using System.Text;
@@ -30,36 +30,54 @@ using Autofac;
 using Autofac.Configuration;
 using Autofac.Extensions.DependencyInjection;
 
+using JetBrains.Annotations;
+
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 using Orleans;
-using Orleans.Runtime;
 
 using SharpRaven;
 using SharpRaven.Data;
 
 using SimCivil.Contract;
 using SimCivil.Orleans.Interfaces;
+using SimCivil.Orleans.Interfaces.Component;
+using SimCivil.Orleans.Interfaces.System;
 using SimCivil.Rpc;
 
 namespace SimCivil.Gate
 {
-    class Program
+    public class Gate
     {
         public static RavenClient Raven { get; } =
             new RavenClient("https://c091709188504c39a331cc91794fa4f4@sentry.io/216217");
 
-        static async Task Main(string[] args)
+        public IClusterClient Client { get; set; }
+
+        /// <summary>Initializes a new instance of the <see cref="T:System.Object"></see> class.</summary>
+        public Gate([NotNull] IClusterClient client)
+        {
+            Client = client ?? throw new ArgumentNullException(nameof(client));
+        }
+
+        private static async Task Main(string[] args)
         {
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
             IClusterClient client = new ClientBuilder().UseLocalhostClustering().Build();
 
             await client.Connect();
 
-            var container = LoadConfiguration();
-            container.RegisterInstance(client.ServiceProvider.GetService<IGrainFactory>());
+            await new Gate(client).Run();
+
+            Console.ReadKey();
+        }
+
+        public async Task Run(IServiceCollection services = null)
+        {
+            var container = LoadConfiguration(services);
+            container.RegisterInstance(Client.ServiceProvider.GetService<IGrainFactory>());
             RpcServer server = new RpcServer(container.Build())
             {
 #if DEBUG
@@ -70,35 +88,40 @@ namespace SimCivil.Gate
             await server.Bind(20170).Run();
             server.Container.Resolve<OrleansChunkViewSynchronizer>().StartSync(server);
 
-            await PrepareTest(client);
-
-            Console.ReadKey();
+            await PrepareTest();
         }
 
-        private static async Task PrepareTest(IClusterClient client)
+        private async Task PrepareTest()
         {
-            var factory = client.ServiceProvider.GetService<IGrainFactory>();
-            var logger = client.ServiceProvider.GetService<ILogger<Program>>();
-            logger.Info(
+            var factory = Client.ServiceProvider.GetService<IGrainFactory>();
+            var logger = Client.ServiceProvider.GetService<ILogger<Gate>>();
+            logger.LogInformation(
                 $"Register {await factory.GetGrain<IAccount>("admin").Register("")}");
 
             var human = factory.GetGrain<IEntity>(Guid.NewGuid());
             await human.Add<IObserver>();
             await human.Add<IPosition>();
             await human.Add<IUnit>();
+            await human.Add<IUnitController>();
 
             await factory.GetGrain<IPrefabManager>(0).Set("human.init", human);
             await factory.GetGrain<IGame>(0).InitGame(new Config {SpawnPoint = (0, 0), Seed = 0});
         }
 
-        private static ContainerBuilder LoadConfiguration(string config = "configuration.json")
+        private static ContainerBuilder LoadConfiguration(
+            IServiceCollection services = null,
+            string config = "configuration.json")
         {
             var builder = new ContainerBuilder();
             var configBuilder = new ConfigurationBuilder();
 //            configBuilder.AddJsonFile(config);
             var module = new ConfigurationModule(configBuilder.Build());
 
-            var services = new ServiceCollection();
+            if (services == null)
+            {
+                services = new ServiceCollection();
+            }
+
             services.AddLogging(n => n.AddConsole());
 
             builder.RegisterModule(module);
@@ -107,7 +130,7 @@ namespace SimCivil.Gate
             builder.RegisterRpcProvider<OrleansAuth, IAuth>().SingleInstance();
             builder.RegisterRpcProvider<OrleansRoleManager, IRoleManager>().InstancePerChannel();
             builder.RegisterRpcProvider<OrleansChunkViewSynchronizer, IViewSynchronizer>().SingleInstance().AsSelf();
-//            builder.RegisterRpcProvider<OrleansPlayerController, IPlayerController>().InstancePerChannel();
+            builder.RegisterRpcProvider<OrleansPlayerController, IPlayerController>().InstancePerChannel();
 
             return builder;
         }
