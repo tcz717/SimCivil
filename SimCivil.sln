@@ -19,7 +19,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SimCivil.Orleans.Grains", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SimCivil.Orleans.Server", "SimCivil.Orleans.Server\SimCivil.Orleans.Server.csproj", "{05A81D03-3D21-44F9-AEFF-45610789E56A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimCivil.Gate", "SimCivil.Gate\SimCivil.Gate.csproj", "{BDA0B8D1-8AD6-46F3-AF02-B28452D146EA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SimCivil.Gate", "SimCivil.Gate\SimCivil.Gate.csproj", "{BDA0B8D1-8AD6-46F3-AF02-B28452D146EA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimCivil.IntegrationTest", "SimCivil.IntegrationTest\SimCivil.IntegrationTest.csproj", "{337C9797-D3A4-450C-A600-56BAF53CB131}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -63,6 +65,10 @@ Global
 		{BDA0B8D1-8AD6-46F3-AF02-B28452D146EA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BDA0B8D1-8AD6-46F3-AF02-B28452D146EA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BDA0B8D1-8AD6-46F3-AF02-B28452D146EA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{337C9797-D3A4-450C-A600-56BAF53CB131}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{337C9797-D3A4-450C-A600-56BAF53CB131}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{337C9797-D3A4-450C-A600-56BAF53CB131}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{337C9797-D3A4-450C-A600-56BAF53CB131}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
