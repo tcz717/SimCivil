@@ -40,7 +40,7 @@ using SimCivil.Rpc.Session;
 
 namespace SimCivil.Gate
 {
-    public class OrleansAuth : IAuth, ISessionRequred
+    public class OrleansAuth : IAuth, ISessionRequired
     {
         public IGrainFactory GrainFactory { get; }
         public ILogger<IAuth> Logger { get; }

@@ -39,7 +39,7 @@ using SimCivil.Rpc.Session;
 namespace SimCivil.Gate
 {
     [LoginFilter]
-    public class OrleansRoleManager : IRoleManager, ISessionRequred
+    public class OrleansRoleManager : IRoleManager, ISessionRequired
     {
         public IGrainFactory GrainFactory { get; }
 

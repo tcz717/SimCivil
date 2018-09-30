@@ -41,7 +41,7 @@ using SimCivil.Rpc.Session;
 
 namespace SimCivil.Gate
 {
-    internal class OrleansChunkViewSynchronizer : IViewSynchronizer, ISessionRequred
+    internal class OrleansChunkViewSynchronizer : IViewSynchronizer, ISessionRequired
     {
         public IGrainFactory GrainFactory { get; }
         public ILogger<IViewSynchronizer> Logger { get; }

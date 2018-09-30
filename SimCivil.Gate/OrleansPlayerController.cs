@@ -38,7 +38,7 @@ using SimCivil.Rpc.Session;
 namespace SimCivil.Gate
 {
     [LoginFilter]
-    public class OrleansPlayerController : IPlayerController, ISessionRequred
+    public class OrleansPlayerController : IPlayerController, ISessionRequired
     {
         public IGrainFactory Factory { get; }
 
@@ -66,6 +66,6 @@ namespace SimCivil.Gate
             await controller.Stop();
         }
 
-        public AsyncLocal<IRpcSession> Session { get; set; }
+        public AsyncLocal<IRpcSession> Session { get; set; } = new AsyncLocal<IRpcSession>();
     }
 }

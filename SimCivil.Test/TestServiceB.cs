@@ -36,7 +36,7 @@ using Xunit;
 
 namespace SimCivil.Test
 {
-    class TestServiceB : ITestServiceB, ISessionRequred
+    class TestServiceB : ITestServiceB, ISessionRequired
     {
         public AsyncLocal<IRpcSession> Session { get; } = new AsyncLocal<IRpcSession>();
 

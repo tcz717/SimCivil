@@ -18,18 +18,21 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// SimCivil - SimCivil.Rpc - ISessionRequred.cs
+// SimCivil - SimCivil.Rpc - ISessionRequired.cs
 // Create Date: 2018/01/07
-// Update Date: 2018/01/07
+// Update Date: 2018/09/30
 
 using System;
 using System.Text;
 using System.Threading;
 
+using JetBrains.Annotations;
+
 namespace SimCivil.Rpc.Session
 {
-    public interface ISessionRequred
+    public interface ISessionRequired
     {
+        [NotNull]
         AsyncLocal<IRpcSession> Session { get; }
     }
 }

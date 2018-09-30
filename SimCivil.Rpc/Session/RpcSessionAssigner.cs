@@ -36,15 +36,15 @@ namespace SimCivil.Rpc.Session
         {
             Session = session;
             Service = service;
-            if (service is ISessionRequred requred)
-                requred.Session.Value = session;
+            if (service is ISessionRequired required)
+                required.Session.Value = session;
         }
 
         /// <summary>Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.</summary>
         public void Dispose()
         {
-            if (Service is ISessionRequred requred)
-                requred.Session.Value = null;
+            if (Service is ISessionRequired required)
+                required.Session.Value = null;
         }
     }
 }
