@@ -23,6 +23,7 @@
 // Update Date: 2018/09/28
 
 using System;
+using System.Linq;
 using System.Text;
 using System.Windows.Controls;
 
@@ -61,7 +62,7 @@ namespace SimCivil.IntegrationTest
 
             var builder = new StringBuilder();
             builder.Append(" [");
-            builder.Append(logLevel.ToString());
+            builder.Append(logLevel.ToString().First());
             builder.Append("] ");
             builder.Append(_categoryName);
             builder.Append(": ");

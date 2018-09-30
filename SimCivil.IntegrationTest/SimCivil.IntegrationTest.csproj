@@ -228,6 +228,8 @@
     <ApplicationDefinition Include="App.xaml">
       <Generator>MSBuild:Compile</Generator>
     </ApplicationDefinition>
+    <Compile Include="IIntegrationTest.cs" />
+    <Compile Include="Testcase\MovementTest.cs" />
     <Compile Include="TextBoxLogger.cs" />
     <Compile Include="TextBoxLoggerExtension.cs" />
     <Compile Include="TextBoxLoggerProvider.cs" />
@@ -272,6 +274,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\SimCivil.Contract\SimCivil.Contract.csproj">
+      <Project>{298ad044-d099-47e3-b4bf-a7ed8b2f022a}</Project>
+      <Name>SimCivil.Contract</Name>
+    </ProjectReference>
     <ProjectReference Include="..\SimCivil.Gate\SimCivil.Gate.csproj">
       <Project>{bda0b8d1-8ad6-46f3-af02-b28452d146ea}</Project>
       <Name>SimCivil.Gate</Name>
@@ -284,6 +290,11 @@
       <Project>{0B2CF7EE-E60D-4E34-8365-E01411DB7E5D}</Project>
       <Name>SimCivil.Orleans.Interfaces</Name>
     </ProjectReference>
+    <ProjectReference Include="..\SimCivil.Rpc\SimCivil.Rpc.csproj">
+      <Project>{2dfaf40e-e810-4f94-a9c3-63de31b85b6e}</Project>
+      <Name>SimCivil.Rpc</Name>
+    </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

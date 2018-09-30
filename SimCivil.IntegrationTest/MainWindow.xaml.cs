@@ -20,9 +20,10 @@
 // 
 // SimCivil - SimCivil.IntegrationTest - MainWindow.xaml.cs
 // Create Date: 2018/09/27
-// Update Date: 2018/09/28
+// Update Date: 2018/09/29
 
 using System;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -50,6 +51,8 @@ namespace SimCivil.IntegrationTest
 
         public TestCluster Cluster { get; private set; }
 
+        public ServiceProvider ClientServices { get; set; }
+
         public MainWindow()
         {
             InitializeComponent();
@@ -74,14 +77,54 @@ namespace SimCivil.IntegrationTest
             Cluster.Deploy();
         }
 
-        private void Window_Loaded(object sender, RoutedEventArgs e)
+        private async void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            Task.Run(
+            await Task.Run(
                 () =>
                 {
                     InitializeOrleans();
                     InitializeGate();
                 });
+            LoadTestcases();
+        }
+
+        private void LoadTestcases()
+        {
+            var serviceCollection = new ServiceCollection();
+            serviceCollection.AddLogging(n => n.AddTextBox(ClientTextBox));
+            serviceCollection.AddSingleton(Cluster.Client);
+
+            foreach (Type type in Assembly.GetEntryAssembly().GetTypes())
+            {
+                if (typeof(IIntegrationTest).IsAssignableFrom(type) && type.IsClass)
+                {
+                    serviceCollection.AddTransient(typeof(IIntegrationTest), type);
+                }
+            }
+
+            ClientServices = serviceCollection.BuildServiceProvider();
+
+            foreach (var integrationTest in ClientServices.GetServices<IIntegrationTest>())
+            {
+                var button = new Button {Content = integrationTest.GetType().Name};
+                button.Click += (s, e)
+                    => Task.Run(
+                        () =>
+                        {
+                            try
+                            {
+                                integrationTest.Test().Wait();
+                            }
+                            catch (Exception exception)
+                            {
+                                ClientServices.GetService<ILogger>()
+                                    .LogError(exception, $"{integrationTest.GetType().Name} fails");
+
+                                throw;
+                            }
+                        });
+                TestcaseStackPanel.Children.Add(button);
+            }
         }
     }
 

@@ -5,21 +5,28 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SimCivil.IntegrationTest"
         mc:Ignorable="d"
-        Title="SimCivil集成测试器" Height="800" Width="1024" Loaded="Window_Loaded">
+        Title="SimCivil集成测试器" Height="700" Width="1024" Loaded="Window_Loaded" WindowStartupLocation="CenterScreen">
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="30"/>
-            <RowDefinition/>
+            <RowDefinition Height="30" />
+            <RowDefinition />
+            <RowDefinition Height="60" />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition/>
-            <ColumnDefinition/>
-            <ColumnDefinition/>
+            <ColumnDefinition />
+            <ColumnDefinition />
+            <ColumnDefinition />
         </Grid.ColumnDefinitions>
         <Label Grid.Column="1" Content="Orleans 集群日志" />
-        <Label Grid.Column="2" Content="Gate 服务器日志" />
-        <TextBox x:Name="ClusterTextBox" Grid.Column="1"  TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" Grid.Row="1"/>
-        <TextBox x:Name="GateTextBox" Grid.Column="2"  TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" Grid.Row="1"/>
-
+        <Label Grid.Row="0" Grid.Column="2" Content="Gate 服务器日志" />
+        <Label Grid.Row="0" Grid.Column="0" Content="客户端日志" />
+        <TextBox x:Name="ClientTextBox" Grid.Column="0" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto"
+                 Grid.Row="1" HorizontalScrollBarVisibility="Auto" />
+        <TextBox x:Name="ClusterTextBox" Grid.Column="1" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto"
+                 Grid.Row="1" HorizontalScrollBarVisibility="Auto" />
+        <TextBox x:Name="GateTextBox" Grid.Column="2" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto"
+                 Grid.Row="1" HorizontalScrollBarVisibility="Auto" />
+        <StackPanel x:Name="TestcaseStackPanel" Grid.Row="2" Grid.ColumnSpan="3" Grid.Column="0" ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                    ScrollViewer.VerticalScrollBarVisibility="Disabled" Orientation="Horizontal" />
     </Grid>
 </Window>

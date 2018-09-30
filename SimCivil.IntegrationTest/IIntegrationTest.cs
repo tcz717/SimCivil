@@ -18,46 +18,18 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// SimCivil - SimCivil.Test - SimCivilTest.cs
-// Create Date: 2017/08/18
-// Update Date: 2018/02/08
+// SimCivil - SimCivil.IntegrationTest - IIntegrationTest.cs
+// Create Date: 2018/09/29
+// Update Date: 2018/09/29
 
 using System;
 using System.Text;
+using System.Threading.Tasks;
 
-using Autofac;
-using Autofac.Extras.FakeItEasy;
-
-using FakeItEasy;
-
-using SimCivil.Map;
-using SimCivil.Store;
-
-using Xunit;
-
-namespace SimCivil.Test
+namespace SimCivil.IntegrationTest
 {
-    public class SimCivilTest
+    public interface IIntegrationTest
     {
-        [Fact]
-        public void InjectTest()
-        {
-            using (var service = new AutoFake())
-            {
-                var map = service.Resolve<TileMap>();
-                Assert.IsType<TileMap>(map);
-            }
-
-            var builder = new ContainerBuilder();
-            builder.Register(n => A.Fake<IMapGenerator>());
-            builder.Register(n => A.Fake<IMapRepository>());
-            builder.RegisterType<TileMap>().SingleInstance();
-
-            using (var services = builder.Build())
-            {
-                var map = services.Resolve<TileMap>();
-                Assert.IsType<TileMap>(map);
-            }
-        }
+        Task Test();
     }
 }
