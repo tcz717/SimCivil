@@ -20,7 +20,7 @@
 // 
 // SimCivil - SimCivil.Rpc - RpcClient.cs
 // Create Date: 2018/01/02
-// Update Date: 2018/01/30
+// Update Date: 2018/09/29
 
 using System;
 using System.Collections.Generic;
@@ -43,12 +43,12 @@ namespace SimCivil.Rpc
 {
     public class RpcClient : IDisposable
     {
-        private readonly IChannelHandler _resolver;
         private readonly IChannelHandler _callbackResolver;
         private readonly IChannelHandler _decoder = new JsonToMessageDecoder();
         private readonly IChannelHandler _encoder = new MessageToJsonEncoder<RpcRequest>();
 
         private readonly ProxyGenerator _generator = new ProxyGenerator();
+        private readonly IChannelHandler _resolver;
         private int _nextCallbackId;
 
         private long _nextSeq;
@@ -62,16 +62,14 @@ namespace SimCivil.Rpc
 
         public Dictionary<int, Delegate> CallBackList { get; } = new Dictionary<int, Delegate>();
 
-        public RpcClient()
+        public RpcClient() : this(new IPEndPoint(IPAddress.Loopback, 20170)) { }
+
+        public RpcClient(IPEndPoint endPoint)
         {
+            EndPoint = endPoint;
             Interceptor = new RpcInterceptor(this);
             _resolver = new RpcClientResolver(this);
             _callbackResolver = new RpcCallbackResolver(this);
-        }
-
-        public RpcClient(IPEndPoint endPoint) : this()
-        {
-            EndPoint = endPoint;
         }
 
         /// <summary>Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.</summary>
