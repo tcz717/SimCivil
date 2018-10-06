@@ -32,7 +32,7 @@ namespace SimCivil.Orleans.Interfaces
     {
         /// <summary>
         /// Tile's height.
-        /// Defalut sea level is  SimCivil.Config.SeaLevel .
+        /// Default sea level is  SimCivil.Config.SeaLevel .
         /// </summary>
         public int Height { get; set; }
 
@@ -60,7 +60,7 @@ namespace SimCivil.Orleans.Interfaces
         public Guid ItemGuid { get; set; }
 
         /// <summary>
-        /// Method to craete a new Tile
+        /// Method to create a new Tile
         /// </summary>
         /// <param name="pos"></param>
         /// <param name="surface"></param>

@@ -20,7 +20,7 @@
 // 
 // SimCivil - SimCivil.Orleans.Grains - AccountGrain.cs
 // Create Date: 2018/06/14
-// Update Date: 2018/06/16
+// Update Date: 2018/10/05
 
 using System;
 using System.Collections.Generic;
@@ -176,19 +176,34 @@ namespace SimCivil.Orleans.Grains
 
         public async Task UseRole(IEntity role)
         {
-            if (!State.Roles.Contains(role))
+            if (State != null && !State.Roles.Contains(role))
             {
                 throw new KeyNotFoundException($"Role: {role.GetPrimaryKey()}");
             }
 
-            State.CurrentRole = role;
+            if (State != null)
+            {
+                Logger.LogInformation(
+                    "User {0} used role {1}",
+                    this.GetPrimaryKeyString(),
+                    await role.GetName());
+
+                State.CurrentRole = role;
+            }
 
             await role.Enable();
         }
 
-        public Task ReleaseRole()
+        public async Task ReleaseRole()
         {
-            throw new NotImplementedException();
+            if (State?.CurrentRole != null)
+            {
+                Logger.LogInformation(
+                    "User {0} released role {1}",
+                    this.GetPrimaryKeyString(),
+                    await State.CurrentRole.GetName());
+                await State.CurrentRole.Disable();
+            }
         }
 
         public Task DeleteRole(IEntity role)

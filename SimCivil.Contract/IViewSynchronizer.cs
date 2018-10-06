@@ -33,6 +33,7 @@ namespace SimCivil.Contract
     public interface IViewSynchronizer
     {
         void RegisterViewSync(Action<ViewChange> callback);
+        void DeregisterViewSync();
     }
 
     public class ViewChange

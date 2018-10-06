@@ -60,16 +60,16 @@ namespace SimCivil.Gate
         {
             var account = GrainFactory.GetGrain<IAccount>(username);
 
-            Logger.LogInformation($"{DateTime.Now} try login");
+            Logger.LogInformation($"{username} try login");
             if (!await account.Login(password))
             {
-                Logger.LogWarning($"{DateTime.Now} login fail");
+                Logger.LogWarning($"{username} login fail");
 
                 return false;
             }
 
             Session.Value.Set(account).Exiting += Session_Exiting;
-            Logger.LogInformation($"{DateTime.Now} login success");
+            Logger.LogInformation($"{username} login success");
 
             return true;
         }

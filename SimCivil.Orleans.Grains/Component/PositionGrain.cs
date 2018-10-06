@@ -19,10 +19,11 @@
 // SOFTWARE.
 // 
 // SimCivil - SimCivil.Orleans.Grains - PositionGrain.cs
-// Create Date: 2018/06/14
-// Update Date: 2018/06/16
+// Create Date: 2018/06/22
+// Update Date: 2018/10/04
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -58,13 +59,22 @@ namespace SimCivil.Orleans.Grains.Component
             await base.SetData(component);
         }
 
-        public async Task<Position> Add((int X, int Y) offset)
+        public async Task<Position> Add((float X, float Y) offset)
         {
             Position pos = await GetData();
             pos += offset;
             await SetData(pos);
 
             return pos;
+        }
+
+        public override Task<IReadOnlyDictionary<string, string>> Dump()
+        {
+            return Task.FromResult(
+                (IReadOnlyDictionary<string, string>) new Dictionary<string, string>
+                {
+                    ["Position"] = State.ToString()
+                });
         }
     }
 }

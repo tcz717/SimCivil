@@ -20,18 +20,23 @@
 // 
 // SimCivil - SimCivil.Orleans.Interfaces - IMovementSystem.cs
 // Create Date: 2018/09/27
-// Update Date: 2018/09/27
+// Update Date: 2018/10/05
 
 using System;
 using System.Text;
 using System.Threading.Tasks;
 
 using Orleans;
+using Orleans.Concurrency;
 
 namespace SimCivil.Orleans.Interfaces.System
 {
-    public interface IMovementSystem : IGrainWithIntegerKey {
+    public interface IMovementSystem : IGrainWithIntegerKey
+    {
+        [OneWay]
         Task Move(Guid entityId, (float X, float Y) speed);
+
+        [OneWay]
         Task Stop(Guid entityId);
     }
 }

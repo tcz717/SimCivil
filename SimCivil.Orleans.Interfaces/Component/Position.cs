@@ -20,7 +20,7 @@
 // 
 // SimCivil - SimCivil.Orleans.Interfaces - Position.cs
 // Create Date: 2018/06/22
-// Update Date: 2018/09/26
+// Update Date: 2018/10/06
 
 using System;
 using System.Diagnostics.CodeAnalysis;
@@ -52,12 +52,7 @@ namespace SimCivil.Orleans.Interfaces.Component
         }
 
         public static Position operator +(Position pos, (float X, float Y) offset)
-        {
-            pos.X += offset.X;
-            pos.Y += offset.Y;
-
-            return pos;
-        }
+            => new Position(pos.X + offset.X, pos.Y + offset.Y);
 
         protected bool Equals(Position other)
         {

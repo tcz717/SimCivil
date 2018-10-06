@@ -36,8 +36,8 @@ namespace SimCivil.Rpc
 {
     internal class RpcInterceptor : IInterceptor
     {
-        private static readonly MethodInfo AysncReturnHandleInfo = typeof(RpcInterceptor).GetMethod(
-            nameof(AysncReturnHandle),
+        private static readonly MethodInfo AsyncReturnHandleInfo = typeof(RpcInterceptor).GetMethod(
+            nameof(AsyncReturnHandle),
             BindingFlags.Instance | BindingFlags.NonPublic);
 
         private readonly RpcClient _rpcClient;
@@ -89,7 +89,7 @@ namespace SimCivil.Rpc
 
                     return;
                 case MethodType.AsyncFunction:
-                    invocation.ReturnValue = AysncReturnHandleInfo.MakeGenericMethod(returnType.GenericTypeArguments)
+                    invocation.ReturnValue = AsyncReturnHandleInfo.MakeGenericMethod(returnType.GenericTypeArguments)
                         .Invoke(
                             this,
                             new object[] {invocation, request.WaitResponseAsync(_rpcClient.ResponseTimeout), request});
@@ -116,7 +116,7 @@ namespace SimCivil.Rpc
             }
         }
 
-        private async Task<T> AysncReturnHandle<T>(IInvocation invocation, Task<RpcResponse> resp, RpcRequest request)
+        private async Task<T> AsyncReturnHandle<T>(IInvocation invocation, Task<RpcResponse> resp, RpcRequest request)
         {
             try
             {

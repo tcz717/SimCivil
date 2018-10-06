@@ -20,16 +20,17 @@
 // 
 // SimCivil - SimCivil - UnitComponent.cs
 // Create Date: 2018/01/07
-// Update Date: 2018/01/07
+// Update Date: 2018/10/04
 
 using System;
+using System.Text;
 
 using SimCivil.Contract.Model;
 
 namespace SimCivil.Components
 {
     /// <summary>
-    /// Data related to unit infomation.
+    /// Data related to unit information.
     /// </summary>
     /// <seealso>
     ///     <cref>SimCivil.Components.IComponent</cref>

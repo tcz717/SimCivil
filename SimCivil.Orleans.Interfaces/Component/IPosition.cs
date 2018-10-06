@@ -23,6 +23,7 @@
 // Update Date: 2018/09/26
 
 using System;
+using System.ComponentModel;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -30,6 +31,6 @@ namespace SimCivil.Orleans.Interfaces.Component
 {
     public interface IPosition : IComponent<Position>
     {
-        Task<Position> Add((int X, int Y) offset);
+        Task<Position> Add((float X, float Y) offset);
     }
 }

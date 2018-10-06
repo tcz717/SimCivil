@@ -20,7 +20,7 @@
 // 
 // SimCivil - SimCivil.Gate - OrleansChunkViewSynchronizer.cs
 // Create Date: 2018/06/16
-// Update Date: 2018/06/17
+// Update Date: 2018/10/05
 
 using System;
 using System.Linq;
@@ -31,7 +31,6 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 
 using Orleans;
-using Orleans.Runtime;
 
 using SimCivil.Contract;
 using SimCivil.Orleans.Interfaces;
@@ -56,7 +55,13 @@ namespace SimCivil.Gate
 
         public void RegisterViewSync(Action<ViewChange> callback)
         {
+            Logger.LogInformation("Registered callback {0}", callback.Target);
             Session.Value.Set(callback);
+        }
+
+        public void DeregisterViewSync()
+        {
+            Session.Value.UnSet<Action<ViewChange>>();
         }
 
         public void StartSync(RpcServer server)
@@ -67,7 +72,7 @@ namespace SimCivil.Gate
                     while (true)
                     {
                         var sessions = server.Sessions.Where(s => s.IsSet<Action<ViewChange>>()).ToArray();
-                        Logger.Info($"Start updating {sessions.Length} clients");
+                        Logger.LogDebug($"Start updating {sessions.Length} clients");
                         foreach (IRpcSession session in sessions)
                         {
                             ViewChange viewChange =

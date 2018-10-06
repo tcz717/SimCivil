@@ -56,7 +56,7 @@ namespace SimCivil.Orleans.Grains
 
         public async Task OnEntityMoved(Guid entityGuid, Position previousPos, Position currentPos)
         {
-            Logger.Debug($"{entityGuid} entity have moved");
+            Logger.Debug($"{entityGuid} entity has moved");
 
             var movedEntity = GrainFactory.GetGrain<IEntity>(entityGuid);
             foreach (var e in Entities)

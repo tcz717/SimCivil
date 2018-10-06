@@ -19,8 +19,8 @@
 // SOFTWARE.
 // 
 // SimCivil - SimCivil.Orleans.Grains - ObserverGrain.cs
-// Create Date: 2018/06/14
-// Update Date: 2018/06/17
+// Create Date: 2018/06/22
+// Update Date: 2018/10/06
 
 using System;
 using System.Collections.Generic;
@@ -65,6 +65,31 @@ namespace SimCivil.Orleans.Grains.Component
             return Task.FromResult((IEnumerable<Guid>) entities);
         }
 
+        public async Task<ViewChange> UpdateView()
+        {
+            var viewChange = new ViewChange();
+
+            var entities = await Task.WhenAll(
+                Entities.Select(
+                    async e =>
+                    {
+                        var entity = GrainFactory.GetGrain<IEntity>(e);
+                        var dto = new EntityDto
+                        {
+                            Name = await entity.GetName(),
+                            Pos = await GrainFactory.Get<IPosition>(e).GetData(),
+                            Id = e
+                        };
+
+                        return dto;
+                    }));
+            Entities.Clear();
+
+            viewChange.EntityChange = entities;
+
+            return viewChange;
+        }
+
         /// <summary>
         /// This method is called at the end of the process of activating a grain.
         /// It is called before any messages have been dispatched to the grain.
@@ -75,28 +100,6 @@ namespace SimCivil.Orleans.Grains.Component
             Entities = new HashSet<Guid>();
 
             return base.OnActivateAsync();
-        }
-
-        public async Task<ViewChange> UpdateView()
-        {
-            var viewChange = new ViewChange();
-
-            var entities = await Task.WhenAll(
-                Entities.Select(
-                    async e =>
-                    {
-                        var dto = new EntityDto();
-                        var entity = GrainFactory.GetGrain<IEntity>(e);
-
-                        dto.Name = await entity.GetName();
-
-                        return dto;
-                    }));
-            Entities.Clear();
-
-            viewChange.EntityChange = entities;
-
-            return viewChange;
         }
     }
 }

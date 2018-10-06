@@ -20,9 +20,10 @@
 // 
 // SimCivil - SimCivil.Orleans.Interfaces - IEntity.cs
 // Create Date: 2018/06/14
-// Update Date: 2018/09/27
+// Update Date: 2018/10/04
 
 using System;
+using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -42,10 +43,17 @@ namespace SimCivil.Orleans.Interfaces
         Task CopyTo(IEntity targetEntity);
         Task SetName(string name);
         Task<string> GetName();
+        Task<IReadOnlyCollection<IComponent>> GetComponents();
+        Task SetComponents(IEnumerable<IComponent> components);
     }
 
-    public static class EntityExtention
+    public static class EntityExtension
     {
+        public static async Task Add<T>(this IEntity entity, T value) where T : IComponent
+        {
+            await entity.Add<T>();
+        }
+
         public static T Get<T>(this IGrainFactory factory, Guid entityId) where T : IComponent
         {
             return factory.GetGrain<T>(entityId);
@@ -61,7 +69,7 @@ namespace SimCivil.Orleans.Interfaces
             return factory.GetGrain<T>(grain.GetPrimaryKey());
         }
 
-        public static IEntity GetEntity(this IGrainFactory factory, IGrainWithGuidKey grain)
+        public static IEntity GetEntity(this IGrainFactory factory, IComponent grain)
         {
             return factory.GetGrain<IEntity>(grain.GetPrimaryKey());
         }

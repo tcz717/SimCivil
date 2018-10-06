@@ -26,6 +26,8 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
+using JetBrains.Annotations;
+
 using SimCivil.Orleans.Interfaces;
 
 namespace SimCivil.Orleans.Grains.State
@@ -37,6 +39,7 @@ namespace SimCivil.Orleans.Grains.State
         public DateTime LastOnlineTime { get; set; }
         public bool Enabled { get; set; }
         public List<IEntity> Roles { get; set; }
+        [CanBeNull]
         public IEntity CurrentRole { get; set; }
 
         public AccountState(string token)

@@ -20,7 +20,7 @@
 // 
 // SimCivil - SimCivil.Gate - Gate.cs
 // Create Date: 2018/06/14
-// Update Date: 2018/09/28
+// Update Date: 2018/10/06
 
 using System;
 using System.Text;
@@ -99,8 +99,10 @@ namespace SimCivil.Gate
                 $"Register {await factory.GetGrain<IAccount>("admin").Register("")}");
 
             var human = factory.GetGrain<IEntity>(Guid.NewGuid());
+            await factory.Get<IObserver>(human).SetData(new Observer {NotityRange = 5});
             await human.Add<IObserver>();
             await human.Add<IPosition>();
+            await factory.Get<IUnit>(human).SetData(new Unit {MoveSpeed = 1});
             await human.Add<IUnit>();
             await human.Add<IUnitController>();
 

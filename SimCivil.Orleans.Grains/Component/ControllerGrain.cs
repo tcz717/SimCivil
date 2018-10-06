@@ -19,10 +19,11 @@
 // SOFTWARE.
 // 
 // SimCivil - SimCivil.Orleans.Grains - ControllerGrain.cs
-// Create Date: 2018/09/26
-// Update Date: 2018/09/26
+// Create Date: 2018/09/27
+// Update Date: 2018/10/04
 
 using System;
+using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -37,24 +38,12 @@ namespace SimCivil.Orleans.Grains.Component
 {
     public class ControllerGrain : Grain, IUnitController
     {
-        private (float X, float Y) _speed;
         private IMovementSystem _moveSystem;
+        private (float X, float Y) _speed;
 
         public Task<(float X, float Y)> GetSpeed()
         {
             return Task.FromResult(_speed);
-        }
-
-        /// <summary>
-        /// This method is called at the end of the process of activating a grain.
-        /// It is called before any messages have been dispatched to the grain.
-        /// For grains with declared persistent state, this method is called after the State property has been populated.
-        /// </summary>
-        public override Task OnActivateAsync()
-        {
-            _moveSystem = GrainFactory.GetGrain<IMovementSystem>(0);
-
-            return base.OnActivateAsync();
         }
 
         /// <summary>
@@ -74,7 +63,7 @@ namespace SimCivil.Orleans.Grains.Component
 
                 return;
             }
-            
+
             _speed = (direction.X * speed, direction.Y * speed);
             await _moveSystem.Move(this.GetPrimaryKey(), _speed);
         }
@@ -104,9 +93,30 @@ namespace SimCivil.Orleans.Grains.Component
             throw new NotImplementedException();
         }
 
-        public Task CopyTo(IEntity target)
+        public Task<IComponent> CopyTo(IEntity target)
         {
-            return Task.CompletedTask;
+            return Task.FromResult((IComponent) GrainFactory.Get<IUnitController>(target));
+        }
+
+        public Task<IReadOnlyDictionary<string, string>> Dump()
+        {
+            return Task.FromResult(
+                (IReadOnlyDictionary<string, string>) new Dictionary<string, string>
+                {
+                    ["Speed"] = _speed.ToString()
+                });
+        }
+
+        /// <summary>
+        /// This method is called at the end of the process of activating a grain.
+        /// It is called before any messages have been dispatched to the grain.
+        /// For grains with declared persistent state, this method is called after the State property has been populated.
+        /// </summary>
+        public override Task OnActivateAsync()
+        {
+            _moveSystem = GrainFactory.GetGrain<IMovementSystem>(0);
+
+            return base.OnActivateAsync();
         }
     }
 }

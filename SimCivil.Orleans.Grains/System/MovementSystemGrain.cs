@@ -20,11 +20,10 @@
 // 
 // SimCivil - SimCivil.Orleans.Grains - MovementSystemGrain.cs
 // Create Date: 2018/09/27
-// Update Date: 2018/09/27
+// Update Date: 2018/10/05
 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -41,6 +40,20 @@ namespace SimCivil.Orleans.Grains.System
     {
         private Dictionary<Guid, (float X, float Y)> _activeEntities;
 
+        public Task Move(Guid entityId, (float X, float Y) speed)
+        {
+            _activeEntities.Add(entityId, speed);
+
+            return Task.CompletedTask;
+        }
+
+        public Task Stop(Guid entityId)
+        {
+            _activeEntities.Remove(entityId);
+
+            return Task.CompletedTask;
+        }
+
         /// <summary>
         /// This method is called at the end of the process of activating a grain.
         /// It is called before any messages have been dispatched to the grain.
@@ -50,6 +63,7 @@ namespace SimCivil.Orleans.Grains.System
         {
             RegisterTimer(Update, null, TimeSpan.Zero, TimeSpan.FromMilliseconds(50));
             _activeEntities = new Dictionary<Guid, (float X, float Y)>();
+
             return base.OnActivateAsync();
         }
 
@@ -58,23 +72,11 @@ namespace SimCivil.Orleans.Grains.System
             var tasks = _activeEntities.Select(
                 async e =>
                 {
-                    float maxMoveSpeed = (await GrainFactory.Get<IUnit>(e.Key).GetData()).MoveSpeed;
+                    float maxMoveSpeed = (await GrainFactory.Get<IUnit>(e.Key).GetData()).MoveSpeed / 20;
                     await GrainFactory.Get<IPosition>(e.Key)
-                        .Add(((int X, int Y)) (maxMoveSpeed * e.Value.X, maxMoveSpeed * e.Value.Y));
+                        .Add((maxMoveSpeed * e.Value.X, maxMoveSpeed * e.Value.Y));
                 });
             await Task.WhenAll(tasks);
-        }
-
-        public Task Move(Guid entityId, (float X, float Y) speed)
-        {
-            _activeEntities.Add(entityId,speed);
-            return Task.CompletedTask;
-        }
-
-        public Task Stop(Guid entityId)
-        {
-            _activeEntities.Remove(entityId);
-            return Task.CompletedTask;
         }
     }
 }

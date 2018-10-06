@@ -20,7 +20,7 @@
 // 
 // SimCivil - SimCivil.Gate - OrleansRoleManager.cs
 // Create Date: 2018/06/14
-// Update Date: 2018/06/16
+// Update Date: 2018/10/05
 
 using System;
 using System.Linq;
@@ -113,7 +113,9 @@ namespace SimCivil.Gate
         /// <returns></returns>
         public async Task<bool> ReleaseRole()
         {
-            throw new NotImplementedException();
+            await Session.Value.Get<IAccount>().ReleaseRole();
+
+            return true;
         }
 
         public AsyncLocal<IRpcSession> Session { get; set; } = new AsyncLocal<IRpcSession>();
