@@ -20,7 +20,7 @@
 // 
 // SimCivil - SimCivil.IntegrationTest - IIntegrationTest.cs
 // Create Date: 2018/09/29
-// Update Date: 2018/09/29
+// Update Date: 2018/10/04
 
 using System;
 using System.Text;
@@ -30,6 +30,9 @@ namespace SimCivil.IntegrationTest
 {
     public interface IIntegrationTest
     {
+        bool IsRunning { get; }
         Task Test();
+        Task Stop();
+        Guid GetEntityId();
     }
 }

@@ -20,64 +20,123 @@
 // 
 // SimCivil - SimCivil.IntegrationTest - MovementTest.cs
 // Create Date: 2018/09/29
-// Update Date: 2018/09/30
+// Update Date: 2018/10/06
 
 using System;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 using Microsoft.Extensions.Logging;
 
+using Orleans;
+
 using SimCivil.Contract;
 using SimCivil.Contract.Model;
+using SimCivil.Orleans.Interfaces;
 using SimCivil.Rpc;
 
 namespace SimCivil.IntegrationTest.Testcase
 {
     public class MovementTest : IIntegrationTest, IDisposable
     {
-        private RpcClient _rpcClient;
+        private static int _id;
+        protected RpcClient Client { get; }
         public ILogger<MovementTest> Logger { get; }
+        public IClusterClient Cluster { get; }
 
-        public MovementTest(ILogger<MovementTest> logger)
+        public string RoleName { get; set; }
+
+        public MovementTest(ILogger<MovementTest> logger, IClusterClient cluster)
         {
+            RoleName = nameof(MovementTest) + Interlocked.Increment(ref _id);
             Logger = logger;
+            Cluster = cluster;
+            Client = new RpcClient(
+                new IPEndPoint(
+                    Dns.GetHostAddresses(Dns.GetHostName()).First(ip => ip.AddressFamily == AddressFamily.InterNetwork),
+                    20170));
         }
 
         /// <summary>执行与释放或重置非托管资源关联的应用程序定义的任务。</summary>
         public void Dispose()
         {
-            _rpcClient?.Dispose();
+            if (IsRunning)
+                Stop().Wait();
+            Client?.Dispose();
         }
+
+        public bool IsRunning { get; private set; }
 
         public async Task Test()
         {
-            _rpcClient = new RpcClient(
-                new IPEndPoint(
-                    Dns.GetHostAddresses(Dns.GetHostName()).First(ip => ip.AddressFamily == AddressFamily.InterNetwork),
-                    20170));
-            await _rpcClient.ConnectAsync();
+            IsRunning = true;
+            await Client.ConnectAsync();
+            await RegisterAndLogin();
 
-            var auth = _rpcClient.Import<IAuth>();
-            await auth.LogInAsync("admin", "");
-            var rm = _rpcClient.Import<IRoleManager>();
-            await rm.CreateRole(new CreateRoleOption() {Gender = Gender.Male, Name = "test", Race = Race.Human});
+            var rm = Client.Import<IRoleManager>();
+            await rm.CreateRole(new CreateRoleOption {Gender = Gender.Male, Name = RoleName, Race = Race.Human});
             await rm.UseRole((await rm.GetRoleList()).First().Id);
 
-            var sync = _rpcClient.Import<IViewSynchronizer>();
+            var sync = Client.Import<IViewSynchronizer>();
             sync.RegisterViewSync(
-                vc => { Logger.LogInformation(vc.ToString()); });
+                vc =>
+                {
+                    if (vc.EntityChange?.Any() ?? false)
+                        Logger.LogInformation(vc.EntityChange.First().ToString());
+                    else
+                        Logger.LogDebug(vc.ToString());
+                });
 
-            var controller = _rpcClient.Import<IPlayerController>();
+            var controller = Client.Import<IPlayerController>();
 
             await controller.Move((1, 0), 1);
-            await Task.Delay(1000);
-            await controller.Stop();
+//            await Task.Delay(1000);
+//            await controller.Stop();
 
-            Logger.LogInformation($"{nameof(MovementTest)} end");
+            Logger.LogInformation($"{RoleName} is moving");
+        }
+
+        public async Task Stop()
+        {
+            var sync = Client.Import<IViewSynchronizer>();
+            sync.DeregisterViewSync();
+            var rm = Client.Import<IRoleManager>();
+            await rm.ReleaseRole();
+            Client.Disconnect();
+            IsRunning = false;
+        }
+
+        public Guid GetEntityId()
+        {
+            var rm = Client.Import<IRoleManager>();
+
+            return Task.Factory.StartNew(() => rm.GetRoleList().Result).Result.First().Id;
+        }
+
+        protected async Task RegisterAndLogin(string name = null, string password = "")
+        {
+            if (name == null)
+            {
+                name = RoleName;
+            }
+
+            await Cluster.GetGrain<IAccount>(name).Register(password);
+
+            var auth = Client.Import<IAuth>();
+            await auth.LogInAsync(name, password);
+
+            Logger.LogInformation($"Role \"{RoleName}\" created and login");
+        }
+
+        /// <summary>返回表示当前对象的字符串。</summary>
+        /// <returns>表示当前对象的字符串。</returns>
+        public override string ToString()
+        {
+            return RoleName;
         }
     }
 }
