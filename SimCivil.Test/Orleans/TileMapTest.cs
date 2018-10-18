@@ -18,31 +18,45 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// SimCivil - SimCivil.Contract - IAuth.cs
-// Create Date: 2018/01/04
-// Update Date: 2018/06/17
+// SimCivil - SimCivil.Test - TileMapTest.cs
+// Create Date: 2018/05/14
+// Update Date: 2018/05/14
 
 using System;
+using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
-namespace SimCivil.Contract
+using Orleans.TestingHost;
+
+using SimCivil.Orleans.Interfaces;
+
+using Xunit;
+
+namespace SimCivil.Test.Orleans
 {
-    public interface IAuth
+    public class TileMapTest
     {
-        [Obsolete]
-        bool LogIn(string username, string password);
+        public TestCluster Cluster { get; set; }
 
-        Task<bool> LogInAsync(string username, string password);
+        public TileMapTest()
+        {
+            Cluster = OrleansFixture.Single.Cluster;
+        }
 
-        [Obsolete]
-        void LogOut();
+        [Fact]
+        public void MapGeneratingTest()
+        {
+            var atlas = Cluster.GrainFactory.GetGrain<IAtlas>(0x0000_FFFF_0000_FFFF);
+            var tiles = atlas.SelectRange((0x0000_FFFF * 64, 0x0000_FFFF * 64), 64, 64).Result.ToArray();
+            Assert.Equal(64 * 64, tiles.Length);
+        }
 
-        Task LogOutAsync();
-
-        [Obsolete]
-        string GetToken();
-
-        Task<bool> Register(string username, string password);
+        /*       [TestMethod]
+        public void SelectRangeTest()
+        {
+            AtlasGrain atlas =
+                A.Fake<AtlasGrain>(a => a.WithArgumentsForConstructor(() => new AtlasGrain(new RandomMapGen())).CallsBaseMethods());
+            A.CallTo(()=>atlas.OnActivateAsync())
+        }*/
     }
 }

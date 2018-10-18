@@ -18,54 +18,53 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// SimCivil - SimCivil.Test - TestServiceB.cs
-// Create Date: 2018/01/07
-// Update Date: 2018/01/07
+// SimCivil - SimCivil.Orleans.Grains - PrefabManager.cs
+// Create Date: 2018/06/15
+// Update Date: 2018/06/15
 
 using System;
-using System.Net;
+using System.Collections.Generic;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 
-using SimCivil.Auth;
-using SimCivil.Model;
-using SimCivil.Rpc.Session;
+using Orleans;
 
-using Xunit;
+using SimCivil.Orleans.Interfaces;
 
-namespace SimCivil.Test
+namespace SimCivil.Orleans.Grains
 {
-    class TestServiceB : ITestServiceB, ISessionRequred
+    public class PrefabManager : Grain<State.PrefabState>, IPrefabManager
     {
-        public AsyncLocal<IRpcSession> Session { get; } = new AsyncLocal<IRpcSession>();
-
-        public void SetSession(string key, string value)
+        public async Task<IEntity> Clone(string name, string key)
         {
-            Session.Value[key] = value;
+            var entity = GrainFactory.GetGrain<IEntity>(Guid.NewGuid());
+            var prefab = State.Prefabs[key];
+
+            await prefab.CopyTo(entity);
+
+            return entity;
         }
 
-        public Task<string> EchoAsync(string s)
+        public Task Set(string key, IEntity prefab)
         {
-            return Task.FromResult(s);
+            State.Prefabs[key] = prefab;
+
+            return Task.CompletedTask;
         }
 
-        public async Task<IPEndPoint> CheckAsync()
+        /// <summary>
+        /// This method is called at the end of the process of activating a grain.
+        /// It is called before any messages have been dispatched to the grain.
+        /// For grains with declared persistent state, this method is called after the State property has been populated.
+        /// </summary>
+        public override Task OnActivateAsync()
         {
-            Assert.NotNull(Session.Value);
-            var session = Session.Value;
-            await Task.Delay(500);
-            Assert.NotNull(session);
+            if (State.Prefabs == null)
+            {
+                State.Prefabs = new Dictionary<string, IEntity>();
+            }
 
-            return session.RemoteEndPoint;
+            return base.OnActivateAsync();
         }
-
-        public Entity GetEntity()
-        {
-            return Entity.Create();
-        }
-
-        [LoginFilter]
-        public void DeniedAction() { }
     }
 }

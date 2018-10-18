@@ -1,8 +1,9 @@
 language: csharp
 solution: SimCivil.sln
 mono: none
-dotnet: 2.0.0
+dotnet: 2.1.4
 dist: trusty
 script:
-   - dotnet build SimCivil
    - dotnet test SimCivil.Test --filter "Category!=Performance" 
+notifications:
+    slack: tpdt:fmYoCUlHFzbEE9YxZctMJjJl

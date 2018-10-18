@@ -18,31 +18,29 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// SimCivil - SimCivil.Contract - IAuth.cs
-// Create Date: 2018/01/04
-// Update Date: 2018/06/17
+// SimCivil - SimCivil.Orleans.Interfaces - IMapGenerator.cs
+// Create Date: 2018/02/25
+// Update Date: 2018/02/26
 
 using System;
 using System.Text;
-using System.Threading.Tasks;
 
-namespace SimCivil.Contract
+namespace SimCivil.Orleans.Interfaces.Service
 {
-    public interface IAuth
+    /// <summary>
+    /// Interface supporting generating map.
+    /// </summary>
+    public interface IMapGenerator
     {
-        [Obsolete]
-        bool LogIn(string username, string password);
-
-        Task<bool> LogInAsync(string username, string password);
-
-        [Obsolete]
-        void LogOut();
-
-        Task LogOutAsync();
-
-        [Obsolete]
-        string GetToken();
-
-        Task<bool> Register(string username, string password);
+        /// <summary>
+        /// Generate new Atlas
+        /// </summary>
+        /// <param name="seed"></param>
+        /// <param name="x">Index of the atlas</param>
+        /// <param name="y">Index of the atlas</param>
+        /// <param name="width">Atlas's Width</param>
+        /// <param name="height">Atlas's Height</param>
+        /// <returns></returns>
+        Tile[,] Generate(int seed, int x, int y, int width, int height);
     }
 }

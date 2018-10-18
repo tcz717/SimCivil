@@ -18,31 +18,23 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// SimCivil - SimCivil.Contract - IAuth.cs
-// Create Date: 2018/01/04
-// Update Date: 2018/06/17
+// SimCivil - SimCivil.Orleans.Interfaces - IAtlas.cs
+// Create Date: 2018/02/25
+// Update Date: 2018/02/25
 
 using System;
+using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SimCivil.Contract
+using Orleans;
+
+namespace SimCivil.Orleans.Interfaces
 {
-    public interface IAuth
+    public interface IAtlas : IGrainWithIntegerKey
     {
-        [Obsolete]
-        bool LogIn(string username, string password);
-
-        Task<bool> LogInAsync(string username, string password);
-
-        [Obsolete]
-        void LogOut();
-
-        Task LogOutAsync();
-
-        [Obsolete]
-        string GetToken();
-
-        Task<bool> Register(string username, string password);
+        Task<IEnumerable<Tile>> SelectRange((int X, int Y) leftTop, int width, int height);
+        Task SetTile((int X, int Y) pos, Tile tile);
+        Task<Tile> GetTile((int X, int Y) pos);
     }
 }

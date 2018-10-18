@@ -26,6 +26,7 @@ using System;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Threading.Tasks;
 
 using SimCivil.Contract;
 using SimCivil.Rpc;
@@ -78,7 +79,7 @@ namespace SimCivil.SimpleClient
                 .Permit(ClientTriger.FetalError, ClientState.GetIpAndPort);
             ClientStateMachine.Configure(ClientState.LoggingIn)
                 .SubstateOf(ClientState.Connected)
-                .OnEntry(LogIn)
+                .OnEntryAsync(LogIn)
                 .Permit(ClientTriger.LogInSuccess, ClientState.WaitCommand)
                 .PermitReentry(ClientTriger.Retry);
             ClientStateMachine.Configure(ClientState.WaitCommand)
@@ -184,14 +185,14 @@ namespace SimCivil.SimpleClient
                 });
         }
 
-        protected void LogIn()
+        protected async Task LogIn()
         {
             Console.Write("User Name: ");
             string username = Console.ReadLine();
             Console.Write("Password: ");
             string password = Console.ReadLine();
 
-            if (AuthService.LogIn(username, password))
+            if (await AuthService.LogInAsync(username, password))
             {
                 RoleManager = RpcClient.Import<IRoleManager>();
                 ClientStateMachine.Fire(ClientTriger.LogInSuccess);
@@ -205,7 +206,7 @@ namespace SimCivil.SimpleClient
         protected void Connect(IPEndPoint endPoint)
         {
             RpcClient?.Dispose();
-            RpcClient = new RpcClient(endPoint);
+            RpcClient = new RpcClient(endPoint) {ResponseTimeout = 10000};
             try
             {
                 RpcClient.ConnectAsync().Wait();
@@ -247,7 +248,7 @@ namespace SimCivil.SimpleClient
             if (args.Any(a => a.Trim() == "test"))
                 ClientStateMachine.Fire(ConnectTriger, new IPEndPoint(IPAddress.Loopback, 20170));
             else
-                ClientStateMachine.Fire(ClientTriger.Start);
+                ClientStateMachine.FireAsync(ClientTriger.Start).Wait();
         }
 
         internal enum ClientTriger

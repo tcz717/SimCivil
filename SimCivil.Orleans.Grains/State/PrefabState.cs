@@ -18,31 +18,20 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// SimCivil - SimCivil.Contract - IAuth.cs
-// Create Date: 2018/01/04
-// Update Date: 2018/06/17
+// SimCivil - SimCivil.Orleans.Grains - PrefabState.cs
+// Create Date: 2018/06/15
+// Update Date: 2018/06/15
 
 using System;
+using System.Collections.Generic;
 using System.Text;
-using System.Threading.Tasks;
 
-namespace SimCivil.Contract
+using SimCivil.Orleans.Interfaces;
+
+namespace SimCivil.Orleans.Grains.State
 {
-    public interface IAuth
+    public class PrefabState
     {
-        [Obsolete]
-        bool LogIn(string username, string password);
-
-        Task<bool> LogInAsync(string username, string password);
-
-        [Obsolete]
-        void LogOut();
-
-        Task LogOutAsync();
-
-        [Obsolete]
-        string GetToken();
-
-        Task<bool> Register(string username, string password);
+        public Dictionary<string, IEntity> Prefabs { get; set; }
     }
 }

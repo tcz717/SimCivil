@@ -18,31 +18,27 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// SimCivil - SimCivil.Contract - IAuth.cs
-// Create Date: 2018/01/04
-// Update Date: 2018/06/17
+// SimCivil - SimCivil.Orleans.Interfaces - IObserver.cs
+// Create Date: 2018/05/12
+// Update Date: 2018/05/12
 
 using System;
+using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SimCivil.Contract
+using SimCivil.Contract;
+using SimCivil.Orleans.Interfaces.Components;
+
+namespace SimCivil.Orleans.Interfaces
 {
-    public interface IAuth
+    public interface IObserver : IComponent<Observer>
     {
-        [Obsolete]
-        bool LogIn(string username, string password);
+        Task OnEntityEntered(Guid id);
+        Task OnEntityLeft(Guid id);
 
-        Task<bool> LogInAsync(string username, string password);
-
-        [Obsolete]
-        void LogOut();
-
-        Task LogOutAsync();
-
-        [Obsolete]
-        string GetToken();
-
-        Task<bool> Register(string username, string password);
+        Task<uint> GetNotifyRange();
+        Task<IEnumerable<Guid>> PopAllEntities();
+        Task<ViewChange> UpdateView();
     }
 }

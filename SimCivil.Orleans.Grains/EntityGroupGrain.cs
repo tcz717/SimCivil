@@ -18,31 +18,48 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// SimCivil - SimCivil.Contract - IAuth.cs
-// Create Date: 2018/01/04
-// Update Date: 2018/06/17
+// SimCivil - SimCivil.Orleans.Grains - EntityGroupGrain.cs
+// Create Date: 2018/02/25
+// Update Date: 2018/02/25
 
 using System;
+using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SimCivil.Contract
+using Orleans;
+
+using SimCivil.Orleans.Interfaces;
+
+namespace SimCivil.Orleans.Grains
 {
-    public interface IAuth
+    public class EntityGroupGrain : Grain<HashSet<Guid>>, IEntityGroup
     {
-        [Obsolete]
-        bool LogIn(string username, string password);
+        public Task AddEntity(Guid id)
+        {
+            State.Add(id);
+            return Task.CompletedTask;
+        }
 
-        Task<bool> LogInAsync(string username, string password);
+        public Task RemoveEntity(Guid id)
+        {
+            State.Remove(id);
+            return Task.CompletedTask;
+        }
 
-        [Obsolete]
-        void LogOut();
+        public Task<IEnumerable<Guid>> GetEntities()
+        {
+            return Task.FromResult((IEnumerable<Guid>) State);
+        }
 
-        Task LogOutAsync();
+        public override Task OnActivateAsync()
+        {
+            if (State == null)
+            {
+                State = new HashSet<Guid>();
+            }
 
-        [Obsolete]
-        string GetToken();
-
-        Task<bool> Register(string username, string password);
+            return base.OnActivateAsync();
+        }
     }
 }

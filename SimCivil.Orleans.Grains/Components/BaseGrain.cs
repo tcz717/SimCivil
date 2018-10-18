@@ -18,31 +18,37 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// SimCivil - SimCivil.Contract - IAuth.cs
-// Create Date: 2018/01/04
-// Update Date: 2018/06/17
+// SimCivil - SimCivil.Orleans.Grains - BaseGrain.cs
+// Create Date: 2018/02/26
+// Update Date: 2018/02/26
 
 using System;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SimCivil.Contract
+using Orleans;
+
+using SimCivil.Orleans.Interfaces;
+
+namespace SimCivil.Orleans.Grains.Components
 {
-    public interface IAuth
+    public abstract class BaseGrain<TComponent> : Grain<TComponent>, IComponent<TComponent> where TComponent : new()
     {
-        [Obsolete]
-        bool LogIn(string username, string password);
+        public virtual Task<TComponent> GetData()
+        {
+            return Task.FromResult(State);
+        }
 
-        Task<bool> LogInAsync(string username, string password);
+        public virtual Task SetData(TComponent component)
+        {
+            State = component;
 
-        [Obsolete]
-        void LogOut();
+            return Task.CompletedTask;
+        }
 
-        Task LogOutAsync();
-
-        [Obsolete]
-        string GetToken();
-
-        Task<bool> Register(string username, string password);
+        public virtual Task CopyTo(IEntity target)
+        {
+            return GrainFactory.GetGrain<IComponent<TComponent>>(target.GetPrimaryKey()).SetData(State);
+        }
     }
 }
