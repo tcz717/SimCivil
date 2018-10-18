@@ -39,5 +39,6 @@ namespace SimCivil.Contract
         Task Move((float X, float Y) direction, float speed);
 
         Task Stop();
+        Task MoveTo((float X, float Y) position, DateTime timestamp);
     }
 }

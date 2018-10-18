@@ -47,12 +47,7 @@ namespace SimCivil.Orleans.Interfaces
         /// <summary>
         /// The default atlas width
         /// </summary>
-        public const int DefaultAtlasWidth = 64;
-
-        /// <summary>
-        /// The default atlas height
-        /// </summary>
-        public const int DefaultAtlasHeight = 64;
+        public const int DefaultAtlasSize = 64;
 
         /// <summary>
         /// The maximum ground entities

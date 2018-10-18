@@ -20,13 +20,16 @@
 // 
 // SimCivil - SimCivil.Orleans.Grains - MovementSystemGrain.cs
 // Create Date: 2018/09/27
-// Update Date: 2018/10/05
+// Update Date: 2018/10/06
 
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 
 using Orleans;
 
@@ -39,6 +42,15 @@ namespace SimCivil.Orleans.Grains.System
     public class MovementSystemGrain : Grain, IMovementSystem
     {
         private Dictionary<Guid, (float X, float Y)> _activeEntities;
+        public ILogger<MovementSystemGrain> Logger { get; }
+
+        public float UpdatePeriod { get; set; }
+
+        public MovementSystemGrain(ILogger<MovementSystemGrain> logger, IConfiguration configuration)
+        {
+            Logger = logger;
+            UpdatePeriod = configuration.GetValue(nameof(UpdatePeriod), 50) / 1000f;
+        }
 
         public Task Move(Guid entityId, (float X, float Y) speed)
         {
@@ -61,7 +73,7 @@ namespace SimCivil.Orleans.Grains.System
         /// </summary>
         public override Task OnActivateAsync()
         {
-            RegisterTimer(Update, null, TimeSpan.Zero, TimeSpan.FromMilliseconds(50));
+            RegisterTimer(Update, null, TimeSpan.Zero, TimeSpan.FromMilliseconds(UpdatePeriod));
             _activeEntities = new Dictionary<Guid, (float X, float Y)>();
 
             return base.OnActivateAsync();
@@ -69,14 +81,34 @@ namespace SimCivil.Orleans.Grains.System
 
         private async Task Update(object arg)
         {
-            var tasks = _activeEntities.Select(
-                async e =>
-                {
-                    float maxMoveSpeed = (await GrainFactory.Get<IUnit>(e.Key).GetData()).MoveSpeed / 20;
-                    await GrainFactory.Get<IPosition>(e.Key)
-                        .Add((maxMoveSpeed * e.Value.X, maxMoveSpeed * e.Value.Y));
-                });
+            var tasks = _activeEntities.Select(MoveEntity);
             await Task.WhenAll(tasks);
         }
+
+        private async Task MoveEntity(KeyValuePair<Guid, (float X, float Y)> e)
+        {
+            float maxMoveSpeed = (await GrainFactory.Get<IUnit>(e.Key).GetData()).MoveSpeed;
+            var position = GrainFactory.Get<IPosition>(e.Key);
+            Position pos = await position.GetData();
+            Tile currentTile = await GrainFactory.GetTile(pos.Tile);
+
+            //TODO find a better way to handle collapse
+            
+        }
+
+//        private IEnumerable<(int X, int Y)> Bresenham((float X, float Y) start, (float X, float Y) end)
+//        {
+//            bool steep = Abs(end.X - start.X) <= Abs(end.Y - start.Y);
+//            if (steep)
+//            {
+//                (start.X, start.Y) = (start.Y, start.X);
+//                (end.X, end.Y) = (end.Y, end.X);
+//            }
+//
+//            if (start.X > end.X)
+//            {
+//                (start, end) = (end, start);
+//            }
+//        }
     }
 }

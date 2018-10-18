@@ -27,6 +27,8 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 
+using Microsoft.Extensions.Logging;
+
 using SimCivil.Contract;
 using SimCivil.Orleans.Interfaces.Component;
 
@@ -39,5 +41,7 @@ namespace SimCivil.Orleans.Grains.Component
             State.Gender = option.Gender;
             return Task.CompletedTask;
         }
+
+        public UnitGrain(ILoggerFactory factory) : base(factory) { }
     }
 }

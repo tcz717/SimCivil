@@ -20,26 +20,47 @@
 // 
 // SimCivil - SimCivil.Orleans.Grains - ControllerGrain.cs
 // Create Date: 2018/09/27
-// Update Date: 2018/10/04
+// Update Date: 2018/10/18
 
 using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+
 using Orleans;
 
 using SimCivil.Contract;
 using SimCivil.Orleans.Interfaces;
 using SimCivil.Orleans.Interfaces.Component;
+using SimCivil.Orleans.Interfaces.Service;
 using SimCivil.Orleans.Interfaces.System;
 
 namespace SimCivil.Orleans.Grains.Component
 {
     public class ControllerGrain : Grain, IUnitController
     {
+        private readonly ITerrainRepository _terrainRepository;
+        private DateTime _lastUpdateTime;
         private IMovementSystem _moveSystem;
         private (float X, float Y) _speed;
+
+        public TimeSpan UpdatePeriod { get; set; }
+
+        public ILogger<ControllerGrain> Logger { get; }
+
+        public ControllerGrain(
+            ILogger<ControllerGrain> logger,
+            IConfiguration configuration,
+            ITerrainRepository terrainRepository)
+        {
+            Logger = logger;
+            _terrainRepository = terrainRepository;
+            UpdatePeriod = TimeSpan.FromMilliseconds(configuration.GetValue(nameof(UpdatePeriod), 50));
+            _lastUpdateTime = DateTime.Now - UpdatePeriod - UpdatePeriod;
+        }
 
         public Task<(float X, float Y)> GetSpeed()
         {
@@ -66,6 +87,50 @@ namespace SimCivil.Orleans.Grains.Component
 
             _speed = (direction.X * speed, direction.Y * speed);
             await _moveSystem.Move(this.GetPrimaryKey(), _speed);
+        }
+
+        /// <summary>
+        /// Moves to.
+        /// </summary>
+        /// <param name="position">The position.</param>
+        /// <param name="timeStamp"></param>
+        /// <returns></returns>
+        public async Task MoveTo(Position position, DateTime timeStamp)
+        {
+            if (timeStamp > DateTime.Now)
+            {
+                Logger.LogWarning($"Entity{this.GetPrimaryKey()} sent wrong timestamp in {nameof(MoveTo)}");
+
+                throw new ArgumentOutOfRangeException(nameof(timeStamp));
+            }
+
+            Position previous = await GrainFactory.Get<IPosition>(this).GetData();
+            Tile tile = await GrainFactory.GetTile(previous.Tile);
+            TimeSpan dt = timeStamp - _lastUpdateTime;
+
+            _lastUpdateTime = timeStamp;
+
+            double dx2 = (position.X - previous.X) * (position.X - previous.X) +
+                         (position.Y - previous.Y) * (position.Y - previous.Y);
+
+            double v2 = dx2 / (dt.TotalSeconds * dt.TotalSeconds);
+            Unit unit = await GrainFactory.Get<IUnit>(this).GetData();
+            double maxv2 = _terrainRepository.GetTerrain(tile.Terrain).BaseMoveSpeed * unit.MoveSpeed;
+            maxv2 *= maxv2;
+
+            if (v2 > maxv2 + 0.0001)
+            {
+                Logger.LogWarning($"{this.GetPrimaryKey()} moves too fast");
+
+                return;
+            }
+
+            // TODO check if construction exists
+            if (_terrainRepository.GetTerrain((await GrainFactory.GetTile(position.Tile)).Terrain)
+                .Flags.HasFlag(TerrainFlags.NotMovable))
+                return;
+
+            await GrainFactory.Get<IPosition>(this).SetData(position);
         }
 
         public async Task Stop()

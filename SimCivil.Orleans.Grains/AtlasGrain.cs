@@ -19,8 +19,8 @@
 // SOFTWARE.
 // 
 // SimCivil - SimCivil.Orleans.Grains - AtlasGrain.cs
-// Create Date: 2018/02/25
-// Update Date: 2018/05/12
+// Create Date: 2018/06/14
+// Update Date: 2018/10/07
 
 using System;
 using System.Collections.Generic;
@@ -46,23 +46,23 @@ namespace SimCivil.Orleans.Grains
     {
         public IMapGenerator Generator { get; }
         public ILogger<AtlasGrain> Logger { get; }
-        public (int X, int Y) AltasIndex { get; set; }
-        public int Left => AltasIndex.X * DefaultAtlasWidth;
+        public (int X, int Y) AtlasIndex { get; set; }
+        public int Left => AtlasIndex.X * DefaultAtlasSize;
 
         /// <summary>
         /// The maximum X position of it's tiles.
         /// </summary>
-        public int Right => AltasIndex.X * DefaultAtlasWidth + DefaultAtlasWidth;
+        public int Right => AtlasIndex.X * DefaultAtlasSize + DefaultAtlasSize;
 
         /// <summary>
         /// The minimum Y position of it's tiles.
         /// </summary>
-        public int Top => AltasIndex.Y * DefaultAtlasHeight;
+        public int Top => AtlasIndex.Y * DefaultAtlasSize;
 
         /// <summary>
         /// The maximum Y position of it's tiles.
         /// </summary>
-        public int Bottom => AltasIndex.Y * DefaultAtlasHeight + DefaultAtlasHeight;
+        public int Bottom => AtlasIndex.Y * DefaultAtlasSize + DefaultAtlasSize;
 
         public AtlasGrain(IMapGenerator generator, ILogger<AtlasGrain> logger)
         {
@@ -106,7 +106,7 @@ namespace SimCivil.Orleans.Grains
         public override async Task OnActivateAsync()
         {
             long id = this.GetPrimaryKeyLong();
-            AltasIndex = ((int) (id & 0xFFFF_FFFF), (int) (id >> 32));
+            AtlasIndex = ((int) (id & 0xFFFF_FFFF), (int) (id >> 32));
             Debug.WriteLine(State);
             if (State?.Tiles == null)
             {
@@ -114,16 +114,15 @@ namespace SimCivil.Orleans.Grains
                 {
                     Tiles = Generator.Generate(
                         (await GrainFactory.GetGrain<IGame>(0).GetConfig()).Seed,
-                        AltasIndex.X,
-                        AltasIndex.Y,
-                        DefaultAtlasWidth,
-                        DefaultAtlasHeight)
+                        AtlasIndex.X,
+                        AtlasIndex.Y,
+                        DefaultAtlasSize)
                 };
 
-                if (State.Tiles.Length != DefaultAtlasWidth * DefaultAtlasHeight)
+                if (State.Tiles.Length != DefaultAtlasSize * DefaultAtlasSize)
                     throw new ArgumentOutOfRangeException(nameof(State.Tiles));
 
-                Logger.Info($"Atlas {AltasIndex} was created.");
+                Logger.Info($"Atlas {AtlasIndex} was created.");
             }
         }
     }
@@ -136,6 +135,14 @@ namespace SimCivil.Orleans.Grains
         {
             get => Tiles[x, y];
             set => Tiles[x, y] = value;
+        }
+    }
+
+    public static class AtlasExtension
+    {
+        public static async Task<Tile> GetTile(this IGrainFactory factory, (int X, int Y) position)
+        {
+            return await factory.GetGrain<IAtlas>(position.DivDown(DefaultAtlasSize)).GetTile(position);
         }
     }
 }

@@ -20,7 +20,7 @@
 // 
 // SimCivil - SimCivil.Orleans.Grains - BaseGrain.cs
 // Create Date: 2018/06/22
-// Update Date: 2018/10/05
+// Update Date: 2018/10/06
 
 using System;
 using System.Collections.Generic;
@@ -28,6 +28,8 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+
+using Microsoft.Extensions.Logging;
 
 using Orleans;
 
@@ -37,8 +39,17 @@ namespace SimCivil.Orleans.Grains.Component
 {
     public abstract class BaseGrain<TComponent> : Grain<TComponent>, IComponent<TComponent> where TComponent : new()
     {
+        public ILogger Logger { get; }
+
+        protected BaseGrain(ILoggerFactory factory)
+        {
+            Logger = factory.CreateLogger(GetType());
+        }
+
         public virtual Task<TComponent> GetData()
         {
+            StateCheck();
+
             return Task.FromResult(State);
         }
 
@@ -51,6 +62,7 @@ namespace SimCivil.Orleans.Grains.Component
 
         public virtual async Task<IComponent> CopyTo(IEntity target)
         {
+            StateCheck();
             var type = GetType()
                            .GetInterfaces()
                            .FirstOrDefault(
@@ -66,10 +78,20 @@ namespace SimCivil.Orleans.Grains.Component
 
         public virtual Task<IReadOnlyDictionary<string, string>> Dump()
         {
+            StateCheck();
+
             return Task.FromResult(
                 (IReadOnlyDictionary<string, string>) State.GetType()
                     .GetProperties(BindingFlags.Instance | BindingFlags.Public)
                     .ToDictionary(prop => prop.Name, prop => prop.GetValue(State, null).ToString()));
+        }
+
+        private void StateCheck()
+        {
+            if (State == null)
+            {
+                Logger.LogWarning("Access null state");
+            }
         }
     }
 }

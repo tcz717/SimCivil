@@ -19,8 +19,8 @@
 // SOFTWARE.
 // 
 // SimCivil - SimCivil.Orleans.Grains - RandomMapGen.cs
-// Create Date: 2018/02/26
-// Update Date: 2018/02/26
+// Create Date: 2018/06/22
+// Update Date: 2018/10/07
 
 using System;
 using System.Text;
@@ -39,22 +39,21 @@ namespace SimCivil.Orleans.Grains.Service
         /// <summary>
         /// Generate new Atlas
         /// </summary>
-        /// <param name="seed"></param>
+        /// <param name="seed">The seed.</param>
         /// <param name="x">Index of the atlas</param>
         /// <param name="y">Index of the atlas</param>
-        /// <param name="width">Atlas's Width</param>
-        /// <param name="height">Atlas's Height</param>
+        /// <param name="size">The size.</param>
         /// <returns></returns>
-        public Tile[,] Generate(int seed, int x, int y, int width, int height)
+        public Tile[,] Generate(int seed, int x, int y, int size)
         {
             Random rand = new Random(seed * x + y);
-            Tile[,] tiles = new Tile[width, height];
-            for (int i = 0; i < width; i++)
+            Tile[,] tiles = new Tile[size, size];
+            for (int i = 0; i < size; i++)
             {
-                for (int j = 0; j < height; j++)
+                for (int j = 0; j < size; j++)
                 {
                     tiles[i, j] = Tile.Create(
-                        (x * width + i, y * height + j),
+                        (x * size + i, y * size + j),
                         height: rand.Next(Config.SeaLevel - 10, Config.SeaLevel + 10));
                 }
             }

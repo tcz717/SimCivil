@@ -18,28 +18,36 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// SimCivil - SimCivil.Orleans.Interfaces - IMapGenerator.cs
-// Create Date: 2018/02/25
-// Update Date: 2018/02/26
+// SimCivil - SimCivil.Orleans.Grains - TestTerrainRepository.cs
+// Create Date: 2018/10/17
+// Update Date: 2018/10/17
 
 using System;
+using System.Collections.Generic;
 using System.Text;
 
-namespace SimCivil.Orleans.Interfaces.Service
+using SimCivil.Orleans.Interfaces.Service;
+
+namespace SimCivil.Orleans.Grains.Service
 {
-    /// <summary>
-    /// Interface supporting generating map.
-    /// </summary>
-    public interface IMapGenerator
+    public class TestTerrainRepository : ITerrainRepository
     {
-        /// <summary>
-        /// Generates the specified seed.
-        /// </summary>
-        /// <param name="seed">The seed.</param>
-        /// <param name="x">The x.</param>
-        /// <param name="y">The y.</param>
-        /// <param name="size">The size.</param>
-        /// <returns></returns>
-        Tile[,] Generate(int seed, int x, int y, int size);
+        private readonly IReadOnlyList<Terrain> _initTerrains;
+
+        public TestTerrainRepository()
+        {
+            _initTerrains = new List<Terrain>
+            {
+                new Terrain(0, "grass", 1.0f)
+            };
+        }
+
+        public Terrain GetTerrain(int id)
+        {
+            if(id>=_initTerrains.Count)
+                throw new ArgumentOutOfRangeException(nameof(id));
+
+            return _initTerrains[id];
+        }
     }
 }

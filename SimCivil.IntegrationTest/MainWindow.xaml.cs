@@ -20,7 +20,7 @@
 // 
 // SimCivil - SimCivil.IntegrationTest - MainWindow.xaml.cs
 // Create Date: 2018/09/27
-// Update Date: 2018/10/05
+// Update Date: 2018/10/17
 
 using System;
 using System.Collections.ObjectModel;
@@ -163,7 +163,11 @@ namespace SimCivil.IntegrationTest
                 .ConfigureLogging(
                     logging => logging.AddDebug().AddProvider(LoggerProvider))
                 .ConfigureServices(
-                    services => { services.AddSingleton<IMapGenerator, RandomMapGen>(); });
+                    services =>
+                    {
+                        services.AddSingleton<IMapGenerator, RandomMapGen>()
+                            .AddSingleton<ITerrainRepository, TestTerrainRepository>();
+                    });
         }
     }
 

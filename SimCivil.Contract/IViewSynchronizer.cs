@@ -20,11 +20,10 @@
 // 
 // SimCivil - SimCivil.Contract - IViewSynchronizer.cs
 // Create Date: 2018/01/10
-// Update Date: 2018/02/02
+// Update Date: 2018/10/17
 
 using System;
 using System.Text;
-using System.Threading.Tasks;
 
 using JetBrains.Annotations;
 
@@ -45,13 +44,14 @@ namespace SimCivil.Contract
         public EntityDto[] EntityChange { get; set; }
         [CanBeNull]
         public ViewEvent[] Events { get; set; }
+        public (float X, float Y) Position { get; set; }
+        public float Speed { get; set; }
 
         /// <summary>Returns a string that represents the current object.</summary>
         /// <returns>A string that represents the current object.</returns>
         public override string ToString()
         {
-            return
-                $"{nameof(TileChange)}: {TileChange?.Length ?? 0}, {nameof(EntityChange)}: {EntityChange?.Length ?? 0}, {nameof(Events)}: {Events?.Length ?? 0}";
+            return $"{nameof(TickCount)}: {TickCount}, {nameof(Position)}: {Position}, {nameof(Speed)}: {Speed}";
         }
     }
 

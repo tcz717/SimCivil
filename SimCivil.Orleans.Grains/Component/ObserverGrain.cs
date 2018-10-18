@@ -28,6 +28,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using Microsoft.Extensions.Logging;
+
 using SimCivil.Contract;
 using SimCivil.Orleans.Interfaces;
 using SimCivil.Orleans.Interfaces.Component;
@@ -67,7 +69,10 @@ namespace SimCivil.Orleans.Grains.Component
 
         public async Task<ViewChange> UpdateView()
         {
-            var viewChange = new ViewChange();
+            var viewChange = new ViewChange {Position = await GrainFactory.Get<IPosition>(this).GetData()};
+
+            if (await GrainFactory.GetEntity(this).Has<IUnit>())
+                viewChange.Speed = (await GrainFactory.Get<IUnit>(this).GetData()).MoveSpeed;
 
             var entities = await Task.WhenAll(
                 Entities.Select(
@@ -101,5 +106,7 @@ namespace SimCivil.Orleans.Grains.Component
 
             return base.OnActivateAsync();
         }
+
+        public ObserverGrain(ILoggerFactory factory) : base(factory) { }
     }
 }

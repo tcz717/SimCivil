@@ -20,7 +20,7 @@
 // 
 // SimCivil - SimCivil.Orleans.Interfaces - Position.cs
 // Create Date: 2018/06/22
-// Update Date: 2018/10/06
+// Update Date: 2018/10/17
 
 using System;
 using System.Diagnostics.CodeAnalysis;
@@ -42,9 +42,12 @@ namespace SimCivil.Orleans.Interfaces.Component
         }
 
         /// <summary>Initializes a new instance of the <see cref="T:System.Object"></see> class.</summary>
-        public Position() { }
+        /// <param name="position"></param>
+        public Position((float X, float Y) position) : this(position.X, position.Y) { }
 
         public Position((int X, int Y) pos) : this(pos.X, pos.Y) { }
+
+        public Position() { }
 
         public static implicit operator (float X, float Y)(Position position)
         {

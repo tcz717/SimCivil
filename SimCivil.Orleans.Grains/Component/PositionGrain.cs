@@ -28,6 +28,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using Microsoft.Extensions.Logging;
+
 using Orleans;
 
 using SimCivil.Orleans.Interfaces;
@@ -76,5 +78,7 @@ namespace SimCivil.Orleans.Grains.Component
                     ["Position"] = State.ToString()
                 });
         }
+
+        public PositionGrain(ILoggerFactory factory) : base(factory) { }
     }
 }

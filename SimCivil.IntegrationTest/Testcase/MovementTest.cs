@@ -20,7 +20,7 @@
 // 
 // SimCivil - SimCivil.IntegrationTest - MovementTest.cs
 // Create Date: 2018/09/29
-// Update Date: 2018/10/06
+// Update Date: 2018/10/17
 
 using System;
 using System.Linq;
@@ -82,9 +82,13 @@ namespace SimCivil.IntegrationTest.Testcase
             await rm.UseRole((await rm.GetRoleList()).First().Id);
 
             var sync = Client.Import<IViewSynchronizer>();
+            (float x, float y) pos = (0, 0);
+            float speed = 0;
             sync.RegisterViewSync(
                 vc =>
                 {
+                    pos = vc.Position;
+                    speed = vc.Speed;
                     if (vc.EntityChange?.Any() ?? false)
                         Logger.LogInformation(vc.EntityChange.First().ToString());
                     else
@@ -93,11 +97,16 @@ namespace SimCivil.IntegrationTest.Testcase
 
             var controller = Client.Import<IPlayerController>();
 
-            await controller.Move((1, 0), 1);
-//            await Task.Delay(1000);
-//            await controller.Stop();
+            await Task.Delay(500);
+            for (int i = 0; i < 100; i++)
+            {
+//                pos = (pos.x + speed * 0.05f, pos.y);
+                await controller.MoveTo((pos.x + speed * 0.05f, pos.y), DateTime.Now);
 
-            Logger.LogInformation($"{RoleName} is moving");
+                await Task.Delay(50);
+            }
+
+            Logger.LogInformation($"{RoleName} test end");
         }
 
         public async Task Stop()

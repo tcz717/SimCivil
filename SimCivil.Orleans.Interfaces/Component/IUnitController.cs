@@ -18,15 +18,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// SimCivil - SimCivil.Orleans.Interfaces - IPlayerController.cs
-// Create Date: 2018/07/11
-// Update Date: 2018/09/26
+// SimCivil - SimCivil.Orleans.Interfaces - IUnitController.cs
+// Create Date: 2018/09/27
+// Update Date: 2018/10/15
 
 using System;
 using System.Text;
 using System.Threading.Tasks;
-
-using Orleans;
 
 using SimCivil.Contract;
 
@@ -41,6 +39,14 @@ namespace SimCivil.Orleans.Interfaces.Component
         /// <param name="speed">The speed.</param>
         /// <returns></returns>
         Task Move((float X, float Y) direction, float speed);
+
+        /// <summary>
+        /// Moves to specified position.
+        /// </summary>
+        /// <param name="position">The position.</param>
+        /// <param name="timestamp"></param>
+        /// <returns></returns>
+        Task<Position> MoveTo(Position position, DateTime timestamp);
 
         Task Stop();
 

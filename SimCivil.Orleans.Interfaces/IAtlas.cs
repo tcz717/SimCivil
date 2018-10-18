@@ -19,8 +19,8 @@
 // SOFTWARE.
 // 
 // SimCivil - SimCivil.Orleans.Interfaces - IAtlas.cs
-// Create Date: 2018/02/25
-// Update Date: 2018/02/25
+// Create Date: 2018/06/14
+// Update Date: 2018/10/06
 
 using System;
 using System.Collections.Generic;
@@ -28,6 +28,8 @@ using System.Text;
 using System.Threading.Tasks;
 
 using Orleans;
+
+using SimCivil.Orleans.Interfaces.Component;
 
 namespace SimCivil.Orleans.Interfaces
 {
