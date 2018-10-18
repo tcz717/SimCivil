@@ -209,7 +209,6 @@ namespace SimCivil.Test
                     });
 
                 var serviceB = client.Import<ITestServiceB>();
-                serviceB.GetEntity();
             }
         }
 

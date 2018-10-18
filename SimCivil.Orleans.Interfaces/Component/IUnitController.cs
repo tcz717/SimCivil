@@ -46,7 +46,7 @@ namespace SimCivil.Orleans.Interfaces.Component
         /// <param name="position">The position.</param>
         /// <param name="timestamp"></param>
         /// <returns></returns>
-        Task<Position> MoveTo(Position position, DateTime timestamp);
+        Task MoveTo(Position position, DateTime timestamp);
 
         Task Stop();
 
