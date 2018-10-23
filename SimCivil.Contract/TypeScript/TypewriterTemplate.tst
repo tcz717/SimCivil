@@ -17,6 +17,10 @@
     string TypeIsVoid(Type type){
         return type.name == "void" ? "true" : "false";
     }
+
+    string Attribute(Attribute type){
+        return "/** " + type.Name + "*/";
+    }
 }
 module SimCivil.Contract {
 
@@ -57,6 +61,7 @@ module SimCivil.Contract {
 		public $name: $Value;
 		]
 		$Methods[
+        $Attributes[$Attribute]
         @RPC("$Parent[$FullName]", $Type[$TypeIsVoid])
 		public static async $Name($Parameters[$name: $Type][, ]): Promise<$Type>{
             return $Type[$Default];
