@@ -15,6 +15,10 @@ namespace SimCivil.Rpc
         public bool isWebSocket = false;
         public LengthFieldPrepender lengthFieldPrepender;
         public LengthFieldBasedFrameDecoder lengthFieldBasedFrameDecoder;
+        /// <summary>
+        /// 记录之前未处理的buffer用来解决粘包的问题
+        /// </summary>
+        private DotNetty.Buffers.IByteBuffer lastReadBuffer;
         public HttpRequestHandler(LengthFieldPrepender lengthFieldPrepender, LengthFieldBasedFrameDecoder lengthFieldBasedFrameDecoder)
         {
             this.lengthFieldPrepender = lengthFieldPrepender;
@@ -24,16 +28,29 @@ namespace SimCivil.Rpc
         {
             base.ChannelActive(context);
         }
-
+        
         public override void ChannelRead(IChannelHandlerContext context, object message)
         {
             if (isWebSocket)
             {
-                DotNetty.Buffers.IByteBuffer buffer = (DotNetty.Buffers.IByteBuffer)message;
-                DotNetty.Buffers.IByteBuffer bufferCopy = buffer.Copy();
-                byte[] bytes = new byte[bufferCopy.ReadableBytes];
-                bufferCopy.ReadBytes(bytes);
-                if((bytes[0] & 8) == 8)
+                DotNetty.Buffers.IByteBuffer buffer;
+                if (lastReadBuffer != null) lastReadBuffer.ResetReaderIndex();
+                if (lastReadBuffer != null && lastReadBuffer.ReadableBytes != 0)
+                {
+                    buffer = ByteBufferUtil.DefaultAllocator.HeapBuffer(lastReadBuffer.ReadableBytes + ((DotNetty.Buffers.IByteBuffer)message).ReadableBytes);
+                    buffer.WriteBytes(lastReadBuffer);
+                    buffer.WriteBytes((DotNetty.Buffers.IByteBuffer)message);
+                    lastReadBuffer = buffer;
+                }
+                else
+                {
+                    buffer = (DotNetty.Buffers.IByteBuffer)message;
+                    lastReadBuffer = buffer;
+                }
+                if (buffer.ReadableBytes < 2) return;
+                DotNetty.Buffers.IByteBuffer bufferCopy = ByteBufferUtil.DefaultAllocator.HeapBuffer(buffer.Capacity);
+                buffer.ReadBytes(bufferCopy, 2);
+                if((bufferCopy.GetByte(0) & 8) == 8)
                 {
                     //操作码位8表示断开连接
                     context.CloseAsync();
@@ -41,39 +58,57 @@ namespace SimCivil.Rpc
                 }
                 byte[] maskKey = new byte[4] { 0, 0, 0, 0 };
                 bool masked = false;
-                if (bytes[1] >= 128)
+                byte lenMark = bufferCopy.GetByte(1);
+                if (lenMark >= 128)
                 {
                     masked = true;
-                    bytes[1] -= 128;
+                    lenMark -= 128;
                 }
                 int offset = 0;
-                if(bytes[1] <= 125)
+                int len = 0;
+                if(lenMark <= 125)
                 {
                     offset = 2;
+                    len = lenMark;
                 }
-                else if(bytes[1] == 126)
+                else if(lenMark == 126)
                 {
                     offset = 4;
+                    if (buffer.ReadableBytes < 2) return;
+                    buffer.ReadBytes(bufferCopy, 2);
+                    len = bufferCopy.GetUnsignedShort(2);
                 }
-                else if(bytes[1] == 127)
+                else if(lenMark == 127)
                 {
                     offset = 10;
+                    if (buffer.ReadableBytes < 8) return;
+                    buffer.ReadBytes(bufferCopy, 8);
+                    len = (int)bufferCopy.GetLong(2);
                 }
                 if (masked)
                 {
+                    if (buffer.ReadableBytes < 4) return;
+                    buffer.ReadBytes(bufferCopy, 4);
                     for (int i = 0; i < 4; i++)
                     {
-                        maskKey[i] = bytes[offset + i];
+                        maskKey[i] = bufferCopy.GetByte(offset + i);
                     }
                     offset += 4;
                 }
-                IByteBuffer output = ByteBufferUtil.DefaultAllocator.HeapBuffer();
-                for (int i = 0; i < bytes.Length - offset; i++)
+                if (buffer.ReadableBytes < len) return;
+                buffer.ReadBytes(bufferCopy, len);
+                IByteBuffer output = ByteBufferUtil.DefaultAllocator.HeapBuffer(len);
+                for (int i = 0; i < len; i++)
                 {
-                    output.WriteByte(bytes[offset + i] ^ maskKey[i % 4]);
+                    output.WriteByte(bufferCopy.GetByte(offset + i) ^ maskKey[i % 4]);
                 }
-                
+                lastReadBuffer.MarkReaderIndex();
                 base.ChannelRead(context, output);
+                if(lastReadBuffer.ReadableBytes > 0)
+                {
+                    lastReadBuffer = null;
+                    ChannelRead(context, buffer);
+                }
                 return;
             }
             try
@@ -150,13 +185,14 @@ namespace SimCivil.Rpc
                 output.WriteByte(130);
                 //这里按照定义来讲最长应该是64位表示的长度，也就是应该用ulong表示。但是我并不认为一个包长度能超过Int32..
                 int len = buffer.ReadableBytes;
-                if (len <=125){
+                if (len <= 125)
+                {
                     output.WriteByte(len);
                 }
-                else if(len < 65536)
+                else if (len < 65536)
                 {
                     output.WriteByte(126);
-                    output.WriteByte(len & 0xff00);
+                    output.WriteByte((len & 0xff00) >> 8);
                     output.WriteByte(len & 0xff);
                 }
                 else
@@ -166,9 +202,9 @@ namespace SimCivil.Rpc
                     output.WriteByte(0);
                     output.WriteByte(0);
                     output.WriteByte(0);
-                    output.WriteByte((int)((uint)len & 0xff000000));
-                    output.WriteByte(len & 0xff0000);
-                    output.WriteByte(len & 0xff00);
+                    output.WriteByte((int)((uint)len & 0xff000000) >> 24);
+                    output.WriteByte((len & 0xff0000) >> 16);
+                    output.WriteByte((len & 0xff00) >> 8);
                     output.WriteByte(len & 0xff);
                 }
                 output.WriteBytes(buffer);
