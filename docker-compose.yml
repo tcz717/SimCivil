@@ -5,7 +5,7 @@ services:
     image: simcivil
     build:
       context: .
-      dockerfile: ./SimCivil.GateDockerfile
+      dockerfile: ./SimCivil.Gate/Dockerfile
 
   orleans:
     image: orleans
@@ -13,4 +13,4 @@ services:
      - "30000:30000"
     build:
       context: .
-      dockerfile: ./SimCivil.GateDockerfile
+      dockerfile: ./SimCivil.Orleans.Server/Dockerfile
