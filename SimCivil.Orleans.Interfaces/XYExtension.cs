@@ -28,7 +28,7 @@ using System.Text;
 
 using Orleans;
 
-namespace SimCivil.Orleans.Grains
+namespace SimCivil.Orleans.Interfaces
 {
     /// <summary>
     /// 

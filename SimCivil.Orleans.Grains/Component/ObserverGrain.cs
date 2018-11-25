@@ -19,8 +19,8 @@
 // SOFTWARE.
 // 
 // SimCivil - SimCivil.Orleans.Grains - ObserverGrain.cs
-// Create Date: 2018/06/22
-// Update Date: 2018/10/06
+// Create Date: 2018/10/21
+// Update Date: 2018/11/24
 
 using System;
 using System.Collections.Generic;
@@ -39,6 +39,8 @@ namespace SimCivil.Orleans.Grains.Component
     public class ObserverGrain : BaseGrain<Observer>, IObserver
     {
         public HashSet<Guid> Entities { get; set; }
+
+        public ObserverGrain(ILoggerFactory factory) : base(factory) { }
 
         public Task OnEntityEntered(Guid id)
         {
@@ -69,7 +71,12 @@ namespace SimCivil.Orleans.Grains.Component
 
         public async Task<ViewChange> UpdateView()
         {
-            var viewChange = new ViewChange {Position = await GrainFactory.Get<IPosition>(this).GetData()};
+            Position position = await GrainFactory.Get<IPosition>(this).GetData();
+            var viewChange = new ViewChange
+            {
+                Position = position,
+                AtlasIndex = position.Tile.DivDown(Config.ChunkSize)
+            };
 
             if (await GrainFactory.GetEntity(this).Has<IUnit>())
                 viewChange.Speed = (await GrainFactory.Get<IUnit>(this).GetData()).MoveSpeed;
@@ -106,7 +113,5 @@ namespace SimCivil.Orleans.Grains.Component
 
             return base.OnActivateAsync();
         }
-
-        public ObserverGrain(ILoggerFactory factory) : base(factory) { }
     }
 }

@@ -23,10 +23,14 @@
 // Update Date: 2018/10/05
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+
+using AutoMapper;
+using AutoMapper.Mappers;
 
 using Microsoft.Extensions.Logging;
 
@@ -62,6 +66,13 @@ namespace SimCivil.Gate
         public void DeregisterViewSync()
         {
             Session.Value.UnSet<Action<ViewChange>>();
+        }
+
+        public async Task<TileDto[]> GetAtlas((int X, int Y) index)
+        {
+            var tiles = await GrainFactory.GetGrain<IAtlas>(index).Dump();
+
+            return Mapper.Map<IEnumerable<Tile>, TileDto[]>(tiles.Cast<Tile>());
         }
 
         public void StartSync(RpcServer server)

@@ -18,26 +18,33 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// SimCivil - SimCivil.Orleans.Interfaces - IAtlas.cs
-// Create Date: 2018/06/14
-// Update Date: 2018/10/06
+// SimCivil - SimCivil.Test - ObserverTest.cs
+// Create Date: 2018/11/24
+// Update Date: 2018/11/24
 
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
+using Orleans.TestingHost;
 
-using Orleans;
+using SimCivil.Orleans.Interfaces;
 
-using SimCivil.Orleans.Interfaces.Component;
+using Xunit;
 
-namespace SimCivil.Orleans.Interfaces
+namespace SimCivil.Test.Orleans
 {
-    public interface IAtlas : IGrainWithIntegerKey
+    public class ObserverTest
     {
-        Task<IEnumerable<Tile>> SelectRange((int X, int Y) leftTop, int width, int height);
-        Task SetTile((int X, int Y) pos, Tile tile);
-        Task<Tile> GetTile((int X, int Y) pos);
-        Task<Tile[,]> Dump();
+        public ObserverTest()
+        {
+            Cluster = OrleansFixture.Single.Cluster;
+        }
+
+        public TestCluster Cluster { get; set; }
+
+        [Fact]
+        public void DumpTest()
+        {
+            var tiles = Cluster.GrainFactory.GetGrain<IAtlas>(0).Dump().Result;
+
+            Assert.NotEmpty(tiles);
+        }
     }
 }

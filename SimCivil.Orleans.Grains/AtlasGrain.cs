@@ -103,6 +103,11 @@ namespace SimCivil.Orleans.Grains
             return Task.FromResult(State[pos.X - Left, pos.Y - Top]);
         }
 
+        public Task<Tile[,]> Dump()
+        {
+            return Task.FromResult(State.Tiles);
+        }
+
         public override async Task OnActivateAsync()
         {
             long id = this.GetPrimaryKeyLong();

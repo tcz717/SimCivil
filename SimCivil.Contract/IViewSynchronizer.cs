@@ -24,6 +24,7 @@
 
 using System;
 using System.Text;
+using System.Threading.Tasks;
 
 using JetBrains.Annotations;
 
@@ -33,6 +34,7 @@ namespace SimCivil.Contract
     {
         void RegisterViewSync(Action<ViewChange> callback);
         void DeregisterViewSync();
+        Task<TileDto[]> GetAtlas((int X, int Y) index);
     }
 
     public class ViewChange
@@ -45,6 +47,7 @@ namespace SimCivil.Contract
         [CanBeNull]
         public ViewEvent[] Events { get; set; }
         public (float X, float Y) Position { get; set; }
+        public (int X,int Y) AtlasIndex { get; set; }
         public float Speed { get; set; }
 
         /// <summary>Returns a string that represents the current object.</summary>

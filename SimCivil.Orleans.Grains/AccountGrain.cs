@@ -51,7 +51,7 @@ namespace SimCivil.Orleans.Grains
         }
 
         /// <summary>
-        /// Determines whether this instance is exsisted.
+        /// Determines whether this instance is existed.
         /// </summary>
         /// <returns></returns>
         public Task<bool> IsExisted()
@@ -109,7 +109,7 @@ namespace SimCivil.Orleans.Grains
             GrainFactory.GetGrain<IGame>(0).OnAccountLogin(this);
 #pragma warning restore 4014
 
-            Logger.Info($"Account {this.GetPrimaryKeyString()} login successed");
+            Logger.Info($"Account {this.GetPrimaryKeyString()} login success");
 
             return true;
         }
