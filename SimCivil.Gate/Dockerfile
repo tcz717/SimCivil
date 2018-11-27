@@ -3,6 +3,7 @@
 EXPOSE 20170
 
 COPY . .
-RUN dotnet build SimCivil.sln
+RUN dotnet build SimCivil.Gate
 WORKDIR SimCivil.Gate
-ENTRYPOINT ["dotnet", "SimCivil.Gate.csproj"]
+ENTRYPOINT ["dotnet", "run", "SimCivil.Gate.csproj"]
+CMD ["-f", "netcoreapp2.0"]
