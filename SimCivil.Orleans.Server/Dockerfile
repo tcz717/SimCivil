@@ -3,6 +3,7 @@
 EXPOSE 30000
 
 COPY . .
-RUN dotnet build SimCivil.sln
+RUN dotnet SimCivil.Orleans.Server
 WORKDIR SimCivil.Orleans.Server
-ENTRYPOINT ["dotnet", "SimCivil.Orleans.Server.csproj"]
+ENTRYPOINT ["dotnet", "run", "SimCivil.Orleans.Server.csproj"]
+CMD ["-f", "netcoreapp2.0"]
