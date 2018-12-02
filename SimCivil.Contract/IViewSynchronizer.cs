@@ -99,7 +99,8 @@ namespace SimCivil.Contract
     public class TileDto
     {
         public (int X, int Y) Position { get; set; }
-        public string Surface { get; set; }
+        public int Terrain { get; set; }
+        public int Height { get; set; }
     }
 }
 
