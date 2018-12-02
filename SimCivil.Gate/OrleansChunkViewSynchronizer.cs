@@ -20,7 +20,7 @@
 // 
 // SimCivil - SimCivil.Gate - OrleansChunkViewSynchronizer.cs
 // Create Date: 2018/06/16
-// Update Date: 2018/10/05
+// Update Date: 2018/12/02
 
 using System;
 using System.Collections.Generic;
@@ -30,7 +30,6 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using AutoMapper;
-using AutoMapper.Mappers;
 
 using Microsoft.Extensions.Logging;
 
@@ -48,6 +47,11 @@ namespace SimCivil.Gate
     {
         public IGrainFactory GrainFactory { get; }
         public ILogger<IViewSynchronizer> Logger { get; }
+
+        static OrleansChunkViewSynchronizer()
+        {
+            Mapper.Initialize(c => c.CreateMap<Tile, TileDto>());
+        }
 
         public OrleansChunkViewSynchronizer(IGrainFactory grainFactory, ILogger<IViewSynchronizer> logger)
         {
