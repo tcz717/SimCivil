@@ -35,13 +35,14 @@ using Xunit;
 
 namespace SimCivil.Test.Orleans
 {
+    [Collection(ClusterCollection.Name)]
     public class EntityTest
     {
-        public EntityTest()
+        /// <summary>Initializes a new instance of the <see cref="T:System.Object"></see> class.</summary>
+        public EntityTest(OrleansFixture fixture)
         {
-            Cluster = OrleansFixture.Single.Cluster;
+            Cluster = fixture.Cluster;
         }
-
         public TestCluster Cluster { get; }
 
         [Fact]
