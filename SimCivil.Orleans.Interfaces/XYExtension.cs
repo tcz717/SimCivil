@@ -18,9 +18,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// SimCivil - SimCivil.Orleans.Grains - XYExtension.cs
-// Create Date: 2018/02/26
-// Update Date: 2018/02/26
+// SimCivil - SimCivil.Orleans.Interfaces - XYExtension.cs
+// Create Date: 2018/11/24
+// Update Date: 2018/12/08
 
 using System;
 using System.Runtime.CompilerServices;
@@ -87,7 +87,7 @@ namespace SimCivil.Orleans.Interfaces
                 string grainClassNamePrefix = null) where TGrainInterface : IGrainWithIntegerKey
         {
             return factory.GetGrain<TGrainInterface>(
-                (long) primaryKey.X | ((long) primaryKey.Y << 32),
+                ((long) primaryKey.X) & uint.MaxValue | ((long) primaryKey.Y << 32),
                 grainClassNamePrefix);
         }
 

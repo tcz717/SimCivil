@@ -19,10 +19,11 @@
 // SOFTWARE.
 // 
 // SimCivil - SimCivil.Test - ChunkTest.cs
-// Create Date: 2018/05/12
-// Update Date: 2018/05/17
+// Create Date: 2018/06/22
+// Update Date: 2018/12/08
 
 using System;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -44,6 +45,32 @@ namespace SimCivil.Test.Orleans
         }
 
         public TestCluster Cluster { get; }
+
+        [Fact]
+        public async Task GetAtlasTest()
+        {
+            for (int i = -5; i < 5; i++)
+            {
+                for (int j = -5; j < 5; j++)
+                {
+                    var atlas = Cluster.GrainFactory.GetGrain<IAtlas>((i, j));
+                    var tiles = await atlas.Dump();
+                    Assert.All(
+                        tiles.Cast<Tile>(),
+                        t =>
+                        {
+                            Assert.InRange(
+                                t.Position.Y,
+                                j * Config.DefaultAtlasSize,
+                                (j + 1) * Config.DefaultAtlasSize - 1);
+                            Assert.InRange(
+                                t.Position.X,
+                                i * Config.DefaultAtlasSize,
+                                (i + 1) * Config.DefaultAtlasSize - 1);
+                        });
+                }
+            }
+        }
 
         [Fact]
         public async Task MoveTest()
