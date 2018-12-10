@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2017 TPDT
+// Copyright (c) 2017 TPDT
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -84,12 +84,12 @@ namespace SimCivil.Orleans.Grains
             return Task.FromResult((IEnumerable<Tile>) tiles);
         }
 
-        public Task SetTile((int X, int Y) pos, Tile tile)
+        public Task SetTile(Tile tile)
         {
-            if (pos.X >= Right || pos.X < Left || pos.Y >= Bottom || pos.Y < Top)
-                throw new ArgumentOutOfRangeException(nameof(pos));
+            if (tile.Position.X >= Right || tile.Position.X < Left || tile.Position.Y >= Bottom || tile.Position.Y < Top)
+                throw new ArgumentOutOfRangeException(nameof(tile.Position));
 
-            State[pos.X - Left, pos.Y - Top] = tile;
+            State[tile.Position.X - Left, tile.Position.Y - Top] = tile;
 
 
             return Task.CompletedTask;

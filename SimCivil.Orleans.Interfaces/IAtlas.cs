@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2017 TPDT
+// Copyright (c) 2017 TPDT
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -36,7 +36,7 @@ namespace SimCivil.Orleans.Interfaces
     public interface IAtlas : IGrainWithIntegerKey
     {
         Task<IEnumerable<Tile>> SelectRange((int X, int Y) leftTop, int width, int height);
-        Task SetTile((int X, int Y) pos, Tile tile);
+        Task SetTile(Tile tile);
         Task<Tile> GetTile((int X, int Y) pos);
         Task<Tile[,]> Dump();
     }
