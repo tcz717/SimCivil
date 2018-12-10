@@ -1,0 +1,65 @@
+﻿<Window x:Class="SimCivil.IntegrationTest.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="using:SimCivil.IntegrationTest"
+        xmlns:integrationTest="clr-namespace:SimCivil.IntegrationTest"
+        mc:Ignorable="d"
+        Title="SimCivil集成测试器" Height="700" Width="1024" Loaded="Window_Loaded" WindowStartupLocation="CenterScreen">
+    <Window.Resources>
+        <Thickness x:Key="ButtonMargin" Right="5" />
+    </Window.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="30" />
+            <RowDefinition />
+            <RowDefinition Height="40" />
+            <RowDefinition Height="40" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition />
+            <ColumnDefinition />
+            <ColumnDefinition />
+        </Grid.ColumnDefinitions>
+        <Label Grid.Column="0" Content="Orleans 集群日志" />
+        <Label Grid.Row="0" Grid.Column="1" Content="Gate 服务器日志" />
+        <Label Grid.Row="0" Grid.Column="2" Content="客户端日志" />
+        <integrationTest:LogViewer Grid.Row="1" Grid.Column="2" x:Name="ClientLogViewer" />
+        <integrationTest:LogViewer Grid.Row="1" Grid.Column="0" x:Name="ClusterLogViewer" />
+        <integrationTest:LogViewer Grid.Row="1" Grid.Column="1" x:Name="GateLogViewer" />
+        <StackPanel x:Name="TestcaseStackPanel" Grid.Row="2" Grid.ColumnSpan="3" Grid.Column="0"
+                    ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                    ScrollViewer.VerticalScrollBarVisibility="Disabled" Orientation="Horizontal" Margin="3">
+            <StackPanel.Resources>
+                <Style TargetType="Button">
+                    <Setter Property="Margin" Value="{StaticResource ButtonMargin}" />
+                </Style>
+            </StackPanel.Resources>
+        </StackPanel>
+        <ItemsControl x:Name="RunningStack" Grid.Row="3" Grid.ColumnSpan="3" Grid.Column="0" ItemsSource="{Binding}"
+                      Margin="3">
+            <ItemsControl.DataContext>
+                <integrationTest:TestcaseCollection />
+            </ItemsControl.DataContext>
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <StackPanel Orientation="Horizontal" />
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Button Content="{Binding}" Click="EntityDetailButton_OnClick"
+                            Margin="{StaticResource ButtonMargin}">
+                        <Button.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem Header="查看实体数据" Click="EntityDetailButton_OnClick" />
+                                <MenuItem Header="停止" Click="StopMenuItem_OnClick" />
+                            </ContextMenu>
+                        </Button.ContextMenu>
+                    </Button>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+    </Grid>
+</Window>

@@ -28,15 +28,14 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-using SimCivil.Auth;
-using SimCivil.Model;
+using SimCivil.Gate;
 using SimCivil.Rpc.Session;
 
 using Xunit;
 
 namespace SimCivil.Test
 {
-    class TestServiceB : ITestServiceB, ISessionRequred
+    class TestServiceB : ITestServiceB, ISessionRequired
     {
         public AsyncLocal<IRpcSession> Session { get; } = new AsyncLocal<IRpcSession>();
 
@@ -58,11 +57,6 @@ namespace SimCivil.Test
             Assert.NotNull(session);
 
             return session.RemoteEndPoint;
-        }
-
-        public Entity GetEntity()
-        {
-            return Entity.Create();
         }
 
         [LoginFilter]

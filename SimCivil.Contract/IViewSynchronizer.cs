@@ -20,7 +20,7 @@
 // 
 // SimCivil - SimCivil.Contract - IViewSynchronizer.cs
 // Create Date: 2018/01/10
-// Update Date: 2018/02/02
+// Update Date: 2018/10/17
 
 using System;
 using System.Text;
@@ -32,7 +32,16 @@ namespace SimCivil.Contract
 {
     public interface IViewSynchronizer
     {
+        /// <summary>Registers the view synchronize.</summary>
+        /// <param name="callback">The callback.</param>
         void RegisterViewSync(Action<ViewChange> callback);
+        /// <summary>Deregisters the view synchronize.</summary>
+        void DeregisterViewSync();
+        Task<TileDto[]> GetAtlas((int X, int Y) index);
+        /// <summary>Gets the atlas time stamp.</summary>
+        /// <param name="index">The atlas index.</param>
+        /// <returns>Last edit time in **UTC**</returns>
+        Task<DateTime> GetAtlasTimeStamp((int X, int Y) index);
     }
 
     public class ViewChange
@@ -44,13 +53,15 @@ namespace SimCivil.Contract
         public EntityDto[] EntityChange { get; set; }
         [CanBeNull]
         public ViewEvent[] Events { get; set; }
+        public (float X, float Y) Position { get; set; }
+        public (int X,int Y) AtlasIndex { get; set; }
+        public float Speed { get; set; }
 
         /// <summary>Returns a string that represents the current object.</summary>
         /// <returns>A string that represents the current object.</returns>
         public override string ToString()
         {
-            return
-                $"{nameof(TileChange)}: {TileChange?.Length ?? 0}, {nameof(EntityChange)}: {EntityChange?.Length ?? 0}, {nameof(Events)}: {Events?.Length ?? 0}";
+            return $"{nameof(TickCount)}: {TickCount}, {nameof(Position)}: {Position}, {nameof(Speed)}: {Speed}";
         }
     }
 
@@ -95,7 +106,8 @@ namespace SimCivil.Contract
     public class TileDto
     {
         public (int X, int Y) Position { get; set; }
-        public string Surface { get; set; }
+        public int Terrain { get; set; }
+        public int Height { get; set; }
     }
 }
 

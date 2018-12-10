@@ -33,14 +33,13 @@ namespace SimCivil.Orleans.Interfaces.Service
     public interface IMapGenerator
     {
         /// <summary>
-        /// Generate new Atlas
+        /// Generates the specified seed.
         /// </summary>
-        /// <param name="seed"></param>
-        /// <param name="x">Index of the atlas</param>
-        /// <param name="y">Index of the atlas</param>
-        /// <param name="width">Atlas's Width</param>
-        /// <param name="height">Atlas's Height</param>
+        /// <param name="seed">The seed.</param>
+        /// <param name="x">The x.</param>
+        /// <param name="y">The y.</param>
+        /// <param name="size">The size.</param>
         /// <returns></returns>
-        Tile[,] Generate(int seed, int x, int y, int width, int height);
+        Tile[,] Generate(int seed, int x, int y, int size);
     }
 }

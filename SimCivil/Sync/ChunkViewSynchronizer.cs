@@ -51,7 +51,7 @@ namespace SimCivil.Sync
     /// </summary>
     /// <seealso cref="IViewSynchronizer" />
     [LoginFilter]
-    public class ChunkViewSynchronizer : IViewSynchronizer, ITicker, ISessionRequred
+    public class ChunkViewSynchronizer : IViewSynchronizer, ITicker, ISessionRequired
     {
         private static readonly ILog Logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 

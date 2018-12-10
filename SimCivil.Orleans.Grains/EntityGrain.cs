@@ -20,9 +20,10 @@
 // 
 // SimCivil - SimCivil.Orleans.Grains - EntityGrain.cs
 // Create Date: 2018/06/14
-// Update Date: 2018/06/16
+// Update Date: 2018/10/05
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -84,10 +85,11 @@ namespace SimCivil.Orleans.Grains
 
         public async Task CopyTo(IEntity targetEntity)
         {
-            await Task.WhenAll(
+            var components = await Task.WhenAll(
                 State.Components.Select(
-                        component => component.CopyTo(this))
+                        component => component.CopyTo(targetEntity))
                     .ToArray());
+            await targetEntity.SetComponents(components);
         }
 
         public Task SetName(string name)
@@ -100,6 +102,23 @@ namespace SimCivil.Orleans.Grains
         public Task<string> GetName()
         {
             return Task.FromResult(State.Name);
+        }
+
+        public Task<IReadOnlyCollection<IComponent>> GetComponents()
+        {
+            return Task.FromResult((IReadOnlyCollection<IComponent>) State.Components);
+        }
+
+        public Task SetComponents(IEnumerable<IComponent> components)
+        {
+            if (components.Any(component => component.GetPrimaryKey() != this.GetPrimaryKey()))
+            {
+                throw new ArgumentException("component key not match", nameof(components));
+            }
+
+            State.Components = new HashSet<IComponent>(components);
+
+            return Task.CompletedTask;
         }
     }
 }

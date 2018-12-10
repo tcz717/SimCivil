@@ -51,6 +51,16 @@ namespace SimCivil.Test.Orleans
             Assert.Equal(64 * 64, tiles.Length);
         }
 
+        [Fact]
+        public void TimeStampTest()
+        {
+            var atlas = Cluster.GrainFactory.GetGrain<IAtlas>(0);
+            DateTime init = atlas.GetTimeStamp().Result;
+            Assert.Equal(init,atlas.GetTimeStamp().Result);
+            atlas.SetTile(Tile.Create((0, 0), 2));
+            Assert.NotEqual(init, atlas.GetTimeStamp().Result);
+        }
+
         /*       [TestMethod]
         public void SelectRangeTest()
         {

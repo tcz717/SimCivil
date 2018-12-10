@@ -20,9 +20,10 @@
 // 
 // SimCivil - SimCivil.Orleans.Interfaces - IComponent.cs
 // Create Date: 2018/06/14
-// Update Date: 2018/06/16
+// Update Date: 2018/10/05
 
 using System;
+using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -32,7 +33,8 @@ namespace SimCivil.Orleans.Interfaces
 {
     public interface IComponent : IGrainWithGuidKey
     {
-        Task CopyTo(IEntity target);
+        Task<IComponent> CopyTo(IEntity target);
+        Task<IReadOnlyDictionary<string, string>> Dump();
     }
 
     public interface IComponent<T> : IComponent where T : new()

@@ -30,6 +30,7 @@ using System.Threading.Tasks;
 using Orleans;
 
 using SimCivil.Orleans.Interfaces;
+using SimCivil.Orleans.Interfaces.System;
 
 namespace SimCivil.Orleans.Grains
 {

@@ -20,30 +20,38 @@
 // 
 // SimCivil - SimCivil.Gate - OrleansChunkViewSynchronizer.cs
 // Create Date: 2018/06/16
-// Update Date: 2018/06/17
+// Update Date: 2018/12/02
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
+using AutoMapper;
+
 using Microsoft.Extensions.Logging;
 
 using Orleans;
-using Orleans.Runtime;
 
 using SimCivil.Contract;
 using SimCivil.Orleans.Interfaces;
+using SimCivil.Orleans.Interfaces.Component;
 using SimCivil.Rpc;
 using SimCivil.Rpc.Session;
 
 namespace SimCivil.Gate
 {
-    internal class OrleansChunkViewSynchronizer : IViewSynchronizer, ISessionRequred
+    internal class OrleansChunkViewSynchronizer : IViewSynchronizer, ISessionRequired
     {
         public IGrainFactory GrainFactory { get; }
         public ILogger<IViewSynchronizer> Logger { get; }
+
+        static OrleansChunkViewSynchronizer()
+        {
+            Mapper.Initialize(c => c.CreateMap<Tile, TileDto>());
+        }
 
         public OrleansChunkViewSynchronizer(IGrainFactory grainFactory, ILogger<IViewSynchronizer> logger)
         {
@@ -55,7 +63,27 @@ namespace SimCivil.Gate
 
         public void RegisterViewSync(Action<ViewChange> callback)
         {
+            Logger.LogInformation("Registered callback {0}", callback.Target);
             Session.Value.Set(callback);
+        }
+
+        public void DeregisterViewSync()
+        {
+            Session.Value.UnSet<Action<ViewChange>>();
+        }
+
+        public async Task<TileDto[]> GetAtlas((int X, int Y) index)
+        {
+            var tiles = await GrainFactory.GetGrain<IAtlas>(index).Dump();
+
+            return Mapper.Map<IEnumerable<Tile>, TileDto[]>(tiles.Cast<Tile>());
+        }
+
+        public async Task<DateTime> GetAtlasTimeStamp((int X, int Y) index)
+        {
+            DateTime timeStamp = await GrainFactory.GetGrain<IAtlas>(index).GetTimeStamp();
+
+            return timeStamp;
         }
 
         public void StartSync(RpcServer server)
@@ -66,7 +94,7 @@ namespace SimCivil.Gate
                     while (true)
                     {
                         var sessions = server.Sessions.Where(s => s.IsSet<Action<ViewChange>>()).ToArray();
-                        Logger.Info($"Start updating {sessions.Length} clients");
+                        Logger.LogDebug($"Start updating {sessions.Length} clients");
                         foreach (IRpcSession session in sessions)
                         {
                             ViewChange viewChange =

@@ -19,11 +19,10 @@
 // SOFTWARE.
 // 
 // SimCivil - SimCivil.Orleans.Interfaces - Tile.cs
-// Create Date: 2018/02/25
-// Update Date: 2018/02/25
+// Create Date: 2018/06/14
+// Update Date: 2018/10/07
 
 using System;
-using System.Collections.Generic;
 using System.Text;
 
 namespace SimCivil.Orleans.Interfaces
@@ -32,19 +31,17 @@ namespace SimCivil.Orleans.Interfaces
     {
         /// <summary>
         /// Tile's height.
-        /// Defalut sea level is  SimCivil.Config.SeaLevel .
+        /// Default sea level is  SimCivil.Config.SeaLevel .
         /// </summary>
         public int Height { get; set; }
 
         /// <summary>
-        /// Tile's surface texture.
+        /// Gets or sets the terrain.
         /// </summary>
-        public string Surface { get; set; }
-
-        /// <summary>
-        /// Extra data about Tile.
-        /// </summary>
-        public Dictionary<string, object> Meta { get; set; }
+        /// <value>
+        /// The terrain.
+        /// </value>
+        public int Terrain { get; set; }
 
         /// <summary>
         /// Tile's Position.
@@ -60,20 +57,19 @@ namespace SimCivil.Orleans.Interfaces
         public Guid ItemGuid { get; set; }
 
         /// <summary>
-        /// Method to craete a new Tile
+        /// Method to create a new Tile
         /// </summary>
         /// <param name="pos"></param>
-        /// <param name="surface"></param>
+        /// <param name="terrain"></param>
         /// <param name="height"></param>
         /// <returns></returns>
-        public static Tile Create((int X, int Y) pos, string surface = "", int height = 0)
+        public static Tile Create((int X, int Y) pos, int terrain = 0, int height = 0)
         {
             var e = new Tile
             {
                 Height = height,
-                Meta = new Dictionary<string, object>(),
                 Position = pos,
-                Surface = surface,
+                Terrain = terrain,
             };
 
             return e;

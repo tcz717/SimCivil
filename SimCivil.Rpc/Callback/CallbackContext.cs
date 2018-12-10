@@ -42,7 +42,14 @@ namespace SimCivil.Rpc.Callback
         public void Call(object[] parameters)
         {
             RpcCallback callback = new RpcCallback(CallbackId, parameters);
-            Channel.WriteAsync(callback);
+            Channel.WriteAndFlushAsync(callback);
+        }
+
+        /// <summary>Returns a string that represents the current object.</summary>
+        /// <returns>A string that represents the current object.</returns>
+        public override string ToString()
+        {
+            return $"{nameof(CallbackId)}: {CallbackId}";
         }
     }
 }

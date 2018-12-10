@@ -27,8 +27,6 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
-using SimCivil.Model;
-
 namespace SimCivil.Test
 {
     public interface ITestServiceB
@@ -36,7 +34,6 @@ namespace SimCivil.Test
         void SetSession(string key, string value);
         Task<string> EchoAsync(string s);
         Task<IPEndPoint> CheckAsync();
-        Entity GetEntity();
         void DeniedAction();
     }
 }

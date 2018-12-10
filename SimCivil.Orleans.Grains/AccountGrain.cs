@@ -20,7 +20,7 @@
 // 
 // SimCivil - SimCivil.Orleans.Grains - AccountGrain.cs
 // Create Date: 2018/06/14
-// Update Date: 2018/06/16
+// Update Date: 2018/10/05
 
 using System;
 using System.Collections.Generic;
@@ -36,7 +36,8 @@ using SimCivil.Contract;
 using SimCivil.Contract.Model;
 using SimCivil.Orleans.Grains.State;
 using SimCivil.Orleans.Interfaces;
-using SimCivil.Orleans.Interfaces.Components;
+using SimCivil.Orleans.Interfaces.Component;
+using SimCivil.Orleans.Interfaces.System;
 
 namespace SimCivil.Orleans.Grains
 {
@@ -50,7 +51,7 @@ namespace SimCivil.Orleans.Grains
         }
 
         /// <summary>
-        /// Determines whether this instance is exsisted.
+        /// Determines whether this instance is existed.
         /// </summary>
         /// <returns></returns>
         public Task<bool> IsExisted()
@@ -108,7 +109,7 @@ namespace SimCivil.Orleans.Grains
             GrainFactory.GetGrain<IGame>(0).OnAccountLogin(this);
 #pragma warning restore 4014
 
-            Logger.Info($"Account {this.GetPrimaryKeyString()} login successed");
+            Logger.Info($"Account {this.GetPrimaryKeyString()} login success");
 
             return true;
         }
@@ -175,19 +176,34 @@ namespace SimCivil.Orleans.Grains
 
         public async Task UseRole(IEntity role)
         {
-            if (!State.Roles.Contains(role))
+            if (State != null && !State.Roles.Contains(role))
             {
                 throw new KeyNotFoundException($"Role: {role.GetPrimaryKey()}");
             }
 
-            State.CurrentRole = role;
+            if (State != null)
+            {
+                Logger.LogInformation(
+                    "User {0} used role {1}",
+                    this.GetPrimaryKeyString(),
+                    await role.GetName());
+
+                State.CurrentRole = role;
+            }
 
             await role.Enable();
         }
 
-        public Task ReleaseRole()
+        public async Task ReleaseRole()
         {
-            throw new NotImplementedException();
+            if (State?.CurrentRole != null)
+            {
+                Logger.LogInformation(
+                    "User {0} released role {1}",
+                    this.GetPrimaryKeyString(),
+                    await State.CurrentRole.GetName());
+                await State.CurrentRole.Disable();
+            }
         }
 
         public Task DeleteRole(IEntity role)

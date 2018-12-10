@@ -42,7 +42,7 @@ namespace SimCivil.Auth
     /// <summary>
     /// Simple auth just make sure username is unique.
     /// </summary>
-    public class SimpleAuth : IAuth, IAuthManager, ISessionRequred
+    public class SimpleAuth : IAuth, IAuthManager, ISessionRequired
     {
         /// <summary>
         /// Gets the player repository.

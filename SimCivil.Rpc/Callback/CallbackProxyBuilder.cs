@@ -20,7 +20,7 @@
 // 
 // SimCivil - SimCivil.Rpc - CallbackProxyBuilder.cs
 // Create Date: 2018/01/29
-// Update Date: 2018/01/30
+// Update Date: 2018/09/29
 
 using System;
 using System.Collections.Generic;
@@ -54,13 +54,14 @@ namespace SimCivil.Rpc.Callback
         private DynamicMethod DoBuild(Type delegateType)
         {
             MethodInfo invoke = delegateType.GetMethod("Invoke");
-            Type[] parameters = new []{typeof(CallbackContext)}.Concat(
-                invoke.GetParameters().Select(p => p.ParameterType))
+            Type[] parameters = new[] {typeof(CallbackContext)}.Concat(
+                    invoke.GetParameters().Select(p => p.ParameterType))
                 .ToArray();
             DynamicMethod method = new DynamicMethod(
                 delegateType.Name,
                 invoke.ReturnType,
-                parameters);
+                parameters,
+                true);
             ILGenerator generator = method.GetILGenerator();
 
             var parametersLocal = generator.DeclareLocal(typeof(object[]));

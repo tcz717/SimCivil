@@ -19,8 +19,8 @@
 // SOFTWARE.
 // 
 // SimCivil - SimCivil.Orleans.Interfaces - IAtlas.cs
-// Create Date: 2018/02/25
-// Update Date: 2018/02/25
+// Create Date: 2018/06/14
+// Update Date: 2018/10/06
 
 using System;
 using System.Collections.Generic;
@@ -29,12 +29,18 @@ using System.Threading.Tasks;
 
 using Orleans;
 
+using SimCivil.Orleans.Interfaces.Component;
+
 namespace SimCivil.Orleans.Interfaces
 {
     public interface IAtlas : IGrainWithIntegerKey
     {
         Task<IEnumerable<Tile>> SelectRange((int X, int Y) leftTop, int width, int height);
-        Task SetTile((int X, int Y) pos, Tile tile);
+        Task SetTile(Tile tile);
         Task<Tile> GetTile((int X, int Y) pos);
+        Task<Tile[,]> Dump();
+        /// <summary>Gets the time stamp.</summary>
+        /// <returns>Last edit time in UTC</returns>
+        Task<DateTime> GetTimeStamp();
     }
 }

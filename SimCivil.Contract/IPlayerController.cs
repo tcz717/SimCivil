@@ -24,45 +24,21 @@
 
 using System;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace SimCivil.Contract
 {
     public interface IPlayerController
     {
         /// <summary>
-        /// Gets the state of the move.
-        /// </summary>
-        /// <returns></returns>
-        (float X, float Y, float Speed) GetMoveState();
-        /// <summary>
         /// Moves the specified direction.
         /// </summary>
         /// <param name="direction">The direction.</param>
         /// <param name="speed">The speed.</param>
         /// <returns></returns>
-        (float X, float Y, float Speed) Move((float X, float Y) direction, float speed);
-        /// <summary>
-        /// Moves the percentage.
-        /// </summary>
-        /// <param name="direction">The direction.</param>
-        /// <param name="relativeSpeed">The relative speed.</param>
-        /// <returns></returns>
-        (float X, float Y, float Speed) MovePercentage((float X, float Y) direction, float relativeSpeed);
-        void Stop();
+        Task Move((float X, float Y) direction, float speed);
 
-        /// <summary>
-        /// Interactions the specified target.
-        /// </summary>
-        /// <param name="target">The target.</param>
-        /// <param name="interactionType">Type of the interaction.</param>
-        void Interaction(Guid target, InteractionType interactionType);
-        /// <summary>
-        /// Builds the specified tile element.
-        /// </summary>
-        /// <param name="tileElement">The tile element.</param>
-        /// <param name="position">The position.</param>
-        void Build(Guid tileElement, (int X, int Y) position);  
+        Task Stop();
+        Task MoveTo((float X, float Y) position, DateTime timestamp);
     }
-
-    public enum InteractionType { }
 }
