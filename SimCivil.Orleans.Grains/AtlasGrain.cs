@@ -1,4 +1,4 @@
-// Copyright (c) 2017 TPDT
+﻿// Copyright (c) 2017 TPDT
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -90,6 +90,7 @@ namespace SimCivil.Orleans.Grains
                 throw new ArgumentOutOfRangeException(nameof(tile.Position));
 
             State[tile.Position.X - Left, tile.Position.Y - Top] = tile;
+            State.TimeStamp = DateTime.UtcNow;
 
 
             return Task.CompletedTask;
@@ -108,6 +109,11 @@ namespace SimCivil.Orleans.Grains
             return Task.FromResult(State.Tiles);
         }
 
+        public Task<DateTime> GetTimeStamp()
+        {
+            return Task.FromResult(State.TimeStamp);
+        }
+
         public override async Task OnActivateAsync()
         {
             long id = this.GetPrimaryKeyLong();
@@ -121,7 +127,8 @@ namespace SimCivil.Orleans.Grains
                         (await GrainFactory.GetGrain<IGame>(0).GetConfig()).Seed,
                         AtlasIndex.X,
                         AtlasIndex.Y,
-                        DefaultAtlasSize)
+                        DefaultAtlasSize),
+                    TimeStamp = DateTime.UtcNow
                 };
 
                 if (State.Tiles.Length != DefaultAtlasSize * DefaultAtlasSize)
@@ -135,6 +142,7 @@ namespace SimCivil.Orleans.Grains
     public class AtlasState
     {
         public Tile[,] Tiles { get; set; }
+        public DateTime TimeStamp { get; set; }
 
         public Tile this[int x, int y]
         {

@@ -32,9 +32,16 @@ namespace SimCivil.Contract
 {
     public interface IViewSynchronizer
     {
+        /// <summary>Registers the view synchronize.</summary>
+        /// <param name="callback">The callback.</param>
         void RegisterViewSync(Action<ViewChange> callback);
+        /// <summary>Deregisters the view synchronize.</summary>
         void DeregisterViewSync();
         Task<TileDto[]> GetAtlas((int X, int Y) index);
+        /// <summary>Gets the atlas time stamp.</summary>
+        /// <param name="index">The atlas index.</param>
+        /// <returns>Last edit time in **UTC**</returns>
+        Task<DateTime> GetAtlasTimeStamp((int X, int Y) index);
     }
 
     public class ViewChange

@@ -79,6 +79,13 @@ namespace SimCivil.Gate
             return Mapper.Map<IEnumerable<Tile>, TileDto[]>(tiles.Cast<Tile>());
         }
 
+        public async Task<DateTime> GetAtlasTimeStamp((int X, int Y) index)
+        {
+            DateTime timeStamp = await GrainFactory.GetGrain<IAtlas>(index).GetTimeStamp();
+
+            return timeStamp;
+        }
+
         public void StartSync(RpcServer server)
         {
             Task.Run(

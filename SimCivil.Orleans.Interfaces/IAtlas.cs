@@ -1,4 +1,4 @@
-// Copyright (c) 2017 TPDT
+﻿// Copyright (c) 2017 TPDT
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -39,5 +39,8 @@ namespace SimCivil.Orleans.Interfaces
         Task SetTile(Tile tile);
         Task<Tile> GetTile((int X, int Y) pos);
         Task<Tile[,]> Dump();
+        /// <summary>Gets the time stamp.</summary>
+        /// <returns>Last edit time in UTC</returns>
+        Task<DateTime> GetTimeStamp();
     }
 }
