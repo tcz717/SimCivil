@@ -100,8 +100,7 @@ namespace SimCivil.IntegrationTest.Testcase
             await Task.Delay(500);
             for (int i = 0; i < 100; i++)
             {
-//                pos = (pos.x + speed * 0.05f, pos.y);
-                await controller.MoveTo((pos.x + speed * 0.05f, pos.y), DateTime.Now);
+                await controller.MoveTo((pos.x + speed * 0.05f, pos.y), DateTime.UtcNow);
 
                 await Task.Delay(50);
             }

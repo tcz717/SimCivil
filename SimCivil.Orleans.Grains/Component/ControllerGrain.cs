@@ -19,8 +19,8 @@
 // SOFTWARE.
 // 
 // SimCivil - SimCivil.Orleans.Grains - ControllerGrain.cs
-// Create Date: 2018/09/27
-// Update Date: 2018/10/18
+// Create Date: 2018/10/21
+// Update Date: 2018/12/11
 
 using System;
 using System.Collections.Generic;
@@ -43,6 +43,7 @@ namespace SimCivil.Orleans.Grains.Component
     public class ControllerGrain : Grain, IUnitController
     {
         private readonly ITerrainRepository _terrainRepository;
+        private double _lagPredict;
         private DateTime _lastUpdateTime;
         private IMovementSystem _moveSystem;
         private (float X, float Y) _speed;
@@ -97,18 +98,25 @@ namespace SimCivil.Orleans.Grains.Component
         /// <returns></returns>
         public async Task MoveTo(Position position, DateTime timeStamp)
         {
-            if (timeStamp > DateTime.Now)
+            double delta = (timeStamp - DateTime.UtcNow).TotalMilliseconds;
+            _lagPredict = Config.LagLearningRate * delta + (1 - Config.LagLearningRate) * _lagPredict;
+            DateTime predictTimeStamp = timeStamp.AddMilliseconds(-_lagPredict);
+            if (Math.Abs(delta - _lagPredict) > Config.MaxLag)
             {
-                Logger.LogWarning($"Entity{this.GetPrimaryKey()} sent wrong timestamp in {nameof(MoveTo)}");
+                Logger.LogWarning(
+                    $"Entity{this.GetPrimaryKey()} has abnormal timespan {delta - _lagPredict:N1} in {nameof(MoveTo)}");
 
                 throw new ArgumentOutOfRangeException(nameof(timeStamp));
             }
 
             Position previous = await GrainFactory.Get<IPosition>(this).GetData();
             Tile tile = await GrainFactory.GetTile(previous.Tile);
-            TimeSpan dt = timeStamp - _lastUpdateTime;
+            TimeSpan dt = predictTimeStamp - _lastUpdateTime;
 
-            _lastUpdateTime = timeStamp;
+            _lastUpdateTime = predictTimeStamp;
+
+            if (dt > Config.MaxUpdateDelta)
+                dt = Config.MaxUpdateDelta;
 
             double dx2 = (position.X - previous.X) * (position.X - previous.X) +
                          (position.Y - previous.Y) * (position.Y - previous.Y);
@@ -118,11 +126,18 @@ namespace SimCivil.Orleans.Grains.Component
             double maxv2 = _terrainRepository.GetTerrain(tile.Terrain).BaseMoveSpeed * unit.MoveSpeed;
             maxv2 *= maxv2;
 
-            if (v2 > maxv2 + 0.0001)
+            if (v2 > maxv2 + 0.001)
             {
-                Logger.LogWarning($"{this.GetPrimaryKey()} moves too fast");
+                float alpha = (float) Math.Sqrt(maxv2 / v2);
+                if (alpha < 0.9)
+                    Logger.LogWarning(
+                        $"{this.GetPrimaryKey()} moves too fast: {nameof(alpha)} = {alpha}, expected = {position}");
 
-                return;
+                if (Config.NoSpeedFix)
+                    return;
+
+                position.X = previous.X + alpha * (position.X - previous.X);
+                position.Y = previous.Y + alpha * (position.Y - previous.Y);
             }
 
             // TODO check if construction exists

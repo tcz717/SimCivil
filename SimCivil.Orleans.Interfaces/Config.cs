@@ -19,8 +19,8 @@
 // SOFTWARE.
 // 
 // SimCivil - SimCivil.Orleans.Interfaces - Config.cs
-// Create Date: 2018/02/25
-// Update Date: 2018/02/25
+// Create Date: 2018/06/14
+// Update Date: 2018/12/11
 
 using System;
 using System.Text;
@@ -65,6 +65,11 @@ namespace SimCivil.Orleans.Interfaces
         public const string PrefabNameKey = "PrefabName";
 
         /// <summary>
+        /// The chunk size
+        /// </summary>
+        public const int ChunkSize = 32;
+
+        /// <summary>
         /// The sim civil protocol version
         /// </summary>
         public static readonly Version SimCivilProtocolVersion = new Version(1, 0);
@@ -74,6 +79,11 @@ namespace SimCivil.Orleans.Interfaces
         /// </summary>
         public static readonly string[] AvailableSex = {"male", "female"};
 
+        public static readonly double LagLearningRate = 0.9;
+        public static readonly double MaxLag = 1000;
+        public static readonly TimeSpan MaxUpdateDelta = TimeSpan.FromMilliseconds(200);
+        public static readonly bool NoSpeedFix = false;
+
         /// <summary>
         /// Gets or sets the plant height limit.
         /// </summary>
@@ -81,11 +91,6 @@ namespace SimCivil.Orleans.Interfaces
         /// The plant height limit.
         /// </value>
         public int PlantHeightLimit { get; set; } = 200;
-
-        /// <summary>
-        /// The chunk size
-        /// </summary>
-        public const int ChunkSize = 32;
 
         /// <summary>
         /// Gets or sets the plant density.

@@ -47,7 +47,7 @@ namespace SimCivil.Rpc
             MethodName = method.Name;
             Arguments = arguments;
             Sequence = sequence;
-            TimeStamp = DateTime.Now;
+            TimeStamp = DateTime.UtcNow;
             _responseSource = new TaskCompletionSource<RpcResponse>();
         }
 
