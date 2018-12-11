@@ -33,6 +33,7 @@ using Autofac;
 using Autofac.Builder;
 
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 using SimCivil.Rpc.Serialize;
 using SimCivil.Rpc.Session;
@@ -57,6 +58,7 @@ namespace SimCivil.Rpc
             RpcJsonSerializerSettings.Converters.Add(new ValueTupleConverter<int, int>());
             RpcJsonSerializerSettings.Converters.Add(new ValueTupleConverter<float, float>());
             RpcJsonSerializerSettings.Converters.Add(new ValueTupleConverter<double, double>());
+            RpcJsonSerializerSettings.Converters.Add(new UnixDateTimeConverter());
             RpcSerializer = JsonSerializer.CreateDefault(RpcJsonSerializerSettings);
         }
 
