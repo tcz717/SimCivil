@@ -20,7 +20,7 @@
 // 
 // SimCivil - SimCivil.Test - RpcTest.cs
 // Create Date: 2018/01/02
-// Update Date: 2018/01/31
+// Update Date: 2018/12/11
 
 using System;
 using System.Diagnostics;
@@ -73,41 +73,11 @@ namespace SimCivil.Test
             Server = server.Server;
         }
 
-        public RpcServer Server { get; set; }
-
         public void Dispose() { }
 
+        public RpcServer Server { get; set; }
+
         public ITestOutputHelper Output { get; }
-
-        [Fact]
-        public void AsyncSessionTest()
-        {
-            using (RpcClient client = new RpcClient())
-            {
-                client.Bind(9999).ConnectAsync().Wait();
-
-                var service = client.Import<ITestServiceB>();
-                Assert.Equal(service.CheckAsync().Result, client.Channel.LocalAddress);
-            }
-        }
-
-        [Fact]
-        public void AsyncTest()
-        {
-            using (RpcClient client = new RpcClient())
-            {
-                client.Bind(9999).ConnectAsync().Wait();
-
-                var service = client.Import<ITestServiceB>();
-
-                string msg = "56456545fsdgfddsfsfs";
-                service.EchoAsync(msg)
-                    .ContinueWith(
-                        resp =>
-                            Assert.Equal(resp.Result, msg))
-                    .Wait();
-            }
-        }
 
         [Trait("Category", "Performance")]
         [Fact]
@@ -142,6 +112,50 @@ namespace SimCivil.Test
         }
 
         [Fact]
+        public void AsyncSessionTest()
+        {
+            using (RpcClient client = new RpcClient())
+            {
+                client.Bind(9999).ConnectAsync().Wait();
+
+                var service = client.Import<ITestServiceB>();
+                Assert.Equal(service.CheckAsync().Result, client.Channel.LocalAddress);
+            }
+        }
+
+        [Fact]
+        public void AsyncTest()
+        {
+            using (RpcClient client = new RpcClient())
+            {
+                client.Bind(9999).ConnectAsync().Wait();
+
+                var service = client.Import<ITestServiceB>();
+
+                string msg = "56456545fsdgfddsfsfs";
+                service.EchoAsync(msg)
+                    .ContinueWith(
+                        resp =>
+                            Assert.Equal(resp.Result, msg))
+                    .Wait();
+            }
+        }
+
+        [Fact]
+        public void AsyncValueTupleTest()
+        {
+            using (RpcClient client = new RpcClient())
+            {
+                client.Bind(9999).ConnectAsync().Wait();
+
+                var service = client.Import<ITestServiceB>();
+
+                var dump = (1.2, 3.4);
+                Assert.Equal(dump, service.TupleEchoAsync(dump).Result);
+            }
+        }
+
+        [Fact]
         public void CallbackProxyTest()
         {
             using (RpcClient client = new RpcClient())
@@ -150,7 +164,7 @@ namespace SimCivil.Test
                 client.Bind(9999).ConnectAsync().Wait();
 
                 var service = client.Import<ITestServiceA>();
-                
+
                 service.Echo("123", s => resetEvent.Set());
 
                 Assert.True(resetEvent.WaitOne(1000));
@@ -171,34 +185,6 @@ namespace SimCivil.Test
         }
 
         [Fact]
-        public void ValueTupleTest()
-        {
-            using (RpcClient client = new RpcClient())
-            {
-                client.Bind(9999).ConnectAsync().Wait();
-
-                var service = client.Import<ITestServiceA>();
-
-                var dump = (1.2, 3.4);
-                Assert.Equal(dump,service.TupleEcho(dump));
-            }
-        }
-
-        [Fact]
-        public void AsyncValueTupleTest()
-        {
-            using (RpcClient client = new RpcClient())
-            {
-                client.Bind(9999).ConnectAsync().Wait();
-
-                var service = client.Import<ITestServiceB>();
-
-                var dump = (1.2, 3.4);
-                Assert.Equal(dump, service.TupleEchoAsync(dump).Result);
-            }
-        }
-
-        [Fact]
         public void PerChannelScopeTest()
         {
             using (RpcClient client1 = new RpcClient())
@@ -213,6 +199,20 @@ namespace SimCivil.Test
 
                     Assert.NotEqual(service1.HelloWorld("1"), service2.HelloWorld("2"));
                 }
+            }
+        }
+
+        [Fact]
+        public void PropertyTupleTest()
+        {
+            using (var client = new RpcClient())
+            {
+                client.Bind(9999).ConnectAsync().Wait();
+
+                var service = client.Import<ITestServiceA>();
+
+                var dump = new PropertyTuple {ValueTuple = (1234, 4567)};
+                Assert.Equal(dump, service.PropertyTupleEcho(dump));
             }
         }
 
@@ -309,6 +309,20 @@ namespace SimCivil.Test
                 var service = client.Import<ITestServiceA>();
 
                 Assert.ThrowsAny<RemotingException>(() => service.NotImplementedFuc(1));
+            }
+        }
+
+        [Fact]
+        public void ValueTupleTest()
+        {
+            using (RpcClient client = new RpcClient())
+            {
+                client.Bind(9999).ConnectAsync().Wait();
+
+                var service = client.Import<ITestServiceA>();
+
+                var dump = (1.2, 3.4);
+                Assert.Equal(dump, service.TupleEcho(dump));
             }
         }
     }

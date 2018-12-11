@@ -45,5 +45,10 @@ namespace SimCivil.Test {
         {
             return dump;
         }
+
+        public PropertyTuple PropertyTupleEcho(PropertyTuple dump)
+        {
+            return dump;
+        }
     }
 }
