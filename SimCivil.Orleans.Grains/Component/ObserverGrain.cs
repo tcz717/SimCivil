@@ -58,7 +58,7 @@ namespace SimCivil.Orleans.Grains.Component
 
         public Task<uint> GetNotifyRange()
         {
-            return Task.FromResult(State.NotityRange);
+            return Task.FromResult(State.NotifyRange);
         }
 
         public Task<IEnumerable<Guid>> PopAllEntities()

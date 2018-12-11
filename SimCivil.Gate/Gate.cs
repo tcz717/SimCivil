@@ -99,7 +99,7 @@ namespace SimCivil.Gate
                 $"Register {await factory.GetGrain<IAccount>("admin").Register("")}");
 
             var human = factory.GetGrain<IEntity>(Guid.NewGuid());
-            await factory.Get<IObserver>(human).SetData(new Observer {NotityRange = 5});
+            await factory.Get<IObserver>(human).SetData(new Observer {NotifyRange = 5});
             await human.Add<IObserver>();
             await human.Add<IPosition>();
             await factory.Get<IUnit>(human).SetData(new Unit {MoveSpeed = 1});

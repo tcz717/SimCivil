@@ -82,7 +82,7 @@ namespace SimCivil.Test.Orleans
             var position = Cluster.GrainFactory.GetGrain<IComponent<Position>>(entity.GetPrimaryKey());
             var observer = Cluster.GrainFactory.GetGrain<IObserver>(entity.GetPrimaryKey());
             await position.SetData(new Position(100f, 100f));
-            await observer.SetData(new Observer {NotityRange = 5});
+            await observer.SetData(new Observer {NotifyRange = 5});
 
             var testEntity = Cluster.GrainFactory.GetGrain<IEntity>(Guid.NewGuid());
             await testEntity.Enable();
