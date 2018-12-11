@@ -34,5 +34,6 @@ namespace SimCivil.Test
         int NotImplementedFuc(int i);
         string GetSession(string key);
         void Echo(string str, Action<string> callback);
+        (double, double) TupleEcho((double, double) dump);
     }
 }

@@ -1,4 +1,4 @@
-// Copyright (c) 2017 TPDT
+﻿// Copyright (c) 2017 TPDT
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -167,6 +167,34 @@ namespace SimCivil.Test
                 var service = client.Import<ITestServiceB>();
 
                 Assert.Throws<RemotingException>(() => service.DeniedAction());
+            }
+        }
+
+        [Fact]
+        public void ValueTupleTest()
+        {
+            using (RpcClient client = new RpcClient())
+            {
+                client.Bind(9999).ConnectAsync().Wait();
+
+                var service = client.Import<ITestServiceA>();
+
+                var dump = (1.2, 3.4);
+                Assert.Equal(dump,service.TupleEcho(dump));
+            }
+        }
+
+        [Fact]
+        public void AsyncValueTupleTest()
+        {
+            using (RpcClient client = new RpcClient())
+            {
+                client.Bind(9999).ConnectAsync().Wait();
+
+                var service = client.Import<ITestServiceB>();
+
+                var dump = (1.2, 3.4);
+                Assert.Equal(dump, service.TupleEchoAsync(dump).Result);
             }
         }
 

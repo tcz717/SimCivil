@@ -40,5 +40,10 @@ namespace SimCivil.Test {
         {
             callback(str);
         }
+
+        public (double, double) TupleEcho((double, double) dump)
+        {
+            return dump;
+        }
     }
 }

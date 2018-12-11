@@ -20,7 +20,7 @@
 // 
 // SimCivil - SimCivil.Rpc - UtilHelper.cs
 // Create Date: 2018/01/02
-// Update Date: 2018/01/05
+// Update Date: 2018/12/10
 
 using System;
 using System.Collections.Generic;
@@ -54,7 +54,13 @@ namespace SimCivil.Rpc
         {
             RpcJsonSerializerSettings.Converters.Add(new IPAddressConverter());
             RpcJsonSerializerSettings.Converters.Add(new IPEndPointConverter());
+            RpcJsonSerializerSettings.Converters.Add(new ValueTupleConverter<int, int>());
+            RpcJsonSerializerSettings.Converters.Add(new ValueTupleConverter<float, float>());
+            RpcJsonSerializerSettings.Converters.Add(new ValueTupleConverter<double, double>());
+            RpcSerializer = JsonSerializer.CreateDefault(RpcJsonSerializerSettings);
         }
+
+        public static JsonSerializer RpcSerializer { get; set; }
 
         public static IRegistrationBuilder<TProvider, ConcreteReflectionActivatorData, SingleRegistrationStyle>
             RegisterRpcProvider<TProvider, TService>(this ContainerBuilder builder) where TProvider : TService
@@ -110,6 +116,7 @@ namespace SimCivil.Rpc
         {
             return (T) session[typeof(T).FullName ?? throw new InvalidOperationException()];
         }
+
         public static void UnSet<T>(this IRpcSession session)
         {
             session.Remove(typeof(T).FullName ?? throw new InvalidOperationException());
