@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2017 TPDT
+// Copyright (c) 2017 TPDT
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -111,7 +111,7 @@ namespace SimCivil.Test
 
         [Trait("Category", "Performance")]
         [Fact]
-        public void AyncParallelTest()
+        public void AsyncParallelTest()
         {
             const int testNum = 1000;
             Task[] tasks = new Task[testNum];
@@ -214,7 +214,7 @@ namespace SimCivil.Test
 
         [Trait("Category", "Performance")]
         [Fact]
-        public void SessionRequredParallelTest()
+        public void SessionRequiredParallelTest()
         {
             const int testNum = 100;
             long sum = 0;
