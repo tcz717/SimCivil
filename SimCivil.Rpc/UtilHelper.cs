@@ -20,7 +20,7 @@
 // 
 // SimCivil - SimCivil.Rpc - UtilHelper.cs
 // Create Date: 2018/01/02
-// Update Date: 2018/12/10
+// Update Date: 2018/12/11
 
 using System;
 using System.Collections.Generic;
@@ -33,7 +33,6 @@ using Autofac;
 using Autofac.Builder;
 
 using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 
 using SimCivil.Rpc.Serialize;
 using SimCivil.Rpc.Session;
@@ -51,6 +50,8 @@ namespace SimCivil.Rpc
             NullValueHandling = NullValueHandling.Ignore
         };
 
+        public static JsonSerializer RpcSerializer { get; set; }
+
         static UtilHelper()
         {
             RpcJsonSerializerSettings.Converters.Add(new IPAddressConverter());
@@ -58,11 +59,9 @@ namespace SimCivil.Rpc
             RpcJsonSerializerSettings.Converters.Add(new ValueTupleConverter<int, int>());
             RpcJsonSerializerSettings.Converters.Add(new ValueTupleConverter<float, float>());
             RpcJsonSerializerSettings.Converters.Add(new ValueTupleConverter<double, double>());
-            RpcJsonSerializerSettings.Converters.Add(new UnixDateTimeConverter());
+            RpcJsonSerializerSettings.Converters.Add(new UnixTimestampConverter());
             RpcSerializer = JsonSerializer.CreateDefault(RpcJsonSerializerSettings);
         }
-
-        public static JsonSerializer RpcSerializer { get; set; }
 
         public static IRegistrationBuilder<TProvider, ConcreteReflectionActivatorData, SingleRegistrationStyle>
             RegisterRpcProvider<TProvider, TService>(this ContainerBuilder builder) where TProvider : TService
