@@ -20,7 +20,7 @@
 // 
 // SimCivil - SimCivil.Test - RpcTest.cs
 // Create Date: 2018/01/02
-// Update Date: 2018/01/31
+// Update Date: 2018/12/11
 
 using System;
 using System.Diagnostics;
@@ -73,11 +73,43 @@ namespace SimCivil.Test
             Server = server.Server;
         }
 
-        public RpcServer Server { get; set; }
-
         public void Dispose() { }
 
+        public RpcServer Server { get; set; }
+
         public ITestOutputHelper Output { get; }
+
+        [Trait("Category", "Performance")]
+        [Fact]
+        public void AsyncParallelTest()
+        {
+            const int testNum = 1000;
+            Task[] tasks = new Task[testNum];
+            Stopwatch[] stopwatches = new Stopwatch[testNum];
+            using (RpcClient client = new RpcClient())
+            {
+                client.Bind(9999).ConnectAsync().Wait();
+
+                var serviceB = client.Import<ITestServiceB>();
+                for (var i = 0; i < tasks.Length; i++)
+                {
+                    int _i = i;
+                    stopwatches[i] = Stopwatch.StartNew();
+                    tasks[i] = serviceB.EchoAsync(i.ToString())
+                        .ContinueWith(
+                            t =>
+                            {
+                                stopwatches[_i].Stop();
+                                Assert.Equal(_i.ToString(), t.Result);
+                            });
+                }
+
+                Task.WaitAll(tasks);
+            }
+
+            Output.WriteLine(
+                $"Average [EchoAsync] time cost is {stopwatches.Select(s => s.ElapsedMilliseconds).Average()} ms.");
+        }
 
         [Fact]
         public void AsyncSessionTest()
@@ -109,36 +141,18 @@ namespace SimCivil.Test
             }
         }
 
-        [Trait("Category", "Performance")]
         [Fact]
-        public void AyncParallelTest()
+        public void AsyncValueTupleTest()
         {
-            const int testNum = 1000;
-            Task[] tasks = new Task[testNum];
-            Stopwatch[] stopwatches = new Stopwatch[testNum];
             using (RpcClient client = new RpcClient())
             {
                 client.Bind(9999).ConnectAsync().Wait();
 
-                var serviceB = client.Import<ITestServiceB>();
-                for (var i = 0; i < tasks.Length; i++)
-                {
-                    int _i = i;
-                    stopwatches[i] = Stopwatch.StartNew();
-                    tasks[i] = serviceB.EchoAsync(i.ToString())
-                        .ContinueWith(
-                            t =>
-                            {
-                                stopwatches[_i].Stop();
-                                Assert.Equal(_i.ToString(), t.Result);
-                            });
-                }
+                var service = client.Import<ITestServiceB>();
 
-                Task.WaitAll(tasks);
+                var dump = (1.2, 3.4);
+                Assert.Equal(dump, service.TupleEchoAsync(dump).Result);
             }
-
-            Output.WriteLine(
-                $"Average [EchoAsync] time cost is {stopwatches.Select(s => s.ElapsedMilliseconds).Average()} ms.");
         }
 
         [Fact]
@@ -150,7 +164,7 @@ namespace SimCivil.Test
                 client.Bind(9999).ConnectAsync().Wait();
 
                 var service = client.Import<ITestServiceA>();
-                
+
                 service.Echo("123", s => resetEvent.Set());
 
                 Assert.True(resetEvent.WaitOne(1000));
@@ -189,6 +203,20 @@ namespace SimCivil.Test
         }
 
         [Fact]
+        public void PropertyTupleTest()
+        {
+            using (var client = new RpcClient())
+            {
+                client.Bind(9999).ConnectAsync().Wait();
+
+                var service = client.Import<ITestServiceA>();
+
+                var dump = new PropertyTuple {ValueTuple = (1234, 4567)};
+                Assert.Equal(dump, service.PropertyTupleEcho(dump));
+            }
+        }
+
+        [Fact]
         public void ProxyTest()
         {
             using (RpcClient client = new RpcClient())
@@ -214,7 +242,7 @@ namespace SimCivil.Test
 
         [Trait("Category", "Performance")]
         [Fact]
-        public void SessionRequredParallelTest()
+        public void SessionRequiredParallelTest()
         {
             const int testNum = 100;
             long sum = 0;
@@ -281,6 +309,20 @@ namespace SimCivil.Test
                 var service = client.Import<ITestServiceA>();
 
                 Assert.ThrowsAny<RemotingException>(() => service.NotImplementedFuc(1));
+            }
+        }
+
+        [Fact]
+        public void ValueTupleTest()
+        {
+            using (RpcClient client = new RpcClient())
+            {
+                client.Bind(9999).ConnectAsync().Wait();
+
+                var service = client.Import<ITestServiceA>();
+
+                var dump = (1.2, 3.4);
+                Assert.Equal(dump, service.TupleEcho(dump));
             }
         }
     }

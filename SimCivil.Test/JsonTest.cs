@@ -18,23 +18,31 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// SimCivil - SimCivil.Test - ITestServiceB.cs
-// Create Date: 2018/01/07
-// Update Date: 2018/01/07
+// SimCivil - SimCivil.Test - JsonTest.cs
+// Create Date: 2018/12/10
+// Update Date: 2018/12/10
 
 using System;
-using System.Net;
 using System.Text;
-using System.Threading.Tasks;
+
+using Newtonsoft.Json;
+
+using SimCivil.Rpc;
+
+using Xunit;
 
 namespace SimCivil.Test
 {
-    public interface ITestServiceB
+    public class JsonTest
     {
-        void SetSession(string key, string value);
-        Task<string> EchoAsync(string s);
-        Task<IPEndPoint> CheckAsync();
-        void DeniedAction();
-        Task<(double, double)> TupleEchoAsync((double, double) dump);
+        [Fact]
+        public void ValueTupleTest()
+        {
+            var a = (123, 456);
+            string s = JsonConvert.SerializeObject(a, UtilHelper.RpcJsonSerializerSettings);
+            Assert.Equal(
+                a,
+                JsonConvert.DeserializeObject<ValueTuple<int, int>>(s, UtilHelper.RpcJsonSerializerSettings));
+        }
     }
 }

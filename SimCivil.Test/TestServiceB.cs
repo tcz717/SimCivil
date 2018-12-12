@@ -20,7 +20,7 @@
 // 
 // SimCivil - SimCivil.Test - TestServiceB.cs
 // Create Date: 2018/01/07
-// Update Date: 2018/01/07
+// Update Date: 2018/12/10
 
 using System;
 using System.Net;
@@ -61,5 +61,10 @@ namespace SimCivil.Test
 
         [LoginFilter]
         public void DeniedAction() { }
+
+        public Task<(double, double)> TupleEchoAsync((double, double) dump)
+        {
+            return Task.FromResult(dump);
+        }
     }
 }

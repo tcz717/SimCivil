@@ -137,9 +137,9 @@ namespace SimCivil.Rpc
         /// <param name="rpcResponse">The RPC response.</param>
         private static void FixJObject(Type returnType, RpcResponse rpcResponse)
         {
-            if (rpcResponse.ReturnValue is JObject obj)
+            if (rpcResponse.ReturnValue is JToken token)
             {
-                rpcResponse.ReturnValue = obj.ToObject(
+                rpcResponse.ReturnValue = token.ToObject(
                     returnType,
                     JsonSerializer.Create(UtilHelper.RpcJsonSerializerSettings));
             }

@@ -20,7 +20,7 @@
 // 
 // SimCivil - SimCivil.Rpc - RpcServer.cs
 // Create Date: 2018/01/02
-// Update Date: 2018/01/03
+// Update Date: 2018/12/11
 
 using System;
 using System.Collections.Generic;
@@ -38,10 +38,13 @@ using DotNetty.Transport.Channels.Sockets;
 using SimCivil.Rpc.Callback;
 using SimCivil.Rpc.Session;
 
+using static System.Diagnostics.Debug;
+
 namespace SimCivil.Rpc
 {
     public class RpcServer
     {
+        private readonly IEventLoopGroup _workerGroup = new MultithreadEventLoopGroup();
         public Dictionary<string, Type> Services { get; } = new Dictionary<string, Type>();
 
         public IPEndPoint EndPoint { get; set; }
@@ -66,6 +69,7 @@ namespace SimCivil.Rpc
             SupportSession = container.IsRegistered<IRpcSession>();
             foreach (Type serviceType in container.GetRpcServiceTypes())
             {
+                Assert(serviceType.FullName != null, "serviceType.FullName != null");
                 Services.Add(serviceType.FullName, serviceType);
             }
         }
@@ -94,12 +98,11 @@ namespace SimCivil.Rpc
                 throw new ArgumentNullException(nameof(T));
             }
 
+            Assert(type.FullName != null, "type.FullName != null");
             Services[type.FullName] = type;
 
             return this;
         }
-
-        private readonly IEventLoopGroup _workerGroup = new MultithreadEventLoopGroup();
 
         public async Task Run()
         {
@@ -130,12 +133,10 @@ namespace SimCivil.Rpc
 
         protected virtual void ChildChannelInit(IChannel channel)
         {
-            LengthFieldPrepender lengthFieldPrepender = new LengthFieldPrepender(2);
-            LengthFieldBasedFrameDecoder lengthFieldBasedFrameDecoder = new LengthFieldBasedFrameDecoder(ushort.MaxValue, 0, 2, 0, 2);
-            channel.Pipeline.AddLast(new HttpRequestHandler(lengthFieldPrepender, lengthFieldBasedFrameDecoder))
-                .AddLast(lengthFieldPrepender)
+            channel.Pipeline.AddLast(new HttpRequestHandler())
+                .AddLast(new LengthFieldPrepender(2))
                 .AddLast(new Log4NetHandler())
-                .AddLast(lengthFieldBasedFrameDecoder)
+                .AddLast(new LengthFieldBasedFrameDecoder(ushort.MaxValue, 0, 2, 0, 2))
                 .AddLast(new JsonToMessageDecoder())
                 .AddLast(new MessageToJsonEncoder<RpcResponse>())
                 .AddLast(new MessageToJsonEncoder<RpcCallback>())

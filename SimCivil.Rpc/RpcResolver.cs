@@ -33,6 +33,9 @@ using Autofac;
 
 using DotNetty.Transport.Channels;
 
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+
 using SimCivil.Rpc.Callback;
 using SimCivil.Rpc.Filter;
 using SimCivil.Rpc.Session;
@@ -88,12 +91,12 @@ namespace SimCivil.Rpc
 
             try
             {
-                var session = _scope.Resolve<IRpcSession>() ?? throw new ArgumentNullException("session");
-                var type = Server.Services[msg.ServiceName];
-                var service = _scope.Resolve(type);
-                var method = service.GetType().GetMethod(msg.MethodName);
+                IRpcSession session = _scope.Resolve<IRpcSession>() ?? throw new ArgumentNullException("session");
+                Type type = Server.Services[msg.ServiceName];
+                object service = _scope.Resolve(type);
+                MethodInfo method = service.GetType().GetMethod(msg.MethodName);
 
-                var result = CheckFilter(session, method);
+                CheckResult result = CheckFilter(session, method);
                 if (!result.Allowed)
                 {
                     ctx.Channel.WriteAndFlushAsync(new RpcResponse(msg, null, result.ErrorInfo));
@@ -116,6 +119,10 @@ namespace SimCivil.Rpc
                     if (typeof(Delegate).IsAssignableFrom(parameterType))
                     {
                         args[i] = _proxyBuilder.Build(parameterType, Convert.ToInt32(args[i]), ctx.Channel);
+                    }
+                    else if (args[i] is JToken jToken)
+                    {
+                        args[i] = jToken.ToObject(parameterType, UtilHelper.RpcSerializer);
                     }
                     else if (!TryConvert(ref args[i], parameterType) && !parameterType.IsInstanceOfType(args[i]))
                     {
