@@ -20,16 +20,22 @@
 // 
 // SimCivil - SimCivil.Rpc - RpcRequest.cs
 // Create Date: 2018/01/02
-// Update Date: 2018/01/02
+// Update Date: 2018/12/11
 
 using System;
+using System.Diagnostics;
 using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
+using Newtonsoft.Json;
+
+using SimCivil.Rpc.Serialize;
+
 namespace SimCivil.Rpc
 {
+    [JsonConverter(typeof(RpcMessageConverter))]
     public class RpcRequest
     {
         private readonly TaskCompletionSource<RpcResponse> _responseSource;
@@ -63,7 +69,9 @@ namespace SimCivil.Rpc
 
         public RpcResponse WaitResponse(int millisecondsTimeout)
         {
-            if (!_responseSource.Task.Wait(millisecondsTimeout))
+            if (Debugger.IsAttached)
+                _responseSource.Task.Wait();
+            else if (!_responseSource.Task.Wait(millisecondsTimeout))
             {
                 throw new TimeoutException();
             }
@@ -73,9 +81,12 @@ namespace SimCivil.Rpc
 
         public Task<RpcResponse> WaitResponseAsync(int millisecondsTimeout)
         {
-            var tokenSource = new CancellationTokenSource(millisecondsTimeout);
-            tokenSource.Token.Register(() => 
-                _responseSource.TrySetException(new TimeoutException()));
+            CancellationTokenSource tokenSource = Debugger.IsAttached
+                ? new CancellationTokenSource()
+                : new CancellationTokenSource(millisecondsTimeout);
+            tokenSource.Token.Register(
+                () =>
+                    _responseSource.TrySetException(new TimeoutException()));
 
             return _responseSource.Task;
         }

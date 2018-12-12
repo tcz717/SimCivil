@@ -313,6 +313,19 @@ namespace SimCivil.Test
         }
 
         [Fact]
+        public void UnixTimeTest()
+        {
+            using (RpcClient client = new RpcClient())
+            {
+                client.Bind(9999).ConnectAsync().Wait();
+
+                var service = client.Import<ITestServiceA>();
+                DateTime time = DateTime.UtcNow;
+                Assert.Equal(time.AddTicks(-time.Ticks % 10000), service.EchoTime(time));
+            }
+        }
+
+        [Fact]
         public void ValueTupleTest()
         {
             using (RpcClient client = new RpcClient())

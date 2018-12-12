@@ -31,7 +31,7 @@ using SimCivil.Rpc.Serialize;
 
 namespace SimCivil.Rpc
 {
-//    [JsonConverter(typeof(RpcResponseConverter))]
+    [JsonConverter(typeof(RpcMessageConverter))]
     public class RpcResponse
     {
         public object ReturnValue { get; set; }

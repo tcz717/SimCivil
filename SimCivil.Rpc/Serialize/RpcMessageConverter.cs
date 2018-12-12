@@ -18,12 +18,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// SimCivil - SimCivil.Rpc - RpcResponseConverter.cs
+// SimCivil - SimCivil.Rpc - RpcMessageConverter.cs
 // Create Date: 2018/01/05
-// Update Date: 2018/01/06
+// Update Date: 2018/12/11
 
 using System;
-using System.Diagnostics;
+using System.Linq;
 using System.Text;
 
 using Newtonsoft.Json;
@@ -31,7 +31,7 @@ using Newtonsoft.Json.Linq;
 
 namespace SimCivil.Rpc.Serialize
 {
-    class RpcResponseConverter : JsonConverter
+    class RpcMessageConverter : JsonConverter
     {
         /// <summary>Writes the JSON representation of the object.</summary>
         /// <param name="writer">The <see cref="T:Newtonsoft.Json.JsonWriter" /> to write to.</param>
@@ -39,26 +39,39 @@ namespace SimCivil.Rpc.Serialize
         /// <param name="serializer">The calling serializer.</param>
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
-            RpcResponse response = (RpcResponse) value;
-            JObject o = new JObject
+            var jObject = new JObject();
+            switch (value)
             {
-                {"t", response.TimeStamp},
-                {"seq", response.Sequence}
-            };
-            if (string.IsNullOrWhiteSpace(response.ErrorInfo))
-            {
-                if (response.ReturnValue != null)
-                {
-                    o.Add("v", JToken.FromObject(response.ReturnValue, serializer));
-                    o.Add("type", response.ReturnValue.GetType().AssemblyQualifiedName);
-                }
-            }
-            else
-            {
-                o.Add("e", response.ErrorInfo);
+                case RpcRequest request:
+                    jObject.Add("Sequence", request.Sequence);
+                    jObject.Add("MethodName", request.MethodName);
+                    jObject.Add("ServiceName", request.ServiceName);
+                    jObject.Add("TimeStamp", JToken.FromObject(request.TimeStamp, serializer));
+                    jObject.Add("Arguments", JToken.FromObject(request.Arguments, serializer));
+                    jObject.Add("$type", "SimCivil.Rpc.RpcRequest, SimCivil.Rpc");
+
+                    break;
+                case RpcResponse response:
+                    jObject.Add("Sequence", response.Sequence);
+                    jObject.Add("TimeStamp", JToken.FromObject(response.TimeStamp, serializer));
+                    if (response.ErrorInfo != null)
+                    {
+                        jObject.Add("ErrorInfo", response.ErrorInfo);
+                    }
+                    else if (response.ReturnValue != null)
+                    {
+                        jObject.Add("ReturnValue", JToken.FromObject(response.ReturnValue, serializer));
+                    }
+
+                    jObject.Add("$type", "SimCivil.Rpc.RpcResponse, SimCivil.Rpc");
+
+                    break;
+                default:
+
+                    throw new NotSupportedException();
             }
 
-            o.WriteTo(writer);
+            jObject.WriteTo(writer);
         }
 
         /// <summary>Reads the JSON representation of the object.</summary>
@@ -74,22 +87,40 @@ namespace SimCivil.Rpc.Serialize
             JsonSerializer serializer)
         {
             JObject o = JObject.Load(reader);
-            RpcResponse response = new RpcResponse
+            if (objectType == typeof(RpcRequest))
             {
-                Sequence = o.Value<long>("seq"),
-                TimeStamp = o["t"].ToObject<DateTime>(serializer)
-            };
-            if (o.TryGetValue("e", out JToken errToken))
-            {
-                response.ErrorInfo = errToken.Value<string>();
+                var request = new RpcRequest
+                {
+                    Sequence = o.Value<long>("Sequence"),
+                    Arguments = o["Arguments"].Cast<object>().ToArray(),
+                    MethodName = o.Value<string>("MethodName"),
+                    ServiceName = o.Value<string>("ServiceName"),
+                    TimeStamp = o.GetValue("TimeStamp").ToObject<DateTime>(serializer)
+                };
+
+                return request;
             }
-            else if (o.TryGetValue("v", out JToken valueToken))
+            else if (objectType == typeof(RpcResponse))
             {
-                response.ReturnValue = valueToken.ToObject(Type.GetType(o.Value<string>("type")), serializer);
-                Debug.Assert(response.ReturnValue.GetType() != typeof(JObject));
+                var response = new RpcResponse()
+                {
+                    Sequence = o.Value<long>("Sequence"),
+                    TimeStamp = o.GetValue("TimeStamp").ToObject<DateTime>(serializer)
+                };
+                if (o.ContainsKey("ErrorInfo"))
+                {
+                    response.ErrorInfo = o.Value<string>("ErrorInfo");
+                }
+
+                if (o.ContainsKey("ReturnValue"))
+                {
+                    response.ReturnValue = o["ReturnValue"];
+                }
+
+                return response;
             }
 
-            return response;
+            throw new NotSupportedException();
         }
 
         /// <summary>
@@ -101,7 +132,7 @@ namespace SimCivil.Rpc.Serialize
         /// </returns>
         public override bool CanConvert(Type objectType)
         {
-            return typeof(RpcResponse) == objectType;
+            return typeof(RpcRequest) == objectType || typeof(RpcResponse) == objectType;
         }
     }
 }
