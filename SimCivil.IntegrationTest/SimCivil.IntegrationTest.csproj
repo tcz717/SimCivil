@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -78,22 +78,22 @@
       <HintPath>..\packages\Newtonsoft.Json.12.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="Orleans.Core, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Orleans.Core.2.1.2\lib\netstandard2.0\Orleans.Core.dll</HintPath>
+      <HintPath>..\packages\Microsoft.Orleans.Core.2.2.0\lib\netstandard2.0\Orleans.Core.dll</HintPath>
     </Reference>
     <Reference Include="Orleans.Core.Abstractions, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Orleans.Core.Abstractions.2.1.2\lib\netstandard2.0\Orleans.Core.Abstractions.dll</HintPath>
+      <HintPath>..\packages\Microsoft.Orleans.Core.Abstractions.2.2.0\lib\netstandard2.0\Orleans.Core.Abstractions.dll</HintPath>
     </Reference>
     <Reference Include="Orleans.Runtime, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Orleans.OrleansRuntime.2.1.2\lib\netstandard2.0\Orleans.Runtime.dll</HintPath>
+      <HintPath>..\packages\Microsoft.Orleans.OrleansRuntime.2.2.0\lib\netstandard2.0\Orleans.Runtime.dll</HintPath>
     </Reference>
     <Reference Include="Orleans.Runtime.Abstractions, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Orleans.Runtime.Abstractions.2.1.2\lib\netstandard2.0\Orleans.Runtime.Abstractions.dll</HintPath>
+      <HintPath>..\packages\Microsoft.Orleans.Runtime.Abstractions.2.2.0\lib\netstandard2.0\Orleans.Runtime.Abstractions.dll</HintPath>
     </Reference>
     <Reference Include="Orleans.TestingHost, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Orleans.TestingHost.2.1.2\lib\netstandard2.0\Orleans.TestingHost.dll</HintPath>
+      <HintPath>..\packages\Microsoft.Orleans.TestingHost.2.2.0\lib\netstandard2.0\Orleans.TestingHost.dll</HintPath>
     </Reference>
     <Reference Include="OrleansProviders, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Orleans.OrleansProviders.2.1.2\lib\netstandard2.0\OrleansProviders.dll</HintPath>
+      <HintPath>..\packages\Microsoft.Orleans.OrleansProviders.2.2.0\lib\netstandard2.0\OrleansProviders.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Buffers, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
