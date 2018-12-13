@@ -1,6 +1,7 @@
 SimCivil
 =======================
 ![Travis-CI Build Status](https://travis-ci.org/tcz717/SimCivil.svg?branch=master)
+<a href="https://zenhub.com"><img src="https://raw.githubusercontent.com/ZenHubIO/support/master/zenhub-badge.png"></a>
 
 此项目主要是游戏的服务端，负责核心逻辑处理
 
@@ -12,6 +13,9 @@ A C# game server simulating a civilization world allowing roles free interacting
 ## 服务器启动方式
 1. 编译并运行`SimCivil.Orleans.Server`
 1. 编译并运行`SimCivil.Gate`
+
+## 客户端
+目前有一个@jykgod 基于Cocos Creator的2d客户端实现[Ezgame](https://github.com/jykgod/Ezgame) 
 
 ## 讨论
 
