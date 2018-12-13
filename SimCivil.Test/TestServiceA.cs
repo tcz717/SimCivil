@@ -50,5 +50,10 @@ namespace SimCivil.Test {
         {
             return dump;
         }
+
+        public DateTime EchoTime(DateTime time)
+        {
+            return time;
+        }
     }
 }

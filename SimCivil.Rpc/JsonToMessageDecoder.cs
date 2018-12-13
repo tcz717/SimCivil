@@ -20,7 +20,7 @@
 // 
 // SimCivil - SimCivil.Rpc - JsonToMessageDecoder.cs
 // Create Date: 2018/01/02
-// Update Date: 2018/01/30
+// Update Date: 2018/12/11
 
 using System;
 using System.Collections.Generic;
@@ -31,6 +31,7 @@ using DotNetty.Codecs;
 using DotNetty.Transport.Channels;
 
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace SimCivil.Rpc
 {
@@ -58,7 +59,11 @@ namespace SimCivil.Rpc
         {
             string jsonStr = message.ToString(Encoding.UTF8);
             TestHook?.Invoke(jsonStr);
-            output.Add(JsonConvert.DeserializeObject(jsonStr, UtilHelper.RpcJsonSerializerSettings));
+            JObject jObject = JObject.Parse(jsonStr);
+            if (jObject.TryGetValue("$type", out JToken typeToken))
+            {
+                output.Add(jObject.ToObject(Type.GetType(typeToken.Value<string>()), UtilHelper.RpcSerializer));
+            }
         }
     }
 }

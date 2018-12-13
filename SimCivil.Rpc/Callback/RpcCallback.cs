@@ -40,7 +40,7 @@ namespace SimCivil.Rpc.Callback
         {
             CallbackId = callbackId;
             Parameters = parameters;
-            TimeStamp = DateTime.Now;
+            TimeStamp = DateTime.UtcNow;
         }
     }
 }

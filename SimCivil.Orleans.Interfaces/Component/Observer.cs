@@ -29,6 +29,6 @@ namespace SimCivil.Orleans.Interfaces.Component
 {
     public class Observer
     {
-        public uint NotityRange { get; set; }
+        public uint NotifyRange { get; set; }
     }
 }

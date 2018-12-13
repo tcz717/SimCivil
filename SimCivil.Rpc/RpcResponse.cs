@@ -31,7 +31,7 @@ using SimCivil.Rpc.Serialize;
 
 namespace SimCivil.Rpc
 {
-//    [JsonConverter(typeof(RpcResponseConverter))]
+    [JsonConverter(typeof(RpcMessageConverter))]
     public class RpcResponse
     {
         public object ReturnValue { get; set; }
@@ -46,7 +46,7 @@ namespace SimCivil.Rpc
             ReturnValue = returnValue;
             Sequence = request.Sequence;
             ErrorInfo = exception?.ToString();
-            TimeStamp = DateTime.Now;
+            TimeStamp = DateTime.UtcNow;
         }
 
         public RpcResponse(RpcRequest request, object returnValue, string errorInfo) : this(request, returnValue)

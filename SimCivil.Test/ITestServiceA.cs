@@ -36,6 +36,7 @@ namespace SimCivil.Test
         void Echo(string str, Action<string> callback);
         (double, double) TupleEcho((double, double) dump);
         PropertyTuple PropertyTupleEcho(PropertyTuple dump);
+        DateTime EchoTime(DateTime time);
     }
 
     public class PropertyTuple
