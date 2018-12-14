@@ -18,50 +18,58 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// SimCivil - SimCivil.Orleans.Interfaces - GameOption.cs
+// SimCivil - SimCivil.Orleans.Interfaces - SyncOption.cs
 // Create Date: 2018/12/13
 // Update Date: 2018/12/13
 
 using System;
-using System.Text;
 
 namespace SimCivil.Orleans.Interfaces.Option
 {
-    public class GameOption
+    public class SyncOptions
     {
         /// <summary>
-        /// Gets or sets the spawn point.
+        /// Gets or sets the size of the chunk.
         /// </summary>
         /// <value>
-        /// The spawn point.
+        /// The size of the chunk.
         /// </value>
-        public (int X, int Y) SpawnPoint { get; set; }
+        public int ChunkSize { get; set; } = 32;
+        /// <summary>
+        /// Gets or sets the lag learning rate.
+        /// </summary>
+        /// <value>
+        /// The lag learning rate.
+        /// </value>
+        public double LagLearningRate { get; set; } = 0.9;
+        /// <summary>
+        /// Gets or sets the maximum lag.
+        /// </summary>
+        /// <value>
+        /// The maximum lag.
+        /// </value>
+        public double MaxLag { get; set; } = 1000;
+        /// <summary>
+        /// Gets or sets the maximum update delta.
+        /// </summary>
+        /// <value>
+        /// The maximum update delta.
+        /// </value>
+        public TimeSpan MaxUpdateDelta { get; set; } = TimeSpan.FromMilliseconds(200);
+        /// <summary>
+        /// Gets or sets a value indicating whether [no speed fix].
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if [no speed fix]; otherwise, <c>false</c>.
+        /// </value>
+        public bool NoSpeedFix { get; set; } = false;
 
         /// <summary>
-        /// Gets or sets the seed.
+        /// Gets or sets the update period.
         /// </summary>
         /// <value>
-        /// The seed.
+        /// The update period.
         /// </value>
-        public int Seed { get; set; }
-
-        /// <summary>
-        /// Gets or sets the name.
-        /// </summary>
-        /// <value>
-        /// The name.
-        /// </value>
-        public string Name { get; set; } = "dev";
-
-        /// <summary>Gets or sets the size of the atlas.</summary>
-        /// <value>The size of the atlas.</value>
-        public int AtlasSize { get; set; } = 64;
-        /// <summary>
-        /// Gets or sets the sea level.
-        /// </summary>
-        /// <value>
-        /// The sea level.
-        /// </value>
-        public int SeaLevel { get; set; } = 64;
+        public int UpdatePeriod { get; set; } = 50;
     }
 }

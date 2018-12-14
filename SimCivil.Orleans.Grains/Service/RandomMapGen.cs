@@ -39,9 +39,9 @@ namespace SimCivil.Orleans.Grains.Service
     /// </summary>
     public class RandomMapGen : IMapGenerator
     {
-        public IOptions<GameOption> GameOptions { get; }
+        public IOptions<GameOptions> GameOptions { get; }
 
-        public RandomMapGen(IOptions<GameOption> gameOptions)
+        public RandomMapGen(IOptions<GameOptions> gameOptions)
         {
             GameOptions = gameOptions;
         }

@@ -41,7 +41,7 @@ namespace SimCivil.Orleans.Grains.Component
 {
     public class PositionGrain : BaseGrain<Position>, IPosition
     {
-        public IOptions<SyncOption> SyncOptions { get; }
+        public IOptions<SyncOptions> SyncOptions { get; }
 
         private static readonly (int X, int Y)[] Offsets =
             {(0, 0), (1, 0), (0, 1), (-1, 0), (0, -1), (1, 1), (-1, -1), (1, -1), (-1, 1)};
@@ -83,7 +83,7 @@ namespace SimCivil.Orleans.Grains.Component
                 });
         }
 
-        public PositionGrain(ILoggerFactory factory,IOptions<SyncOption> syncOptions) : base(factory)
+        public PositionGrain(ILoggerFactory factory,IOptions<SyncOptions> syncOptions) : base(factory)
         {
             SyncOptions = syncOptions;
         }

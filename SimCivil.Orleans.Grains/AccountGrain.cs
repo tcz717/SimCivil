@@ -46,9 +46,9 @@ namespace SimCivil.Orleans.Grains
     public class AccountGrain : Grain<AccountState>, IAccount
     {
         public ILogger<AccountGrain> Logger { get; }
-        public IOptions<GameOption> GameOptions { get; }
+        public IOptions<GameOptions> GameOptions { get; }
 
-        public AccountGrain(ILogger<AccountGrain> logger, IOptions<GameOption> gameOptions)
+        public AccountGrain(ILogger<AccountGrain> logger, IOptions<GameOptions> gameOptions)
         {
             Logger = logger;
             GameOptions = gameOptions;

@@ -86,8 +86,8 @@ namespace SimCivil.Orleans.Server
                         .AddConfiguration(configuration.GetSection("Logging")))
                 .Configure<EndpointOptions>(configuration.GetSection("Endpoint"))
                 .Configure<ClusterOptions>(configuration.GetSection("Cluster"))
-                .Configure<GameOption>(configuration.GetSection("Game"))
-                .Configure<SyncOption>(configuration.GetSection("Sync"));
+                .Configure<GameOptions>(configuration.GetSection("Game"))
+                .Configure<SyncOptions>(configuration.GetSection("Sync"));
         }
     }
 }

@@ -46,13 +46,13 @@ namespace SimCivil.Orleans.Grains
         public Dictionary<Guid, Position> Entities;
 
         public ILogger<ChunkGrain> Logger { get; }
-        public IOptions<SyncOption> SyncOptions { get; }
+        public IOptions<SyncOptions> SyncOptions { get; }
 
         /// <summary>
         /// This constructor should never be invoked. We expose it so that client code (subclasses of Grain) do not have to add a constructor.
         /// Client code should use the GrainFactory property to get a reference to a Grain.
         /// </summary>
-        public ChunkGrain(ILogger<ChunkGrain> logger, IOptions<SyncOption> syncOptions)
+        public ChunkGrain(ILogger<ChunkGrain> logger, IOptions<SyncOptions> syncOptions)
         {
             Logger = logger ?? throw new ArgumentNullException(nameof(logger));
             SyncOptions = syncOptions;

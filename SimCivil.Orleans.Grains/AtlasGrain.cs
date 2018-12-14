@@ -46,7 +46,7 @@ namespace SimCivil.Orleans.Grains
     {
         public IMapGenerator Generator { get; }
         public ILogger<AtlasGrain> Logger { get; }
-        public IOptions<GameOption> GameOptions { get; }
+        public IOptions<GameOptions> GameOptions { get; }
         public (int X, int Y) AtlasIndex { get; set; }
         public int Left => AtlasIndex.X * GameOptions.Value.AtlasSize;
 
@@ -65,7 +65,7 @@ namespace SimCivil.Orleans.Grains
         /// </summary>
         public int Bottom => AtlasIndex.Y * GameOptions.Value.AtlasSize + GameOptions.Value.AtlasSize;
 
-        public AtlasGrain(IMapGenerator generator, ILogger<AtlasGrain> logger, IOptions<GameOption> gameOptions)
+        public AtlasGrain(IMapGenerator generator, ILogger<AtlasGrain> logger, IOptions<GameOptions> gameOptions)
         {
             Generator = generator;
             Logger = logger;
@@ -157,7 +157,7 @@ namespace SimCivil.Orleans.Grains
 
     public static class AtlasExtension
     {
-        public static async Task<Tile> GetTile(this IGrainFactory factory, (int X, int Y) position, IOptions<GameOption> gameOptions)
+        public static async Task<Tile> GetTile(this IGrainFactory factory, (int X, int Y) position, IOptions<GameOptions> gameOptions)
         {
             return await factory.GetGrain<IAtlas>(position.DivDown(gameOptions.Value.AtlasSize)).GetTile(position);
         }

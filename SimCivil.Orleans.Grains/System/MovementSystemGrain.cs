@@ -44,14 +44,14 @@ namespace SimCivil.Orleans.Grains.System
     {
         private Dictionary<Guid, (float X, float Y)> _activeEntities;
         public ILogger<MovementSystemGrain> Logger { get; }
-        public IOptions<GameOption> GameOptions { get; }
+        public IOptions<GameOptions> GameOptions { get; }
 
         public int UpdatePeriod { get; set; }
 
         public MovementSystemGrain(
             ILogger<MovementSystemGrain> logger,
-            IOptions<GameOption> gameOptions,
-            IOptions<SyncOption> syncOptions)
+            IOptions<GameOptions> gameOptions,
+            IOptions<SyncOptions> syncOptions)
         {
             Logger = logger;
             GameOptions = gameOptions;

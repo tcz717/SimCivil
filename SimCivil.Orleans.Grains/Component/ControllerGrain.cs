@@ -53,15 +53,15 @@ namespace SimCivil.Orleans.Grains.Component
         public TimeSpan UpdatePeriod { get; set; }
 
         public ILogger<ControllerGrain> Logger { get; }
-        public IOptions<GameOption> GameOptions { get; }
-        public IOptions<SyncOption> SyncOptions { get; }
+        public IOptions<GameOptions> GameOptions { get; }
+        public IOptions<SyncOptions> SyncOptions { get; }
 
         public ControllerGrain(
             ILogger<ControllerGrain> logger,
             IConfiguration configuration,
             ITerrainRepository terrainRepository,
-            IOptions<GameOption> gameOptions,
-            IOptions<SyncOption> syncOptions)
+            IOptions<GameOptions> gameOptions,
+            IOptions<SyncOptions> syncOptions)
         {
             Logger = logger;
             GameOptions = gameOptions;

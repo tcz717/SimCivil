@@ -41,7 +41,7 @@ namespace SimCivil.Orleans.Grains
     public class GameGrain : Grain<GameState>, IGame
     {
         public ILogger<GameGrain> Logger { get; }
-        public IOptions<GameOption> GameOptions { get; }
+        public IOptions<GameOptions> GameOptions { get; }
 
         public bool Initialized { get; set; }
 
@@ -49,7 +49,7 @@ namespace SimCivil.Orleans.Grains
         /// This constructor should never be invoked. We expose it so that client code (subclasses of this class) do not have to add a constructor.
         /// Client code should use the GrainFactory to get a reference to a Grain.
         /// </summary>
-        public GameGrain(ILogger<GameGrain> logger, IOptions<GameOption> gameOptions)
+        public GameGrain(ILogger<GameGrain> logger, IOptions<GameOptions> gameOptions)
         {
             Logger = logger;
             GameOptions = gameOptions;

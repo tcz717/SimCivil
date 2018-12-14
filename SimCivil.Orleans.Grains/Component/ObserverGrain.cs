@@ -40,10 +40,10 @@ namespace SimCivil.Orleans.Grains.Component
 {
     public class ObserverGrain : BaseGrain<Observer>, IObserver
     {
-        public IOptions<SyncOption> SyncOptions { get; }
+        public IOptions<SyncOptions> SyncOptions { get; }
         public HashSet<Guid> Entities { get; set; }
 
-        public ObserverGrain(ILoggerFactory factory,IOptions<SyncOption> syncOptions) : base(factory)
+        public ObserverGrain(ILoggerFactory factory,IOptions<SyncOptions> syncOptions) : base(factory)
         {
             SyncOptions = syncOptions;
         }

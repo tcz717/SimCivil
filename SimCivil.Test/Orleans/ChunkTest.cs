@@ -54,7 +54,7 @@ namespace SimCivil.Test.Orleans
         [Fact]
         public async Task GetAtlasTest()
         {
-            int atlasSize = Cluster.ServiceProvider.GetService<IOptions<GameOption>>().Value.AtlasSize;
+            int atlasSize = Cluster.ServiceProvider.GetService<IOptions<GameOptions>>().Value.AtlasSize;
             for (int i = -5; i < 5; i++)
             {
                 for (int j = -5; j < 5; j++)
