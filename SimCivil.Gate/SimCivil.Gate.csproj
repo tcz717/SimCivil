@@ -21,7 +21,7 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="2.2.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="2.2.0" />
     <PackageReference Include="Microsoft.Orleans.Client" Version="2.2.0" />
-    <PackageReference Include="SharpRaven" Version="2.4.0" />
+    <PackageReference Include="Sentry" Version="1.1.0" />
   </ItemGroup>
 
   <ItemGroup>

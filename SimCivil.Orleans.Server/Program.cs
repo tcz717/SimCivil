@@ -34,8 +34,7 @@ using Orleans;
 using Orleans.Configuration;
 using Orleans.Hosting;
 
-using SharpRaven;
-using SharpRaven.Data;
+using Sentry;
 
 using SimCivil.Orleans.Interfaces;
 using SimCivil.Orleans.Interfaces.Option;
@@ -44,39 +43,38 @@ namespace SimCivil.Orleans.Server
 {
     class Program
     {
-        public static RavenClient Raven { get; } =
-            new RavenClient("https://c091709188504c39a331cc91794fa4f4@sentry.io/216217");
-
         static async Task Main(string[] args)
         {
-            AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
-            ISiloHostBuilder siloBuilder = new SiloHostBuilder()
-                .UseLocalhostClustering()
-                .AddMemoryGrainStorageAsDefault()
-                .AddStartupTask(
-                    (provider, token) => provider.GetRequiredService<IGrainFactory>()
-                        .GetGrain<IGame>(0)
-                        .InitGame())
-                .ConfigureAppConfiguration(
-                    (context, configure) => configure
-                        .AddJsonFile(
-                            "appsettings.json",
-                            optional: false)
-                        .AddJsonFile(
-                            $"appsettings.{context.HostingEnvironment}.json",
-                            optional: true)
-                        .AddCommandLine(args))
-                .ConfigureServices(Configure);
+            using (SentrySdk.Init("https://c091709188504c39a331cc91794fa4f4@sentry.io/216217"))
+            {
+                ISiloHostBuilder siloBuilder = new SiloHostBuilder()
+                    .UseLocalhostClustering()
+                    .AddMemoryGrainStorageAsDefault()
+                    .AddStartupTask(
+                        (provider, token) => provider.GetRequiredService<IGrainFactory>()
+                            .GetGrain<IGame>(0)
+                            .InitGame())
+                    .ConfigureAppConfiguration(
+                        (context, configure) => configure
+                            .AddJsonFile(
+                                "appsettings.json",
+                                optional: false)
+                            .AddJsonFile(
+                                $"appsettings.{context.HostingEnvironment}.json",
+                                optional: true)
+                            .AddCommandLine(args))
+                    .ConfigureServices(Configure);
 
-            ISiloHost silo = siloBuilder.Build();
-            await silo.StartAsync();
+                ISiloHost silo = siloBuilder.Build();
+                await silo.StartAsync();
 
-            Console.WriteLine("Press Enter to close.");
-            // wait here
-            Console.ReadLine();
+                Console.WriteLine("Press Enter to close.");
+                // wait here
+                Console.ReadLine();
 
-            // shut the silo down after we are done.
-            await silo.StopAsync();
+                // shut the silo down after we are done.
+                await silo.StopAsync();
+            }
         }
 
         private static void Configure(HostBuilderContext context, IServiceCollection serviceCollection)
@@ -90,11 +88,6 @@ namespace SimCivil.Orleans.Server
                 .Configure<ClusterOptions>(configuration.GetSection("Cluster"))
                 .Configure<GameOption>(configuration.GetSection("Game"))
                 .Configure<SyncOption>(configuration.GetSection("Sync"));
-        }
-
-        private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
-        {
-            Raven.Capture(new SentryEvent((Exception) e.ExceptionObject));
         }
     }
 }

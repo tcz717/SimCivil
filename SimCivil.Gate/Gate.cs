@@ -40,8 +40,7 @@ using Orleans;
 using Orleans.Configuration;
 using Orleans.Hosting;
 
-using SharpRaven;
-using SharpRaven.Data;
+using Sentry;
 
 using SimCivil.Contract;
 using SimCivil.Orleans.Interfaces;
@@ -53,9 +52,6 @@ namespace SimCivil.Gate
 {
     public class Gate
     {
-        public static RavenClient Raven { get; } =
-            new RavenClient("https://c091709188504c39a331cc91794fa4f4@sentry.io/216217");
-
         public IClusterClient Client { get; set; }
 
         /// <summary>Initializes a new instance of the <see cref="T:System.Object"></see> class.</summary>
@@ -66,25 +62,27 @@ namespace SimCivil.Gate
 
         private static async Task Main(string[] args)
         {
-            AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
-            IClusterClient client = new ClientBuilder().UseLocalhostClustering()
-                .ConfigureAppConfiguration(
-                    (context, configure) => configure
-                        .AddJsonFile(
-                            "appsettings.json",
-                            optional: false)
-                        .AddJsonFile(
-                            $"appsettings.{context.HostingEnvironment}.json",
-                            optional: true)
-                        .AddCommandLine(args))
-                .ConfigureServices(Configure)
-                .Build();
+            using (SentrySdk.Init("https://c091709188504c39a331cc91794fa4f4@sentry.io/216217"))
+            {
+                IClusterClient client = new ClientBuilder().UseLocalhostClustering()
+                    .ConfigureAppConfiguration(
+                        (context, configure) => configure
+                            .AddJsonFile(
+                                "appsettings.json",
+                                optional: false)
+                            .AddJsonFile(
+                                $"appsettings.{context.HostingEnvironment}.json",
+                                optional: true)
+                            .AddCommandLine(args))
+                    .ConfigureServices(Configure)
+                    .Build();
 
-            await client.Connect();
+                await client.Connect();
 
-            await new Gate(client).Run();
+                await new Gate(client).Run();
 
-            Console.ReadKey();
+                Console.ReadKey();
+            }
         }
 
         private static void Configure(HostBuilderContext context, IServiceCollection serviceCollection)
@@ -156,11 +154,6 @@ namespace SimCivil.Gate
             builder.RegisterRpcProvider<OrleansPlayerController, IPlayerController>().InstancePerChannel();
 
             return builder;
-        }
-
-        private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
-        {
-            Raven.Capture(new SentryEvent((Exception) e.ExceptionObject));
         }
     }
 }
