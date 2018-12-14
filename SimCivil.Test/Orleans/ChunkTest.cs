@@ -27,11 +27,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
+
 using Orleans;
 using Orleans.TestingHost;
 
 using SimCivil.Orleans.Interfaces;
 using SimCivil.Orleans.Interfaces.Component;
+using SimCivil.Orleans.Interfaces.Option;
 
 using Xunit;
 
@@ -50,7 +54,7 @@ namespace SimCivil.Test.Orleans
         [Fact]
         public async Task GetAtlasTest()
         {
-            const int atlasSize = 30;
+            int atlasSize = Cluster.ServiceProvider.GetService<IOptions<GameOption>>().Value.AtlasSize;
             for (int i = -5; i < 5; i++)
             {
                 for (int j = -5; j < 5; j++)
