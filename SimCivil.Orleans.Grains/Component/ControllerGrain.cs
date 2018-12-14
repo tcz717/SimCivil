@@ -20,7 +20,7 @@
 // 
 // SimCivil - SimCivil.Orleans.Grains - ControllerGrain.cs
 // Create Date: 2018/10/21
-// Update Date: 2018/12/11
+// Update Date: 2018/12/13
 
 using System;
 using System.Collections.Generic;
@@ -29,12 +29,14 @@ using System.Threading.Tasks;
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 using Orleans;
 
 using SimCivil.Contract;
 using SimCivil.Orleans.Interfaces;
 using SimCivil.Orleans.Interfaces.Component;
+using SimCivil.Orleans.Interfaces.Option;
 using SimCivil.Orleans.Interfaces.Service;
 using SimCivil.Orleans.Interfaces.System;
 
@@ -51,13 +53,19 @@ namespace SimCivil.Orleans.Grains.Component
         public TimeSpan UpdatePeriod { get; set; }
 
         public ILogger<ControllerGrain> Logger { get; }
+        public IOptions<GameOption> GameOptions { get; }
+        public IOptions<SyncOption> SyncOptions { get; }
 
         public ControllerGrain(
             ILogger<ControllerGrain> logger,
             IConfiguration configuration,
-            ITerrainRepository terrainRepository)
+            ITerrainRepository terrainRepository,
+            IOptions<GameOption> gameOptions,
+            IOptions<SyncOption> syncOptions)
         {
             Logger = logger;
+            GameOptions = gameOptions;
+            SyncOptions = syncOptions;
             _terrainRepository = terrainRepository;
             UpdatePeriod = TimeSpan.FromMilliseconds(configuration.GetValue(nameof(UpdatePeriod), 50));
             _lastUpdateTime = DateTime.Now - UpdatePeriod - UpdatePeriod;
@@ -99,9 +107,10 @@ namespace SimCivil.Orleans.Grains.Component
         public async Task MoveTo(Position position, DateTime timeStamp)
         {
             double delta = (timeStamp - DateTime.UtcNow).TotalMilliseconds;
-            _lagPredict = Config.LagLearningRate * delta + (1 - Config.LagLearningRate) * _lagPredict;
+            _lagPredict = SyncOptions.Value.LagLearningRate * delta +
+                          (1 - SyncOptions.Value.LagLearningRate) * _lagPredict;
             DateTime predictTimeStamp = timeStamp.AddMilliseconds(-_lagPredict);
-            if (Math.Abs(delta - _lagPredict) > Config.MaxLag)
+            if (Math.Abs(delta - _lagPredict) > SyncOptions.Value.MaxLag)
             {
                 Logger.LogWarning(
                     $"Entity{this.GetPrimaryKey()} has abnormal timespan {delta - _lagPredict:N1} in {nameof(MoveTo)}");
@@ -110,13 +119,13 @@ namespace SimCivil.Orleans.Grains.Component
             }
 
             Position previous = await GrainFactory.Get<IPosition>(this).GetData();
-            Tile tile = await GrainFactory.GetTile(previous.Tile);
+            Tile tile = await GrainFactory.GetTile(previous.Tile, GameOptions);
             TimeSpan dt = predictTimeStamp - _lastUpdateTime;
 
             _lastUpdateTime = predictTimeStamp;
 
-            if (dt > Config.MaxUpdateDelta)
-                dt = Config.MaxUpdateDelta;
+            if (dt > SyncOptions.Value.MaxUpdateDelta)
+                dt = SyncOptions.Value.MaxUpdateDelta;
 
             double dx2 = (position.X - previous.X) * (position.X - previous.X) +
                          (position.Y - previous.Y) * (position.Y - previous.Y);
@@ -128,12 +137,12 @@ namespace SimCivil.Orleans.Grains.Component
 
             if (v2 > maxv2 + 0.001)
             {
-                float alpha = (float) Math.Sqrt(maxv2 / v2);
+                var alpha = (float) Math.Sqrt(maxv2 / v2);
                 if (alpha < 0.9)
                     Logger.LogWarning(
                         $"{this.GetPrimaryKey()} moves too fast: {nameof(alpha)} = {alpha}, expected = {position}");
 
-                if (Config.NoSpeedFix)
+                if (SyncOptions.Value.NoSpeedFix)
                     return;
 
                 position.X = previous.X + alpha * (position.X - previous.X);
@@ -141,7 +150,7 @@ namespace SimCivil.Orleans.Grains.Component
             }
 
             // TODO check if construction exists
-            if (_terrainRepository.GetTerrain((await GrainFactory.GetTile(position.Tile)).Terrain)
+            if (_terrainRepository.GetTerrain((await GrainFactory.GetTile(position.Tile, GameOptions)).Terrain)
                 .Flags.HasFlag(TerrainFlags.NotMovable))
                 return;
 

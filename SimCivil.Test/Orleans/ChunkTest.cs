@@ -49,6 +49,7 @@ namespace SimCivil.Test.Orleans
         [Fact]
         public async Task GetAtlasTest()
         {
+            const int atlasSize = 30;
             for (int i = -5; i < 5; i++)
             {
                 for (int j = -5; j < 5; j++)
@@ -61,12 +62,12 @@ namespace SimCivil.Test.Orleans
                         {
                             Assert.InRange(
                                 t.Position.Y,
-                                j * Config.DefaultAtlasSize,
-                                (j + 1) * Config.DefaultAtlasSize - 1);
+                                j * atlasSize,
+                                (j + 1) * atlasSize - 1);
                             Assert.InRange(
                                 t.Position.X,
-                                i * Config.DefaultAtlasSize,
-                                (i + 1) * Config.DefaultAtlasSize - 1);
+                                i * atlasSize,
+                                (i + 1) * atlasSize - 1);
                         });
                 }
             }

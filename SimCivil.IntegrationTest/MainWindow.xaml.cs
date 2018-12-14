@@ -20,7 +20,7 @@
 // 
 // SimCivil - SimCivil.IntegrationTest - MainWindow.xaml.cs
 // Create Date: 2018/09/27
-// Update Date: 2018/10/17
+// Update Date: 2018/12/13
 
 using System;
 using System.Collections.ObjectModel;
@@ -32,6 +32,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -156,10 +157,18 @@ namespace SimCivil.IntegrationTest
         {
             hostBuilder
                 .AddMemoryGrainStorageAsDefault()
+                .ConfigureAppConfiguration(
+                    (context, configure) => configure
+                        .AddJsonFile(
+                            "appsettings.json",
+                            optional: false)
+                        .AddJsonFile(
+                            $"appsettings.{context.HostingEnvironment}.json",
+                            optional: true))
                 .AddStartupTask(
                     (provider, token) => provider.GetRequiredService<IGrainFactory>()
                         .GetGrain<IGame>(0)
-                        .InitGame(new Config()))
+                        .InitGame())
                 .ConfigureLogging(
                     logging => logging.AddDebug().AddProvider(LoggerProvider))
                 .ConfigureServices(

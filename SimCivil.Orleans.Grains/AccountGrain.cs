@@ -20,7 +20,7 @@
 // 
 // SimCivil - SimCivil.Orleans.Grains - AccountGrain.cs
 // Create Date: 2018/06/14
-// Update Date: 2018/10/05
+// Update Date: 2018/12/13
 
 using System;
 using System.Collections.Generic;
@@ -28,6 +28,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 using Orleans;
 using Orleans.Runtime;
@@ -37,6 +38,7 @@ using SimCivil.Contract.Model;
 using SimCivil.Orleans.Grains.State;
 using SimCivil.Orleans.Interfaces;
 using SimCivil.Orleans.Interfaces.Component;
+using SimCivil.Orleans.Interfaces.Option;
 using SimCivil.Orleans.Interfaces.System;
 
 namespace SimCivil.Orleans.Grains
@@ -44,10 +46,12 @@ namespace SimCivil.Orleans.Grains
     public class AccountGrain : Grain<AccountState>, IAccount
     {
         public ILogger<AccountGrain> Logger { get; }
+        public IOptions<GameOption> GameOptions { get; }
 
-        public AccountGrain(ILogger<AccountGrain> logger)
+        public AccountGrain(ILogger<AccountGrain> logger, IOptions<GameOption> gameOptions)
         {
             Logger = logger;
+            GameOptions = gameOptions;
         }
 
         /// <summary>
@@ -158,7 +162,7 @@ namespace SimCivil.Orleans.Grains
             var unit = GrainFactory.Get<IUnit>(role);
             var pos = GrainFactory.Get<IPosition>(role);
             await unit.Fill(option);
-            await pos.SetData(new Position((await GrainFactory.GetGrain<IGame>(0).GetConfig()).SpawnPoint));
+            await pos.SetData(new Position(GameOptions.Value.SpawnPoint));
             await role.SetName(option.Name);
 
             State.Roles.Add(role);

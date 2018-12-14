@@ -70,7 +70,7 @@ namespace SimCivil.Test.Orleans
                     .AddStartupTask(
                         (provider, token) => provider.GetRequiredService<IGrainFactory>()
                             .GetGrain<IGame>(0)
-                            .InitGame(new global::SimCivil.Orleans.Interfaces.Config()))
+                            .InitGame())
                     .ConfigureLogging(
                         logging => logging.AddConsole()
                         /*.AddProvider(new XunitLoggerProvider(OutputHelper))*/)

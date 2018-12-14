@@ -19,8 +19,8 @@
 // SOFTWARE.
 // 
 // SimCivil - SimCivil.Orleans.Grains - MovementSystemGrain.cs
-// Create Date: 2018/09/27
-// Update Date: 2018/10/06
+// Create Date: 2018/10/21
+// Update Date: 2018/12/13
 
 using System;
 using System.Collections.Generic;
@@ -28,13 +28,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 using Orleans;
 
 using SimCivil.Orleans.Interfaces;
 using SimCivil.Orleans.Interfaces.Component;
+using SimCivil.Orleans.Interfaces.Option;
 using SimCivil.Orleans.Interfaces.System;
 
 namespace SimCivil.Orleans.Grains.System
@@ -43,13 +44,18 @@ namespace SimCivil.Orleans.Grains.System
     {
         private Dictionary<Guid, (float X, float Y)> _activeEntities;
         public ILogger<MovementSystemGrain> Logger { get; }
+        public IOptions<GameOption> GameOptions { get; }
 
-        public float UpdatePeriod { get; set; }
+        public int UpdatePeriod { get; set; }
 
-        public MovementSystemGrain(ILogger<MovementSystemGrain> logger, IConfiguration configuration)
+        public MovementSystemGrain(
+            ILogger<MovementSystemGrain> logger,
+            IOptions<GameOption> gameOptions,
+            IOptions<SyncOption> syncOptions)
         {
             Logger = logger;
-            UpdatePeriod = configuration.GetValue(nameof(UpdatePeriod), 50) / 1000f;
+            GameOptions = gameOptions;
+            UpdatePeriod = syncOptions.Value.UpdatePeriod;
         }
 
         public Task Move(Guid entityId, (float X, float Y) speed)
@@ -90,10 +96,9 @@ namespace SimCivil.Orleans.Grains.System
             float maxMoveSpeed = (await GrainFactory.Get<IUnit>(e.Key).GetData()).MoveSpeed;
             var position = GrainFactory.Get<IPosition>(e.Key);
             Position pos = await position.GetData();
-            Tile currentTile = await GrainFactory.GetTile(pos.Tile);
+            Tile currentTile = await GrainFactory.GetTile(pos.Tile, GameOptions);
 
             //TODO find a better way to handle collapse
-            
         }
 
 //        private IEnumerable<(int X, int Y)> Bresenham((float X, float Y) start, (float X, float Y) end)

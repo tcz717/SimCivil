@@ -20,54 +20,52 @@
 // 
 // SimCivil - SimCivil.Orleans.Grains - GameGrain.cs
 // Create Date: 2018/06/14
-// Update Date: 2018/06/16
+// Update Date: 2018/12/13
 
 using System;
 using System.Text;
 using System.Threading.Tasks;
 
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 using Orleans;
 using Orleans.Runtime;
 
+using SimCivil.Orleans.Grains.State;
 using SimCivil.Orleans.Interfaces;
+using SimCivil.Orleans.Interfaces.Option;
 
 namespace SimCivil.Orleans.Grains
 {
     public class GameGrain : Grain<GameState>, IGame
     {
         public ILogger<GameGrain> Logger { get; }
+        public IOptions<GameOption> GameOptions { get; }
+
+        public bool Initialized { get; set; }
 
         /// <summary>
         /// This constructor should never be invoked. We expose it so that client code (subclasses of this class) do not have to add a constructor.
         /// Client code should use the GrainFactory to get a reference to a Grain.
         /// </summary>
-        public GameGrain(ILogger<GameGrain> logger)
+        public GameGrain(ILogger<GameGrain> logger, IOptions<GameOption> gameOptions)
         {
             Logger = logger;
+            GameOptions = gameOptions;
         }
 
-        public async Task InitGame(Config config)
+        public async Task InitGame()
         {
-            if (State.Config != null)
+            State.OnlineAccounts.Clear();
+            if (Initialized)
             {
-                Logger.Warn(0, "An existed game config has been overwritten");
+                return;
             }
 
-            State = new GameState {Config = config};
-            Logger.Info($"Init Game:{config.Name} (SW: {config.SpawnPoint})");
+            Initialized = true;
+            Logger.Info($"Init Game:{GameOptions.Value.Name} (SW: {GameOptions.Value.SpawnPoint})");
             await WriteStateAsync();
-        }
-
-        public Task<Config> GetConfig()
-        {
-            if (State.Config == null)
-            {
-                throw new InvalidOperationException("Game is not initilized");
-            }
-
-            return Task.FromResult(State.Config);
         }
 
         public async Task OnAccountLogin(IAccount account)

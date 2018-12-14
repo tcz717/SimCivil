@@ -28,12 +28,14 @@ using System.Text;
 using System.Threading.Tasks;
 
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 using Orleans;
 using Orleans.Runtime;
 
 using SimCivil.Orleans.Interfaces;
 using SimCivil.Orleans.Interfaces.Component;
+using SimCivil.Orleans.Interfaces.Option;
 
 using static System.Math;
 
@@ -44,14 +46,16 @@ namespace SimCivil.Orleans.Grains
         public Dictionary<Guid, Position> Entities;
 
         public ILogger<ChunkGrain> Logger { get; }
+        public IOptions<SyncOption> SyncOptions { get; }
 
         /// <summary>
         /// This constructor should never be invoked. We expose it so that client code (subclasses of Grain) do not have to add a constructor.
         /// Client code should use the GrainFactory property to get a reference to a Grain.
         /// </summary>
-        public ChunkGrain(ILogger<ChunkGrain> logger)
+        public ChunkGrain(ILogger<ChunkGrain> logger, IOptions<SyncOption> syncOptions)
         {
             Logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            SyncOptions = syncOptions;
         }
 
         public async Task OnEntityMoved(Guid entityGuid, Position previousPos, Position currentPos)
@@ -101,8 +105,8 @@ namespace SimCivil.Orleans.Grains
                 }
             }
 
-            var currentChunk = currentPos.Tile.DivDown(Config.ChunkSize);
-            var thisChunk = this.GetPrimaryKeyXY();
+            (int X, int Y) currentChunk = currentPos.Tile.DivDown(SyncOptions.Value.ChunkSize);
+            (int X, int Y) thisChunk = this.GetPrimaryKeyXY();
             if (currentChunk.X == thisChunk.X && currentChunk.Y == thisChunk.Y)
             {
                 Entities[entityGuid] = currentPos;

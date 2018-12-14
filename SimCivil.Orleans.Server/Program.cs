@@ -19,21 +19,26 @@
 // SOFTWARE.
 // 
 // SimCivil - SimCivil.Orleans.Server - Program.cs
-// Create Date: 2018/02/25
-// Update Date: 2018/05/14
+// Create Date: 2018/06/14
+// Update Date: 2018/12/13
 
 using System;
-using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
+using Orleans;
 using Orleans.Configuration;
 using Orleans.Hosting;
 
 using SharpRaven;
 using SharpRaven.Data;
+
+using SimCivil.Orleans.Interfaces;
+using SimCivil.Orleans.Interfaces.Option;
 
 namespace SimCivil.Orleans.Server
 {
@@ -46,10 +51,23 @@ namespace SimCivil.Orleans.Server
         {
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
             ISiloHostBuilder siloBuilder = new SiloHostBuilder()
-                .UseLocalhostClustering(clusterId: "tpdt-dev")
+                .UseLocalhostClustering()
                 .AddMemoryGrainStorageAsDefault()
-                .ConfigureLogging(
-                    logging => logging.AddConsole());
+                .AddStartupTask(
+                    (provider, token) => provider.GetRequiredService<IGrainFactory>()
+                        .GetGrain<IGame>(0)
+                        .InitGame())
+                .ConfigureAppConfiguration(
+                    (context, configure) => configure
+                        .AddJsonFile(
+                            "appsettings.json",
+                            optional: false)
+                        .AddJsonFile(
+                            $"appsettings.{context.HostingEnvironment}.json",
+                            optional: true)
+                        .AddCommandLine(args))
+                .ConfigureServices(Configure);
+
             ISiloHost silo = siloBuilder.Build();
             await silo.StartAsync();
 
@@ -59,6 +77,19 @@ namespace SimCivil.Orleans.Server
 
             // shut the silo down after we are done.
             await silo.StopAsync();
+        }
+
+        private static void Configure(HostBuilderContext context, IServiceCollection serviceCollection)
+        {
+            IConfiguration configuration = context.Configuration;
+            serviceCollection
+                .AddLogging(
+                    logging => logging.AddConsole()
+                        .AddConfiguration(configuration.GetSection("Logging")))
+                .Configure<EndpointOptions>(configuration.GetSection("Endpoint"))
+                .Configure<ClusterOptions>(configuration.GetSection("Cluster"))
+                .Configure<GameOption>(configuration.GetSection("Game"))
+                .Configure<SyncOption>(configuration.GetSection("Sync"));
         }
 
         private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)

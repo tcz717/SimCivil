@@ -29,18 +29,24 @@ using System.Text;
 using System.Threading.Tasks;
 
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 using SimCivil.Contract;
 using SimCivil.Orleans.Interfaces;
 using SimCivil.Orleans.Interfaces.Component;
+using SimCivil.Orleans.Interfaces.Option;
 
 namespace SimCivil.Orleans.Grains.Component
 {
     public class ObserverGrain : BaseGrain<Observer>, IObserver
     {
+        public IOptions<SyncOption> SyncOptions { get; }
         public HashSet<Guid> Entities { get; set; }
 
-        public ObserverGrain(ILoggerFactory factory) : base(factory) { }
+        public ObserverGrain(ILoggerFactory factory,IOptions<SyncOption> syncOptions) : base(factory)
+        {
+            SyncOptions = syncOptions;
+        }
 
         public Task OnEntityEntered(Guid id)
         {
@@ -75,7 +81,7 @@ namespace SimCivil.Orleans.Grains.Component
             var viewChange = new ViewChange
             {
                 Position = position,
-                AtlasIndex = position.Tile.DivDown(Config.ChunkSize)
+                AtlasIndex = position.Tile.DivDown(SyncOptions.Value.ChunkSize)
             };
 
             if (await GrainFactory.GetEntity(this).Has<IUnit>())

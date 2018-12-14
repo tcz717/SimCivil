@@ -20,7 +20,7 @@
 // 
 // SimCivil - SimCivil.Orleans.Interfaces - Config.cs
 // Create Date: 2018/06/14
-// Update Date: 2018/12/11
+// Update Date: 2018/12/13
 
 using System;
 using System.Text;
@@ -36,7 +36,7 @@ namespace SimCivil.Orleans.Interfaces
     /// using static SimCivil.Config;
     /// </code>
     /// </summary>
-    [Immutable]
+    [Immutable, Obsolete]
     public class Config
     {
         /// <summary>

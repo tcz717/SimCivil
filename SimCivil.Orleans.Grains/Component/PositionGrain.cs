@@ -29,16 +29,20 @@ using System.Text;
 using System.Threading.Tasks;
 
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 using Orleans;
 
 using SimCivil.Orleans.Interfaces;
 using SimCivil.Orleans.Interfaces.Component;
+using SimCivil.Orleans.Interfaces.Option;
 
 namespace SimCivil.Orleans.Grains.Component
 {
     public class PositionGrain : BaseGrain<Position>, IPosition
     {
+        public IOptions<SyncOption> SyncOptions { get; }
+
         private static readonly (int X, int Y)[] Offsets =
             {(0, 0), (1, 0), (0, 1), (-1, 0), (0, -1), (1, 1), (-1, -1), (1, -1), (-1, 1)};
 
@@ -46,8 +50,8 @@ namespace SimCivil.Orleans.Grains.Component
         {
             if (!component.Equals(State))
             {
-                (int X, int Y) prevChunk = (State ?? component).Tile.DivDown(Config.ChunkSize);
-                (int X, int Y) currentChunk = component.Tile.DivDown(Config.ChunkSize);
+                (int X, int Y) prevChunk = (State ?? component).Tile.DivDown(SyncOptions.Value.ChunkSize);
+                (int X, int Y) currentChunk = component.Tile.DivDown(SyncOptions.Value.ChunkSize);
                 var effectChunks = Offsets.Select(o => (prevChunk.X + o.X, prevChunk.Y + o.Y))
                     .Union(Offsets.Select(o => (currentChunk.X + o.X, currentChunk.Y + o.Y)));
 
@@ -79,6 +83,9 @@ namespace SimCivil.Orleans.Grains.Component
                 });
         }
 
-        public PositionGrain(ILoggerFactory factory) : base(factory) { }
+        public PositionGrain(ILoggerFactory factory,IOptions<SyncOption> syncOptions) : base(factory)
+        {
+            SyncOptions = syncOptions;
+        }
     }
 }
