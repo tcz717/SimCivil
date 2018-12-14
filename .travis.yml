@@ -1,9 +1,18 @@
 language: csharp
 solution: SimCivil.sln
-mono: none
-dotnet: 2.1.4
+
 dist: trusty
+matrix:
+  include:
+    - mono: latest
+  allow_failures:
+    - dotnet: 2.1.4
+      mono: none
+      env: DOTNETCORE=1
+install:
+  - nuget restore SimCivil.sln
+  - nuget install xunit.runner.console -OutputDirectory testrunner
 script:
-   - dotnet test SimCivil.Test --filter "Category!=Performance" 
+   - sh ./xunit.sh 
 notifications:
     slack: tpdt:fmYoCUlHFzbEE9YxZctMJjJl

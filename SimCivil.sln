@@ -23,11 +23,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimCivil.IntegrationTest", 
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{F685D71E-2911-4B2A-8F55-FB461F98BBD5}"
 	ProjectSection(SolutionItems) = preProject
-		.gitlab-ci.yml = .gitlab-ci.yml
 		.travis.yml = .travis.yml
 		appsettings.json = appsettings.json
 		docker-compose.yml = docker-compose.yml
 		README.md = README.md
+		xunit.sh = xunit.sh
 	EndProjectSection
 EndProject
 Global
