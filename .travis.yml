@@ -1,12 +1,11 @@
 language: csharp
 solution: SimCivil.sln
-
+dotnet: 2.1.4
 dist: trusty
 matrix:
   include:
     - mono: latest
   allow_failures:
-    - dotnet: 2.1.4
       mono: none
       env: DOTNETCORE=1
 install:
