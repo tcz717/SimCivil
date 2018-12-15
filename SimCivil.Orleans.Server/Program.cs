@@ -20,9 +20,10 @@
 // 
 // SimCivil - SimCivil.Orleans.Server - Program.cs
 // Create Date: 2018/06/14
-// Update Date: 2018/12/13
+// Update Date: 2018/12/15
 
 using System;
+using System.Runtime.Loader;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -68,13 +69,14 @@ namespace SimCivil.Orleans.Server
                 ISiloHost silo = siloBuilder.Build();
                 await silo.StartAsync();
 
-            AssemblyLoadContext.Default.Unloading += context =>
-            {
-                Console.WriteLine("Signal kill detected");
-                silo.StopAsync().Wait();
-            };
+                AssemblyLoadContext.Default.Unloading += context =>
+                {
+                    Console.WriteLine("Signal kill detected");
+                    silo.StopAsync().Wait();
+                };
 
-            await silo.Stopped;
+                await silo.Stopped;
+            }
         }
 
         private static void Configure(HostBuilderContext context, IServiceCollection serviceCollection)
