@@ -4,5 +4,13 @@ services:
   simcivil:
     image: simcivil
     build:
-      context: ./SimCivil
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./SimCivil.GateDockerfile
+
+  orleans:
+    image: orleans
+    ports:
+     - "30000:30000"
+    build:
+      context: .
+      dockerfile: ./SimCivil.GateDockerfile
