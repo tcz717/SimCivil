@@ -68,13 +68,13 @@ namespace SimCivil.Orleans.Server
                 ISiloHost silo = siloBuilder.Build();
                 await silo.StartAsync();
 
-                Console.WriteLine("Press Enter to close.");
-                // wait here
-                Console.ReadLine();
+            AssemblyLoadContext.Default.Unloading += context =>
+            {
+                Console.WriteLine("Signal kill detected");
+                silo.StopAsync().Wait();
+            };
 
-                // shut the silo down after we are done.
-                await silo.StopAsync();
-            }
+            await silo.Stopped;
         }
 
         private static void Configure(HostBuilderContext context, IServiceCollection serviceCollection)

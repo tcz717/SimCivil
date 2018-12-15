@@ -77,11 +77,17 @@ namespace SimCivil.Gate
                     .ConfigureServices(Configure)
                     .Build();
 
+            try
+            {
                 await client.Connect();
 
                 await new Gate(client).Run();
 
                 Console.ReadKey();
+            }
+            catch (SiloUnavailableException e)
+            {
+                Console.WriteLine("Silo connecting fails");
             }
         }
 
