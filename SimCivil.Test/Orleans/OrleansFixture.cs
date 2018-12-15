@@ -36,11 +36,17 @@ using SimCivil.Orleans.Grains.Service;
 using SimCivil.Orleans.Interfaces;
 using SimCivil.Orleans.Interfaces.Service;
 
+using Xunit;
+
 namespace SimCivil.Test.Orleans
 {
+    [CollectionDefinition(Name)]
+    public class ClusterCollection : ICollectionFixture<OrleansFixture>
+    {
+        public const string Name = "ClusterCollection";
+    }
     public class OrleansFixture : IDisposable
     {
-        public static OrleansFixture Single { get; } = new OrleansFixture();
         public TestCluster Cluster { get; }
 
         public OrleansFixture( /*ITestOutputHelper outputHelper*/)
@@ -70,7 +76,7 @@ namespace SimCivil.Test.Orleans
                     .AddStartupTask(
                         (provider, token) => provider.GetRequiredService<IGrainFactory>()
                             .GetGrain<IGame>(0)
-                            .InitGame(new global::SimCivil.Orleans.Interfaces.Config()))
+                            .InitGame())
                     .ConfigureLogging(
                         logging => logging.AddConsole()
                         /*.AddProvider(new XunitLoggerProvider(OutputHelper))*/)

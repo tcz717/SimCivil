@@ -18,42 +18,50 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// SimCivil - SimCivil.Test - EntityTest.cs
-// Create Date: 2018/05/14
-// Update Date: 2018/05/17
+// SimCivil - SimCivil.Orleans.Interfaces - GameOption.cs
+// Create Date: 2018/12/13
+// Update Date: 2018/12/13
 
 using System;
-using System.Linq;
 using System.Text;
 
-using Orleans;
-using Orleans.TestingHost;
-
-using SimCivil.Orleans.Interfaces;
-
-using Xunit;
-
-namespace SimCivil.Test.Orleans
+namespace SimCivil.Orleans.Interfaces.Option
 {
-    [Collection(ClusterCollection.Name)]
-    public class EntityTest
+    public class GameOptions
     {
-        /// <summary>Initializes a new instance of the <see cref="T:System.Object"></see> class.</summary>
-        public EntityTest(OrleansFixture fixture)
-        {
-            Cluster = fixture.Cluster;
-        }
-        public TestCluster Cluster { get; }
+        /// <summary>
+        /// Gets or sets the spawn point.
+        /// </summary>
+        /// <value>
+        /// The spawn point.
+        /// </value>
+        public (int X, int Y) SpawnPoint { get; set; }
 
-        [Fact]
-        public void ComponentManageTest()
-        {
-            var entity = Cluster.GrainFactory.GetGrain<IEntity>(Guid.NewGuid());
-            entity.Enable().Wait();
-            Assert.True(entity.IsEnabled().Result);
-            var entities = Cluster.GrainFactory.GetGrain<IEntityGroup>(0).GetEntities().Result.ToArray();
-            Assert.NotEmpty(entities);
-            Assert.Contains(entity.GetPrimaryKey(), entities);
-        }
+        /// <summary>
+        /// Gets or sets the seed.
+        /// </summary>
+        /// <value>
+        /// The seed.
+        /// </value>
+        public int Seed { get; set; }
+
+        /// <summary>
+        /// Gets or sets the name.
+        /// </summary>
+        /// <value>
+        /// The name.
+        /// </value>
+        public string Name { get; set; } = "dev";
+
+        /// <summary>Gets or sets the size of the atlas.</summary>
+        /// <value>The size of the atlas.</value>
+        public int AtlasSize { get; set; } = 64;
+        /// <summary>
+        /// Gets or sets the sea level.
+        /// </summary>
+        /// <value>
+        /// The sea level.
+        /// </value>
+        public int SeaLevel { get; set; } = 64;
     }
 }

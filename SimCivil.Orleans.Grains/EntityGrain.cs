@@ -61,6 +61,7 @@ namespace SimCivil.Orleans.Grains
             if (State.Enabled) return;
 
             await GrainFactory.GetGrain<IEntityGroup>(0).AddEntity(this.GetPrimaryKey());
+            // TODO fix wrong IEntityGroup id
             await Task.WhenAll(
                 State.Components.Select(
                     c => GrainFactory.GetGrain<IEntityGroup>(c.GetHashCode()).AddEntity(this.GetPrimaryKey())));

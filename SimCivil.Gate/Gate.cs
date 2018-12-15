@@ -20,7 +20,7 @@
 // 
 // SimCivil - SimCivil.Gate - Gate.cs
 // Create Date: 2018/06/14
-// Update Date: 2018/10/06
+// Update Date: 2018/12/13
 
 using System;
 using System.Text;
@@ -37,9 +37,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 using Orleans;
+using Orleans.Configuration;
+using Orleans.Hosting;
 
-using SharpRaven;
-using SharpRaven.Data;
+using Sentry;
 
 using SimCivil.Contract;
 using SimCivil.Orleans.Interfaces;
@@ -51,9 +52,6 @@ namespace SimCivil.Gate
 {
     public class Gate
     {
-        public static RavenClient Raven { get; } =
-            new RavenClient("https://c091709188504c39a331cc91794fa4f4@sentry.io/216217");
-
         public IClusterClient Client { get; set; }
 
         /// <summary>Initializes a new instance of the <see cref="T:System.Object"></see> class.</summary>
@@ -64,19 +62,42 @@ namespace SimCivil.Gate
 
         private static async Task Main(string[] args)
         {
-            AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
-            IClusterClient client = new ClientBuilder().UseLocalhostClustering().Build();
+            using (SentrySdk.Init("https://c091709188504c39a331cc91794fa4f4@sentry.io/216217"))
+            {
+                IClusterClient client = new ClientBuilder().UseLocalhostClustering()
+                    .ConfigureAppConfiguration(
+                        (context, configure) => configure
+                            .AddJsonFile(
+                                "appsettings.json",
+                                optional: false)
+                            .AddJsonFile(
+                                $"appsettings.{context.HostingEnvironment}.json",
+                                optional: true)
+                            .AddCommandLine(args))
+                    .ConfigureServices(Configure)
+                    .Build();
 
-            await client.Connect();
+                await client.Connect();
 
-            await new Gate(client).Run();
+                await new Gate(client).Run();
 
-            Console.ReadKey();
+                Console.ReadKey();
+            }
+        }
+
+        private static void Configure(HostBuilderContext context, IServiceCollection serviceCollection)
+        {
+            IConfiguration configuration = context.Configuration;
+            serviceCollection
+                .AddLogging(
+                    logging => logging.AddConsole()
+                        .AddConfiguration(configuration.GetSection("Logging")))
+                .Configure<ClusterOptions>(configuration.GetSection("Cluster"));
         }
 
         public async Task Run(IServiceCollection services = null)
         {
-            var container = LoadConfiguration(services);
+            var container = ConfigureRpc(services);
             container.RegisterInstance(Client.ServiceProvider.GetService<IGrainFactory>());
             RpcServer server = new RpcServer(container.Build())
             {
@@ -107,12 +128,10 @@ namespace SimCivil.Gate
             await human.Add<IUnitController>();
 
             await factory.GetGrain<IPrefabManager>(0).Set("human.init", human);
-            await factory.GetGrain<IGame>(0).InitGame(new Config {SpawnPoint = (0, 0), Seed = 0});
         }
 
-        private static ContainerBuilder LoadConfiguration(
-            IServiceCollection services = null,
-            string config = "configuration.json")
+        private static ContainerBuilder ConfigureRpc(
+            IServiceCollection services = null)
         {
             var builder = new ContainerBuilder();
             var configBuilder = new ConfigurationBuilder();
@@ -135,11 +154,6 @@ namespace SimCivil.Gate
             builder.RegisterRpcProvider<OrleansPlayerController, IPlayerController>().InstancePerChannel();
 
             return builder;
-        }
-
-        private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
-        {
-            Raven.Capture(new SentryEvent((Exception) e.ExceptionObject));
         }
     }
 }

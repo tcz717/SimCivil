@@ -20,12 +20,15 @@
 // 
 // SimCivil - SimCivil.Orleans.Grains - RandomMapGen.cs
 // Create Date: 2018/06/22
-// Update Date: 2018/10/07
+// Update Date: 2018/12/13
 
 using System;
 using System.Text;
 
+using Microsoft.Extensions.Options;
+
 using SimCivil.Orleans.Interfaces;
+using SimCivil.Orleans.Interfaces.Option;
 using SimCivil.Orleans.Interfaces.Service;
 
 namespace SimCivil.Orleans.Grains.Service
@@ -36,6 +39,13 @@ namespace SimCivil.Orleans.Grains.Service
     /// </summary>
     public class RandomMapGen : IMapGenerator
     {
+        public IOptions<GameOptions> GameOptions { get; }
+
+        public RandomMapGen(IOptions<GameOptions> gameOptions)
+        {
+            GameOptions = gameOptions;
+        }
+
         /// <summary>
         /// Generate new Atlas
         /// </summary>
@@ -46,15 +56,15 @@ namespace SimCivil.Orleans.Grains.Service
         /// <returns></returns>
         public Tile[,] Generate(int seed, int x, int y, int size)
         {
-            Random rand = new Random(seed * x + y);
-            Tile[,] tiles = new Tile[size, size];
+            var rand = new Random(seed * x + y);
+            var tiles = new Tile[size, size];
             for (int i = 0; i < size; i++)
             {
                 for (int j = 0; j < size; j++)
                 {
                     tiles[i, j] = Tile.Create(
                         (x * size + i, y * size + j),
-                        height: rand.Next(Config.SeaLevel - 10, Config.SeaLevel + 10));
+                        height: rand.Next(GameOptions.Value.SeaLevel - 10, GameOptions.Value.SeaLevel + 10));
                 }
             }
 

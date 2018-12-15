@@ -27,28 +27,34 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
+
 using Orleans;
 using Orleans.TestingHost;
 
 using SimCivil.Orleans.Interfaces;
 using SimCivil.Orleans.Interfaces.Component;
+using SimCivil.Orleans.Interfaces.Option;
 
 using Xunit;
 
 namespace SimCivil.Test.Orleans
 {
+    [Collection(ClusterCollection.Name)]
     public class ChunkTest
     {
-        public ChunkTest()
+        /// <summary>Initializes a new instance of the <see cref="T:System.Object"></see> class.</summary>
+        public ChunkTest(OrleansFixture fixture)
         {
-            Cluster = OrleansFixture.Single.Cluster;
+            Cluster = fixture.Cluster;
         }
-
         public TestCluster Cluster { get; }
 
         [Fact]
         public async Task GetAtlasTest()
         {
+            int atlasSize = Cluster.ServiceProvider.GetService<IOptions<GameOptions>>().Value.AtlasSize;
             for (int i = -5; i < 5; i++)
             {
                 for (int j = -5; j < 5; j++)
@@ -61,12 +67,12 @@ namespace SimCivil.Test.Orleans
                         {
                             Assert.InRange(
                                 t.Position.Y,
-                                j * Config.DefaultAtlasSize,
-                                (j + 1) * Config.DefaultAtlasSize - 1);
+                                j * atlasSize,
+                                (j + 1) * atlasSize - 1);
                             Assert.InRange(
                                 t.Position.X,
-                                i * Config.DefaultAtlasSize,
-                                (i + 1) * Config.DefaultAtlasSize - 1);
+                                i * atlasSize,
+                                (i + 1) * atlasSize - 1);
                         });
                 }
             }

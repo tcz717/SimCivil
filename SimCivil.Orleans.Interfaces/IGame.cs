@@ -33,8 +33,7 @@ namespace SimCivil.Orleans.Interfaces
 {
     public interface IGame : IGrainWithIntegerKey
     {
-        Task InitGame(Config config);
-        Task<Config> GetConfig();
+        Task InitGame();
 
         [OneWay]
         Task OnAccountLogin(IAccount account);
