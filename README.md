@@ -1,6 +1,11 @@
 SimCivil
 =======================
-![Travis-CI Build Status](https://travis-ci.org/tcz717/SimCivil.svg?branch=master)
+![](https://img.shields.io/github/release/tcz717/SimCivil.svg)
+![](https://img.shields.io/badge/.net-4.6.1%7Ccore%202.0-blue.svg)
+[![Build Status](https://travis-ci.com/tcz717/SimCivil.svg?branch=master)](https://travis-ci.com/tcz717/SimCivil)
+[![](https://img.shields.io/appveyor/tests/tcz717/simcivil.svg?compact_message)](https://ci.appveyor.com/project/tcz717/simcivil)
+![](https://img.shields.io/github/downloads/tcz717/SimCivil/total.svg)
+![](https://img.shields.io/github/license/tcz717/SimCivil.svg)
 <a href="https://zenhub.com"><img src="https://raw.githubusercontent.com/ZenHubIO/support/master/zenhub-badge.png"></a>
 
 此项目主要是游戏的服务端，负责核心逻辑处理
