@@ -1,5 +1,8 @@
 SimCivil
 =======================
+
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/f94437e148934a338f79ff28647f5d52)](https://app.codacy.com/app/tcz717/SimCivil?utm_source=github.com&utm_medium=referral&utm_content=tcz717/SimCivil&utm_campaign=Badge_Grade_Settings)
+
 ![Travis-CI Build Status](https://travis-ci.org/tcz717/SimCivil.svg?branch=master)
 <a href="https://zenhub.com"><img src="https://raw.githubusercontent.com/ZenHubIO/support/master/zenhub-badge.png"></a>
 
