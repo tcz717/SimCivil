@@ -91,7 +91,6 @@ namespace SimCivil.Gate
                     var closeEvent = new AutoResetEvent(false);
                     Console.CancelKeyPress += (sender, e) => { closeEvent.Reset(); };
                     closeEvent.WaitOne();
-                    Console.WriteLine("Stopping");
                     client.ServiceProvider.GetService<ILogger<Gate>>().LogInformation("stopping");
                     gate.Server.Stop();
                     await client.Close();
