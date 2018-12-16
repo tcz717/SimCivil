@@ -92,12 +92,13 @@ namespace SimCivil.Gate
                     Console.CancelKeyPress += (sender, e) => { closeEvent.Reset(); };
                     closeEvent.WaitOne();
                     Console.WriteLine("Stopping");
+                    client.ServiceProvider.GetService<ILogger<Gate>>().LogInformation("stopping");
                     gate.Server.Stop();
                     await client.Close();
                 }
                 catch (SiloUnavailableException)
                 {
-                    Console.WriteLine("Silo connecting fails");
+                    client.ServiceProvider.GetService<ILogger<Gate>>().LogCritical("Silo connecting fails");
                 }
             }
         }

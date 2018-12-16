@@ -78,7 +78,7 @@ namespace SimCivil.Orleans.Server
                 var closeEvent = new AutoResetEvent(false);
                 Console.CancelKeyPress += (sender, e) => { closeEvent.Reset(); };
                 closeEvent.WaitOne();
-                Console.WriteLine("Stopping");
+                silo.Services.GetService<ILogger<Program>>().LogInformation("stopping");
                 await silo.StopAsync();
             }
         }
