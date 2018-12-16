@@ -11,11 +11,21 @@ RUN apt-get update \
  && apt-get install -y binutils curl mono-devel ca-certificates-mono mono-vbnc nuget referenceassemblies-pcl \
 && rm -rf /var/lib/apt/lists/* /tmp/*
 
-FROM dotnet-mono AS base
+FROM dotnet-mono AS restore
+COPY SimCivil.Contract/SimCivil.Contract.csproj SimCivil.Contract/SimCivil.Contract.csproj
+COPY SimCivil.Gate/SimCivil.Gate.csproj SimCivil.Gate/SimCivil.Gate.csproj
+COPY SimCivil.Orleans.Grains/SimCivil.Orleans.Grains.csproj SimCivil.Orleans.Grains/SimCivil.Orleans.Grains.csproj
+COPY SimCivil.Orleans.Interfaces/SimCivil.Orleans.Interfaces.csproj SimCivil.Orleans.Interfaces/SimCivil.Orleans.Interfaces.csproj
+COPY SimCivil.Orleans.Server/SimCivil.Orleans.Server.csproj SimCivil.Orleans.Server/SimCivil.Orleans.Server.csproj
+COPY SimCivil.Rpc/SimCivil.Rpc.csproj SimCivil.Rpc/SimCivil.Rpc.csproj
+RUN msbuild -target:restore SimCivil.Gate
 
-EXPOSE 20170
-
+FROM restore AS build
 COPY . .
-RUN msbuild /restore SimCivil.Gate
-WORKDIR SimCivil.Gate/bin/Debug/net461/
+RUN msbuild SimCivil.Gate
+
+FROM dotnet-mono AS entry
+EXPOSE 20170
+WORKDIR /gate
+COPY --from=build SimCivil.Gate/bin/Debug/net461/ .
 ENTRYPOINT ["mono", "SimCivil.Gate.exe"]
