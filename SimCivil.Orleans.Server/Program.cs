@@ -20,11 +20,12 @@
 // 
 // SimCivil - SimCivil.Orleans.Server - Program.cs
 // Create Date: 2018/06/14
-// Update Date: 2018/12/15
+// Update Date: 2018/12/16
 
 using System;
-using System.Runtime.Loader;
+using System.Net;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 using Microsoft.Extensions.Configuration;
@@ -37,16 +38,20 @@ using Orleans.Hosting;
 
 using Sentry;
 
+using SimCivil.Orleans.Grains.Service;
 using SimCivil.Orleans.Interfaces;
 using SimCivil.Orleans.Interfaces.Option;
+using SimCivil.Orleans.Interfaces.Service;
 
 namespace SimCivil.Orleans.Server
 {
     class Program
     {
+        private const string Dsn = "https://c091709188504c39a331cc91794fa4f4@sentry.io/216217";
+
         static async Task Main(string[] args)
         {
-            using (SentrySdk.Init("https://c091709188504c39a331cc91794fa4f4@sentry.io/216217"))
+            using (SentrySdk.Init(Dsn))
             {
                 ISiloHostBuilder siloBuilder = new SiloHostBuilder()
                     .UseLocalhostClustering()
@@ -54,7 +59,7 @@ namespace SimCivil.Orleans.Server
                     .AddStartupTask(
                         (provider, token) => provider.GetRequiredService<IGrainFactory>()
                             .GetGrain<IGame>(0)
-                            .InitGame())
+                            .InitGame(true))
                     .ConfigureAppConfiguration(
                         (context, configure) => configure
                             .AddJsonFile(
@@ -63,19 +68,18 @@ namespace SimCivil.Orleans.Server
                             .AddJsonFile(
                                 $"appsettings.{context.HostingEnvironment}.json",
                                 optional: true)
+                            .AddEnvironmentVariables()
                             .AddCommandLine(args))
                     .ConfigureServices(Configure);
 
                 ISiloHost silo = siloBuilder.Build();
                 await silo.StartAsync();
 
-                AssemblyLoadContext.Default.Unloading += context =>
-                {
-                    Console.WriteLine("Signal kill detected");
-                    silo.StopAsync().Wait();
-                };
-
-                await silo.Stopped;
+                var closeEvent = new AutoResetEvent(false);
+                Console.CancelKeyPress += (sender, e) => { closeEvent.Reset(); };
+                closeEvent.WaitOne();
+                Console.WriteLine("Stopping");
+                await silo.StopAsync();
             }
         }
 
@@ -85,11 +89,22 @@ namespace SimCivil.Orleans.Server
             serviceCollection
                 .AddLogging(
                     logging => logging.AddConsole()
+                        .AddSentry(Dsn)
                         .AddConfiguration(configuration.GetSection("Logging")))
                 .Configure<EndpointOptions>(configuration.GetSection("Endpoint"))
                 .Configure<ClusterOptions>(configuration.GetSection("Cluster"))
                 .Configure<GameOptions>(configuration.GetSection("Game"))
                 .Configure<SyncOptions>(configuration.GetSection("Sync"));
+
+            serviceCollection.PostConfigure<EndpointOptions>(
+                options =>
+                {
+                    options.GatewayListeningEndpoint = new IPEndPoint(IPAddress.Any, options.GatewayPort);
+                    options.SiloListeningEndpoint = new IPEndPoint(IPAddress.Any, options.SiloPort);
+                });
+
+            serviceCollection.AddSingleton<IMapGenerator, RandomMapGen>()
+                .AddSingleton<ITerrainRepository, TestTerrainRepository>();
         }
     }
 }

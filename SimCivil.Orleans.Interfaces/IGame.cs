@@ -33,13 +33,24 @@ namespace SimCivil.Orleans.Interfaces
 {
     public interface IGame : IGrainWithIntegerKey
     {
-        Task InitGame();
+        /// <summary>Initializes the game.</summary>
+        /// <param name="isDevelopment">if set to <c>true</c> [is development].</param>
+        /// <returns></returns>
+        Task InitGame(bool isDevelopment);
 
+        /// <summary>Called when [account login].</summary>
+        /// <param name="account">The account.</param>
+        /// <returns></returns>
         [OneWay]
         Task OnAccountLogin(IAccount account);
+        /// <summary>Called when [account logout].</summary>
+        /// <param name="account">The account.</param>
+        /// <returns></returns>
         [OneWay]
         Task OnAccountLogout(IAccount account);
 
+        /// <summary>Gets the online accounts count.</summary>
+        /// <returns></returns>
         Task<int> GetOnlineAccountsCount();
     }
 }
