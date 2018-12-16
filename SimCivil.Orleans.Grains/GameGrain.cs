@@ -34,7 +34,9 @@ using Orleans.Runtime;
 
 using SimCivil.Orleans.Grains.State;
 using SimCivil.Orleans.Interfaces;
+using SimCivil.Orleans.Interfaces.Component;
 using SimCivil.Orleans.Interfaces.Option;
+using SimCivil.Orleans.Interfaces.System;
 
 namespace SimCivil.Orleans.Grains
 {
@@ -55,7 +57,7 @@ namespace SimCivil.Orleans.Grains
             GameOptions = gameOptions;
         }
 
-        public async Task InitGame()
+        public async Task InitGame(bool isDevelopment)
         {
             State.OnlineAccounts.Clear();
             if (Initialized)
@@ -65,7 +67,30 @@ namespace SimCivil.Orleans.Grains
 
             Initialized = true;
             Logger.Info($"Init Game:{GameOptions.Value.Name} (SW: {GameOptions.Value.SpawnPoint})");
+            if (isDevelopment)
+            {
+                await LoadDevelopmentConfiguration();
+            }
             await WriteStateAsync();
+        }
+
+        private async Task LoadDevelopmentConfiguration()
+        {
+            Logger.LogInformation("Development mode on");
+            Logger.LogInformation(
+                $"Register {await GrainFactory.GetGrain<IAccount>("admin").Register("")}");
+
+            var human = GrainFactory.GetGrain<IEntity>(Guid.NewGuid());
+            await GrainFactory.Get<IObserver>(human).SetData(new Observer { NotifyRange = 5 });
+            await human.Add<IObserver>();
+            await human.Add<IPosition>();
+            await GrainFactory.Get<IUnit>(human).SetData(new Unit { MoveSpeed = 1 });
+            await human.Add<IUnit>();
+            await human.Add<IUnitController>();
+
+            await GrainFactory.GetGrain<IPrefabManager>(0).Set("human.init", human);
+
+            Logger.LogInformation("Add 'human.init' prefab");
         }
 
         public async Task OnAccountLogin(IAccount account)

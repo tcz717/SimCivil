@@ -19,11 +19,12 @@
 // SOFTWARE.
 // 
 // SimCivil - SimCivil.Gate - Gate.cs
-// Create Date: 2018/06/14
-// Update Date: 2018/12/13
+// Create Date: 2018/12/15
+// Update Date: 2018/12/15
 
 using System;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 using Autofac;
@@ -44,9 +45,6 @@ using Orleans.Runtime;
 using Sentry;
 
 using SimCivil.Contract;
-using SimCivil.Orleans.Interfaces;
-using SimCivil.Orleans.Interfaces.Component;
-using SimCivil.Orleans.Interfaces.System;
 using SimCivil.Rpc;
 
 namespace SimCivil.Gate
@@ -54,6 +52,8 @@ namespace SimCivil.Gate
     public class Gate
     {
         public IClusterClient Client { get; set; }
+
+        public RpcServer Server { get; set; }
 
         /// <summary>Initializes a new instance of the <see cref="T:System.Object"></see> class.</summary>
         public Gate([NotNull] IClusterClient client)
@@ -65,7 +65,9 @@ namespace SimCivil.Gate
         {
             using (SentrySdk.Init("https://c091709188504c39a331cc91794fa4f4@sentry.io/216217"))
             {
-                IClusterClient client = new ClientBuilder().UseLocalhostClustering()
+                IClusterClient client = new ClientBuilder()
+                    .UseLocalhostClustering()
+                    .Configure<NetworkingOptions>(options => options.OpenConnectionTimeout = TimeSpan.FromSeconds(10))
                     .ConfigureAppConfiguration(
                         (context, configure) => configure
                             .AddJsonFile(
@@ -74,6 +76,7 @@ namespace SimCivil.Gate
                             .AddJsonFile(
                                 $"appsettings.{context.HostingEnvironment}.json",
                                 optional: true)
+                            .AddEnvironmentVariables()
                             .AddCommandLine(args))
                     .ConfigureServices(Configure)
                     .Build();
@@ -82,9 +85,15 @@ namespace SimCivil.Gate
                 {
                     await client.Connect();
 
-                    await new Gate(client).Run();
+                    var gate = new Gate(client);
+                    await gate.Run();
 
-                    Console.ReadKey();
+                    var closeEvent = new AutoResetEvent(false);
+                    Console.CancelKeyPress += (sender, e) => { closeEvent.Reset(); };
+                    closeEvent.WaitOne();
+                    Console.WriteLine("Stopping");
+                    gate.Server.Stop();
+                    await client.Close();
                 }
                 catch (SiloUnavailableException)
                 {
@@ -107,35 +116,15 @@ namespace SimCivil.Gate
         {
             var container = ConfigureRpc(services);
             container.RegisterInstance(Client.ServiceProvider.GetService<IGrainFactory>());
-            RpcServer server = new RpcServer(container.Build())
+            Server = new RpcServer(container.Build())
             {
 #if DEBUG
                 Debug = true
 #endif
             };
 
-            await server.Bind(20170).Run();
-            server.Container.Resolve<OrleansChunkViewSynchronizer>().StartSync(server);
-
-            await PrepareTest();
-        }
-
-        private async Task PrepareTest()
-        {
-            var factory = Client.ServiceProvider.GetService<IGrainFactory>();
-            var logger = Client.ServiceProvider.GetService<ILogger<Gate>>();
-            logger.LogInformation(
-                $"Register {await factory.GetGrain<IAccount>("admin").Register("")}");
-
-            var human = factory.GetGrain<IEntity>(Guid.NewGuid());
-            await factory.Get<IObserver>(human).SetData(new Observer {NotifyRange = 5});
-            await human.Add<IObserver>();
-            await human.Add<IPosition>();
-            await factory.Get<IUnit>(human).SetData(new Unit {MoveSpeed = 1});
-            await human.Add<IUnit>();
-            await human.Add<IUnitController>();
-
-            await factory.GetGrain<IPrefabManager>(0).Set("human.init", human);
+            await Server.Bind(20170).Run();
+            Server.Container.Resolve<OrleansChunkViewSynchronizer>().StartSync(Server);
         }
 
         private static ContainerBuilder ConfigureRpc(
