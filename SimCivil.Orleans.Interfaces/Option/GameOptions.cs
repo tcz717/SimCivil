@@ -63,5 +63,10 @@ namespace SimCivil.Orleans.Interfaces.Option
         /// The sea level.
         /// </value>
         public int SeaLevel { get; set; } = 64;
+
+        /// <summary>Gets or sets a value indicating whether the game is in the development mode.</summary>
+        /// <value>
+        ///   <c>true</c> if development; otherwise, <c>false</c>.</value>
+        public bool Development { get; set; } = false;
     }
 }
