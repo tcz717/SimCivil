@@ -57,7 +57,7 @@ namespace SimCivil.Orleans.Grains
             GameOptions = gameOptions;
         }
 
-        public async Task InitGame(bool isDevelopment)
+        public async Task InitGame()
         {
             State.OnlineAccounts.Clear();
             if (Initialized)
@@ -67,7 +67,7 @@ namespace SimCivil.Orleans.Grains
 
             Initialized = true;
             Logger.Info($"Init Game:{GameOptions.Value.Name} (SW: {GameOptions.Value.SpawnPoint})");
-            if (isDevelopment)
+            if (GameOptions.Value.Development)
             {
                 await LoadDevelopmentConfiguration();
             }

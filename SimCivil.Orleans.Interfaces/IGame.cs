@@ -34,9 +34,8 @@ namespace SimCivil.Orleans.Interfaces
     public interface IGame : IGrainWithIntegerKey
     {
         /// <summary>Initializes the game.</summary>
-        /// <param name="isDevelopment">if set to <c>true</c> [is development].</param>
         /// <returns></returns>
-        Task InitGame(bool isDevelopment);
+        Task InitGame();
 
         /// <summary>Called when [account login].</summary>
         /// <param name="account">The account.</param>

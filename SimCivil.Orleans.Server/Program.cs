@@ -59,7 +59,7 @@ namespace SimCivil.Orleans.Server
                     .AddStartupTask(
                         (provider, token) => provider.GetRequiredService<IGrainFactory>()
                             .GetGrain<IGame>(0)
-                            .InitGame(true))
+                            .InitGame())
                     .ConfigureAppConfiguration(
                         (context, configure) => configure
                             .AddJsonFile(

@@ -32,6 +32,12 @@ namespace SimCivil.Orleans.Interfaces.Component
 {
     public interface IUnit : IComponent<Unit>
     {
+        /// <summary>Fills the specified option.</summary>
+        /// <param name="option">The option.</param>
+        /// <returns></returns>
         Task Fill(CreateRoleOption option);
+        /// <summary>Gets the hp.</summary>
+        /// <returns></returns>
+        Task<float> GetHp();
     }
 }
