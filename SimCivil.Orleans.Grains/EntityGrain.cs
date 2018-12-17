@@ -20,7 +20,7 @@
 // 
 // SimCivil - SimCivil.Orleans.Grains - EntityGrain.cs
 // Create Date: 2018/06/14
-// Update Date: 2018/10/05
+// Update Date: 2018/12/17
 
 using System;
 using System.Collections.Generic;
@@ -29,6 +29,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 using Orleans;
+using Orleans.Runtime;
 
 using SimCivil.Orleans.Grains.State;
 using SimCivil.Orleans.Interfaces;
@@ -61,10 +62,12 @@ namespace SimCivil.Orleans.Grains
             if (State.Enabled) return;
 
             await GrainFactory.GetGrain<IEntityGroup>(0).AddEntity(this.GetPrimaryKey());
-            // TODO fix wrong IEntityGroup id
+
             await Task.WhenAll(
-                State.Components.Select(
-                    c => GrainFactory.GetGrain<IEntityGroup>(c.GetHashCode()).AddEntity(this.GetPrimaryKey())));
+                State.Components.OfType<GrainReference>()
+                    .Select(
+                        c => GrainFactory.GetGrain<IEntityGroup>(c.InterfaceName.GetHashCode())
+                            .AddEntity(this.GetPrimaryKey())));
             State.Enabled = true;
         }
 
@@ -112,12 +115,13 @@ namespace SimCivil.Orleans.Grains
 
         public Task SetComponents(IEnumerable<IComponent> components)
         {
-            if (components.Any(component => component.GetPrimaryKey() != this.GetPrimaryKey()))
+            var collection = components as IComponent[] ?? components.ToArray();
+            if (collection.Any(component => component.GetPrimaryKey() != this.GetPrimaryKey()))
             {
                 throw new ArgumentException("component key not match", nameof(components));
             }
 
-            State.Components = new HashSet<IComponent>(components);
+            State.Components = new HashSet<IComponent>(collection);
 
             return Task.CompletedTask;
         }
