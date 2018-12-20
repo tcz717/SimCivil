@@ -18,35 +18,45 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// SimCivil - SimCivil.Orleans.Interfaces - IChunk.cs
-// Create Date: 2018/02/26
-// Update Date: 2018/02/26
+// SimCivil - SimCivil.Test - AppearanceTest.cs
+// Create Date: 2018/12/19
+// Update Date: 2018/12/19
 
 using System;
 using System.Text;
 using System.Threading.Tasks;
 
-using Orleans;
-using Orleans.Concurrency;
+using Orleans.TestingHost;
 
+using SimCivil.Orleans.Interfaces;
 using SimCivil.Orleans.Interfaces.Component;
+using SimCivil.Orleans.Interfaces.System;
 
-namespace SimCivil.Orleans.Interfaces
+using Xunit;
+
+namespace SimCivil.Test.Orleans
 {
-    public interface IChunk : IGrainWithIntegerKey
+    [Collection(ClusterCollection.Name)]
+    public class AppearanceTest
     {
-        /// <summary>Called when [entity moved].</summary>
-        /// <param name="entityGuid">The entity unique identifier.</param>
-        /// <param name="previousPos">The previous position.</param>
-        /// <param name="currentPos">The current position.</param>
-        /// <returns></returns>
-        [OneWay]
-        Task OnEntityMoved(Guid entityGuid, Position previousPos, Position currentPos);
+        public AppearanceTest(OrleansFixture fixture)
+        {
+            Cluster = fixture.Cluster;
+        }
 
-        /// <summary>Called when [tile changed].</summary>
-        /// <param name="tile">The tile.</param>
-        /// <returns></returns>
-        [OneWay]
-        Task OnTileChanged(Tile tile);
+        public TestCluster Cluster { get; }
+
+        [Fact]
+        public async Task UnitAppearance()
+        {
+            await Cluster.GrainFactory.GetGrain<IGame>(0).InitGame();
+            IEntity unit = await Cluster.GrainFactory.GetGrain<IPrefabManager>(0).Clone("test", "human.init");
+            await unit.Enable();
+            IAppearance appearance = await unit.Get<IAppearance>();
+            Assert.NotNull(appearance);
+
+            AppearanceContainer container = await appearance.GetData();
+            Assert.NotEmpty(container.Appearances);
+        }
     }
 }

@@ -19,13 +19,15 @@
 // SOFTWARE.
 // 
 // SimCivil - SimCivil.Orleans.Interfaces - IObserver.cs
-// Create Date: 2018/05/12
-// Update Date: 2018/05/12
+// Create Date: 2018/10/21
+// Update Date: 2018/12/17
 
 using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+
+using Orleans.Concurrency;
 
 using SimCivil.Contract;
 
@@ -33,8 +35,12 @@ namespace SimCivil.Orleans.Interfaces.Component
 {
     public interface IObserver : IComponent<Observer>
     {
+        [OneWay]
         Task OnEntityEntered(Guid id);
+        [OneWay]
         Task OnEntityLeft(Guid id);
+        [OneWay]
+        Task OnTileChanged(Tile tile);
 
         Task<uint> GetNotifyRange();
         Task<IEnumerable<Guid>> PopAllEntities();

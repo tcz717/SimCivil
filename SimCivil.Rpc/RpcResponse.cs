@@ -41,12 +41,16 @@ namespace SimCivil.Rpc
 
         public RpcResponse() { }
 
-        public RpcResponse(RpcRequest request, object returnValue, Exception exception = null)
+        public RpcResponse(RpcRequest request, object returnValue)
         {
             ReturnValue = returnValue;
             Sequence = request.Sequence;
-            ErrorInfo = exception?.ToString();
             TimeStamp = DateTime.UtcNow;
+        }
+
+        public RpcResponse(RpcRequest request, object returnValue, Exception exception) : this(request, returnValue)
+        {
+            ErrorInfo = exception?.ToString();
         }
 
         public RpcResponse(RpcRequest request, object returnValue, string errorInfo) : this(request, returnValue)

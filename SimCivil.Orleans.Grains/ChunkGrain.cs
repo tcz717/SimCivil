@@ -19,11 +19,12 @@
 // SOFTWARE.
 // 
 // SimCivil - SimCivil.Orleans.Grains - ChunkGrain.cs
-// Create Date: 2018/03/27
-// Update Date: 2018/05/17
+// Create Date: 2018/06/14
+// Update Date: 2018/12/18
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -115,6 +116,18 @@ namespace SimCivil.Orleans.Grains
             {
                 Entities.Remove(entityGuid);
             }
+        }
+
+        /// <summary>Called when [tile changed].</summary>
+        /// <param name="tile">The tile.</param>
+        /// <returns></returns>
+        public async Task OnTileChanged(Tile tile)
+        {
+            await Task.WhenAll(
+                Entities.Keys.Select(
+                    id => GrainFactory.GetEntity(id)
+                        .Get<IObserver>()
+                        .ContinueWith(o => { o.Result?.OnTileChanged(tile); })));
         }
 
         public override Task OnActivateAsync()

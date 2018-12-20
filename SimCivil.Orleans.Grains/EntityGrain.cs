@@ -43,6 +43,13 @@ namespace SimCivil.Orleans.Grains
             return Task.FromResult(State.Components.Contains(GrainFactory.GetGrain<T>(this.GetPrimaryKey())));
         }
 
+        public Task<T> Get<T>() where T : class, IComponent
+        {
+            var component = GrainFactory.GetGrain<T>(this.GetPrimaryKey());
+
+            return State.Components.Contains(component) ? Task.FromResult(component) : Task.FromResult<T>(null);
+        }
+
         public Task Add<T>() where T : IComponent
         {
             State.Components.Add(GrainFactory.GetGrain<T>(this.GetPrimaryKey()));

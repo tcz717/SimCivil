@@ -19,8 +19,8 @@
 // SOFTWARE.
 // 
 // SimCivil - SimCivil.Orleans.Grains - PositionGrain.cs
-// Create Date: 2018/06/22
-// Update Date: 2018/10/04
+// Create Date: 2018/12/15
+// Update Date: 2018/12/17
 
 using System;
 using System.Collections.Generic;
@@ -43,8 +43,10 @@ namespace SimCivil.Orleans.Grains.Component
     {
         public IOptions<SyncOptions> SyncOptions { get; }
 
-        private static readonly (int X, int Y)[] Offsets =
-            {(0, 0), (1, 0), (0, 1), (-1, 0), (0, -1), (1, 1), (-1, -1), (1, -1), (-1, 1)};
+        public PositionGrain(ILoggerFactory factory, IOptions<SyncOptions> syncOptions) : base(factory)
+        {
+            SyncOptions = syncOptions;
+        }
 
         public override async Task SetData(Position component)
         {
@@ -52,8 +54,7 @@ namespace SimCivil.Orleans.Grains.Component
             {
                 (int X, int Y) prevChunk = (State ?? component).Tile.DivDown(SyncOptions.Value.ChunkSize);
                 (int X, int Y) currentChunk = component.Tile.DivDown(SyncOptions.Value.ChunkSize);
-                var effectChunks = Offsets.Select(o => (prevChunk.X + o.X, prevChunk.Y + o.Y))
-                    .Union(Offsets.Select(o => (currentChunk.X + o.X, currentChunk.Y + o.Y)));
+                var effectChunks = prevChunk.ForAround().Union(currentChunk.ForAround());
 
                 Guid entityGuid = this.GetPrimaryKey();
                 await Task.WhenAll(
@@ -81,11 +82,6 @@ namespace SimCivil.Orleans.Grains.Component
                 {
                     ["Position"] = State.ToString()
                 });
-        }
-
-        public PositionGrain(ILoggerFactory factory,IOptions<SyncOptions> syncOptions) : base(factory)
-        {
-            SyncOptions = syncOptions;
         }
     }
 }

@@ -19,12 +19,13 @@
 // SOFTWARE.
 // 
 // SimCivil - SimCivil.Test - OrleansFixture.cs
-// Create Date: 2018/05/12
-// Update Date: 2018/05/17
+// Create Date: 2018/06/22
+// Update Date: 2018/12/19
 
 using System;
 using System.Text;
 
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -34,6 +35,7 @@ using Orleans.TestingHost;
 
 using SimCivil.Orleans.Grains.Service;
 using SimCivil.Orleans.Interfaces;
+using SimCivil.Orleans.Interfaces.Option;
 using SimCivil.Orleans.Interfaces.Service;
 
 using Xunit;
@@ -45,6 +47,7 @@ namespace SimCivil.Test.Orleans
     {
         public const string Name = "ClusterCollection";
     }
+
     public class OrleansFixture : IDisposable
     {
         public TestCluster Cluster { get; }
@@ -73,6 +76,7 @@ namespace SimCivil.Test.Orleans
             {
                 hostBuilder
                     .AddMemoryGrainStorageAsDefault()
+                    .ConfigureAppConfiguration(builder => builder.AddJsonFile("appsettings.json"))
                     .AddStartupTask(
                         (provider, token) => provider.GetRequiredService<IGrainFactory>()
                             .GetGrain<IGame>(0)
@@ -81,7 +85,14 @@ namespace SimCivil.Test.Orleans
                         logging => logging.AddConsole()
                         /*.AddProvider(new XunitLoggerProvider(OutputHelper))*/)
                     .ConfigureServices(
-                        services => { services.AddSingleton<IMapGenerator, RandomMapGen>(); });
+                        (context, services) =>
+                        {
+                            IConfiguration configuration = context.Configuration;
+                            services.AddSingleton<IMapGenerator, RandomMapGen>()
+                                .AddSingleton<ITerrainRepository, TestTerrainRepository>()
+                                .Configure<GameOptions>(configuration.GetSection("Game"))
+                                .Configure<SyncOptions>(configuration.GetSection("Sync"));
+                        });
             }
 
             //public static ITestOutputHelper OutputHelper { get; set; }

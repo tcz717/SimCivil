@@ -42,6 +42,13 @@ namespace SimCivil.Orleans.Grains.Component
             return Task.CompletedTask;
         }
 
+        /// <summary>Gets the heath point.</summary>
+        /// <returns></returns>
+        public Task<float> GetHp()
+        {
+            throw new NotImplementedException();
+        }
+
         public UnitGrain(ILoggerFactory factory) : base(factory) { }
     }
 }

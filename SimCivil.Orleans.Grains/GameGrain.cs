@@ -20,7 +20,7 @@
 // 
 // SimCivil - SimCivil.Orleans.Grains - GameGrain.cs
 // Create Date: 2018/06/14
-// Update Date: 2018/12/13
+// Update Date: 2018/12/19
 
 using System;
 using System.Text;
@@ -32,6 +32,7 @@ using Microsoft.Extensions.Options;
 using Orleans;
 using Orleans.Runtime;
 
+using SimCivil.Contract;
 using SimCivil.Orleans.Grains.State;
 using SimCivil.Orleans.Interfaces;
 using SimCivil.Orleans.Interfaces.Component;
@@ -71,26 +72,8 @@ namespace SimCivil.Orleans.Grains
             {
                 await LoadDevelopmentConfiguration();
             }
+
             await WriteStateAsync();
-        }
-
-        private async Task LoadDevelopmentConfiguration()
-        {
-            Logger.LogInformation("Development mode on");
-            Logger.LogInformation(
-                $"Register {await GrainFactory.GetGrain<IAccount>("admin").Register("")}");
-
-            var human = GrainFactory.GetGrain<IEntity>(Guid.NewGuid());
-            await GrainFactory.Get<IObserver>(human).SetData(new Observer { NotifyRange = 5 });
-            await human.Add<IObserver>();
-            await human.Add<IPosition>();
-            await GrainFactory.Get<IUnit>(human).SetData(new Unit { MoveSpeed = 1 });
-            await human.Add<IUnit>();
-            await human.Add<IUnitController>();
-
-            await GrainFactory.GetGrain<IPrefabManager>(0).Set("human.init", human);
-
-            Logger.LogInformation("Add 'human.init' prefab");
         }
 
         public async Task OnAccountLogin(IAccount account)
@@ -112,6 +95,31 @@ namespace SimCivil.Orleans.Grains
         public Task<int> GetOnlineAccountsCount()
         {
             return Task.FromResult(State.OnlineAccounts.Count);
+        }
+
+        private async Task LoadDevelopmentConfiguration()
+        {
+            Logger.LogInformation("Development mode on");
+            Logger.LogInformation(
+                $"Register {await GrainFactory.GetGrain<IAccount>("admin").Register("")}");
+
+            var human = GrainFactory.GetGrain<IEntity>(Guid.NewGuid());
+            await human.Add<IObserver>();
+            await human.Add<IPosition>();
+            await GrainFactory.Get<IUnit>(human)
+                .SetData(new Unit {MoveSpeed = new UnboundedProperty(1), SightRange = new UnboundedProperty(5)});
+            await human.Add<IUnit>();
+            await human.Add<IUnitController>();
+            await GrainFactory.Get<IAppearance>(human)
+                .SetData(
+                    new AppearanceContainer(
+                        new AppearanceEntry(AppearanceType.Hair, 0),
+                        new AppearanceEntry(AppearanceType.Body, 0)));
+            await human.Add<IAppearance>();
+
+            await GrainFactory.GetGrain<IPrefabManager>(0).Set("human.init", human);
+
+            Logger.LogInformation("Add 'human.init' prefab");
         }
     }
 }

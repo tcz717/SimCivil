@@ -42,19 +42,23 @@ namespace SimCivil.Orleans.Interfaces.Service
         public TerrainFlags Flags { get; set; }
 
         /// <summary>Initializes a new instance of the <see cref="T:System.Object"></see> class.</summary>
-        public Terrain(int id, [NotNull] string name, float baseMoveSpeed)
-        {
-            Id = id;
-            Name = name ?? throw new ArgumentNullException(nameof(name));
-            BaseMoveSpeed = baseMoveSpeed;
-        }
+        public Terrain(
+            int id = 0,
+            float baseMoveSpeed = 0,
+            TerrainFlags flags = TerrainFlags.Normal) : this(id, null, baseMoveSpeed, flags) { }
 
         /// <summary>Initializes a new instance of the <see cref="T:System.Object"></see> class.</summary>
         public Terrain(
-            int id = 0,
-            [NotNull] string name = null,
-            float baseMoveSpeed = 0,
-            TerrainFlags flags = TerrainFlags.Normal)
+            int id,
+            [CanBeNull] string name,
+            float baseMoveSpeed) : this(id, name, baseMoveSpeed, TerrainFlags.Normal) { }
+
+        /// <summary>Initializes a new instance of the <see cref="T:System.Object"></see> class.</summary>
+        public Terrain(
+            int id,
+            [CanBeNull] string name,
+            float baseMoveSpeed,
+            TerrainFlags flags)
         {
             Id = id;
             Name = name ?? throw new ArgumentNullException(nameof(name));

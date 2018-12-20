@@ -19,8 +19,8 @@
 // SOFTWARE.
 // 
 // SimCivil - SimCivil.Orleans.Grains - ObserverGrain.cs
-// Create Date: 2018/10/21
-// Update Date: 2018/11/24
+// Create Date: 2018/12/15
+// Update Date: 2018/12/17
 
 using System;
 using System.Collections.Generic;
@@ -43,7 +43,7 @@ namespace SimCivil.Orleans.Grains.Component
         public IOptions<SyncOptions> SyncOptions { get; }
         public HashSet<Guid> Entities { get; set; }
 
-        public ObserverGrain(ILoggerFactory factory,IOptions<SyncOptions> syncOptions) : base(factory)
+        public ObserverGrain(ILoggerFactory factory, IOptions<SyncOptions> syncOptions) : base(factory)
         {
             SyncOptions = syncOptions;
         }
@@ -60,6 +60,12 @@ namespace SimCivil.Orleans.Grains.Component
             Entities.Remove(id);
 
             return Task.CompletedTask;
+        }
+
+        /// <inheritdoc />
+        public Task OnTileChanged(Tile tile)
+        {
+            throw new NotImplementedException();
         }
 
         public Task<uint> GetNotifyRange()
@@ -92,11 +98,14 @@ namespace SimCivil.Orleans.Grains.Component
                     async e =>
                     {
                         var entity = GrainFactory.GetGrain<IEntity>(e);
+                        float hp = await entity.Has<IUnit>() ? await GrainFactory.Get<IUnit>(e).GetHp() : -1;
+
                         var dto = new EntityDto
                         {
                             Name = await entity.GetName(),
                             Pos = await GrainFactory.Get<IPosition>(e).GetData(),
-                            Id = e
+                            Id = e,
+                            Hp = hp
                         };
 
                         return dto;
@@ -113,11 +122,14 @@ namespace SimCivil.Orleans.Grains.Component
         /// It is called before any messages have been dispatched to the grain.
         /// For grains with declared persistent state, this method is called after the State property has been populated.
         /// </summary>
-        public override Task OnActivateAsync()
+        public override async Task OnActivateAsync()
         {
             Entities = new HashSet<Guid>();
 
-            return base.OnActivateAsync();
+            // TODO: use a better way to set NotifyRange
+            State.NotifyRange = (uint) (await GrainFactory.Get<IUnit>(this).GetData()).SightRange;
+
+            await base.OnActivateAsync();
         }
     }
 }

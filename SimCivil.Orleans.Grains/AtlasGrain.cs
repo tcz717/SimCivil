@@ -20,11 +20,12 @@
 // 
 // SimCivil - SimCivil.Orleans.Grains - AtlasGrain.cs
 // Create Date: 2018/06/14
-// Update Date: 2018/12/13
+// Update Date: 2018/12/17
 
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -47,6 +48,7 @@ namespace SimCivil.Orleans.Grains
         public IMapGenerator Generator { get; }
         public ILogger<AtlasGrain> Logger { get; }
         public IOptions<GameOptions> GameOptions { get; }
+        public IOptions<SyncOptions> SyncOptions { get; }
         public (int X, int Y) AtlasIndex { get; set; }
         public int Left => AtlasIndex.X * GameOptions.Value.AtlasSize;
 
@@ -65,11 +67,16 @@ namespace SimCivil.Orleans.Grains
         /// </summary>
         public int Bottom => AtlasIndex.Y * GameOptions.Value.AtlasSize + GameOptions.Value.AtlasSize;
 
-        public AtlasGrain(IMapGenerator generator, ILogger<AtlasGrain> logger, IOptions<GameOptions> gameOptions)
+        public AtlasGrain(
+            IMapGenerator generator,
+            ILogger<AtlasGrain> logger,
+            IOptions<GameOptions> gameOptions,
+            IOptions<SyncOptions> syncOptions)
         {
             Generator = generator;
             Logger = logger;
             GameOptions = gameOptions;
+            SyncOptions = syncOptions;
         }
 
         public Task<IEnumerable<Tile>> SelectRange((int X, int Y) leftTop, int width, int height)
@@ -86,7 +93,7 @@ namespace SimCivil.Orleans.Grains
             return Task.FromResult((IEnumerable<Tile>) tiles);
         }
 
-        public Task SetTile(Tile tile)
+        public async Task SetTile(Tile tile)
         {
             if (tile.Position.X >= Right || tile.Position.X < Left || tile.Position.Y >= Bottom ||
                 tile.Position.Y < Top)
@@ -95,8 +102,8 @@ namespace SimCivil.Orleans.Grains
             State[tile.Position.X - Left, tile.Position.Y - Top] = tile;
             State.TimeStamp = DateTime.UtcNow;
 
-
-            return Task.CompletedTask;
+            (int X, int Y) chunk = tile.Position.DivDown(SyncOptions.Value.ChunkSize);
+            await Task.WhenAll(chunk.ForAround().Select(c => GrainFactory.GetGrain<IChunk>(c).OnTileChanged(tile)));
         }
 
         public Task<Tile> GetTile((int X, int Y) pos)
@@ -127,7 +134,8 @@ namespace SimCivil.Orleans.Grains
 
             State = new AtlasState
             {
-                Tiles = Generator.Generate(GameOptions.Value.Seed,
+                Tiles = Generator.Generate(
+                    GameOptions.Value.Seed,
                     AtlasIndex.X,
                     AtlasIndex.Y,
                     GameOptions.Value.AtlasSize),
@@ -157,7 +165,10 @@ namespace SimCivil.Orleans.Grains
 
     public static class AtlasExtension
     {
-        public static async Task<Tile> GetTile(this IGrainFactory factory, (int X, int Y) position, IOptions<GameOptions> gameOptions)
+        public static async Task<Tile> GetTile(
+            this IGrainFactory factory,
+            (int X, int Y) position,
+            IOptions<GameOptions> gameOptions)
         {
             return await factory.GetGrain<IAtlas>(position.DivDown(gameOptions.Value.AtlasSize)).GetTile(position);
         }
