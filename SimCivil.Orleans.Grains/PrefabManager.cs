@@ -27,6 +27,8 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 
+using Microsoft.Extensions.Logging;
+
 using Orleans;
 
 using SimCivil.Orleans.Interfaces;
@@ -36,10 +38,22 @@ namespace SimCivil.Orleans.Grains
 {
     public class PrefabManager : Grain<State.PrefabState>, IPrefabManager
     {
+        public ILogger<PrefabManager> Logger { get; }
+
+        public PrefabManager(ILogger<PrefabManager> logger)
+        {
+            Logger = logger;
+        }
         public async Task<IEntity> Clone(string name, string key)
         {
             var entity = GrainFactory.GetGrain<IEntity>(Guid.NewGuid());
-            var prefab = State.Prefabs[key];
+            if (!State.Prefabs.ContainsKey(key))
+            {
+                Logger.LogWarning($"{key} not find in the registered prefabs");
+
+                return null;
+            }
+            IEntity prefab = State.Prefabs[key];
 
             await prefab.CopyTo(entity);
 

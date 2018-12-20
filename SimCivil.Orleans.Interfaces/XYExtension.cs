@@ -19,10 +19,12 @@
 // SOFTWARE.
 // 
 // SimCivil - SimCivil.Orleans.Interfaces - XYExtension.cs
-// Create Date: 2018/11/24
-// Update Date: 2018/12/08
+// Create Date: 2018/12/15
+// Update Date: 2018/12/17
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 
@@ -35,6 +37,9 @@ namespace SimCivil.Orleans.Interfaces
     /// </summary>
     public static class XYExtension
     {
+        public static readonly (int X, int Y)[] Offsets =
+            {(0, 0), (1, 0), (0, 1), (-1, 0), (0, -1), (1, 1), (-1, -1), (1, -1), (-1, 1)};
+
         /// <summary>
         /// Gets the length.
         /// </summary>
@@ -96,6 +101,11 @@ namespace SimCivil.Orleans.Interfaces
             long key = grain.GetPrimaryKeyLong();
 
             return ((int X, int Y)) (key & uint.MaxValue, key >> 32);
+        }
+
+        public static IEnumerable<(int X, int Y)> ForAround(this (int X, int Y) center)
+        {
+            return Offsets.Select(o => (center.X + o.X, center.Y + o.Y));
         }
     }
 }

@@ -50,7 +50,11 @@ namespace SimCivil.Gate
 
         static OrleansChunkViewSynchronizer()
         {
-            Mapper.Initialize(c => c.CreateMap<Tile, TileDto>());
+            Mapper.Initialize(c =>
+            {
+                c.CreateMap<Tile, TileDto>();
+                c.CreateMap<AppearanceEntry, AppearanceDto>();
+            });
         }
 
         public OrleansChunkViewSynchronizer(IGrainFactory grainFactory, ILogger<IViewSynchronizer> logger)
@@ -84,6 +88,19 @@ namespace SimCivil.Gate
             DateTime timeStamp = await GrainFactory.GetGrain<IAtlas>(index).GetTimeStamp();
 
             return timeStamp;
+        }
+
+        /// <summary>Gets the appearance.</summary>
+        /// <param name="entity">The entity.</param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException">appearance</exception>
+        public async Task<AppearanceDto[]> GetAppearance(Guid entity)
+        {
+            IAppearance appearance = await Session.Value.Get<IEntity>().Get<IAppearance>();
+
+            if (appearance == null) throw new ArgumentNullException(nameof(appearance));
+
+            return Mapper.Map<AppearanceDto[]>((await appearance.GetData()).Appearances);
         }
 
         public void StartSync(RpcServer server)

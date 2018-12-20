@@ -20,12 +20,14 @@
 // 
 // SimCivil - SimCivil.Orleans.Interfaces - IEntity.cs
 // Create Date: 2018/06/14
-// Update Date: 2018/10/04
+// Update Date: 2018/12/17
 
 using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+
+using JetBrains.Annotations;
 
 using Orleans;
 
@@ -34,6 +36,7 @@ namespace SimCivil.Orleans.Interfaces
     public interface IEntity : IGrainWithGuidKey
     {
         Task<bool> Has<T>() where T : IComponent;
+        Task<T> Get<T>() where T : class, IComponent;
         Task Add<T>() where T : IComponent;
         Task Remove<T>() where T : IComponent;
 
@@ -49,29 +52,62 @@ namespace SimCivil.Orleans.Interfaces
 
     public static class EntityExtension
     {
-        public static async Task Add<T>(this IEntity entity, T value) where T : IComponent
+        /// <summary>Adds the specified component.</summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="entity">The entity.</param>
+        /// <param name="component">The component.</param>
+        /// <returns></returns>
+        public static async Task Add<T>(this IEntity entity, T component) where T : IComponent
         {
             await entity.Add<T>();
         }
 
+        /// <summary>Gets the component of the specified entity.</summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="factory">The factory.</param>
+        /// <param name="entityId">The entity identifier.</param>
+        /// <returns></returns>
         public static T Get<T>(this IGrainFactory factory, Guid entityId) where T : IComponent
         {
             return factory.GetGrain<T>(entityId);
         }
 
+        /// <summary>Gets the component of the specified entity.</summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="factory">The factory.</param>
+        /// <param name="entity">The entity.</param>
+        /// <returns></returns>
         public static T Get<T>(this IGrainFactory factory, IEntity entity) where T : IComponent
         {
             return factory.GetGrain<T>(entity.GetPrimaryKey());
         }
 
+        /// <summary>Gets the component with the same entity owner.</summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="factory">The factory.</param>
+        /// <param name="grain">Other component.</param>
+        /// <returns></returns>
         public static T Get<T>(this IGrainFactory factory, IGrainWithGuidKey grain) where T : IComponent
         {
             return factory.GetGrain<T>(grain.GetPrimaryKey());
         }
 
+        /// <summary>Gets the owner entity of the component.</summary>
+        /// <param name="factory">The factory.</param>
+        /// <param name="grain">The component.</param>
+        /// <returns></returns>
         public static IEntity GetEntity(this IGrainFactory factory, IComponent grain)
         {
             return factory.GetGrain<IEntity>(grain.GetPrimaryKey());
+        }
+
+        /// <summary>Gets the entity.</summary>
+        /// <param name="factory">The factory.</param>
+        /// <param name="guid">The unique identifier.</param>
+        /// <returns></returns>
+        public static IEntity GetEntity(this IGrainFactory factory, Guid guid)
+        {
+            return factory.GetGrain<IEntity>(guid);
         }
     }
 }

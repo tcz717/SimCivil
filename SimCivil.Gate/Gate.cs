@@ -112,9 +112,14 @@ namespace SimCivil.Gate
                 .Configure<ClusterOptions>(configuration.GetSection("Cluster"));
         }
 
-        public async Task Run(IServiceCollection services = null)
+        public Task Run()
         {
-            var container = ConfigureRpc(services);
+            return Run(null);
+        }
+
+        public async Task Run(IServiceCollection services)
+        {
+            ContainerBuilder container = ConfigureRpc(services);
             container.RegisterInstance(Client.ServiceProvider.GetService<IGrainFactory>());
             Server = new RpcServer(container.Build())
             {

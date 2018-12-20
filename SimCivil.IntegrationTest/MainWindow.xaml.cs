@@ -168,7 +168,7 @@ namespace SimCivil.IntegrationTest
                 .AddStartupTask(
                     (provider, token) => provider.GetRequiredService<IGrainFactory>()
                         .GetGrain<IGame>(0)
-                        .InitGame(true))
+                        .InitGame())
                 .ConfigureLogging(
                     logging => logging.AddDebug().AddProvider(LoggerProvider))
                 .ConfigureServices(

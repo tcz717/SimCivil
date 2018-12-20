@@ -18,35 +18,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// SimCivil - SimCivil.Orleans.Interfaces - IChunk.cs
-// Create Date: 2018/02/26
-// Update Date: 2018/02/26
+// SimCivil - SimCivil.Orleans.Interfaces - IAppearance.cs
+// Create Date: 2018/12/19
+// Update Date: 2018/12/19
 
 using System;
 using System.Text;
-using System.Threading.Tasks;
 
-using Orleans;
-using Orleans.Concurrency;
-
-using SimCivil.Orleans.Interfaces.Component;
-
-namespace SimCivil.Orleans.Interfaces
+namespace SimCivil.Orleans.Interfaces.Component
 {
-    public interface IChunk : IGrainWithIntegerKey
-    {
-        /// <summary>Called when [entity moved].</summary>
-        /// <param name="entityGuid">The entity unique identifier.</param>
-        /// <param name="previousPos">The previous position.</param>
-        /// <param name="currentPos">The current position.</param>
-        /// <returns></returns>
-        [OneWay]
-        Task OnEntityMoved(Guid entityGuid, Position previousPos, Position currentPos);
-
-        /// <summary>Called when [tile changed].</summary>
-        /// <param name="tile">The tile.</param>
-        /// <returns></returns>
-        [OneWay]
-        Task OnTileChanged(Tile tile);
-    }
+    public interface IAppearance : IComponent<AppearanceContainer> { }
 }
