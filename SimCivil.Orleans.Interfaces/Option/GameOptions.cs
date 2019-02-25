@@ -67,6 +67,6 @@ namespace SimCivil.Orleans.Interfaces.Option
         /// <summary>Gets or sets a value indicating whether the game is in the development mode.</summary>
         /// <value>
         ///   <c>true</c> if development; otherwise, <c>false</c>.</value>
-        public bool Development { get; set; } = false;
+        public bool Development { get; set; } = true;
     }
 }
