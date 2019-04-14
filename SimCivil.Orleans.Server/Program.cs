@@ -19,8 +19,8 @@
 // SOFTWARE.
 // 
 // SimCivil - SimCivil.Orleans.Server - Program.cs
-// Create Date: 2018/06/14
-// Update Date: 2018/12/16
+// Create Date: 2018/06/13
+// Update Date: 2019/04/13
 
 using System;
 using System.Net;
@@ -104,7 +104,8 @@ namespace SimCivil.Orleans.Server
                 });
 
             serviceCollection.AddSingleton<IMapGenerator, RandomMapGen>()
-                .AddSingleton<ITerrainRepository, TestTerrainRepository>();
+                .AddSingleton<ITerrainRepository, TestTerrainRepository>()
+                .AddTransient<IUnitGenerator, TestUnitGenerator>();
         }
     }
 }

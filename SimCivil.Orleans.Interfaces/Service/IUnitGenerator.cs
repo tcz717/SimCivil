@@ -18,45 +18,22 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// SimCivil - SimCivil.Orleans.Interfaces - IUnitController.cs
-// Create Date: 2018/09/27
-// Update Date: 2018/10/15
+// SimCivil - SimCivil.Orleans.Interfaces - IUnitGenerator.cs
+// Create Date: 2018/12/31
+// Update Date: 2018/12/31
 
 using System;
 using System.Text;
-using System.Threading.Tasks;
 
 using SimCivil.Contract;
+using SimCivil.Orleans.Interfaces.Component;
 
-namespace SimCivil.Orleans.Interfaces.Component
+namespace SimCivil.Orleans.Interfaces.Service
 {
-    public interface IUnitController : IComponent
+    public interface IUnitGenerator
     {
-        /// <summary>
-        /// Moves the specified direction.
-        /// </summary>
-        /// <param name="direction">The direction.</param>
-        /// <param name="speed">The speed.</param>
-        /// <returns></returns>
-        Task Move((float X, float Y) direction, float speed);
-
-        /// <summary>
-        /// Moves to specified position.
-        /// </summary>
-        /// <param name="position">The position.</param>
-        /// <param name="timestamp"></param>
-        /// <returns></returns>
-        Task MoveTo(Position position, DateTime timestamp);
-
-        Task Stop();
-
-        Task Drop(IEntity target);
-
-        Task Attack(IEntity target);
-
-        Task Use(IEntity target);
-
-        Task<InspectionResult> InspectEntity(IEntity target);
-        Task<(float X, float Y)> GetSpeed();
+        Unit GenerateInitiateUnit(CreateRoleOption option);
+        Unit GenerateByAsexual(Unit parent);
+        Unit GenerateBySexual(Unit father, Unit mother);
     }
 }

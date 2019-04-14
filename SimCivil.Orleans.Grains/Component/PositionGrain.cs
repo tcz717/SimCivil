@@ -28,6 +28,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using JetBrains.Annotations;
+
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -39,6 +41,7 @@ using SimCivil.Orleans.Interfaces.Option;
 
 namespace SimCivil.Orleans.Grains.Component
 {
+    [PublicAPI]
     public class PositionGrain : BaseGrain<Position>, IPosition
     {
         public IOptions<SyncOptions> SyncOptions { get; }

@@ -63,7 +63,7 @@ namespace SimCivil.Orleans.Grains.Component
         public virtual async Task<IComponent> CopyTo(IEntity target)
         {
             StateCheck();
-            var type = GetType()
+            Type type = GetType()
                            .GetInterfaces()
                            .FirstOrDefault(
                                t => t != typeof(IComponent<TComponent>) &&
@@ -83,7 +83,17 @@ namespace SimCivil.Orleans.Grains.Component
             return Task.FromResult(
                 (IReadOnlyDictionary<string, string>) State.GetType()
                     .GetProperties(BindingFlags.Instance | BindingFlags.Public)
-                    .ToDictionary(prop => prop.Name, prop => prop.GetValue(State, null).ToString()));
+                    .ToDictionary(prop => prop.Name, prop => prop.GetValue(State, null)?.ToString()));
+        }
+
+        public virtual Task<IReadOnlyDictionary<string, string>> Inspect(IEntity observer)
+        {
+            return Task.FromResult<IReadOnlyDictionary<string, string>>(null);
+        }
+
+        public Task Delete()
+        {
+            return ClearStateAsync();
         }
 
         private void StateCheck()

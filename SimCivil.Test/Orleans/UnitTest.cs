@@ -18,33 +18,48 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// SimCivil - SimCivil.Contract - IPlayerController.cs
-// Create Date: 2018/12/13
-// Update Date: 2018/12/21
+// SimCivil - SimCivil.Test - UnitTest.cs
+// Create Date: 2018/12/31
+// Update Date: 2018/12/31
 
 using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 
-using JetBrains.Annotations;
+using Orleans.TestingHost;
 
-namespace SimCivil.Contract
+using SimCivil.Orleans.Interfaces;
+using SimCivil.Orleans.Interfaces.Component;
+
+using Xunit;
+using Xunit.Abstractions;
+
+namespace SimCivil.Test.Orleans
 {
-    [PublicAPI]
-    public interface IPlayerController
+    [Collection(ClusterCollection.Name)]
+    public class UnitTest
     {
-        /// <summary>
-        /// Moves the specified direction.
-        /// </summary>
-        /// <param name="direction">The direction.</param>
-        /// <param name="speed">The speed.</param>
-        /// <returns></returns>
-        Task Move((float X, float Y) direction, float speed);
+        /// <summary>Initializes a new instance of the <see cref="T:System.Object"></see> class.</summary>
+        public UnitTest(OrleansFixture fixture, ITestOutputHelper output)
+        {
+            Output = output;
+            Cluster = fixture.Cluster;
+        }
 
-        Task Stop();
-        Task MoveTo((float X, float Y) position, DateTime timestamp);
+        public ITestOutputHelper Output { get; }
+        public TestCluster Cluster { get; }
 
-        Task<InspectionResult> Inspect(Guid entityId);
+        [Fact]
+        public async Task InspectTest()
+        {
+            var unit = Cluster.GrainFactory.GetGrain<IUnit>(Guid.NewGuid());
+            var inspectDict = await unit.Inspect(Cluster.GrainFactory.GetEntity(unit));
+            Assert.NotEmpty(inspectDict);
+            foreach (var keyValuePair in inspectDict)
+            {
+                Output.WriteLine($"[{keyValuePair.Key}] = {keyValuePair.Value}");
+            }
+        }
     }
 }

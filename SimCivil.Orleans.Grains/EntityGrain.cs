@@ -132,5 +132,12 @@ namespace SimCivil.Orleans.Grains
 
             return Task.CompletedTask;
         }
+
+        public async Task Delete()
+        {
+            await Task.WhenAll(State.Components.Select(c => c.Delete()));
+            await ClearStateAsync();
+            State = null;
+        }
     }
 }

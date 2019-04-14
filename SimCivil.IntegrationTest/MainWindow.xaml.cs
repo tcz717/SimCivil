@@ -20,11 +20,12 @@
 // 
 // SimCivil - SimCivil.IntegrationTest - MainWindow.xaml.cs
 // Create Date: 2018/09/27
-// Update Date: 2018/12/13
+// Update Date: 2019/02/25
 
 using System;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -38,6 +39,7 @@ using Microsoft.Extensions.Logging;
 
 using Orleans;
 using Orleans.Hosting;
+using Orleans.Logging;
 using Orleans.TestingHost;
 
 using SimCivil.Orleans.Grains.Service;
@@ -99,6 +101,8 @@ namespace SimCivil.IntegrationTest
             var serviceCollection = new ServiceCollection();
             serviceCollection.AddLogging(
                 n => n.AddLogViewer(ClientLogViewer)
+                    .AddFile(Path.Combine("logs", $"testcases_{DateTime.Now.ToBinary()}.log"))
+                    .AddDebug()
                     .AddFilter(level => level > LogLevel.Debug));
             Debug.Assert(Cluster.Client != null, "Cluster.Client != null");
             serviceCollection.AddSingleton(Cluster.Client);
@@ -175,7 +179,8 @@ namespace SimCivil.IntegrationTest
                     services =>
                     {
                         services.AddSingleton<IMapGenerator, RandomMapGen>()
-                            .AddSingleton<ITerrainRepository, TestTerrainRepository>();
+                            .AddSingleton<ITerrainRepository, TestTerrainRepository>()
+                            .AddTransient<IUnitGenerator, TestUnitGenerator>();
                     });
         }
     }

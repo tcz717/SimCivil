@@ -35,9 +35,20 @@ namespace SimCivil.Orleans.Interfaces.Component
         /// <summary>Fills the specified option.</summary>
         /// <param name="option">The option.</param>
         /// <returns></returns>
+        [Obsolete]
         Task Fill(CreateRoleOption option);
         /// <summary>Gets the hp.</summary>
         /// <returns></returns>
         Task<float> GetHp();
+
+        /// <summary>Updates the abilities.</summary>
+        /// <returns></returns>
+        Task UpdateAbilities();
+        /// <summary>Updates the effects.</summary>
+        /// <returns></returns>
+        Task UpdateEffects();
+
+        Task<float> GetMoveSpeed();
+        Task<uint> GetSightRange();
     }
 }

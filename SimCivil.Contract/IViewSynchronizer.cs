@@ -30,6 +30,7 @@ using JetBrains.Annotations;
 
 namespace SimCivil.Contract
 {
+    [PublicAPI]
     public interface IViewSynchronizer
     {
         /// <summary>Registers the view synchronize.</summary>
@@ -55,6 +56,7 @@ namespace SimCivil.Contract
         Task<AppearanceDto[]> GetAppearance(Guid entity);
     }
 
+    [PublicAPI]
     public class AppearanceDto
     {
         public AppearanceType Type { get; set; }

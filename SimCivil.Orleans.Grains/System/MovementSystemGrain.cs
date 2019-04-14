@@ -93,7 +93,7 @@ namespace SimCivil.Orleans.Grains.System
 
         private async Task MoveEntity(KeyValuePair<Guid, (float X, float Y)> e)
         {
-            float maxMoveSpeed = (await GrainFactory.Get<IUnit>(e.Key).GetData()).MoveSpeed;
+            float maxMoveSpeed = await GrainFactory.Get<IUnit>(e.Key).GetMoveSpeed();
             var position = GrainFactory.Get<IPosition>(e.Key);
             Position pos = await position.GetData();
             Tile currentTile = await GrainFactory.GetTile(pos.Tile, GameOptions);

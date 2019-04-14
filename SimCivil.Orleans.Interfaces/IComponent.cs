@@ -20,7 +20,7 @@
 // 
 // SimCivil - SimCivil.Orleans.Interfaces - IComponent.cs
 // Create Date: 2018/06/14
-// Update Date: 2018/10/05
+// Update Date: 2018/12/30
 
 using System;
 using System.Collections.Generic;
@@ -35,6 +35,8 @@ namespace SimCivil.Orleans.Interfaces
     {
         Task<IComponent> CopyTo(IEntity target);
         Task<IReadOnlyDictionary<string, string>> Dump();
+        Task<IReadOnlyDictionary<string, string>> Inspect(IEntity observer);
+        Task Delete();
     }
 
     public interface IComponent<T> : IComponent where T : new()
