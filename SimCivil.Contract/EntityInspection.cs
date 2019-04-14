@@ -28,13 +28,11 @@ using System.Text;
 
 namespace SimCivil.Contract
 {
-    public class EntityInspection
+    public class InspectionResult
     {
         public Guid EntityId { get; set; }
         public DateTime TimeStamp { get; set; }
         public Guid ObserverId { get; set; }
-        public Dictionary<string, EntityInspectionValue> Values { get; set; }
+        public Dictionary<string, string> Values { get; set; }
     }
-
-    public class EntityInspectionValue { }
 }

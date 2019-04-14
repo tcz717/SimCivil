@@ -19,11 +19,12 @@
 // SOFTWARE.
 // 
 // SimCivil - SimCivil.Orleans.Grains - ControllerGrain.cs
-// Create Date: 2018/10/21
-// Update Date: 2018/12/13
+// Create Date: 2018/12/13
+// Update Date: 2018/12/30
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -131,8 +132,8 @@ namespace SimCivil.Orleans.Grains.Component
                          (position.Y - previous.Y) * (position.Y - previous.Y);
 
             double v2 = dx2 / (dt.TotalSeconds * dt.TotalSeconds);
-            Unit unit = await GrainFactory.Get<IUnit>(this).GetData();
-            double maxv2 = _terrainRepository.GetTerrain(tile.Terrain).BaseMoveSpeed * unit.MoveSpeed;
+            float speed = await GrainFactory.Get<IUnit>(this).GetMoveSpeed();
+            double maxv2 = _terrainRepository.GetTerrain(tile.Terrain).BaseMoveSpeed * speed;
             maxv2 *= maxv2;
 
             if (v2 > maxv2 + 0.001)
@@ -177,9 +178,22 @@ namespace SimCivil.Orleans.Grains.Component
             throw new NotImplementedException();
         }
 
-        public Task<EntityInspection> Inspect(IEntity target)
+        public async Task<InspectionResult> InspectEntity(IEntity target)
         {
-            throw new NotImplementedException();
+            var result = new InspectionResult
+            {
+                EntityId = target.GetPrimaryKey(),
+                ObserverId = this.GetPrimaryKey(),
+                TimeStamp = DateTime.UtcNow,
+                Values = new Dictionary<string, string>()
+            };
+
+            var components = await GrainFactory.GetEntity(this).GetComponents();
+            var inspections = await Task.WhenAll(
+                components.Where(c => !(c is IUnitController)).Select(c => c.Inspect(target)));
+            result.Values = inspections.Where(i => i != null).SelectMany(i => i).ToDictionary(i => i.Key, i => i.Value);
+
+            return result;
         }
 
         public Task<IComponent> CopyTo(IEntity target)
@@ -194,6 +208,16 @@ namespace SimCivil.Orleans.Grains.Component
                 {
                     ["Speed"] = _speed.ToString()
                 });
+        }
+
+        public Task<IReadOnlyDictionary<string, string>> Inspect(IEntity target)
+        {
+            return Dump();
+        }
+
+        public Task Delete()
+        {
+            return Task.CompletedTask;
         }
 
         /// <summary>

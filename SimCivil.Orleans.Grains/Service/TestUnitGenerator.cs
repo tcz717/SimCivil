@@ -18,45 +18,45 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// SimCivil - SimCivil.Orleans.Interfaces - IUnitController.cs
-// Create Date: 2018/09/27
-// Update Date: 2018/10/15
+// SimCivil - SimCivil.Orleans.Grains - TestUnitGenerator.cs
+// Create Date: 2018/12/31
+// Update Date: 2019/04/13
 
 using System;
 using System.Text;
-using System.Threading.Tasks;
 
 using SimCivil.Contract;
+using SimCivil.Orleans.Interfaces.Component;
+using SimCivil.Orleans.Interfaces.Service;
 
-namespace SimCivil.Orleans.Interfaces.Component
+namespace SimCivil.Orleans.Grains.Service
 {
-    public interface IUnitController : IComponent
+    public class TestUnitGenerator : IUnitGenerator
     {
-        /// <summary>
-        /// Moves the specified direction.
-        /// </summary>
-        /// <param name="direction">The direction.</param>
-        /// <param name="speed">The speed.</param>
-        /// <returns></returns>
-        Task Move((float X, float Y) direction, float speed);
+        public Unit GenerateInitiateUnit(CreateRoleOption option)
+        {
+            var unit = new Unit
+            {
+                Race = option.Race,
+                Gender = option.Gender,
+            };
 
-        /// <summary>
-        /// Moves to specified position.
-        /// </summary>
-        /// <param name="position">The position.</param>
-        /// <param name="timestamp"></param>
-        /// <returns></returns>
-        Task MoveTo(Position position, DateTime timestamp);
+            for (int i = 0; i < (int) BodyPartIndex.BodyPartCount; i++)
+            {
+                unit.BodyParts[i] = BodyPart.Create(1, 10);
+            }
 
-        Task Stop();
+            return unit;
+        }
 
-        Task Drop(IEntity target);
+        public Unit GenerateByAsexual(Unit parent)
+        {
+            throw new NotImplementedException();
+        }
 
-        Task Attack(IEntity target);
-
-        Task Use(IEntity target);
-
-        Task<InspectionResult> InspectEntity(IEntity target);
-        Task<(float X, float Y)> GetSpeed();
+        public Unit GenerateBySexual(Unit father, Unit mother)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

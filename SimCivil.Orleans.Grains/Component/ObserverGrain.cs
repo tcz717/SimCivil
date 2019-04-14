@@ -28,6 +28,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using JetBrains.Annotations;
+
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -38,6 +40,7 @@ using SimCivil.Orleans.Interfaces.Option;
 
 namespace SimCivil.Orleans.Grains.Component
 {
+    [PublicAPI]
     public class ObserverGrain : BaseGrain<Observer>, IObserver
     {
         public IOptions<SyncOptions> SyncOptions { get; }
@@ -91,7 +94,7 @@ namespace SimCivil.Orleans.Grains.Component
             };
 
             if (await GrainFactory.GetEntity(this).Has<IUnit>())
-                viewChange.Speed = (await GrainFactory.Get<IUnit>(this).GetData()).MoveSpeed;
+                viewChange.Speed = await GrainFactory.Get<IUnit>(this).GetMoveSpeed();
 
             var entities = await Task.WhenAll(
                 Entities.Select(
@@ -127,7 +130,7 @@ namespace SimCivil.Orleans.Grains.Component
             Entities = new HashSet<Guid>();
 
             // TODO: use a better way to set NotifyRange
-            State.NotifyRange = (uint) (await GrainFactory.Get<IUnit>(this).GetData()).SightRange;
+            State.NotifyRange = await GrainFactory.Get<IUnit>(this).GetSightRange();
 
             await base.OnActivateAsync();
         }

@@ -19,8 +19,8 @@
 // SOFTWARE.
 // 
 // SimCivil - SimCivil.Orleans.Grains - AccountGrain.cs
-// Create Date: 2018/06/14
-// Update Date: 2018/12/13
+// Create Date: 2018/06/13
+// Update Date: 2019/04/13
 
 using System;
 using System.Collections.Generic;
@@ -39,6 +39,7 @@ using SimCivil.Orleans.Grains.State;
 using SimCivil.Orleans.Interfaces;
 using SimCivil.Orleans.Interfaces.Component;
 using SimCivil.Orleans.Interfaces.Option;
+using SimCivil.Orleans.Interfaces.Service;
 using SimCivil.Orleans.Interfaces.System;
 
 namespace SimCivil.Orleans.Grains
@@ -47,11 +48,16 @@ namespace SimCivil.Orleans.Grains
     {
         public ILogger<AccountGrain> Logger { get; }
         public IOptions<GameOptions> GameOptions { get; }
+        public IUnitGenerator UnitGenerator { get; }
 
-        public AccountGrain(ILogger<AccountGrain> logger, IOptions<GameOptions> gameOptions)
+        public AccountGrain(
+            ILogger<AccountGrain> logger,
+            IOptions<GameOptions> gameOptions,
+            IUnitGenerator unitGenerator)
         {
             Logger = logger;
             GameOptions = gameOptions;
+            UnitGenerator = unitGenerator;
         }
 
         /// <summary>
@@ -161,7 +167,11 @@ namespace SimCivil.Orleans.Grains
 
             var unit = GrainFactory.Get<IUnit>(role);
             var pos = GrainFactory.Get<IPosition>(role);
-            await unit.Fill(option);
+
+            await unit.SetData(UnitGenerator.GenerateInitiateUnit(option));
+            await unit.UpdateAbilities();
+            await unit.UpdateEffects();
+
             await pos.SetData(new Position(GameOptions.Value.SpawnPoint));
             await role.SetName(option.Name);
 
