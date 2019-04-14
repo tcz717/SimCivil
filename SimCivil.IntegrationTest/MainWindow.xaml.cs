@@ -20,7 +20,7 @@
 // 
 // SimCivil - SimCivil.IntegrationTest - MainWindow.xaml.cs
 // Create Date: 2018/09/27
-// Update Date: 2019/02/25
+// Update Date: 2019/04/13
 
 using System;
 using System.Collections.ObjectModel;
@@ -44,6 +44,7 @@ using Orleans.TestingHost;
 
 using SimCivil.Orleans.Grains.Service;
 using SimCivil.Orleans.Interfaces;
+using SimCivil.Orleans.Interfaces.Option;
 using SimCivil.Orleans.Interfaces.Service;
 
 namespace SimCivil.IntegrationTest
@@ -176,11 +177,15 @@ namespace SimCivil.IntegrationTest
                 .ConfigureLogging(
                     logging => logging.AddDebug().AddProvider(LoggerProvider))
                 .ConfigureServices(
-                    services =>
+                    (context, services) =>
                     {
+                        IConfiguration configuration = context.Configuration;
                         services.AddSingleton<IMapGenerator, RandomMapGen>()
                             .AddSingleton<ITerrainRepository, TestTerrainRepository>()
-                            .AddTransient<IUnitGenerator, TestUnitGenerator>();
+                            .AddTransient<IUnitGenerator, TestUnitGenerator>()
+                            .Configure<GameOptions>(configuration.GetSection("Game"))
+                            .Configure<SyncOptions>(configuration.GetSection("Sync"));
+                        ;
                     });
         }
     }
