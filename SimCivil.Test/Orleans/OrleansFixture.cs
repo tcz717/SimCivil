@@ -90,6 +90,7 @@ namespace SimCivil.Test.Orleans
                             IConfiguration configuration = context.Configuration;
                             services.AddSingleton<IMapGenerator, RandomMapGen>()
                                 .AddSingleton<ITerrainRepository, TestTerrainRepository>()
+                                .AddTransient<IUnitGenerator, TestUnitGenerator>()
                                 .Configure<GameOptions>(configuration.GetSection("Game"))
                                 .Configure<SyncOptions>(configuration.GetSection("Sync"));
                         });
