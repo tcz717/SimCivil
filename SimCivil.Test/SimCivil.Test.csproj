@@ -35,6 +35,7 @@
     <ProjectReference Include="..\SimCivil.Gate\SimCivil.Gate.csproj" />
     <ProjectReference Include="..\SimCivil.Orleans.Grains\SimCivil.Orleans.Grains.csproj" />
     <ProjectReference Include="..\SimCivil.Orleans.Interfaces\SimCivil.Orleans.Interfaces.csproj" />
+    <ProjectReference Include="..\SimCivil.Orleans.Server\SimCivil.Orleans.Server.csproj" />
     <ProjectReference Include="..\SimCivil.Rpc\SimCivil.Rpc.csproj" />
   </ItemGroup>
 

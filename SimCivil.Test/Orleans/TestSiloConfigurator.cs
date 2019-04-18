@@ -18,8 +18,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// SimCivil - SimCivil.Test - OrleansFixture.cs
-// Create Date: 2018/06/22
+// SimCivil - SimCivil.Test - TestSiloConfigurator.cs
+// Create Date: 2019/04/14
 // Update Date: 2019/04/14
 
 using System;
@@ -27,35 +27,9 @@ using System.Text;
 
 using Orleans.TestingHost;
 
-using Xunit;
+using SimCivil.Orleans.Server;
 
 namespace SimCivil.Test.Orleans
 {
-    [CollectionDefinition(Name)]
-    public class ClusterCollection : ICollectionFixture<OrleansFixture>
-    {
-        public const string Name = "ClusterCollection";
-    }
-
-    public class OrleansFixture : IDisposable
-    {
-        public TestCluster Cluster { get; }
-
-        public OrleansFixture( /*ITestOutputHelper outputHelper*/)
-        {
-            var builder = new TestClusterBuilder();
-
-            //TestSiloConfigurator.OutputHelper = outputHelper;
-            builder.AddSiloBuilderConfigurator<TestSiloConfigurator>();
-
-            Cluster = builder.Build();
-            Cluster.Deploy();
-        }
-
-        /// <summary>Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.</summary>
-        public void Dispose()
-        {
-            Cluster.StopAllSilos();
-        }
-    }
+    public class TestSiloConfigurator : SiloConfigurator, ISiloBuilderConfigurator { }
 }
