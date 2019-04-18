@@ -20,7 +20,7 @@
 // 
 // SimCivil - SimCivil.IntegrationTest - MainWindow.xaml.cs
 // Create Date: 2018/09/27
-// Update Date: 2019/04/13
+// Update Date: 2019/04/14
 
 using System;
 using System.Collections.ObjectModel;
@@ -33,19 +33,13 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-using Orleans;
-using Orleans.Hosting;
 using Orleans.Logging;
 using Orleans.TestingHost;
 
-using SimCivil.Orleans.Grains.Service;
-using SimCivil.Orleans.Interfaces;
-using SimCivil.Orleans.Interfaces.Option;
-using SimCivil.Orleans.Interfaces.Service;
+using SimCivil.Orleans.Server;
 
 namespace SimCivil.IntegrationTest
 {
@@ -79,8 +73,8 @@ namespace SimCivil.IntegrationTest
         {
             var builder = new TestClusterBuilder();
 
-            SiloBuilder.LoggerProvider = new WpfLogProvider(ClusterLogViewer);
-            builder.AddSiloBuilderConfigurator<SiloBuilder>();
+            IntegrationTestSiloConfigurator.LoggerProvider = new WpfLogProvider(ClusterLogViewer);
+            builder.AddSiloBuilderConfigurator<IntegrationTestSiloConfigurator>();
 
             Cluster = builder.Build();
             Cluster.Deploy();
@@ -153,40 +147,13 @@ namespace SimCivil.IntegrationTest
         }
     }
 
-    public class SiloBuilder : ISiloBuilderConfigurator
+    public class IntegrationTestSiloConfigurator : SiloConfigurator, ISiloBuilderConfigurator
     {
         public static WpfLogProvider LoggerProvider;
 
-        /// <summary>Configures the host builder.</summary>
-        public void Configure(ISiloHostBuilder hostBuilder)
+        protected override void ConfigureLogging(ILoggingBuilder logging)
         {
-            hostBuilder
-                .AddMemoryGrainStorageAsDefault()
-                .ConfigureAppConfiguration(
-                    (context, configure) => configure
-                        .AddJsonFile(
-                            "appsettings.json",
-                            optional: false)
-                        .AddJsonFile(
-                            $"appsettings.{context.HostingEnvironment}.json",
-                            optional: true))
-                .AddStartupTask(
-                    (provider, token) => provider.GetRequiredService<IGrainFactory>()
-                        .GetGrain<IGame>(0)
-                        .InitGame())
-                .ConfigureLogging(
-                    logging => logging.AddDebug().AddProvider(LoggerProvider))
-                .ConfigureServices(
-                    (context, services) =>
-                    {
-                        IConfiguration configuration = context.Configuration;
-                        services.AddSingleton<IMapGenerator, RandomMapGen>()
-                            .AddSingleton<ITerrainRepository, TestTerrainRepository>()
-                            .AddTransient<IUnitGenerator, TestUnitGenerator>()
-                            .Configure<GameOptions>(configuration.GetSection("Game"))
-                            .Configure<SyncOptions>(configuration.GetSection("Sync"));
-                        ;
-                    });
+            logging.AddDebug().AddProvider(LoggerProvider);
         }
     }
 

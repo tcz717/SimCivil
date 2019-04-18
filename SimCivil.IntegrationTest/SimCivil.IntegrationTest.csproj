@@ -331,6 +331,10 @@
       <Project>{0B2CF7EE-E60D-4E34-8365-E01411DB7E5D}</Project>
       <Name>SimCivil.Orleans.Interfaces</Name>
     </ProjectReference>
+    <ProjectReference Include="..\SimCivil.Orleans.Server\SimCivil.Orleans.Server.csproj">
+      <Project>{05a81d03-3d21-44f9-aeff-45610789e56a}</Project>
+      <Name>SimCivil.Orleans.Server</Name>
+    </ProjectReference>
     <ProjectReference Include="..\SimCivil.Rpc\SimCivil.Rpc.csproj">
       <Project>{2dfaf40e-e810-4f94-a9c3-63de31b85b6e}</Project>
       <Name>SimCivil.Rpc</Name>
