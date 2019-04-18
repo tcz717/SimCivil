@@ -142,7 +142,7 @@ namespace SimCivil.Rpc
         }
 
         /// <summary>
-        /// Imports reomote service.
+        /// Imports or gets remote service.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
@@ -170,6 +170,9 @@ namespace SimCivil.Rpc
             DecodeFail?.Invoke(this, e);
         }
 
+        /// <summary>Attaches the callback and gets id.</summary>
+        /// <param name="delegate">The callback to be attached.</param>
+        /// <returns>Id of attached callback</returns>
         public int AttachCallback(Delegate @delegate)
         {
             int id = Interlocked.Increment(ref _nextCallbackId);

@@ -98,6 +98,9 @@ namespace SimCivil.Rpc
             }
         }
 
+        /// <summary>Replaces the callbacks with ids.</summary>
+        /// <param name="arguments">The arguments.</param>
+        /// <exception cref="NotSupportedException"></exception>
         private void ReplaceCallback(object[] arguments)
         {
             for (int i = 0; i < arguments.Length; i++)
@@ -145,6 +148,11 @@ namespace SimCivil.Rpc
             }
         }
 
+        /// <summary>Checks if the return is successful and fixes response.</summary>
+        /// <param name="invocation">The invocation.</param>
+        /// <param name="response">The response.</param>
+        /// <exception cref="RemotingException"></exception>
+        /// <exception cref="InvalidCastException">Return type is {returnType}</exception>
         private static void CheckReturn(IInvocation invocation, RpcResponse response)
         {
             if (!string.IsNullOrEmpty(response.ErrorInfo))
@@ -161,6 +169,11 @@ namespace SimCivil.Rpc
             throw new InvalidCastException($"Return type is {returnType}");
         }
 
+        /// <summary>Checks if the return is successful and fixes response.</summary>
+        /// <param name="invocation">The invocation.</param>
+        /// <param name="response">The response.</param>
+        /// <exception cref="RemotingException"></exception>
+        /// <exception cref="InvalidCastException">Return type is {response.ReturnValue?.GetType()}</exception>
         private static void CheckTaskReturn(IInvocation invocation, RpcResponse response)
         {
             if (!string.IsNullOrEmpty(response.ErrorInfo))
