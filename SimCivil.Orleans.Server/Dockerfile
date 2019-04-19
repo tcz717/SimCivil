@@ -1,17 +1,6 @@
-﻿FROM microsoft/dotnet:2.1-sdk AS dotnet-mono
+﻿FROM microsoft/dotnet:2.1-sdk AS dotnet
 
-RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --batch --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF
-
-RUN echo "deb http://download.mono-project.com/repo/debian stable-stretch main" > /etc/apt/sources.list.d/mono-official.list \
- && apt-get update \
-&& apt-get install -y mono-runtime \
-&& rm -rf /var/lib/apt/lists/* /tmp/*	
-
-RUN apt-get update \
- && apt-get install -y binutils curl mono-devel ca-certificates-mono mono-vbnc nuget referenceassemblies-pcl \
-&& rm -rf /var/lib/apt/lists/* /tmp/*
-
-FROM dotnet-mono AS restore
+FROM dotnet AS restore
 COPY SimCivil.Contract/SimCivil.Contract.csproj SimCivil.Contract/SimCivil.Contract.csproj
 COPY SimCivil.Gate/SimCivil.Gate.csproj SimCivil.Gate/SimCivil.Gate.csproj
 COPY SimCivil.Orleans.Grains/SimCivil.Orleans.Grains.csproj SimCivil.Orleans.Grains/SimCivil.Orleans.Grains.csproj
@@ -24,7 +13,7 @@ FROM restore AS build
 COPY . .
 RUN dotnet publish -f netcoreapp2.0 SimCivil.Orleans.Server
 
-FROM dotnet-mono AS entry
+FROM dotnet AS entry
 EXPOSE 20170
 WORKDIR /silo
 COPY --from=build SimCivil.Orleans.Server/bin/Debug/netcoreapp2.0/publish .
