@@ -36,6 +36,7 @@ using System.Windows.Controls;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
+using Orleans.Hosting;
 using Orleans.Logging;
 using Orleans.TestingHost;
 
@@ -151,7 +152,7 @@ namespace SimCivil.IntegrationTest
     {
         public static WpfLogProvider LoggerProvider;
 
-        protected override void ConfigureLogging(ILoggingBuilder logging)
+        protected override void ConfigureLogging(HostBuilderContext context, ILoggingBuilder logging)
         {
             logging.AddDebug().AddProvider(LoggerProvider);
         }

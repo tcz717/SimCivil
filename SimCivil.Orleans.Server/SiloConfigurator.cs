@@ -23,13 +23,17 @@
 // Update Date: 2019/04/14
 
 using System;
+using System.Net;
 using System.Text;
+
+using JetBrains.Annotations;
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 using Orleans;
+using Orleans.Configuration;
 using Orleans.Hosting;
 
 using SimCivil.Orleans.Grains.Service;
@@ -41,6 +45,14 @@ namespace SimCivil.Orleans.Server
 {
     public class SiloConfigurator
     {
+        private const string Dsn = "https://c091709188504c39a331cc91794fa4f4@sentry.io/216217";
+        public string[] Args { get; }
+
+        [UsedImplicitly]
+        public SiloConfigurator() : this(new string[] { }) { }
+
+        public SiloConfigurator(string[] args) => Args = args;
+
         /// <summary>Configures the host builder.</summary>
         public void Configure(ISiloHostBuilder hostBuilder)
         {
@@ -53,27 +65,44 @@ namespace SimCivil.Orleans.Server
                             optional: false)
                         .AddJsonFile(
                             $"appsettings.{context.HostingEnvironment}.json",
-                            optional: true))
+                            optional: true)
+                        .AddEnvironmentVariables()
+                        .AddCommandLine(Args))
                 .AddStartupTask(
                     (provider, token) => provider.GetRequiredService<IGrainFactory>()
                         .GetGrain<IGame>(0)
                         .InitGame())
                 .ConfigureLogging(ConfigureLogging)
-                .ConfigureServices(
-                    (context, services) =>
-                    {
-                        IConfiguration configuration = context.Configuration;
-                        services.AddSingleton<IMapGenerator, RandomMapGen>()
-                            .AddSingleton<ITerrainRepository, TestTerrainRepository>()
-                            .AddTransient<IUnitGenerator, TestUnitGenerator>()
-                            .Configure<GameOptions>(configuration.GetSection("Game"))
-                            .Configure<SyncOptions>(configuration.GetSection("Sync"));
-                    });
+                .ConfigureServices(ConfigureServices);
         }
 
-        protected virtual void ConfigureLogging(ILoggingBuilder logging)
+        protected virtual void ConfigureServices(HostBuilderContext context, IServiceCollection services)
         {
-            logging.AddConsole();
+            IConfiguration configuration = context.Configuration;
+
+            services
+                .Configure<EndpointOptions>(configuration.GetSection("Endpoint"))
+                .Configure<ClusterOptions>(configuration.GetSection("Cluster"))
+                .Configure<GameOptions>(configuration.GetSection("Game"))
+                .Configure<SyncOptions>(configuration.GetSection("Sync"));
+
+            services.PostConfigure<EndpointOptions>(
+                options =>
+                {
+                    options.GatewayListeningEndpoint = new IPEndPoint(IPAddress.Any, options.GatewayPort);
+                    options.SiloListeningEndpoint = new IPEndPoint(IPAddress.Any, options.SiloPort);
+                });
+
+            services.AddSingleton<IMapGenerator, RandomMapGen>()
+                .AddSingleton<ITerrainRepository, TestTerrainRepository>()
+                .AddTransient<IUnitGenerator, TestUnitGenerator>();
+        }
+
+        protected virtual void ConfigureLogging(HostBuilderContext context, ILoggingBuilder logging)
+        {
+            logging.AddConsole()
+                .AddSentry(Dsn)
+                .AddConfiguration(context.Configuration.GetSection("Logging"));
         }
     }
 }
