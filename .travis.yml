@@ -1,6 +1,6 @@
 language: csharp
 solution: SimCivil.sln
-dotnet: 2.1.4
+dotnet: 2.2.0
 dist: trusty
 matrix:
   include:
