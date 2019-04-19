@@ -3,7 +3,6 @@ version: '3'
 services:
   gateway:
     image: gateway
-    network_mode: host
     ports:
      - "20170:20170"
     depends_on:
