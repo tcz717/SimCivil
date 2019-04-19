@@ -18,46 +18,45 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// SimCivil - SimCivil.Orleans.Server - Program.cs
-// Create Date: 2018/06/13
-// Update Date: 2019/04/18
+// SimCivil - SimCivil.Orleans.Grains - SimpleRoleFactory.cs
+// Create Date: 2019/04/14
+// Update Date: 2019/04/14
 
 using System;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-using Orleans.Hosting;
+using SimCivil.Contract;
+using SimCivil.Orleans.Interfaces;
+using SimCivil.Orleans.Interfaces.Service;
 
-using Sentry;
-
-namespace SimCivil.Orleans.Server
+namespace SimCivil.Orleans.Grains.Service
 {
-    class Program
+    public class SimpleRoleFactory : IRoleFactory
     {
-        private const string Dsn = "https://c091709188504c39a331cc91794fa4f4@sentry.io/216217";
+        public IUnitGenerator UnitGenerator { get; }
+        public ILogger<SimpleRoleFactory> Logger { get; }
 
-        static async Task Main(string[] args)
+        public SimpleRoleFactory(IUnitGenerator unitGenerator, ILogger<SimpleRoleFactory> logger)
         {
-            using (SentrySdk.Init(Dsn))
-            {
-                ISiloHostBuilder siloBuilder = new SiloHostBuilder()
-                    .UseLocalhostClustering();
-                SiloConfigurator configurator = new SiloConfigurator(args);
-                configurator.Configure(siloBuilder);
+            UnitGenerator = unitGenerator;
+            Logger = logger;
+        }
 
-                ISiloHost silo = siloBuilder.Build();
-                await silo.StartAsync();
+        public IEntity CreateInitiateRole(CreateRoleOption option)
+        {
+            throw new NotImplementedException();
+        }
 
-                var closeEvent = new AutoResetEvent(false);
-                Console.CancelKeyPress += (sender, e) => { closeEvent.Reset(); };
-                closeEvent.WaitOne();
-                silo.Services.GetService<ILogger<Program>>().LogInformation("stopping");
-                await silo.StopAsync();
-            }
+        public IEntity CreateByAsexual(IEntity parent)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IEntity CreateBySexual(IEntity father, IEntity mother)
+        {
+            throw new NotImplementedException();
         }
     }
 }
