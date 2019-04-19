@@ -14,7 +14,7 @@ COPY . .
 RUN dotnet publish -f netcoreapp2.0 SimCivil.Orleans.Server
 
 FROM dotnet AS entry
-EXPOSE 20170
+EXPOSE 30000 11111
 WORKDIR /silo
 COPY --from=build SimCivil.Orleans.Server/bin/Debug/netcoreapp2.0/publish .
 ENTRYPOINT ["dotnet", "SimCivil.Orleans.Server.dll"]
