@@ -20,7 +20,7 @@
 // 
 // SimCivil - SimCivil.Gate - Gate.cs
 // Create Date: 2018/12/15
-// Update Date: 2018/12/15
+// Update Date: 2019/04/20
 
 using System;
 using System.Text;
@@ -66,7 +66,8 @@ namespace SimCivil.Gate
             using (SentrySdk.Init("https://c091709188504c39a331cc91794fa4f4@sentry.io/216217"))
             {
                 IClusterClient client = new ClientBuilder()
-                    .UseLocalhostClustering()
+                    .UseEnvironment(EnvironmentName.Development)
+                    .UseDynamoDBClustering((Action<DynamoDBGatewayOptions>) null)
                     .Configure<NetworkingOptions>(options => options.OpenConnectionTimeout = TimeSpan.FromSeconds(10))
                     .ConfigureAppConfiguration(
                         (context, configure) => configure
@@ -74,7 +75,7 @@ namespace SimCivil.Gate
                                 "appsettings.json",
                                 optional: false)
                             .AddJsonFile(
-                                $"appsettings.{context.HostingEnvironment}.json",
+                                $"appsettings.{context.HostingEnvironment.EnvironmentName}.json",
                                 optional: true)
                             .AddEnvironmentVariables()
                             .AddCommandLine(args))
@@ -109,7 +110,8 @@ namespace SimCivil.Gate
                 .AddLogging(
                     logging => logging.AddConsole()
                         .AddConfiguration(configuration.GetSection("Logging")))
-                .Configure<ClusterOptions>(configuration.GetSection("Cluster"));
+                .Configure<ClusterOptions>(configuration.GetSection("Cluster"))
+                .Configure<DynamoDBGatewayOptions>(configuration.GetSection("DynamoDBClustering"));
         }
 
         public Task Run()

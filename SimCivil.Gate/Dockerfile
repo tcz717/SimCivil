@@ -1,4 +1,4 @@
-﻿FROM microsoft/dotnet:2.1-sdk AS dotnet
+﻿FROM mcr.microsoft.com/dotnet/core/sdk:2.1 AS dotnet
 
 FROM dotnet AS restore
 COPY SimCivil.Contract/SimCivil.Contract.csproj SimCivil.Contract/SimCivil.Contract.csproj
@@ -13,7 +13,7 @@ FROM restore AS build
 COPY . .
 RUN dotnet publish -f netcoreapp2.0 SimCivil.Gate
 
-FROM dotnet AS entry
+FROM mcr.microsoft.com/dotnet/core/runtime:2.2 AS entry
 EXPOSE 20170
 WORKDIR /gate
 COPY --from=build SimCivil.Gate/bin/Debug/netcoreapp2.0/publish .

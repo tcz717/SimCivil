@@ -66,7 +66,7 @@ namespace SimCivil.Orleans.Server
                         .AddJsonFile(
                             $"appsettings.{context.HostingEnvironment}.json",
                             optional: true)
-                        .AddEnvironmentVariables()
+                        .AddEnvironmentVariables("SC_")
                         .AddCommandLine(Args))
                 .AddStartupTask(
                     (provider, token) => provider.GetRequiredService<IGrainFactory>()
