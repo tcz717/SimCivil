@@ -20,19 +20,31 @@
 // 
 // SimCivil - SimCivil.Orleans.Server - Program.cs
 // Create Date: 2018/06/13
-// Update Date: 2019/04/18
+// Update Date: 2019/04/20
 
 using System;
+using System.Net;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
+using Orleans;
+using Orleans.Configuration;
 using Orleans.Hosting;
 
 using Sentry;
+
+using SimCivil.Orleans.Grains.Service;
+using SimCivil.Orleans.Interfaces;
+using SimCivil.Orleans.Interfaces.Option;
+using SimCivil.Orleans.Interfaces.Service;
+
+using EnvironmentName = Microsoft.Extensions.Hosting.EnvironmentName;
+using HostBuilderContext = Microsoft.Extensions.Hosting.HostBuilderContext;
 
 namespace SimCivil.Orleans.Server
 {
@@ -44,20 +56,66 @@ namespace SimCivil.Orleans.Server
         {
             using (SentrySdk.Init(Dsn))
             {
-                ISiloHostBuilder siloBuilder = new SiloHostBuilder()
-                    .UseLocalhostClustering();
-                SiloConfigurator configurator = new SiloConfigurator(args);
-                configurator.Configure(siloBuilder);
+                IHost host = new HostBuilder()
+                    .UseEnvironment(EnvironmentName.Development)
+                    .UseOrleans(
+                        (context, builder) =>
+                        {
+                            builder.AddMemoryGrainStorageAsDefault()
+                                .UseDynamoDBClustering((Action<DynamoDBClusteringOptions>) null)
+                                .Configure<EndpointOptions>(
+                                    options => options.AdvertisedIPAddress = Dns.GetHostAddresses(Dns.GetHostName())[0])
+                                .AddStartupTask(
+                                    (provider, token) => provider.GetRequiredService<IGrainFactory>()
+                                        .GetGrain<IGame>(0)
+                                        .InitGame());
+                        })
+                    .ConfigureAppConfiguration(
+                        (context, builder) =>
+                            builder
+                                .AddJsonFile(
+                                    "appsettings.json",
+                                    optional: false)
+                                .AddJsonFile(
+                                    $"appsettings.{context.HostingEnvironment.EnvironmentName}.json",
+                                    optional: true)
+                                .AddEnvironmentVariables("SC_")
+                                .AddCommandLine(args))
+                    .ConfigureLogging(ConfigureLogging)
+                    .ConfigureServices(ConfigureOption)
+                    .ConfigureServices(ConfigureServices)
+                    .Build();
 
-                ISiloHost silo = siloBuilder.Build();
-                await silo.StartAsync();
+                await host.StartAsync();
 
-                var closeEvent = new AutoResetEvent(false);
-                Console.CancelKeyPress += (sender, e) => { closeEvent.Reset(); };
-                closeEvent.WaitOne();
-                silo.Services.GetService<ILogger<Program>>().LogInformation("stopping");
-                await silo.StopAsync();
+                await host.WaitForShutdownAsync();
             }
+        }
+
+        private static void ConfigureServices(HostBuilderContext context, IServiceCollection services)
+        {
+            services.AddSingleton<IMapGenerator, RandomMapGen>()
+                .AddSingleton<ITerrainRepository, TestTerrainRepository>()
+                .AddTransient<IUnitGenerator, TestUnitGenerator>();
+        }
+
+        private static void ConfigureOption(HostBuilderContext context, IServiceCollection services)
+        {
+            IConfiguration configuration = context.Configuration;
+
+            services
+                .Configure<EndpointOptions>(configuration.GetSection("Endpoint"))
+                .Configure<ClusterOptions>(configuration.GetSection("Cluster"))
+                .Configure<GameOptions>(configuration.GetSection("Game"))
+                .Configure<SyncOptions>(configuration.GetSection("Sync"))
+                .Configure<DynamoDBClusteringOptions>(configuration.GetSection("DynamoDBClustering"));
+        }
+
+        private static void ConfigureLogging(HostBuilderContext context, ILoggingBuilder builder)
+        {
+            builder.AddConsole()
+                .AddSentry(Dsn)
+                .AddConfiguration(context.Configuration.GetSection("Logging"));
         }
     }
 }
