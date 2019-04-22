@@ -29,6 +29,9 @@ using System.Text;
 
 namespace SimCivil.Rpc.Session
 {
+    /// <summary>
+    /// Context information of the session
+    /// </summary>
     public interface IRpcSession : IDictionary<string, object>
     {
         IPEndPoint RemoteEndPoint { get; set; }

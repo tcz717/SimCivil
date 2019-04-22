@@ -113,6 +113,12 @@ namespace SimCivil.Rpc
             return (T) session[key];
         }
 
+        /// <summary>
+        /// Get value of session's context which is type T and convert the object value to T.
+        /// </summary>
+        /// <typeparam name="T">The type</typeparam>
+        /// <param name="session">The session</param>
+        /// <returns>Converted session value</returns>
         public static T Get<T>(this IRpcSession session)
         {
             return (T) session[typeof(T).FullName ?? throw new InvalidOperationException()];
