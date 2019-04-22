@@ -1,6 +1,5 @@
 ﻿using DotNetty.Transport.Channels;
 using Microsoft.Extensions.Logging;
-using SimCivil.Rpc.Session;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -107,7 +106,14 @@ namespace SimCivil.Rpc.Timeout
                 clientsToBeRemoved.Clear();
 
                 log.LogDebug("Timeout Deamon fell asleep");
-                Task.Delay(WaitTime, cancelSrc.Token).Wait();
+                try
+                {
+                    Task.Delay(WaitTime, cancelSrc.Token).Wait();
+                }
+                catch
+                {
+                    log.LogInformation("Timeout Deamon waked up by cancellation");
+                }
             }
         }
 
