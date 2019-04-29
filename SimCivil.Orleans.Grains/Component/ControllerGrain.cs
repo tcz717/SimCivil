@@ -20,7 +20,7 @@
 // 
 // SimCivil - SimCivil.Orleans.Grains - ControllerGrain.cs
 // Create Date: 2018/12/13
-// Update Date: 2018/12/30
+// Update Date: 2019/04/28
 
 using System;
 using System.Collections.Generic;
@@ -28,7 +28,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -59,7 +58,6 @@ namespace SimCivil.Orleans.Grains.Component
 
         public ControllerGrain(
             ILogger<ControllerGrain> logger,
-            IConfiguration configuration,
             ITerrainRepository terrainRepository,
             IOptions<GameOptions> gameOptions,
             IOptions<SyncOptions> syncOptions)
@@ -68,7 +66,7 @@ namespace SimCivil.Orleans.Grains.Component
             GameOptions = gameOptions;
             SyncOptions = syncOptions;
             _terrainRepository = terrainRepository;
-            UpdatePeriod = TimeSpan.FromMilliseconds(configuration.GetValue(nameof(UpdatePeriod), 50));
+            UpdatePeriod = TimeSpan.FromMilliseconds(syncOptions.Value.UpdatePeriod);
             _lastUpdateTime = DateTime.Now - UpdatePeriod - UpdatePeriod;
         }
 

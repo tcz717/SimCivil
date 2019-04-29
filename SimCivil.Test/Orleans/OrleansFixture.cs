@@ -20,12 +20,18 @@
 // 
 // SimCivil - SimCivil.Test - OrleansFixture.cs
 // Create Date: 2018/06/22
-// Update Date: 2019/04/14
+// Update Date: 2019/04/27
 
 using System;
 using System.Text;
+using System.Threading.Tasks;
+
+using Bogus;
 
 using Orleans.TestingHost;
+
+using SimCivil.Contract;
+using SimCivil.Orleans.Interfaces;
 
 using Xunit;
 

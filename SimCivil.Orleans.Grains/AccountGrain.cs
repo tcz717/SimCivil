@@ -126,8 +126,10 @@ namespace SimCivil.Orleans.Grains
 
         public async Task Logout()
         {
-            if (IsExisted().Result)
+            if (await IsExisted())
                 return;
+
+            await ReleaseRole();
 
             State.Online = false;
             await WriteStateAsync();

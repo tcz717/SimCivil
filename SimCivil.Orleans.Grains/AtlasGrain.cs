@@ -19,8 +19,8 @@
 // SOFTWARE.
 // 
 // SimCivil - SimCivil.Orleans.Grains - AtlasGrain.cs
-// Create Date: 2018/06/14
-// Update Date: 2018/12/17
+// Create Date: 2018/06/13
+// Update Date: 2019/04/28
 
 using System;
 using System.Collections.Generic;
@@ -122,6 +122,16 @@ namespace SimCivil.Orleans.Grains
         public Task<DateTime> GetTimeStamp()
         {
             return Task.FromResult(State.TimeStamp);
+        }
+
+        public Task Remove()
+        {
+            State = null;
+            DeactivateOnIdle();
+
+            Logger.Info($"Atlas {AtlasIndex} is removed");
+
+            return Task.CompletedTask;
         }
 
         public override Task OnActivateAsync()
