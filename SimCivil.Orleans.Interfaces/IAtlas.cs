@@ -42,5 +42,6 @@ namespace SimCivil.Orleans.Interfaces
         /// <summary>Gets the time stamp.</summary>
         /// <returns>Last edit time in UTC</returns>
         Task<DateTime> GetTimeStamp();
+        Task Remove();
     }
 }

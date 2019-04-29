@@ -9,8 +9,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SimCivil.Rpc", "SimCivil.Rp
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SimCivil.Contract", "SimCivil.Contract\SimCivil.Contract.csproj", "{298AD044-D099-47E3-B4BF-A7ED8B2F022A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SimCivil.SimpleClient", "SimCivil.SimpleClient\SimCivil.SimpleClient.csproj", "{E4693A54-1C42-42A7-9410-C4FC1E599261}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SimCivil.Orleans.Interfaces", "SimCivil.Orleans.Interfaces\SimCivil.Orleans.Interfaces.csproj", "{0B2CF7EE-E60D-4E34-8365-E01411DB7E5D}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SimCivil.Orleans.Grains", "SimCivil.Orleans.Grains\SimCivil.Orleans.Grains.csproj", "{BDA135D5-455C-410D-94DF-F5CFCFED6339}"
@@ -49,10 +47,6 @@ Global
 		{298AD044-D099-47E3-B4BF-A7ED8B2F022A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{298AD044-D099-47E3-B4BF-A7ED8B2F022A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{298AD044-D099-47E3-B4BF-A7ED8B2F022A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{E4693A54-1C42-42A7-9410-C4FC1E599261}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E4693A54-1C42-42A7-9410-C4FC1E599261}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E4693A54-1C42-42A7-9410-C4FC1E599261}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E4693A54-1C42-42A7-9410-C4FC1E599261}.Release|Any CPU.Build.0 = Release|Any CPU
 		{0B2CF7EE-E60D-4E34-8365-E01411DB7E5D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{0B2CF7EE-E60D-4E34-8365-E01411DB7E5D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0B2CF7EE-E60D-4E34-8365-E01411DB7E5D}.Release|Any CPU.ActiveCfg = Release|Any CPU

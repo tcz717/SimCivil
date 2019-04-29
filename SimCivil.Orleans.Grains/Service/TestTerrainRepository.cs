@@ -20,7 +20,7 @@
 // 
 // SimCivil - SimCivil.Orleans.Grains - TestTerrainRepository.cs
 // Create Date: 2018/10/17
-// Update Date: 2018/10/17
+// Update Date: 2019/04/27
 
 using System;
 using System.Collections.Generic;
@@ -44,8 +44,8 @@ namespace SimCivil.Orleans.Grains.Service
 
         public Terrain GetTerrain(int id)
         {
-            if(id>=_initTerrains.Count)
-                throw new ArgumentOutOfRangeException(nameof(id));
+            if (id >= _initTerrains.Count)
+                throw new ArgumentOutOfRangeException($"{nameof(id)}", id, "");
 
             return _initTerrains[id];
         }

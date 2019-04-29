@@ -19,12 +19,14 @@
 // SOFTWARE.
 // 
 // SimCivil - SimCivil.Test - TileMapTest.cs
-// Create Date: 2018/05/14
-// Update Date: 2018/05/14
+// Create Date: 2018/06/22
+// Update Date: 2019/04/27
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 using Orleans.TestingHost;
 
@@ -35,32 +37,47 @@ using Xunit;
 namespace SimCivil.Test.Orleans
 {
     [Collection(ClusterCollection.Name)]
-    public class TileMapTest
+    public class TileMapTest : IDisposable
     {
-        public TestCluster Cluster { get; set; }
-
         /// <summary>Initializes a new instance of the <see cref="T:System.Object"></see> class.</summary>
         public TileMapTest(OrleansFixture fixture)
         {
             Cluster = fixture.Cluster;
+            CreatedAtlas = new List<long>();
         }
+
+        /// <summary>Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.</summary>
+        public void Dispose()
+        {
+            Task.WaitAll(CreatedAtlas.Select(id => Cluster.GrainFactory.GetGrain<IAtlas>(id).Remove()).ToArray());
+        }
+
+        public TestCluster Cluster { get; set; }
+
+        public List<long> CreatedAtlas { get; set; }
 
         [Fact]
         public void MapGeneratingTest()
         {
-            var atlas = Cluster.GrainFactory.GetGrain<IAtlas>(0x0000_FFFF_0000_FFFF);
+            const long key = 0x0000_FFFF_0000_FFFF;
+            var atlas = Cluster.GrainFactory.GetGrain<IAtlas>(key);
             var tiles = atlas.SelectRange((0x0000_FFFF * 64, 0x0000_FFFF * 64), 64, 64).Result.ToArray();
             Assert.Equal(64 * 64, tiles.Length);
+
+            CreatedAtlas.Add(key);
         }
 
         [Fact]
         public void TimeStampTest()
         {
-            var atlas = Cluster.GrainFactory.GetGrain<IAtlas>(0);
+            const int key = 0;
+            var atlas = Cluster.GrainFactory.GetGrain<IAtlas>(key);
             DateTime init = atlas.GetTimeStamp().Result;
-            Assert.Equal(init,atlas.GetTimeStamp().Result);
+            Assert.Equal(init, atlas.GetTimeStamp().Result);
             atlas.SetTile(Tile.Create((0, 0), 2));
             Assert.NotEqual(init, atlas.GetTimeStamp().Result);
+
+            CreatedAtlas.Add(key);
         }
 
         /*       [TestMethod]
