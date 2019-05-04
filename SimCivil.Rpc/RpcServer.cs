@@ -34,6 +34,7 @@ using DotNetty.Codecs;
 using DotNetty.Transport.Bootstrapping;
 using DotNetty.Transport.Channels;
 using DotNetty.Transport.Channels.Sockets;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using SimCivil.Rpc.Callback;
 using SimCivil.Rpc.Session;
@@ -53,7 +54,7 @@ namespace SimCivil.Rpc
 
         public IContainer Container { get; }
 
-        public ITimeoutDeamon TimeoutDeamon { get; }
+        public ITimeoutDaemon TimeoutDaemon { get; }
 
         public bool SupportSession { get; }
         public RpcSessionManager Sessions { get; } = new RpcSessionManager();
@@ -80,9 +81,9 @@ namespace SimCivil.Rpc
 
             log = GetLogger<RpcServer>();
             
-            // Create Timeout deamon
-            TimeoutDeamon = new SimpleTimeoutDeamon(this, GetLogger<SimpleTimeoutDeamon>());
-            TimeoutDeamon.ClientTimeout += (obj, args) => CloseChannel(args.Channel);
+            // Create Timeout daemon
+            TimeoutDaemon = new SimpleTimeoutDaemon(this, GetLogger<SimpleTimeoutDaemon>(), 5000);
+            TimeoutDaemon.ClientTimeout += (sender, args) => CloseChannel(args.Channel);
 
             log.LogInformation("RpcServer initialized");
         }
@@ -173,12 +174,13 @@ namespace SimCivil.Rpc
 
                 IChannel serverChannel = await bootstrap.BindAsync(EndPoint);
                 ServerChannel = serverChannel;
-                TimeoutDeamon.Start();
+                TimeoutDaemon.Start();
             }
             catch (Exception ex)
             {
                 log.LogCritical("Server fatal error while running", ex.Message);
                 Task.WaitAll(bossGroup.ShutdownGracefullyAsync(), _workerGroup.ShutdownGracefullyAsync());
+                TimeoutDaemon.Stop();
                 throw;
             }
         }
@@ -197,7 +199,7 @@ namespace SimCivil.Rpc
 
         public void Stop()
         {
-            TimeoutDeamon.Stop();
+            TimeoutDaemon.Stop();
             _workerGroup.ShutdownGracefullyAsync().Wait();
             ServerChannel?.CloseAsync().Wait();
         }

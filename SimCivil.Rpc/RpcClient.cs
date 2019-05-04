@@ -38,6 +38,7 @@ using DotNetty.Transport.Channels;
 using DotNetty.Transport.Channels.Sockets;
 
 using SimCivil.Rpc.Callback;
+using SimCivil.Contract;
 
 namespace SimCivil.Rpc
 {
@@ -49,6 +50,7 @@ namespace SimCivil.Rpc
 
         private readonly ProxyGenerator _generator = new ProxyGenerator();
         private readonly IChannelHandler _resolver;
+        private readonly IConnectionControl _connectionControl;
         private int _nextCallbackId;
 
         private long _nextSeq;
@@ -70,6 +72,7 @@ namespace SimCivil.Rpc
             Interceptor = new RpcInterceptor(this);
             _resolver = new RpcClientResolver(this);
             _callbackResolver = new RpcCallbackResolver(this);
+            _connectionControl = Import<IConnectionControl>();
         }
 
         /// <summary>Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.</summary>

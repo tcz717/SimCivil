@@ -63,7 +63,7 @@ namespace SimCivil.Rpc
                 Server.Sessions.OnEntering(session);
                 session.OnEntering(context.Channel.RemoteAddress);
             }
-            Server.TimeoutDeamon.RegisterChannel(context.Channel);
+            Server.TimeoutDaemon.RegisterChannel(context.Channel);
             base.ChannelActive(context);
         }
 
@@ -76,7 +76,7 @@ namespace SimCivil.Rpc
                 session.OnExiting();
             }
 
-            Server.TimeoutDeamon.UnregisterChannel(context.Channel);
+            Server.TimeoutDaemon.UnregisterChannel(context.Channel);
             _scope.Dispose();
             base.ChannelInactive(context);
         }
@@ -89,7 +89,7 @@ namespace SimCivil.Rpc
             }
 
             Server.OnRemoteCalling(msg);
-            Server.TimeoutDeamon.NotifyPacketReceived(ctx.Channel, msg);
+            Server.TimeoutDaemon.NotifyPacketReceived(ctx.Channel, msg);
 
             try
             {

@@ -9,26 +9,30 @@ using static System.Diagnostics.Debug;
 
 namespace SimCivil.Rpc.Timeout
 {
-    public class SimpleTimeoutDeamon : ITimeoutDeamon
+    /// <summary>
+    /// One clock hand algorithm timeout daemon
+    /// </summary>
+    public class SimpleTimeoutDaemon : ITimeoutDaemon
     {
-        private static readonly int WaitTime = 5000;
+        private readonly int waitTime;
         public event EventHandler<ClientTimeoutEventArgs> ClientTimeout;
         protected List<KeyValuePair<IChannel, EntryValue>> clientsToBeRemoved = new List<KeyValuePair<IChannel, EntryValue>>();
         protected readonly RpcServer server;
         protected readonly ILogger log;
-        protected Task deamon;
+        protected Task daemon;
         protected CancellationTokenSource cancelSrc;
         public bool IsRunning { get; private set; } = false;
 
         private readonly ConcurrentDictionary<IChannel, EntryValue> receiveCounts = new ConcurrentDictionary<IChannel, EntryValue>();
 
-        public SimpleTimeoutDeamon(RpcServer server, ILogger logger)
+        public SimpleTimeoutDaemon(RpcServer server, ILogger logger, int waitTime)
         {
             this.server = server ?? throw new ArgumentNullException(nameof(server));
             this.log = logger ?? throw new ArgumentNullException(nameof(logger));
+            this.waitTime = waitTime;
         }
 
-        public bool NotifyPacketReceived(IChannel channel, RpcRequest request)
+        public virtual bool NotifyPacketReceived(IChannel channel, RpcRequest request)
         {
             if (!receiveCounts.TryGetValue(channel, out EntryValue cnt))
             {
@@ -49,38 +53,38 @@ namespace SimCivil.Rpc.Timeout
             return true;
         }
 
-        public void RegisterChannel(IChannel channel)
+        public virtual void RegisterChannel(IChannel channel)
         {
-            Assert(IsRunning, "Register session before deamon running");
+            Assert(IsRunning, "Register session before daemon running");
             Assert(receiveCounts.TryAdd(channel, new EntryValue()));
             log.LogInformation($"Channel registered: {channel}");
         }
 
-        public void UnregisterChannel(IChannel channel)
+        public virtual void UnregisterChannel(IChannel channel)
         {
-            Assert(IsRunning, "Register session before deamon running");
+            Assert(IsRunning, "Register session before daemon running");
             var res = receiveCounts.TryRemove(channel, out _);
             log.LogInformation($"Channel unregistered: {channel}, exist before remove: {res}");
         }
 
-        public void Start()
+        public virtual void Start()
         {
-            log.LogInformation("Timeout Deamon starting");
+            log.LogInformation("Timeout Daemon starting");
             receiveCounts.Clear();
             cancelSrc = new CancellationTokenSource();
-            log.LogInformation("Timeout Deamon starting 1");
+            log.LogInformation("Timeout Daemon starting 1");
             TaskFactory taskFac = new TaskFactory(cancelSrc.Token, TaskCreationOptions.LongRunning, TaskContinuationOptions.None, TaskScheduler.Default);
-            log.LogInformation("Timeout Deamon starting 2");
-            deamon = Task.Run(DeamonRun);
+            log.LogInformation("Timeout Daemon starting 2");
+            daemon = Task.Run(DaemonRun);
             IsRunning = true;
-            log.LogInformation("Timeout Deamon started");
+            log.LogInformation("Timeout Daemon started");
         }
 
-        protected void DeamonRun()
+        protected virtual void DaemonRun()
         {
             while (!cancelSrc.Token.IsCancellationRequested)
             {
-                log.LogDebug("Timeout Deamon waked up");
+                log.LogDebug("Timeout Daemon waked up");
                 clientsToBeRemoved = new List<KeyValuePair<IChannel, EntryValue>>();
                 foreach (var entry in receiveCounts)
                 {
@@ -105,25 +109,25 @@ namespace SimCivil.Rpc.Timeout
                 }
                 clientsToBeRemoved.Clear();
 
-                log.LogDebug("Timeout Deamon fell asleep");
+                log.LogDebug("Timeout Daemon fell asleep");
                 try
                 {
-                    Task.Delay(WaitTime, cancelSrc.Token).Wait();
+                    Task.Delay(waitTime, cancelSrc.Token).Wait();
                 }
                 catch
                 {
-                    log.LogInformation("Timeout Deamon waked up by cancellation");
+                    log.LogInformation("Timeout Daemon waked up by cancellation");
                 }
             }
         }
 
-        public void Stop()
+        public virtual void Stop()
         {
-            log.LogInformation("Timeout Deamon cancelled");
+            log.LogInformation("Timeout Daemon cancelled");
             cancelSrc.Cancel();
-            deamon.Wait();
+            daemon.Wait();
             IsRunning = false;
-            log.LogInformation("Timeout Deamon stopped");
+            log.LogInformation("Timeout Daemon stopped");
         }
 
         public void Dispose()
