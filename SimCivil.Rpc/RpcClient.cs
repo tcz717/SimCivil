@@ -256,7 +256,7 @@ namespace SimCivil.Rpc
         {
             cancel = new CancellationTokenSource();
             var tf = new TaskFactory(cancel.Token, TaskCreationOptions.LongRunning, TaskContinuationOptions.None, TaskScheduler.Default);
-            runTask = tf.StartNew(Run);
+            runTask = tf.StartNew(new Action(Run));
             IsRunning = true;
         }
 

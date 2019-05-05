@@ -73,7 +73,7 @@ namespace SimCivil.Rpc.Timeout
             receiveCounts.Clear();
             cancelSrc = new CancellationTokenSource();
             TaskFactory taskFac = new TaskFactory(cancelSrc.Token, TaskCreationOptions.LongRunning, TaskContinuationOptions.None, TaskScheduler.Default);
-            daemon = Task.Run(DaemonRun);
+            daemon = Task.Run(new Action(DaemonRun));
             IsRunning = true;
             log.LogInformation("Timeout Daemon started");
         }
