@@ -42,7 +42,9 @@ namespace SimCivil.IntegrationTest.Testcase
 
         public Guid GetEntityId()
         {
-            throw new NotImplementedException();
+            var rm = Client.Import<IRoleManager>();
+
+            return Task.Factory.StartNew(() => rm.GetRoleList().Result).Result.First().Id;
         }
 
         public Task Stop()
@@ -102,13 +104,8 @@ namespace SimCivil.IntegrationTest.Testcase
 
         protected async Task Login(string name = null, string password = "")
         {
-            if (name == null)
-            {
-                name = RoleName;
-            }
-
             var auth = Client.Import<IAuth>();
-            await auth.LogInAsync(name, password);
+            await auth.LogInAsync(name ?? RoleName, password);
 
             Logger.LogInformation($"Role \"{RoleName}\" login");
         }
