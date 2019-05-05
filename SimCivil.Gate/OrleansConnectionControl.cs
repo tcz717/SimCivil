@@ -7,8 +7,9 @@ namespace SimCivil.Gate
 {
     class OrleansConnectionControl : IConnectionControl
     {
-        public void Noop()
-        {
-        }
+        /// <summary>
+        /// An empty request for keeping alive
+        /// </summary>
+        public void Noop() { }
     }
 }

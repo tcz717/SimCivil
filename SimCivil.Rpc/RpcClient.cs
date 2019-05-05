@@ -227,17 +227,17 @@ namespace SimCivil.Rpc
     /// <summary>
     /// Heartbeat generation indication
     /// </summary>
-    class HeartbeatGenerator
+    class HeartbeatGenerator : IDisposable
     {
         private CancellationTokenSource cancel;
         private Task runTask;
-        private bool sentPacket = false;
+        private bool sentPacket;
         private readonly RpcClient client;
 
         /// <summary>
         /// Is running
         /// </summary>
-        public bool IsRunning { get; private set; } = false;
+        public bool IsRunning { get; private set; }
 
         /// <summary>
         /// Need to sent a heartbeat to server
@@ -301,6 +301,13 @@ namespace SimCivil.Rpc
                     sentPacket = false;
                 }
             }
+        }
+
+        public void Dispose()
+        {
+            if (IsRunning)
+                Stop();
+            cancel.Dispose();
         }
     }
 }

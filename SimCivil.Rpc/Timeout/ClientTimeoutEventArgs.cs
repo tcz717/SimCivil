@@ -11,7 +11,7 @@ namespace SimCivil.Rpc.Timeout
     /// </summary>
     public class ClientTimeoutEventArgs : EventArgs
     {
-        public IChannel Channel;
+        public IChannel Channel { get; }
         public ClientTimeoutEventArgs(IChannel c)
         {
             Channel = c;

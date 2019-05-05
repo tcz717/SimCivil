@@ -21,7 +21,7 @@ namespace SimCivil.Rpc.Timeout
         protected readonly ILogger log;
         protected Task daemon;
         protected CancellationTokenSource cancelSrc;
-        public bool IsRunning { get; private set; } = false;
+        public bool IsRunning { get; private set; }
 
         private readonly ConcurrentDictionary<IChannel, EntryValue> receiveCounts = new ConcurrentDictionary<IChannel, EntryValue>();
 
@@ -56,7 +56,7 @@ namespace SimCivil.Rpc.Timeout
         public virtual void RegisterChannel(IChannel channel)
         {
             Assert(IsRunning, "Register session before daemon running");
-            var entryValue = new EntryValue() { Count = 1 };
+            var entryValue = new EntryValue { Count = 1 };
             Assert(receiveCounts.TryAdd(channel, entryValue));
             log.LogInformation($"Channel registered: {channel.RemoteAddress}");
         }
@@ -73,7 +73,7 @@ namespace SimCivil.Rpc.Timeout
             receiveCounts.Clear();
             cancelSrc = new CancellationTokenSource();
             TaskFactory taskFac = new TaskFactory(cancelSrc.Token, TaskCreationOptions.LongRunning, TaskContinuationOptions.None, TaskScheduler.Default);
-            daemon = Task.Run(new Action(DaemonRun));
+            daemon = taskFac.StartNew(new Action(DaemonRun));
             IsRunning = true;
             log.LogInformation("Timeout Daemon started");
         }
@@ -135,11 +135,12 @@ namespace SimCivil.Rpc.Timeout
                 log.LogWarning("Dispose before stop");
                 Stop();
             }
+            cancelSrc.Dispose();
         }
     }
 
     public class EntryValue
     {
-        public int Count = 0;
+        public int Count { get; set; }
     }
 }

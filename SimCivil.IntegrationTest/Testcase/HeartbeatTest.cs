@@ -21,7 +21,7 @@ namespace SimCivil.IntegrationTest.Testcase
         private static int _id;
         protected RpcClient Client { get; private set; }
         public IClusterClient Cluster { get; }
-        public bool IsRunning { get; private set; } = false;
+        public bool IsRunning { get; private set; }
         public ILogger<HeartbeatTest> Logger { get; }
         public string RoleName { get; set; }
 
