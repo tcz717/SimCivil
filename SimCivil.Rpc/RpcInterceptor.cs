@@ -49,6 +49,8 @@ namespace SimCivil.Rpc
 
         public void Intercept(IInvocation invocation)
         {
+            if (!_rpcClient.Connected)
+                throw new InvalidOperationException("Rpc Client is disconnected");
             ReplaceCallback(invocation.Arguments);
             RpcRequest request = new RpcRequest(_rpcClient.GetNextSequence(), invocation.Method, invocation.Arguments);
             _rpcClient.ResponseWaitlist.Add(request.Sequence, request);

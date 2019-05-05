@@ -36,7 +36,7 @@ namespace SimCivil.Rpc.Timeout
         {
             if (!receiveCounts.TryGetValue(channel, out EntryValue cnt))
             {
-                log.LogInformation($"Notify a timeout channel: {channel}");
+                log.LogInformation($"Notify a timeout channel: {channel.RemoteAddress}");
                 return false;
             }
 
@@ -48,7 +48,7 @@ namespace SimCivil.Rpc.Timeout
                     return false;
                 }
                 cnt.Count++;
-                log.LogDebug($"Session cnt increased to {cnt.Count}, channel: {channel}");
+                log.LogDebug($"Session cnt increased to {cnt.Count}, channel: {channel.RemoteAddress}");
             }
             return true;
         }
@@ -56,15 +56,16 @@ namespace SimCivil.Rpc.Timeout
         public virtual void RegisterChannel(IChannel channel)
         {
             Assert(IsRunning, "Register session before daemon running");
-            Assert(receiveCounts.TryAdd(channel, new EntryValue()));
-            log.LogInformation($"Channel registered: {channel}");
+            var entryValue = new EntryValue() { Count = 1 };
+            Assert(receiveCounts.TryAdd(channel, entryValue));
+            log.LogInformation($"Channel registered: {channel.RemoteAddress}");
         }
 
         public virtual void UnregisterChannel(IChannel channel)
         {
             Assert(IsRunning, "Register session before daemon running");
             var res = receiveCounts.TryRemove(channel, out _);
-            log.LogInformation($"Channel unregistered: {channel}, exist before remove: {res}");
+            log.LogInformation($"Channel unregistered: {channel.RemoteAddress}, exist before remove: {res}");
         }
 
         public virtual void Start()
@@ -81,6 +82,16 @@ namespace SimCivil.Rpc.Timeout
         {
             while (!cancelSrc.Token.IsCancellationRequested)
             {
+                log.LogDebug("Timeout Daemon fell asleep");
+                try
+                {
+                    Task.Delay(waitTime, cancelSrc.Token).Wait();
+                }
+                catch
+                {
+                    log.LogInformation("Timeout Daemon waked up by cancellation");
+                }
+
                 log.LogDebug("Timeout Daemon waked up");
                 clientsToBeRemoved = new List<KeyValuePair<IChannel, EntryValue>>();
                 foreach (var entry in receiveCounts)
@@ -91,7 +102,7 @@ namespace SimCivil.Rpc.Timeout
                         {
                             clientsToBeRemoved.Add(entry);
                             Assert(receiveCounts.TryRemove(entry.Key, out EntryValue val));
-                            log.LogInformation($"Channel removed and client enqueued to be removed: {entry.Key}");
+                            log.LogInformation($"Channel {entry.Key.RemoteAddress} timeout and removed, client enqueued to be removed: {entry.Key}");
                         }
                         else
                         {
@@ -105,16 +116,6 @@ namespace SimCivil.Rpc.Timeout
                     ClientTimeout?.Invoke(this, new ClientTimeoutEventArgs(entry.Key));
                 }
                 clientsToBeRemoved.Clear();
-
-                log.LogDebug("Timeout Daemon fell asleep");
-                try
-                {
-                    Task.Delay(waitTime, cancelSrc.Token).Wait();
-                }
-                catch
-                {
-                    log.LogInformation("Timeout Daemon waked up by cancellation");
-                }
             }
         }
 
