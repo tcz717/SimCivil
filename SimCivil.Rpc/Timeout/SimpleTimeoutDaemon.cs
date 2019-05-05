@@ -69,12 +69,9 @@ namespace SimCivil.Rpc.Timeout
 
         public virtual void Start()
         {
-            log.LogInformation("Timeout Daemon starting");
             receiveCounts.Clear();
             cancelSrc = new CancellationTokenSource();
-            log.LogInformation("Timeout Daemon starting 1");
             TaskFactory taskFac = new TaskFactory(cancelSrc.Token, TaskCreationOptions.LongRunning, TaskContinuationOptions.None, TaskScheduler.Default);
-            log.LogInformation("Timeout Daemon starting 2");
             daemon = Task.Run(DaemonRun);
             IsRunning = true;
             log.LogInformation("Timeout Daemon started");
@@ -105,7 +102,7 @@ namespace SimCivil.Rpc.Timeout
                 foreach (var entry in clientsToBeRemoved)
                 {
                     log.LogDebug($"Calling upper level to dispose channel: {entry.Key}");
-                    ClientTimeout(this, new ClientTimeoutEventArgs(entry.Key));
+                    ClientTimeout?.Invoke(this, new ClientTimeoutEventArgs(entry.Key));
                 }
                 clientsToBeRemoved.Clear();
 

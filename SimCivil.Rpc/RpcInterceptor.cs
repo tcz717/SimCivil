@@ -54,6 +54,7 @@ namespace SimCivil.Rpc
             _rpcClient.ResponseWaitlist.Add(request.Sequence, request);
             _rpcClient.Channel.WriteAndFlushAsync(request);
             Type returnType = invocation.Method.ReturnType;
+            _rpcClient.NotifyPacketSent();
             switch (returnType.GetDelegateType())
             {
                 case MethodType.Synchronous:
