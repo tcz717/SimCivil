@@ -90,9 +90,9 @@ namespace SimCivil.IntegrationTest.Testcase
             Logger.LogInformation($"{RoleName} test end");
         }
 
-        protected async Task RegisterAndLogin(string name = null, string password = "")
+        protected async Task RegisterAndLogin(string _name = null, string password = "")
         {
-            name = name ?? RoleName;
+            var name = _name ?? RoleName;
             await Cluster.GetGrain<IAccount>(name).Register(password);
             Logger.LogInformation($"Role \"{RoleName}\" Created");
             await Login(name, password);
