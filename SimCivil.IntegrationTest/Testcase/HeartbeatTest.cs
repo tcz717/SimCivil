@@ -59,6 +59,7 @@ namespace SimCivil.IntegrationTest.Testcase
             await Client.ConnectAsync();
             await RegisterAndLogin();
 
+            // Create a client with heartbeat and wait
             var rm = Client.Import<IRoleManager>();
             await rm.CreateRole(new CreateRoleOption { Gender = Gender.Male, Name = RoleName, Race = Race.Human });
             await rm.UseRole((await rm.GetRoleList()).First().Id);
@@ -69,6 +70,7 @@ namespace SimCivil.IntegrationTest.Testcase
             Logger.LogInformation($"{RoleName} client disconnected");
             await Task.Delay(1000);
 
+            // Create a client without heartbeat and wait
             NewClient();
             Client.HeartbeatDelay = int.MaxValue;
             await Client.ConnectAsync();

@@ -80,7 +80,9 @@ namespace SimCivil.Rpc
             _heartbeatGenerator = new HeartbeatGenerator(this);
         }
 
-        /// <summary>Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.</summary>
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
         public void Dispose()
         {
             if (Channel?.Open ?? false)
@@ -222,15 +224,24 @@ namespace SimCivil.Rpc
         }
     }
 
+    /// <summary>
+    /// Heartbeat generation indication
+    /// </summary>
     class HeartbeatGenerator
     {
         private CancellationTokenSource cancel;
         private Task runTask;
         private bool sentPacket = false;
-        private RpcClient client;
+        private readonly RpcClient client;
 
+        /// <summary>
+        /// Is running
+        /// </summary>
         public bool IsRunning { get; private set; } = false;
 
+        /// <summary>
+        /// Need to sent a heartbeat to server
+        /// </summary>
         public event EventHandler<EventArgs> HeartbeatNeeded;
 
         public HeartbeatGenerator(RpcClient client)
@@ -238,6 +249,9 @@ namespace SimCivil.Rpc
             this.client = client;
         }
 
+        /// <summary>
+        /// Start the daemon
+        /// </summary>
         public void Start()
         {
             cancel = new CancellationTokenSource();
@@ -246,6 +260,9 @@ namespace SimCivil.Rpc
             IsRunning = true;
         }
 
+        /// <summary>
+        /// Stop the daemon
+        /// </summary>
         public void Stop()
         {
             cancel.Cancel();
@@ -253,6 +270,9 @@ namespace SimCivil.Rpc
             IsRunning = false;
         }
 
+        /// <summary>
+        /// Notify that a request has been sent
+        /// </summary>
         public void NotifyPacketSent()
         {
             if (!IsRunning)
