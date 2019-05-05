@@ -87,6 +87,7 @@ namespace SimCivil.Rpc
         {
             if (Channel?.Open ?? false)
                 Channel.CloseAsync().Wait();
+            _heartbeatGenerator.Dispose();
         }
 
         public event EventHandler<EventArgs<string>> DecodeFail;

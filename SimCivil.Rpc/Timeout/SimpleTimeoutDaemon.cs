@@ -12,7 +12,7 @@ namespace SimCivil.Rpc.Timeout
     /// <summary>
     /// One clock hand algorithm timeout daemon
     /// </summary>
-    public class SimpleTimeoutDaemon : ITimeoutDaemon
+    public class SimpleTimeoutDaemon : ITimeoutDaemon, IDisposable
     {
         private readonly int waitTime;
         public event EventHandler<ClientTimeoutEventArgs> ClientTimeout;

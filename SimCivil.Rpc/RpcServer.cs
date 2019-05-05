@@ -202,6 +202,7 @@ namespace SimCivil.Rpc
             TimeoutDaemon.Stop();
             _workerGroup.ShutdownGracefullyAsync().Wait();
             ServerChannel?.CloseAsync().Wait();
+            TimeoutDaemon.Dispose();
         }
 
         public virtual void OnRemoteCalling(RpcRequest e)

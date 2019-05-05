@@ -10,6 +10,9 @@ namespace SimCivil.Gate
         /// <summary>
         /// An empty request for keeping alive
         /// </summary>
-        public void Noop() { }
+        public void Noop()
+        {
+            // An empty request for keeping alive
+        }
     }
 }
