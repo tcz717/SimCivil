@@ -5,7 +5,7 @@ using SimCivil.Contract;
 
 namespace SimCivil.Gate
 {
-    class OrleansConnectionControl : IConnectionControl
+    class GatewayConnectionControl : IConnectionControl
     {
         /// <summary>
         /// An empty request for keeping alive
