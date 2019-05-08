@@ -106,23 +106,7 @@ namespace SimCivil.Rpc
         /// </summary>
         /// <typeparam name="T">Category</typeparam>
         /// <returns>Logger</returns>
-        protected ILogger<T> GetLogger<T>()
-        {
-            ILogger<T> logger;
-            if (logFac == null)
-            {
-                if (Container.IsRegistered<ILoggerFactory>())
-                {
-                    logFac = Container.Resolve<ILoggerFactory>();
-                }
-                else
-                {
-                    logFac = new LoggerFactory();
-                }
-            }
-            logger = logFac.CreateLogger<T>();
-            return logger;
-        }
+        protected ILogger<T> GetLogger<T>() => Container.Resolve<ILogger<T>>();
 
         public event EventHandler<EventArgs<RpcRequest>> RemoteCalling;
 
