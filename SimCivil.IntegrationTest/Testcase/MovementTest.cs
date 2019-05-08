@@ -67,6 +67,7 @@ namespace SimCivil.IntegrationTest.Testcase
             if (IsRunning)
                 Stop().Wait();
             Client?.Dispose();
+            Logger.LogInformation($"{RoleName} test disposed");
         }
 
         public bool IsRunning { get; private set; }

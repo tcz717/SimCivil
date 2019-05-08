@@ -29,6 +29,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using static System.Diagnostics.Debug;
 
 using Castle.DynamicProxy;
 
@@ -38,6 +39,7 @@ using DotNetty.Transport.Channels;
 using DotNetty.Transport.Channels.Sockets;
 
 using SimCivil.Rpc.Callback;
+using SimCivil.Contract;
 
 namespace SimCivil.Rpc
 {
@@ -49,6 +51,8 @@ namespace SimCivil.Rpc
 
         private readonly ProxyGenerator _generator = new ProxyGenerator();
         private readonly IChannelHandler _resolver;
+        private readonly IConnectionControl _connectionControl;
+        private readonly HeartbeatGenerator _heartbeatGenerator;
         private int _nextCallbackId;
 
         private long _nextSeq;
@@ -58,7 +62,9 @@ namespace SimCivil.Rpc
         public Dictionary<Type, object> ProxyCache { get; } = new Dictionary<Type, object>();
         public Dictionary<long, RpcRequest> ResponseWaitlist { get; } = new Dictionary<long, RpcRequest>();
         public int ResponseTimeout { get; set; } = 3000;
+        public int HeartbeatDelay { get; set; } = 2000;
         public IInterceptor Interceptor { get; }
+        public bool Connected { get; private set; }
 
         public Dictionary<int, Delegate> CallBackList { get; } = new Dictionary<int, Delegate>();
 
@@ -70,13 +76,18 @@ namespace SimCivil.Rpc
             Interceptor = new RpcInterceptor(this);
             _resolver = new RpcClientResolver(this);
             _callbackResolver = new RpcCallbackResolver(this);
+            _connectionControl = Import<IConnectionControl>();
+            _heartbeatGenerator = new HeartbeatGenerator(this);
         }
 
-        /// <summary>Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.</summary>
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
         public void Dispose()
         {
             if (Channel?.Open ?? false)
                 Channel.CloseAsync().Wait();
+            _heartbeatGenerator.Dispose();
         }
 
         public event EventHandler<EventArgs<string>> DecodeFail;
@@ -122,6 +133,9 @@ namespace SimCivil.Rpc
 
                 throw;
             }
+            _heartbeatGenerator.Start();
+            _heartbeatGenerator.HeartbeatNeeded += (sender, args) => SendHeartbeat();
+            Connected = true;
         }
 
         protected virtual void ChannelInit(ISocketChannel channel)
@@ -134,15 +148,21 @@ namespace SimCivil.Rpc
                 .AddLast(_callbackResolver);
         }
 
+        [MethodImpl(MethodImplOptions.Synchronized)]
         public void Disconnect()
         {
-            Channel?.DisconnectAsync();
-            Channel = null;
-            ProxyCache.Clear();
+            if (Connected)
+            {
+                _heartbeatGenerator.Stop();
+                Channel?.DisconnectAsync();
+                Connected = false;
+                Channel = null;
+                ProxyCache.Clear();
+            }
         }
 
         /// <summary>
-        /// Imports reomote service.
+        /// Imports or gets remote service.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
@@ -170,12 +190,125 @@ namespace SimCivil.Rpc
             DecodeFail?.Invoke(this, e);
         }
 
+        /// <summary>Attaches the callback and gets id.</summary>
+        /// <param name="delegate">The callback to be attached.</param>
+        /// <returns>Id of attached callback</returns>
         public int AttachCallback(Delegate @delegate)
         {
             int id = Interlocked.Increment(ref _nextCallbackId);
             CallBackList[id] = @delegate;
 
             return id;
+        }
+
+        public void SendHeartbeat()
+        {
+            Task.Run(() =>
+            {
+                try
+                {
+                    _connectionControl.Noop();
+                }
+                catch
+                {
+                    // Heartbeat failed
+                    Disconnect();
+                }
+            });
+        }
+
+        public void NotifyPacketSent()
+        {
+            if (!Connected)
+                throw new InvalidOperationException("Rpc Client is disconnected");
+            _heartbeatGenerator.NotifyPacketSent();
+        }
+    }
+
+    /// <summary>
+    /// Heartbeat generation indication
+    /// </summary>
+    class HeartbeatGenerator : IDisposable
+    {
+        private CancellationTokenSource cancel;
+        private Task runTask;
+        private bool sentPacket;
+        private readonly RpcClient client;
+
+        /// <summary>
+        /// Is running
+        /// </summary>
+        public bool IsRunning { get; private set; }
+
+        /// <summary>
+        /// Need to sent a heartbeat to server
+        /// </summary>
+        public event EventHandler<EventArgs> HeartbeatNeeded;
+
+        public HeartbeatGenerator(RpcClient client)
+        {
+            this.client = client;
+        }
+
+        /// <summary>
+        /// Start the daemon
+        /// </summary>
+        public void Start()
+        {
+            cancel = new CancellationTokenSource();
+            var tf = new TaskFactory(cancel.Token, TaskCreationOptions.LongRunning, TaskContinuationOptions.None, TaskScheduler.Default);
+            runTask = tf.StartNew(Run);
+            IsRunning = true;
+        }
+
+        /// <summary>
+        /// Stop the daemon
+        /// </summary>
+        public void Stop()
+        {
+            cancel.Cancel();
+            runTask.Wait();
+            IsRunning = false;
+        }
+
+        /// <summary>
+        /// Notify that a request has been sent
+        /// </summary>
+        public void NotifyPacketSent()
+        {
+            if (!IsRunning)
+                throw new InvalidOperationException("HeartbeatGenerator is stopped");
+            sentPacket = true;
+        }
+
+        private void Run()
+        {
+            while (!cancel.IsCancellationRequested)
+            {
+                try
+                {
+                    Task.Delay(client.HeartbeatDelay, cancel.Token).Wait();
+                }
+                catch
+                {
+                    // Log cancelled
+                }
+                if (!sentPacket)
+                {
+                    HeartbeatNeeded?.Invoke(this, new EventArgs());
+                }
+                else
+                {
+                    sentPacket = false;
+                }
+            }
+        }
+
+        public void Dispose()
+        {
+            if (IsRunning)
+                Stop();
+            cancel.Dispose();
         }
     }
 }

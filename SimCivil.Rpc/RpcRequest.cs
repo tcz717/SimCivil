@@ -57,6 +57,10 @@ namespace SimCivil.Rpc
             _responseSource = new TaskCompletionSource<RpcResponse>();
         }
 
+        /// <summary>Puts the response and sets status.</summary>
+        /// <param name="response">The response.</param>
+        /// <exception cref="NotSupportedException"></exception>
+        /// <exception cref="ArgumentNullException">response</exception>
         public void PutResponse(RpcResponse response)
         {
             if (_responseSource == null)

@@ -145,6 +145,7 @@ namespace SimCivil.Gate
             builder.RegisterModule(module);
             builder.Populate(services);
             builder.UseRpcSession();
+            builder.RegisterRpcProvider<GatewayConnectionControl, IConnectionControl>().InstancePerChannel();
             builder.RegisterRpcProvider<OrleansAuth, IAuth>().SingleInstance();
             builder.RegisterRpcProvider<OrleansRoleManager, IRoleManager>().InstancePerChannel();
             builder.RegisterRpcProvider<OrleansChunkViewSynchronizer, IViewSynchronizer>().SingleInstance().AsSelf();

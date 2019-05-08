@@ -253,6 +253,7 @@
     <Compile Include="ServerConfigWindow.xaml.cs">
       <DependentUpon>ServerConfigWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Testcase\HeartbeatTest.cs" />
     <Compile Include="Testcase\MovementTest.cs" />
     <Compile Include="TextBoxLogger.cs" />
     <Compile Include="TextBoxLoggerExtension.cs" />

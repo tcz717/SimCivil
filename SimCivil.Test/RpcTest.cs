@@ -28,6 +28,8 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
+
 
 using Autofac;
 
@@ -35,6 +37,8 @@ using SimCivil.Rpc;
 
 using Xunit;
 using Xunit.Abstractions;
+using Microsoft.Extensions.DependencyInjection;
+using Autofac.Extensions.DependencyInjection;
 
 namespace SimCivil.Test
 {
@@ -44,12 +48,19 @@ namespace SimCivil.Test
 
         public ServerFixture()
         {
+            var services = new ServiceCollection();
+            services.AddLogging(lb => {
+                lb.AddConsole();
+            });
+            
             var builder = new ContainerBuilder();
+            builder.Populate(services);
             builder.UseRpcSession();
             builder.RegisterRpcProvider<TestServiceA, ITestServiceA>().InstancePerChannel();
             builder.RegisterRpcProvider<TestServiceB, ITestServiceB>().SingleInstance();
 
-            Server = new RpcServer(builder.Build()) {Debug = true};
+            var container = builder.Build();
+            Server = new RpcServer(container) {Debug = true};
             Server.Bind(9999);
             Server.Run().Wait();
         }
