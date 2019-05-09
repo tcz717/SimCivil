@@ -1,8 +1,9 @@
-﻿if (Test-Path SimCivil.Gate.exe)
+﻿$App = "SimCivil.Gate.exe"
+if ( Test-Path $App )
 {
-	.\SimCivil.Gate.exe													`
-		Cluster:ClusterId="$CLUSTER_CLUSTERID"							`
-		DynamoDBClustering:Service="$DYNAMODBCLUSTERING_SERVICE"		`
-		DynamoDBClustering:AccessKey="$DYNAMODBCLUSTERING_ACCESSKEY"	`
-		DynamoDBClustering:SecretKey="$DYNAMODBCLUSTERING_SECRETKEY"
+	Start-Process -FilePath $App -ArgumentList								`
+		"Cluster:ClusterId=`"$CLUSTER_CLUSTERID`"",							`
+		"DynamoDBClustering:Service=`"$DYNAMODBCLUSTERING_SERVICE`"",		`
+		"DynamoDBClustering:AccessKey=`"$DYNAMODBCLUSTERING_ACCESSKEY`"",	`
+		"DynamoDBClustering:SecretKey=`"$DYNAMODBCLUSTERING_SECRETKEY`""
 }
