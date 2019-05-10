@@ -1,9 +1,20 @@
 ﻿$App = "SimCivil.Gate.exe"
-if ( Test-Path $App )
+if ($env:APPLICATION_PATH -Match "net461")
 {
-	Start-Process -FilePath $App -ArgumentList								`
-		"Cluster:ClusterId=`"$CLUSTER_CLUSTERID`"",							`
-		"DynamoDBClustering:Service=`"$DYNAMODBCLUSTERING_SERVICE`"",		`
-		"DynamoDBClustering:AccessKey=`"$DYNAMODBCLUSTERING_ACCESSKEY`"",	`
-		"DynamoDBClustering:SecretKey=`"$DYNAMODBCLUSTERING_SECRETKEY`""
+	Set-Location $env:APPLICATION_PATH
+	if ( Test-Path $App )
+	{
+		Start-Sleep -s 10
+		Write-Output "Start App "$App
+		Start-Process -FilePath $App -ArgumentList								`
+			"Cluster:ClusterId=`"$env:CLUSTER_CLUSTERID`"",							`
+			"DynamoDBClustering:Service=`"$env:DYNAMODBCLUSTERING_SERVICE`"",		`
+			"DynamoDBClustering:AccessKey=`"$env:DYNAMODBCLUSTERING_ACCESSKEY`"",	`
+			"DynamoDBClustering:SecretKey=`"$env:DYNAMODBCLUSTERING_SECRETKEY`""
+	} else {
+		Write-Error $App" not found"
+		Write-Output (Get-Location)
+		Write-Output (Get-Variable)
+		Write-Output (Get-ChildItem Env:)
+	}
 }
