@@ -48,6 +48,7 @@ namespace SimCivil.Orleans.Interfaces
         Task<string> GetName();
         Task<IReadOnlyCollection<IComponent>> GetComponents();
         Task SetComponents(IEnumerable<IComponent> components);
+        Task Delete();
     }
 
     public static class EntityExtension
