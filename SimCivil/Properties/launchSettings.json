@@ -1,8 +1,0 @@
-{
-  "profiles": {
-    "SimCivil": {
-      "commandName": "Project",
-      "commandLineArgs": "-d .\\save\\test"
-    }
-  }
-}
