@@ -23,6 +23,7 @@
 // Update Date: 2019/04/20
 
 using System;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -32,6 +33,8 @@ using Autofac.Configuration;
 using Autofac.Extensions.DependencyInjection;
 
 using JetBrains.Annotations;
+
+using Karambolo.Extensions.Logging.File;
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -58,12 +61,13 @@ namespace SimCivil.Gate
         /// <summary>Initializes a new instance of the <see cref="T:System.Object"></see> class.</summary>
         public Gate([NotNull] IClusterClient client)
         {
-            Client = client ?? throw new ArgumentNullException(nameof(client));
+            Client = client ??
+                throw new ArgumentNullException(nameof(client));
         }
 
         private static async Task Main(string[] args)
         {
-            using (SentrySdk.Init("https://c091709188504c39a331cc91794fa4f4@sentry.io/216217"))
+            using(SentrySdk.Init("https://c091709188504c39a331cc91794fa4f4@sentry.io/216217"))
             {
                 IClusterClient client = new ClientBuilder()
                     .UseEnvironment(EnvironmentName.Development)
@@ -71,14 +75,14 @@ namespace SimCivil.Gate
                     .Configure<NetworkingOptions>(options => options.OpenConnectionTimeout = TimeSpan.FromSeconds(10))
                     .ConfigureAppConfiguration(
                         (context, configure) => configure
-                            .AddJsonFile(
-                                "appsettings.json",
-                                false)
-                            .AddJsonFile(
-                                $"appsettings.{context.HostingEnvironment.EnvironmentName}.json",
-                                true)
-                            .AddEnvironmentVariables()
-                            .AddCommandLine(args))
+                        .AddJsonFile(
+                            "appsettings.json",
+                            false)
+                        .AddJsonFile(
+                            $"appsettings.{context.HostingEnvironment.EnvironmentName}.json",
+                            true)
+                        .AddEnvironmentVariables()
+                        .AddCommandLine(args))
                     .ConfigureServices(Configure)
                     .Build();
 
@@ -114,7 +118,14 @@ namespace SimCivil.Gate
             serviceCollection
                 .AddLogging(
                     logging => logging.AddConsole()
-                        .AddConfiguration(configuration.GetSection("Logging")))
+                    .AddConfiguration(configuration.GetSection("Logging"))
+                    .AddFile(o =>
+                    {
+                        o.BasePath = "logs";
+                        o.EnsureBasePath = true;
+                        o.FallbackFileName =
+                            $"{Assembly.GetExecutingAssembly().GetName().Version}-{DateTime.Now:yyyy-dd-M-HH-mm-ss}.log";
+                    }))
                 .Configure<ClusterOptions>(configuration.GetSection("Cluster"))
                 .Configure<DynamoDBGatewayOptions>(configuration.GetSection("DynamoDBClustering"));
         }
@@ -144,7 +155,6 @@ namespace SimCivil.Gate
         {
             var builder = new ContainerBuilder();
             var configBuilder = new ConfigurationBuilder();
-//            configBuilder.AddJsonFile(config);
             var module = new ConfigurationModule(configBuilder.Build());
 
             if (services == null) services = new ServiceCollection();

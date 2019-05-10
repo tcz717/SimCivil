@@ -1,0 +1,5 @@
+{
+    "csharpfixformat.style.braces.onSameLine": false,
+    "csharpfixformat.sort.usings.splitGroups": true,
+    "csharpfixformat.style.spaces.beforeParenthesis": false
+}
