@@ -67,8 +67,7 @@ namespace SimCivil.Orleans.Server
                         {
                             builder.AddMemoryGrainStorageAsDefault()
                                 .UseDynamoDBClustering((Action<DynamoDBClusteringOptions>) null)
-                                .Configure<EndpointOptions>(
-                                    options => options.AdvertisedIPAddress = Dns.GetHostAddresses(Dns.GetHostName())[0])
+                                .ConfigureEndpoints(Dns.GetHostName(), 11111, 30000, listenOnAnyHostAddress : true)
                                 .AddStartupTask(
                                     (provider, token) => provider.GetRequiredService<IGrainFactory>()
                                         .GetGrain<IGame>(0)
