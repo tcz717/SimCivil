@@ -24,8 +24,11 @@
 
 using System;
 using System.Net;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+
+using Karambolo.Extensions.Logging.File;
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -35,6 +38,7 @@ using Microsoft.Extensions.Logging;
 using Orleans;
 using Orleans.Configuration;
 using Orleans.Hosting;
+using Orleans.Runtime;
 
 using Sentry;
 
@@ -48,11 +52,11 @@ using HostBuilderContext = Microsoft.Extensions.Hosting.HostBuilderContext;
 
 namespace SimCivil.Orleans.Server
 {
-    class Program
+    internal class Program
     {
         private const string Dsn = "https://c091709188504c39a331cc91794fa4f4@sentry.io/216217";
 
-        static async Task Main(string[] args)
+        public static async Task Main(string[] args)
         {
             using (SentrySdk.Init(Dsn))
             {
@@ -75,10 +79,10 @@ namespace SimCivil.Orleans.Server
                             builder
                                 .AddJsonFile(
                                     "appsettings.json",
-                                    optional: false)
+                                    false)
                                 .AddJsonFile(
                                     $"appsettings.{context.HostingEnvironment.EnvironmentName}.json",
-                                    optional: true)
+                                    true)
                                 .AddEnvironmentVariables("SC_")
                                 .AddCommandLine(args))
                     .ConfigureLogging(ConfigureLogging)
@@ -86,9 +90,17 @@ namespace SimCivil.Orleans.Server
                     .ConfigureServices(ConfigureServices)
                     .Build();
 
-                await host.StartAsync();
+                try
+                {
+                    await host.StartAsync();
 
-                await host.WaitForShutdownAsync();
+                    await host.WaitForShutdownAsync();
+                }
+                catch (OrleansConfigurationException configurationException)
+                {
+                    host.Services.GetService<ILogger<Program>>()
+                        .LogCritical(configurationException, "Configuration missing");
+                }
             }
         }
 
@@ -116,6 +128,16 @@ namespace SimCivil.Orleans.Server
             builder.AddConsole()
                 .AddSentry(Dsn)
                 .AddConfiguration(context.Configuration.GetSection("Logging"));
+
+            if (context.HostingEnvironment.IsDevelopment())
+                builder.AddFile(
+                    o =>
+                    {
+                        o.BasePath = "logs";
+                        o.EnsureBasePath = true;
+                        o.FallbackFileName =
+                            $"{Assembly.GetExecutingAssembly().GetName().Version}-{DateTime.Now:yyyy-dd-M-HH-mm-ss}.log";
+                    });
         }
     }
 }

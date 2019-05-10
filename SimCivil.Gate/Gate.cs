@@ -73,10 +73,10 @@ namespace SimCivil.Gate
                         (context, configure) => configure
                             .AddJsonFile(
                                 "appsettings.json",
-                                optional: false)
+                                false)
                             .AddJsonFile(
                                 $"appsettings.{context.HostingEnvironment.EnvironmentName}.json",
-                                optional: true)
+                                true)
                             .AddEnvironmentVariables()
                             .AddCommandLine(args))
                     .ConfigureServices(Configure)
@@ -99,6 +99,11 @@ namespace SimCivil.Gate
                 catch (SiloUnavailableException)
                 {
                     client.ServiceProvider.GetService<ILogger<Gate>>().LogCritical("Silo connecting fails");
+                }
+                catch (OrleansConfigurationException configurationException)
+                {
+                    client.ServiceProvider.GetService<ILogger<Gate>>()
+                        .LogCritical(configurationException, "Configuration missing");
                 }
             }
         }
@@ -142,10 +147,7 @@ namespace SimCivil.Gate
 //            configBuilder.AddJsonFile(config);
             var module = new ConfigurationModule(configBuilder.Build());
 
-            if (services == null)
-            {
-                services = new ServiceCollection();
-            }
+            if (services == null) services = new ServiceCollection();
 
             services.AddLogging(n => n.AddConsole());
 
