@@ -1,18 +1,16 @@
-<Project Sdk="Microsoft.NET.Sdk">
-
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFrameworks>netcoreapp2.0;net461</TargetFrameworks>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <LangVersion>7.1</LangVersion>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
-
   <ItemGroup>
     <Content Include="..\appsettings.json" Link="appsettings.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
-
   <ItemGroup>
     <PackageReference Include="Autofac" Version="4.9.2"/>
     <PackageReference Include="Autofac.Configuration" Version="4.1.0"/>
@@ -27,13 +25,11 @@
     <PackageReference Include="Sentry" Version="1.1.2"/>
     <PackageReference Include="Karambolo.Extensions.Logging.File" Version="2.1.2"/>
   </ItemGroup>
-
   <ItemGroup>
-    <ProjectReference Include="..\SimCivil.Contract\SimCivil.Contract.csproj" />
-    <ProjectReference Include="..\SimCivil.Orleans.Interfaces\SimCivil.Orleans.Interfaces.csproj" />
-    <ProjectReference Include="..\SimCivil.Rpc\SimCivil.Rpc.csproj" />
+    <ProjectReference Include="..\SimCivil.Contract\SimCivil.Contract.csproj"/>
+    <ProjectReference Include="..\SimCivil.Orleans.Interfaces\SimCivil.Orleans.Interfaces.csproj"/>
+    <ProjectReference Include="..\SimCivil.Rpc\SimCivil.Rpc.csproj"/>
   </ItemGroup>
-
   <ItemGroup>
     <None Update="before-deploy.ps1">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -42,5 +38,4 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
-
 </Project>
