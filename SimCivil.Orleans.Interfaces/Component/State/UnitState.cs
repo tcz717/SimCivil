@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2017 TPDT
+// Copyright (c) 2017 TPDT
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -19,8 +19,8 @@
 // SOFTWARE.
 // 
 // SimCivil - SimCivil.Orleans.Interfaces - Unit.cs
-// Create Date: 2018/10/20
-// Update Date: 2019/04/13
+// Create Date: 2019/05/08
+// Update Date: 2019/05/11
 
 using System;
 using System.Collections.Generic;
@@ -33,8 +33,9 @@ namespace SimCivil.Orleans.Interfaces.Component
     public class UnitState
     {
         public const int BodyPartCount = (int) BodyPartIndex.BodyPartCount;
-        public const int AbilityCount = (int) AbilityIndex.AbilityCount;
-        public const int MaxSlotCount = (int) EquipmentSlot.MaxSlotCount;
+        public const int AbilityCount  = (int) AbilityIndex.AbilityCount;
+        public const int EffectCount   = (int) EffectIndex.EffectCount;
+        public const int MaxSlotCount  = (int) EquipmentSlot.MaxSlotCount;
         /// <summary>Gets or sets the gender.</summary>
         /// <value>The gender.</value>
         public Gender Gender { get; set; }
@@ -169,76 +170,174 @@ namespace SimCivil.Orleans.Interfaces.Component
         #region Ability
 
         public UnboundedProperty[] Abilities { get; set; } = new UnboundedProperty[AbilityCount];
+
         /// <summary>重构能力</summary>
-        public UnboundedProperty ReconstructionAbility { get; set; }
+        public UnboundedProperty ReconstructionAbility
+        {
+            get => Abilities[(int) AbilityIndex.ReconstructionAbility];
+            set => Abilities[(int) AbilityIndex.ReconstructionAbility] = value;
+        }
+
         /// <summary>解析能力</summary>
-        public UnboundedProperty ResolvingAbility { get; set; }
+        public UnboundedProperty ResolvingAbility
+        {
+            get => Abilities[(int) AbilityIndex.ResolvingAbility];
+            set => Abilities[(int) AbilityIndex.ResolvingAbility] = value;
+        }
+
         /// <summary>感知能力</summary>
-        public UnboundedProperty PerceptionAbility { get; set; }
+        public UnboundedProperty PerceptionAbility
+        {
+            get => Abilities[(int) AbilityIndex.PerceptionAbility];
+            set => Abilities[(int) AbilityIndex.PerceptionAbility] = value;
+        }
+
         /// <summary>控制能力</summary>
-        public UnboundedProperty ControllingAbility { get; set; }
+        public UnboundedProperty ControllingAbility
+        {
+            get => Abilities[(int) AbilityIndex.ControllingAbility];
+            set => Abilities[(int) AbilityIndex.ControllingAbility] = value;
+        }
+
         /// <summary>精神力</summary>
-        public UnboundedProperty MentalAbility { get; set; }
+        public UnboundedProperty MentalAbility
+        {
+            get => Abilities[(int) AbilityIndex.MentalAbility];
+            set => Abilities[(int) AbilityIndex.MentalAbility] = value;
+        }
+
         /// <summary>视力</summary>
-        public UnboundedProperty Vision { get; set; }
+        public UnboundedProperty Vision
+        {
+            get => Abilities[(int) AbilityIndex.Vision];
+            set => Abilities[(int) AbilityIndex.Vision] = value;
+        }
+
         /// <summary>创造力</summary>
-        public UnboundedProperty Creativity { get; set; }
+        public UnboundedProperty Creativity
+        {
+            get => Abilities[(int) AbilityIndex.Creativity];
+            set => Abilities[(int) AbilityIndex.Creativity] = value;
+        }
+
         /// <summary>记忆力</summary>
-        public UnboundedProperty Memory { get; set; }
+        public UnboundedProperty Memory
+        {
+            get => Abilities[(int) AbilityIndex.Memory];
+            set => Abilities[(int) AbilityIndex.Memory] = value;
+        }
+
         /// <summary>理解力</summary>
-        public UnboundedProperty Understanding { get; set; }
+        public UnboundedProperty Understanding
+        {
+            get => Abilities[(int) AbilityIndex.Understanding];
+            set => Abilities[(int) AbilityIndex.Understanding] = value;
+        }
+
         /// <summary>意识</summary>
-        public UnboundedProperty Consciousness { get; set; }
+        public UnboundedProperty Consciousness
+        {
+            get => Abilities[(int) AbilityIndex.Consciousness];
+            set => Abilities[(int) AbilityIndex.Consciousness] = value;
+        }
+
         /// <summary>消化能力</summary>
-        public UnboundedProperty Digestion { get; set; }
+        public UnboundedProperty Digestion
+        {
+            get => Abilities[(int) AbilityIndex.Digestion];
+            set => Abilities[(int) AbilityIndex.Digestion] = value;
+        }
+
         /// <summary>反应力</summary>
-        public UnboundedProperty Reaction { get; set; }
+        public UnboundedProperty Reaction
+        {
+            get => Abilities[(int) AbilityIndex.Reaction];
+            set => Abilities[(int) AbilityIndex.Reaction] = value;
+        }
+
         /// <summary>耐力</summary>
-        public UnboundedProperty Endurance { get; set; }
+        public UnboundedProperty Endurance
+        {
+            get => Abilities[(int) AbilityIndex.Endurance];
+            set => Abilities[(int) AbilityIndex.Endurance] = value;
+        }
+
         /// <summary>毒素抗性</summary>
-        public UnboundedProperty Antitoxic { get; set; }
+        public UnboundedProperty Antitoxic
+        {
+            get => Abilities[(int) AbilityIndex.Antitoxic];
+            set => Abilities[(int) AbilityIndex.Antitoxic] = value;
+        }
+
         /// <summary>上肢力量</summary>
-        public UnboundedProperty UpperPower { get; set; }
+        public UnboundedProperty UpperPower
+        {
+            get => Abilities[(int) AbilityIndex.UpperPower];
+            set => Abilities[(int) AbilityIndex.UpperPower] = value;
+        }
+
         /// <summary>下肢力量</summary>
-        public UnboundedProperty LowerPower { get; set; }
+        public UnboundedProperty LowerPower
+        {
+            get => Abilities[(int) AbilityIndex.LowerPower];
+            set => Abilities[(int) AbilityIndex.LowerPower] = value;
+        }
+
         /// <summary>上肢灵巧</summary>
-        public UnboundedProperty UpperDexterity { get; set; }
+        public UnboundedProperty UpperDexterity
+        {
+            get => Abilities[(int) AbilityIndex.UpperDexterity];
+            set => Abilities[(int) AbilityIndex.UpperDexterity] = value;
+        }
+
         /// <summary>下肢灵巧</summary>
-        public UnboundedProperty LowerDexterity { get; set; }
+        public UnboundedProperty LowerDexterity
+        {
+            get => Abilities[(int) AbilityIndex.LowerDexterity];
+            set => Abilities[(int) AbilityIndex.LowerDexterity] = value;
+        }
 
         #endregion
 
         #region Effect
 
+        public UnboundedProperty[] Effects { get; set; } = new UnboundedProperty[EffectCount];
+
         /// <summary>移动速率</summary>
-        public UnboundedProperty MoveSpeed { get; set; }
+        public UnboundedProperty MoveSpeed
+        {
+            get => Effects[(int) EffectIndex.MoveSpeed];
+            set => Effects[(int) EffectIndex.MoveSpeed] = value;
+        }
+
         /// <summary>视野距离</summary>
-        public UnboundedProperty SightRange { get; set; }
+        public UnboundedProperty SightRange
+        {
+            get => Effects[(int) EffectIndex.SightRange];
+            set => Effects[(int) EffectIndex.SightRange] = value;
+        }
 
         #endregion
     }
 
     public class BodyPart
     {
-        public uint MaxHp { get; set; }
-        public uint Hp { get; set; }
-        public uint Potentiality { get; set; }
-        public List<Wound> Wounds { get; set; } = new List<Wound>();
-        public float Efficiency => (float) Hp * Potentiality / MaxHp;
+        public uint        MaxHp        { get; set; }
+        public uint        Hp           { get; set; }
+        public uint        Potentiality { get; set; }
+        public List<Wound> Wounds       { get; set; } = new List<Wound>();
+        public float       Efficiency   => (float) Hp * Potentiality / MaxHp;
 
         public static BodyPart Create(uint potentiality, uint maxHp) => new BodyPart
         {
             Potentiality = potentiality,
-            Hp = maxHp,
-            MaxHp = maxHp,
+            Hp           = maxHp,
+            MaxHp        = maxHp
         };
 
         /// <summary>Returns a string that represents the current object.</summary>
         /// <returns>A string that represents the current object.</returns>
-        public override string ToString()
-        {
-            return $"Hp: {Hp}/{MaxHp} ({Efficiency}), P: {Potentiality}, W: {Wounds.Count}";
-        }
+        public override string ToString() => $"Hp: {Hp}/{MaxHp} ({Efficiency}), P: {Potentiality}, W: {Wounds.Count}";
     }
 
     // TODO Wound
@@ -266,6 +365,13 @@ namespace SimCivil.Orleans.Interfaces.Component
         LeftFoot,
         RightFoot,
         BodyPartCount
+    }
+
+    public enum EffectIndex
+    {
+        MoveSpeed,
+        SightRange,
+        EffectCount
     }
 
     public enum AbilityIndex
@@ -344,70 +450,89 @@ namespace SimCivil.Orleans.Interfaces.Component
         RightBracelet,
         Ring1,
         Ring2,
-        MaxSlotCount,
+        MaxSlotCount
     }
 
     /// <summary xml:lang="cn">表示一种无最大值约束的属性，可以被施加线性和倍率加成</summary>
-    public struct UnboundedProperty
+    public class UnboundedProperty
     {
-        public float Base { get; set; }
+        public float Base        { get; set; }
         public float LinearBonus { get; set; }
-        public float ScaleBonus { get; set; }
+        public float ScaleBonus  { get; set; }
 
         public float Value => Base * (1 + ScaleBonus) + LinearBonus;
 
-        /// <summary>Initializes a new instance of the <see cref="UnboundedProperty"/> struct.</summary>
+        /// <summary>Initializes a new instance of the <see cref="UnboundedProperty" /> struct.</summary>
         /// <param name="init">The initialize base.</param>
-        public UnboundedProperty(float init) : this()
+        public UnboundedProperty(float init)
         {
             Base = init;
         }
 
-        /// <summary>Initializes a new instance of the <see cref="UnboundedProperty"/> struct.</summary>
+        /// <summary>Initializes a new instance of the <see cref="UnboundedProperty" /> struct.</summary>
         /// <param name="base">The base.</param>
         /// <param name="linearBonus">The linear bonus.</param>
         /// <param name="scaleBonus">The scale bonus.</param>
         public UnboundedProperty(float @base, float linearBonus, float scaleBonus)
         {
-            Base = @base;
+            Base        = @base;
             LinearBonus = linearBonus;
-            ScaleBonus = scaleBonus;
+            ScaleBonus  = scaleBonus;
         }
 
-        /// <summary>Performs an implicit conversion from <see cref="UnboundedProperty"/> to <see cref="float"/>.</summary>
+        public UnboundedProperty() { }
+
+        /// <summary>Performs an implicit conversion from <see cref="UnboundedProperty" /> to <see cref="float" />.</summary>
         /// <param name="property">The property.</param>
         /// <returns>The result of the conversion.</returns>
-        public static implicit operator float(UnboundedProperty property)
-        {
-            return property.Value;
-        }
+        public static implicit operator float(UnboundedProperty property) => property.Value;
 
         /// <summary>Applies the linear bonus.</summary>
         /// <param name="linearBonus">The linear bonus.</param>
         public UnboundedProperty ApplyLinearBonus(float linearBonus)
-            => new UnboundedProperty(Base, LinearBonus + linearBonus, ScaleBonus);
+        {
+            LinearBonus += linearBonus;
+
+            return this;
+        }
 
         /// <summary>Applies the scale bonus.</summary>
         /// <param name="scaleBonus">The scale bonus.</param>
         public UnboundedProperty ApplyScaleBonus(float scaleBonus)
-            => new UnboundedProperty(Base, LinearBonus, ScaleBonus + scaleBonus);
+        {
+            ScaleBonus += scaleBonus;
 
-        public UnboundedProperty Update(float @base) => new UnboundedProperty(@base, LinearBonus, ScaleBonus);
+            return this;
+        }
+
+        public UnboundedProperty Update(float @base)
+        {
+            Base = @base;
+
+            return this;
+        }
 
         /// <summary>Resets the linear bonus.</summary>
-        public UnboundedProperty ResetLinearBonus() => new UnboundedProperty(Base, 0, ScaleBonus);
+        public UnboundedProperty ResetLinearBonus()
+        {
+            LinearBonus = 0;
+
+            return this;
+        }
 
         /// <summary>Resets the scale bonus.</summary>
-        public UnboundedProperty ResetScaleBonus() => new UnboundedProperty(Base, LinearBonus, 0);
+        public UnboundedProperty ResetScaleBonus()
+        {
+            ScaleBonus = 0;
+
+            return this;
+        }
 
         /// <summary>Resets this instance.</summary>
-        public UnboundedProperty Reset() => new UnboundedProperty(Base);
+        public UnboundedProperty Reset() => ResetLinearBonus().ResetScaleBonus();
 
         /// <summary>Returns the fully qualified type name of this instance.</summary>
         /// <returns>The fully qualified type name.</returns>
-        public override string ToString()
-        {
-            return $"{Value:N} ({Base:N} * {(1 + ScaleBonus):N} + {LinearBonus:N})";
-        }
+        public override string ToString() => $"{Value:N} ({Base:N} * {1 + ScaleBonus:N} + {LinearBonus:N})";
     }
 }

@@ -29,6 +29,7 @@ namespace SimCivil.Orleans.Interfaces.Component
 {
     public class ObserverState
     {
+        [Obsolete]
         public uint NotifyRange { get; set; }
     }
 }

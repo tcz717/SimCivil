@@ -19,8 +19,8 @@
 // SOFTWARE.
 // 
 // SimCivil - SimCivil.Test - OrleansBaseTest.cs
-// Create Date: 2019/04/27
-// Update Date: 2019/04/29
+// Create Date: 2019/05/08
+// Update Date: 2019/05/11
 
 using System;
 using System.Collections.Generic;
@@ -42,16 +42,16 @@ namespace SimCivil.Test.Orleans
 {
     public class OrleansBaseTest : IDisposable
     {
-        public OrleansFixture Fixture { get; }
-        public ITestOutputHelper Output { get; }
-        public TestCluster Cluster { get; }
-        public List<IAccount> CreatedAccount { get; } = new List<IAccount>();
+        public OrleansFixture    Fixture        { get; }
+        public ITestOutputHelper Output         { get; }
+        public TestCluster       Cluster        { get; }
+        public List<IAccount>    CreatedAccount { get; } = new List<IAccount>();
 
         public OrleansBaseTest(OrleansFixture fixture, ITestOutputHelper output)
         {
             Cluster = fixture.Cluster;
             Fixture = fixture;
-            Output = output;
+            Output  = output;
         }
 
         /// <summary>Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.</summary>
@@ -73,19 +73,16 @@ namespace SimCivil.Test.Orleans
 
         public async Task<IEnumerable<IAccount>> GetRegisteredAccountsAsync(int num)
         {
-            Task<IAccount>[] tasks = new Task<IAccount>[num];
-            for (int i = 0; i < tasks.Length; i++)
-            {
-                tasks[i] = GetRegisteredAccountAsync();
-            }
+            var tasks = new Task<IAccount>[num];
+            for (var i = 0; i < tasks.Length; i++) tasks[i] = GetRegisteredAccountAsync();
 
             return await Task.WhenAll(tasks);
         }
 
         public async Task<IEntity> GetNewRoleAsync(CreateRoleOption option = null)
         {
-            IAccount account = await this.GetRegisteredAccountAsync();
-            option = option ?? new Faker<CreateRoleOption>();
+            IAccount account = await GetRegisteredAccountAsync();
+            option = option ?? new Faker<CreateRoleOption>().RuleFor(o => o.Name, f => f.Name.FullName());
             IEntity entity = await account.CreateRole(option);
 
             await account.UseRole(entity);
@@ -95,11 +92,8 @@ namespace SimCivil.Test.Orleans
 
         public async Task<IEnumerable<IEntity>> GetNewRolesAsync(int num, CreateRoleOption option = null)
         {
-            Task<IEntity>[] tasks = new Task<IEntity>[num];
-            for (int i = 0; i < tasks.Length; i++)
-            {
-                tasks[i] = GetNewRoleAsync(option);
-            }
+            var tasks = new Task<IEntity>[num];
+            for (var i = 0; i < tasks.Length; i++) tasks[i] = GetNewRoleAsync(option);
 
             return await Task.WhenAll(tasks);
         }

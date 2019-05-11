@@ -19,8 +19,8 @@
 // SOFTWARE.
 // 
 // SimCivil - SimCivil.Orleans.Grains - GameGrain.cs
-// Create Date: 2018/06/14
-// Update Date: 2018/12/19
+// Create Date: 2019/05/08
+// Update Date: 2019/05/11
 
 using System;
 using System.Text;
@@ -43,7 +43,7 @@ namespace SimCivil.Orleans.Grains
 {
     public class GameGrain : Grain<GameState>, IGame
     {
-        public ILogger<GameGrain> Logger { get; }
+        public ILogger<GameGrain>    Logger      { get; }
         public IOptions<GameOptions> GameOptions { get; }
 
         public bool Initialized { get; set; }
@@ -54,24 +54,19 @@ namespace SimCivil.Orleans.Grains
         /// </summary>
         public GameGrain(ILogger<GameGrain> logger, IOptions<GameOptions> gameOptions)
         {
-            Logger = logger;
+            Logger      = logger;
             GameOptions = gameOptions;
         }
 
         public async Task InitGame()
         {
             State.OnlineAccounts.Clear();
-            if (Initialized)
-            {
-                return;
-            }
+
+            if (Initialized) return;
 
             Initialized = true;
             Logger.Info($"Init Game:{GameOptions.Value.Name} (SW: {GameOptions.Value.SpawnPoint})");
-            if (GameOptions.Value.Development)
-            {
-                await LoadDevelopmentConfiguration();
-            }
+            if (GameOptions.Value.Development) await LoadDevelopmentConfiguration();
 
             await WriteStateAsync();
         }
@@ -92,10 +87,7 @@ namespace SimCivil.Orleans.Grains
         /// Gets the online accounts count.
         /// </summary>
         /// <returns></returns>
-        public Task<int> GetOnlineAccountsCount()
-        {
-            return Task.FromResult(State.OnlineAccounts.Count);
-        }
+        public Task<int> GetOnlineAccountsCount() => Task.FromResult(State.OnlineAccounts.Count);
 
         private async Task LoadDevelopmentConfiguration()
         {
@@ -106,15 +98,13 @@ namespace SimCivil.Orleans.Grains
             var human = GrainFactory.GetGrain<IEntity>(Guid.NewGuid());
             await human.Add<IObserver>();
             await human.Add<IPosition>();
-            await GrainFactory.Get<IUnit>(human)
-                .SetData(new UnitState {MoveSpeed = new UnboundedProperty(1), SightRange = new UnboundedProperty(5)});
             await human.Add<IUnit>();
             await human.Add<IUnitController>();
             await GrainFactory.Get<IAppearance>(human)
-                .SetData(
-                    new AppearanceContainer(
-                        new AppearanceEntry(AppearanceType.Hair, 0),
-                        new AppearanceEntry(AppearanceType.Body, 0)));
+                              .SetData(
+                                   new AppearanceContainer(
+                                       new AppearanceEntry(AppearanceType.Hair, 0),
+                                       new AppearanceEntry(AppearanceType.Body, 0)));
             await human.Add<IAppearance>();
 
             await GrainFactory.GetGrain<IPrefabManager>(0).Set("human.init", human);

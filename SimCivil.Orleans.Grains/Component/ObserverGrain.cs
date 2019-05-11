@@ -19,8 +19,8 @@
 // SOFTWARE.
 // 
 // SimCivil - SimCivil.Orleans.Grains - ObserverGrain.cs
-// Create Date: 2018/12/15
-// Update Date: 2018/12/17
+// Create Date: 2019/05/08
+// Update Date: 2019/05/11
 
 using System;
 using System.Collections.Generic;
@@ -44,7 +44,7 @@ namespace SimCivil.Orleans.Grains.Component
     public class ObserverGrain : BaseGrain<ObserverState>, IObserver
     {
         public IOptions<SyncOptions> SyncOptions { get; }
-        public HashSet<Guid> Entities { get; set; }
+        public HashSet<Guid>         Entities    { get; set; }
 
         public ObserverGrain(ILoggerFactory factory, IOptions<SyncOptions> syncOptions) : base(factory)
         {
@@ -66,15 +66,9 @@ namespace SimCivil.Orleans.Grains.Component
         }
 
         /// <inheritdoc />
-        public Task OnTileChanged(Tile tile)
-        {
-            throw new NotImplementedException();
-        }
+        public Task OnTileChanged(Tile tile) => throw new NotImplementedException();
 
-        public Task<uint> GetNotifyRange()
-        {
-            return Task.FromResult(State.NotifyRange);
-        }
+        public Task<uint> GetNotifyRange() => GrainFactory.Get<IUnit>(this).GetSightRange();
 
         public Task<IEnumerable<Guid>> PopAllEntities()
         {
@@ -89,7 +83,7 @@ namespace SimCivil.Orleans.Grains.Component
             PositionState position = await GrainFactory.Get<IPosition>(this).GetData();
             var viewChange = new ViewChange
             {
-                Position = position,
+                Position   = position,
                 AtlasIndex = position.Tile.DivDown(SyncOptions.Value.ChunkSize)
             };
 
@@ -97,22 +91,24 @@ namespace SimCivil.Orleans.Grains.Component
                 viewChange.Speed = await GrainFactory.Get<IUnit>(this).GetMoveSpeed();
 
             var entities = await Task.WhenAll(
-                Entities.Select(
-                    async e =>
-                    {
-                        var entity = GrainFactory.GetGrain<IEntity>(e);
-                        float hp = await entity.Has<IUnit>() ? await GrainFactory.Get<IUnit>(e).GetHp() : -1;
+                               Entities.Select(
+                                   async e =>
+                                   {
+                                       var entity = GrainFactory.GetGrain<IEntity>(e);
+                                       float hp = await entity.Has<IUnit>()
+                                                      ? await GrainFactory.Get<IUnit>(e).GetHp()
+                                                      : -1;
 
-                        var dto = new EntityDto
-                        {
-                            Name = await entity.GetName(),
-                            Pos = await GrainFactory.Get<IPosition>(e).GetData(),
-                            Id = e,
-                            Hp = hp
-                        };
+                                       var dto = new EntityDto
+                                       {
+                                           Name = await entity.GetName(),
+                                           Pos  = await GrainFactory.Get<IPosition>(e).GetData(),
+                                           Id   = e,
+                                           Hp   = hp
+                                       };
 
-                        return dto;
-                    }));
+                                       return dto;
+                                   }));
             Entities.Clear();
 
             viewChange.EntityChange = entities;
@@ -128,9 +124,6 @@ namespace SimCivil.Orleans.Grains.Component
         public override async Task OnActivateAsync()
         {
             Entities = new HashSet<Guid>();
-
-            // TODO: use a better way to set NotifyRange
-            State.NotifyRange = await GrainFactory.Get<IUnit>(this).GetSightRange();
 
             await base.OnActivateAsync();
         }
