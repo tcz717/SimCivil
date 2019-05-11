@@ -59,14 +59,27 @@ namespace SimCivil.Orleans.Grains.Component
 
         /// <summary>Gets the heath point.</summary>
         /// <returns></returns>
-        public Task<float> GetHp()
-        {
-            throw new NotImplementedException();
-        }
+        public Task<float> GetHp() => throw new NotImplementedException();
 
         public Task UpdateAbilities()
         {
+            UpdateReconstructionAbility();
+            UpdateResolvingAbility();
+            UpdatePerceptionAbility();
+            UpdateControllingAbility();
+            UpdateMentalAbility();
+            UpdateCreativity();
+            UpdateMemory();
+            UpdateUnderstanding();
+            UpdateConsciousness();
+            UpdateDigestion();
+            UpdateReaction();
+            UpdateEndurance();
+            UpdateAntitoxic();
             UpdateLowerDexterity();
+            UpdateUpperDexterity();
+            UpdateUpperPower();
+            UpdateLowerPower();
             UpdateVision();
 
             return Task.CompletedTask;
@@ -81,24 +94,78 @@ namespace SimCivil.Orleans.Grains.Component
         }
 
         public Task<float> GetMoveSpeed() => Task.FromResult(State.MoveSpeed.Value);
+
         public Task<uint> GetSightRange() => Task.FromResult((uint) State.SightRange.Value);
 
         private static T Min<T>(params T[] values) => values.Min();
+
         private static T Max<T>(params T[] values) => values.Max();
 
-        public void UpdateLowerDexterity() => State.LowerDexterity = State.LowerDexterity.Update(
+        public void UpdateReconstructionAbility() => State.ReconstructionAbility.Update(
+            State.Soul.Efficiency);
+
+        public void UpdateResolvingAbility() => State.ResolvingAbility.Update(State.Soul.Efficiency);
+
+        public void UpdatePerceptionAbility() => State.PerceptionAbility.Update(State.Soul.Efficiency);
+
+        public void UpdateControllingAbility() => State.ControllingAbility.Update(State.Soul.Efficiency);
+
+        public void UpdateMentalAbility() => State.MentalAbility.Update(State.Soul.Efficiency);
+
+        public void UpdateVision() => State.Vision = State.Vision.Update(
+                                          Max(
+                                              State.LeftEye.Efficiency,
+                                              State.RightEye.Efficiency));
+
+        public void UpdateCreativity() => State.Creativity.Update(State.Brain.Efficiency);
+
+        public void UpdateMemory() => State.Memory.Update(State.Brain.Efficiency);
+
+        public void UpdateUnderstanding() => State.Understanding.Update(State.Brain.Efficiency);
+
+        public void UpdateConsciousness() => State.Consciousness.Update(State.Brain.Efficiency);
+
+        public void UpdateDigestion() => State.Digestion.Update(
+            Min(State.Digestive.Efficiency, State.Mouth.Efficiency));
+
+        public void UpdateReaction() => State.Reaction.Update(State.Brain.Efficiency);
+
+        public void UpdateEndurance() => State.Endurance.Update(
+            Min(State.Heart.Efficiency, State.Lung.Efficiency));
+
+        public void UpdateAntitoxic() => State.Antitoxic.Update(State.Immunity.Efficiency);
+
+        public void UpdateUpperDexterity() => State.UpperDexterity.Update(
+            Min(
+                State.LeftArm.Efficiency,
+                State.RightArm.Efficiency,
+                State.LeftHand.Efficiency,
+                State.RightHand.Efficiency));
+
+        public void UpdateLowerDexterity() => State.LowerDexterity.Update(
             Min(
                 State.LeftFoot.Efficiency,
                 State.RightFoot.Efficiency,
                 State.LeftLeg.Efficiency,
                 State.RightLeg.Efficiency));
 
-        public void UpdateVision() => State.Vision = State.Vision.Update(
-            Max(
-                State.LeftEye.Efficiency,
-                State.RightEye.Efficiency));
+        public void UpdateUpperPower() => State.UpperPower.Update(
+            Min(
+                State.LeftArm.Efficiency,
+                State.RightArm.Efficiency,
+                State.LeftHand.Efficiency,
+                State.RightHand.Efficiency));
+
+        public void UpdateLowerPower() => State.LowerPower.Update(
+            Min(
+                State.LeftFoot.Efficiency,
+                State.RightFoot.Efficiency,
+                State.LeftLeg.Efficiency,
+                State.RightLeg.Efficiency));
+
 
         public void UpdateSightRange() => State.SightRange = State.SightRange.Update(State.Vision);
+
         public void UpdateMoveSpeed() => State.MoveSpeed = State.MoveSpeed.Update(State.LowerDexterity);
     }
 }

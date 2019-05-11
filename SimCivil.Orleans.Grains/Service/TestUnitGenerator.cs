@@ -19,8 +19,8 @@
 // SOFTWARE.
 // 
 // SimCivil - SimCivil.Orleans.Grains - TestUnitGenerator.cs
-// Create Date: 2018/12/31
-// Update Date: 2019/04/13
+// Create Date: 2019/05/08
+// Update Date: 2019/05/11
 
 using System;
 using System.Text;
@@ -37,26 +37,22 @@ namespace SimCivil.Orleans.Grains.Service
         {
             var unit = new UnitState
             {
-                Race = option.Race,
+                Race   = option.Race,
                 Gender = option.Gender,
             };
 
-            for (int i = 0; i < (int) BodyPartIndex.BodyPartCount; i++)
-            {
+            for (var i = 0; i < (int) BodyPartIndex.BodyPartCount; i++)
                 unit.BodyParts[i] = BodyPart.Create(1, 10);
-            }
+            for (var i = 0; i < (int) AbilityIndex.AbilityCount; i++)
+                unit.Abilities[i] = new UnboundedProperty();
+            for (var i = 0; i < (int) EffectIndex.EffectCount; i++)
+                unit.Effects[i] = new UnboundedProperty();
 
             return unit;
         }
 
-        public UnitState GenerateByAsexual(UnitState parent)
-        {
-            throw new NotImplementedException();
-        }
+        public Unit GenerateByAsexual(Unit parent) => throw new NotImplementedException();
 
-        public UnitState GenerateBySexual(UnitState father, UnitState mother)
-        {
-            throw new NotImplementedException();
-        }
+        public Unit GenerateBySexual(Unit father, Unit mother) => throw new NotImplementedException();
     }
 }

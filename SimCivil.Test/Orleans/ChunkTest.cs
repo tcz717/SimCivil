@@ -19,8 +19,8 @@
 // SOFTWARE.
 // 
 // SimCivil - SimCivil.Test - ChunkTest.cs
-// Create Date: 2018/06/22
-// Update Date: 2018/12/08
+// Create Date: 2019/05/05
+// Update Date: 2019/05/11
 
 using System;
 using System.Linq;
@@ -31,74 +31,65 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
 using Orleans;
-using Orleans.TestingHost;
 
 using SimCivil.Orleans.Interfaces;
 using SimCivil.Orleans.Interfaces.Component;
 using SimCivil.Orleans.Interfaces.Option;
 
 using Xunit;
+using Xunit.Abstractions;
 
 namespace SimCivil.Test.Orleans
 {
     [Collection(ClusterCollection.Name)]
-    public class ChunkTest
+    public class ChunkTest : OrleansBaseTest
     {
-        /// <summary>Initializes a new instance of the <see cref="T:System.Object"></see> class.</summary>
-        public ChunkTest(OrleansFixture fixture)
-        {
-            Cluster = fixture.Cluster;
-        }
-        public TestCluster Cluster { get; }
-
         [Fact]
         public async Task GetAtlasTest()
         {
             int atlasSize = Cluster.ServiceProvider.GetService<IOptions<GameOptions>>().Value.AtlasSize;
             for (int i = -5; i < 5; i++)
+            for (int j = -5; j < 5; j++)
             {
-                for (int j = -5; j < 5; j++)
-                {
-                    var atlas = Cluster.GrainFactory.GetGrain<IAtlas>((i, j));
-                    var tiles = await atlas.Dump();
-                    Assert.All(
-                        tiles.Cast<Tile>(),
-                        t =>
-                        {
-                            Assert.InRange(
-                                t.Position.Y,
-                                j * atlasSize,
-                                (j + 1) * atlasSize - 1);
-                            Assert.InRange(
-                                t.Position.X,
-                                i * atlasSize,
-                                (i + 1) * atlasSize - 1);
-                        });
-                }
+                var atlas = Cluster.GrainFactory.GetGrain<IAtlas>((i, j));
+                var tiles = await atlas.Dump();
+                Assert.All(
+                    tiles.Cast<Tile>(),
+                    t =>
+                    {
+                        Assert.InRange(
+                            t.Position.Y,
+                            j * atlasSize,
+                            (j + 1) * atlasSize - 1);
+                        Assert.InRange(
+                            t.Position.X,
+                            i * atlasSize,
+                            (i + 1) * atlasSize - 1);
+                    });
             }
         }
 
         [Fact]
         public async Task MoveTest()
         {
-            var entity = Cluster.GrainFactory.GetGrain<IEntity>(Guid.NewGuid());
-            await entity.Enable();
-            await entity.Add<IComponent<PositionState>>();
-            await entity.Add<IObserver>();
-            var position = Cluster.GrainFactory.GetGrain<IComponent<PositionState>>(entity.GetPrimaryKey());
+            IEntity entity = await GetNewRoleAsync();
+
+            var position = Cluster.GrainFactory.GetGrain<IComponent<Position>>(entity.GetPrimaryKey());
             var observer = Cluster.GrainFactory.GetGrain<IObserver>(entity.GetPrimaryKey());
             await position.SetData(new PositionState(100f, 100f));
             await observer.SetData(new ObserverState {NotifyRange = 5});
 
-            var testEntity = Cluster.GrainFactory.GetGrain<IEntity>(Guid.NewGuid());
+            IEntity testEntity = await GetNewRoleAsync();
             await testEntity.Enable();
-            await testEntity.Add<IComponent<PositionState>>();
-            await Cluster.GrainFactory.GetGrain<IComponent<PositionState>>(testEntity.GetPrimaryKey())
-                .SetData(new PositionState(100f, 104f));
+            await testEntity.Add<IComponent<Position>>();
+            await Cluster.GrainFactory.GetGrain<IComponent<Position>>(testEntity.GetPrimaryKey())
+                         .SetData(new Position(100f, 100.5f));
 
             await Task.Delay(100);
 
             Assert.NotEmpty(await observer.PopAllEntities());
         }
+
+        public ChunkTest(OrleansFixture fixture, ITestOutputHelper output) : base(fixture, output) { }
     }
 }
