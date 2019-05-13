@@ -19,8 +19,8 @@
 // SOFTWARE.
 // 
 // SimCivil - SimCivil.Orleans.Grains - UnitGrain.cs
-// Create Date: 2018/12/13
-// Update Date: 2018/12/30
+// Create Date: 2019/05/08
+// Update Date: 2019/05/12
 
 using System;
 using System.Collections.Generic;
@@ -32,7 +32,6 @@ using JetBrains.Annotations;
 
 using Microsoft.Extensions.Logging;
 
-using SimCivil.Contract;
 using SimCivil.Orleans.Interfaces;
 using SimCivil.Orleans.Interfaces.Component;
 
@@ -42,13 +41,6 @@ namespace SimCivil.Orleans.Grains.Component
     public class UnitGrain : BaseGrain<UnitState>, IUnit
     {
         public UnitGrain(ILoggerFactory factory) : base(factory) { }
-
-        public Task Fill(CreateRoleOption option)
-        {
-            State.Gender = option.Gender;
-
-            return Task.CompletedTask;
-        }
 
         public override Task<IReadOnlyDictionary<string, string>> Inspect(IEntity observer)
         {
@@ -60,6 +52,15 @@ namespace SimCivil.Orleans.Grains.Component
         /// <summary>Gets the heath point.</summary>
         /// <returns></returns>
         public Task<float> GetHp() => throw new NotImplementedException();
+
+        public Task<UnboundedProperty> GetEffect(EffectIndex effectIndex)
+            => Task.FromResult(State.Effects[(int) effectIndex]);
+
+        public Task<UnboundedProperty> GetAbility(AbilityIndex abilityIndex)
+            => Task.FromResult(State.Abilities[(int) abilityIndex]);
+
+        public Task<BodyPart> GetBodyPart(BodyPartIndex bodyPartIndex)
+            => Task.FromResult(State.BodyParts[(int) bodyPartIndex]);
 
         public Task UpdateAbilities()
         {
@@ -92,10 +93,6 @@ namespace SimCivil.Orleans.Grains.Component
 
             return Task.CompletedTask;
         }
-
-        public Task<float> GetMoveSpeed() => Task.FromResult(State.MoveSpeed.Value);
-
-        public Task<uint> GetSightRange() => Task.FromResult((uint) State.SightRange.Value);
 
         private static T Min<T>(params T[] values) => values.Min();
 
