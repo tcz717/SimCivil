@@ -41,7 +41,7 @@ using SimCivil.Orleans.Interfaces.Option;
 namespace SimCivil.Orleans.Grains.Component
 {
     [PublicAPI]
-    public class ObserverGrain : BaseGrain<Observer>, IObserver
+    public class ObserverGrain : BaseGrain<ObserverState>, IObserver
     {
         public IOptions<SyncOptions> SyncOptions { get; }
         public HashSet<Guid> Entities { get; set; }
@@ -86,7 +86,7 @@ namespace SimCivil.Orleans.Grains.Component
 
         public async Task<ViewChange> UpdateView()
         {
-            Position position = await GrainFactory.Get<IPosition>(this).GetData();
+            PositionState position = await GrainFactory.Get<IPosition>(this).GetData();
             var viewChange = new ViewChange
             {
                 Position = position,

@@ -72,7 +72,7 @@ namespace SimCivil.Gate
         {
             var controller = Factory.GetGrain<IUnitController>(Session.Value.Get<IEntity>().GetPrimaryKey());
 
-            await controller.MoveTo(new Position(position), timestamp);
+            await controller.MoveTo(new PositionState(position), timestamp);
         }
 
         public async Task<InspectionResult> Inspect(Guid entityId)

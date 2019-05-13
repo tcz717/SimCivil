@@ -30,7 +30,7 @@ using SimCivil.Contract;
 
 namespace SimCivil.Orleans.Interfaces.Component
 {
-    public interface IUnit : IComponent<Unit>
+    public interface IUnit : IComponent<UnitState>
     {
         /// <summary>Fills the specified option.</summary>
         /// <param name="option">The option.</param>

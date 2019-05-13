@@ -30,7 +30,7 @@ using SimCivil.Contract.Model;
 
 namespace SimCivil.Orleans.Interfaces.Component
 {
-    public class Unit
+    public class UnitState
     {
         public const int BodyPartCount = (int) BodyPartIndex.BodyPartCount;
         public const int AbilityCount = (int) AbilityIndex.AbilityCount;
