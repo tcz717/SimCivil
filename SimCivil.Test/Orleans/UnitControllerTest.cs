@@ -68,10 +68,10 @@ namespace SimCivil.Test.Orleans
                 units.Select(async u => await u.GetMoveSpeed() * syncOptions.Value.UpdatePeriod / 1000));
             Assert.All(deltas, d => Assert.True(d > 0));
 
-            Position[] initPos = await Task.WhenAll(positions.Select(s => s.GetData()));
+            PositionState[] initPos = await Task.WhenAll(positions.Select(s => s.GetData()));
             for (int i = 0; i < steps; i++)
             {
-                Position[] posArr = new Position[roleNum];
+                PositionState[] posArr = new PositionState[roleNum];
                 Task[] tasks = new Task[roleNum];
                 for (int j = 0; j < roleNum; j++)
                 {

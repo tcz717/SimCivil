@@ -29,8 +29,8 @@ using System.Threading.Tasks;
 
 namespace SimCivil.Orleans.Interfaces.Component
 {
-    public interface IPosition : IComponent<Position>
+    public interface IPosition : IComponent<PositionState>
     {
-        Task<Position> Add((float X, float Y) offset);
+        Task<PositionState> Add((float X, float Y) offset);
     }
 }

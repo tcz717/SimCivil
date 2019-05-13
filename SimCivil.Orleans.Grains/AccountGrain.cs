@@ -174,7 +174,7 @@ namespace SimCivil.Orleans.Grains
             await unit.UpdateAbilities();
             await unit.UpdateEffects();
 
-            await pos.SetData(new Position(GameOptions.Value.SpawnPoint));
+            await pos.SetData(new PositionState(GameOptions.Value.SpawnPoint));
             await role.SetName(option.Name);
 
             State.Roles.Add(role);

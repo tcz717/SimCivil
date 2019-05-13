@@ -33,7 +33,7 @@ using SimCivil.Contract;
 
 namespace SimCivil.Orleans.Interfaces.Component
 {
-    public interface IObserver : IComponent<Observer>
+    public interface IObserver : IComponent<ObserverState>
     {
         [OneWay]
         Task OnEntityEntered(Guid id);

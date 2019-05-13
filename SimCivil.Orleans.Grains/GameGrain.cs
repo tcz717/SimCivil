@@ -107,7 +107,7 @@ namespace SimCivil.Orleans.Grains
             await human.Add<IObserver>();
             await human.Add<IPosition>();
             await GrainFactory.Get<IUnit>(human)
-                .SetData(new Unit {MoveSpeed = new UnboundedProperty(1), SightRange = new UnboundedProperty(5)});
+                .SetData(new UnitState {MoveSpeed = new UnboundedProperty(1), SightRange = new UnboundedProperty(5)});
             await human.Add<IUnit>();
             await human.Add<IUnitController>();
             await GrainFactory.Get<IAppearance>(human)

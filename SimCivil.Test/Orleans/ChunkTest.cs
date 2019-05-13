@@ -83,18 +83,18 @@ namespace SimCivil.Test.Orleans
         {
             var entity = Cluster.GrainFactory.GetGrain<IEntity>(Guid.NewGuid());
             await entity.Enable();
-            await entity.Add<IComponent<Position>>();
+            await entity.Add<IComponent<PositionState>>();
             await entity.Add<IObserver>();
-            var position = Cluster.GrainFactory.GetGrain<IComponent<Position>>(entity.GetPrimaryKey());
+            var position = Cluster.GrainFactory.GetGrain<IComponent<PositionState>>(entity.GetPrimaryKey());
             var observer = Cluster.GrainFactory.GetGrain<IObserver>(entity.GetPrimaryKey());
-            await position.SetData(new Position(100f, 100f));
-            await observer.SetData(new Observer {NotifyRange = 5});
+            await position.SetData(new PositionState(100f, 100f));
+            await observer.SetData(new ObserverState {NotifyRange = 5});
 
             var testEntity = Cluster.GrainFactory.GetGrain<IEntity>(Guid.NewGuid());
             await testEntity.Enable();
-            await testEntity.Add<IComponent<Position>>();
-            await Cluster.GrainFactory.GetGrain<IComponent<Position>>(testEntity.GetPrimaryKey())
-                .SetData(new Position(100f, 104f));
+            await testEntity.Add<IComponent<PositionState>>();
+            await Cluster.GrainFactory.GetGrain<IComponent<PositionState>>(testEntity.GetPrimaryKey())
+                .SetData(new PositionState(100f, 104f));
 
             await Task.Delay(100);
 

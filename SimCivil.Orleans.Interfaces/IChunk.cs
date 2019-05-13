@@ -41,7 +41,7 @@ namespace SimCivil.Orleans.Interfaces
         /// <param name="currentPos">The current position.</param>
         /// <returns></returns>
         [OneWay]
-        Task OnEntityMoved(Guid entityGuid, Position previousPos, Position currentPos);
+        Task OnEntityMoved(Guid entityGuid, PositionState previousPos, PositionState currentPos);
 
         /// <summary>Called when [tile changed].</summary>
         /// <param name="tile">The tile.</param>

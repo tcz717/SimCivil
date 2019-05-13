@@ -44,7 +44,7 @@ namespace SimCivil.Orleans.Grains
 {
     public class ChunkGrain : Grain, IChunk
     {
-        public Dictionary<Guid, Position> Entities;
+        public Dictionary<Guid, PositionState> Entities;
 
         public ILogger<ChunkGrain> Logger { get; }
         public IOptions<SyncOptions> SyncOptions { get; }
@@ -59,7 +59,7 @@ namespace SimCivil.Orleans.Grains
             SyncOptions = syncOptions;
         }
 
-        public async Task OnEntityMoved(Guid entityGuid, Position previousPos, Position currentPos)
+        public async Task OnEntityMoved(Guid entityGuid, PositionState previousPos, PositionState currentPos)
         {
             Logger.Debug($"{entityGuid} entity has moved");
 
@@ -132,7 +132,7 @@ namespace SimCivil.Orleans.Grains
 
         public override Task OnActivateAsync()
         {
-            Entities = new Dictionary<Guid, Position>();
+            Entities = new Dictionary<Guid, PositionState>();
 
             return base.OnActivateAsync();
         }

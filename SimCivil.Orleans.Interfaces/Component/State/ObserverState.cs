@@ -27,7 +27,7 @@ using System.Text;
 
 namespace SimCivil.Orleans.Interfaces.Component
 {
-    public class Observer
+    public class ObserverState
     {
         public uint NotifyRange { get; set; }
     }

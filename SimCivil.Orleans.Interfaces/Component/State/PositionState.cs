@@ -28,14 +28,14 @@ using System.Text;
 
 namespace SimCivil.Orleans.Interfaces.Component
 {
-    public class Position
+    public class PositionState
     {
         public float X { get; set; }
         public float Y { get; set; }
         public (int X, int Y) Tile => ((int) Math.Truncate(X), (int) Math.Truncate(Y));
-        public static Position Zero { get; } = new Position();
+        public static PositionState Zero { get; } = new PositionState();
 
-        public Position(float x, float y)
+        public PositionState(float x, float y)
         {
             X = x;
             Y = y;
@@ -43,21 +43,21 @@ namespace SimCivil.Orleans.Interfaces.Component
 
         /// <summary>Initializes a new instance of the <see cref="T:System.Object"></see> class.</summary>
         /// <param name="position"></param>
-        public Position((float X, float Y) position) : this(position.X, position.Y) { }
+        public PositionState((float X, float Y) position) : this(position.X, position.Y) { }
 
-        public Position((int X, int Y) pos) : this(pos.X, pos.Y) { }
+        public PositionState((int X, int Y) pos) : this(pos.X, pos.Y) { }
 
-        public Position() { }
+        public PositionState() { }
 
-        public static implicit operator (float X, float Y)(Position position)
+        public static implicit operator (float X, float Y)(PositionState position)
         {
             return (position.X, position.Y);
         }
 
-        public static Position operator +(Position pos, (float X, float Y) offset)
-            => new Position(pos.X + offset.X, pos.Y + offset.Y);
+        public static PositionState operator +(PositionState pos, (float X, float Y) offset)
+            => new PositionState(pos.X + offset.X, pos.Y + offset.Y);
 
-        protected bool Equals(Position other)
+        protected bool Equals(PositionState other)
         {
             return X.Equals(other.X) && Y.Equals(other.Y);
         }
@@ -71,7 +71,7 @@ namespace SimCivil.Orleans.Interfaces.Component
             if (ReferenceEquals(this, obj)) return true;
             if (obj.GetType() != GetType()) return false;
 
-            return Equals((Position) obj);
+            return Equals((PositionState) obj);
         }
 
         /// <summary>Serves as the default hash function.</summary>
