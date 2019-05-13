@@ -33,9 +33,9 @@ namespace SimCivil.Orleans.Grains.Service
 {
     public class TestUnitGenerator : IUnitGenerator
     {
-        public Unit GenerateInitiateUnit(CreateRoleOption option)
+        public UnitState GenerateInitiateUnit(CreateRoleOption option)
         {
-            var unit = new Unit
+            var unit = new UnitState
             {
                 Race = option.Race,
                 Gender = option.Gender,
@@ -49,12 +49,12 @@ namespace SimCivil.Orleans.Grains.Service
             return unit;
         }
 
-        public Unit GenerateByAsexual(Unit parent)
+        public UnitState GenerateByAsexual(UnitState parent)
         {
             throw new NotImplementedException();
         }
 
-        public Unit GenerateBySexual(Unit father, Unit mother)
+        public UnitState GenerateBySexual(UnitState father, UnitState mother)
         {
             throw new NotImplementedException();
         }

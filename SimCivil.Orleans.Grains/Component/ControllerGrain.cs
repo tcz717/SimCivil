@@ -103,7 +103,7 @@ namespace SimCivil.Orleans.Grains.Component
         /// <param name="position">The position.</param>
         /// <param name="timeStamp"></param>
         /// <returns></returns>
-        public async Task MoveTo(Position position, DateTime timeStamp)
+        public async Task MoveTo(PositionState position, DateTime timeStamp)
         {
             double delta = (timeStamp - DateTime.UtcNow).TotalMilliseconds;
             _lagPredict = SyncOptions.Value.LagLearningRate * delta +
@@ -117,7 +117,7 @@ namespace SimCivil.Orleans.Grains.Component
                 throw new ArgumentOutOfRangeException(nameof(timeStamp));
             }
 
-            Position previous = await GrainFactory.Get<IPosition>(this).GetData();
+            PositionState previous = await GrainFactory.Get<IPosition>(this).GetData();
             Tile tile = await GrainFactory.GetTile(previous.Tile, GameOptions);
             TimeSpan dt = predictTimeStamp - _lastUpdateTime;
 

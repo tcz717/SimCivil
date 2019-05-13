@@ -95,7 +95,7 @@ namespace SimCivil.Orleans.Grains.System
         {
             float maxMoveSpeed = await GrainFactory.Get<IUnit>(e.Key).GetMoveSpeed();
             var position = GrainFactory.Get<IPosition>(e.Key);
-            Position pos = await position.GetData();
+            PositionState pos = await position.GetData();
             Tile currentTile = await GrainFactory.GetTile(pos.Tile, GameOptions);
 
             //TODO find a better way to handle collapse

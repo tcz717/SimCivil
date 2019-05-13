@@ -39,7 +39,7 @@ using SimCivil.Orleans.Interfaces.Component;
 namespace SimCivil.Orleans.Grains.Component
 {
     [UsedImplicitly]
-    public class UnitGrain : BaseGrain<Unit>, IUnit
+    public class UnitGrain : BaseGrain<UnitState>, IUnit
     {
         public UnitGrain(ILoggerFactory factory) : base(factory) { }
 
@@ -53,7 +53,7 @@ namespace SimCivil.Orleans.Grains.Component
         public override Task<IReadOnlyDictionary<string, string>> Inspect(IEntity observer)
         {
             return Task.FromResult<IReadOnlyDictionary<string, string>>(
-                typeof(Unit).GetProperties().ToDictionary(p => p.Name, p => p.GetValue(State)?.ToString())
+                typeof(UnitState).GetProperties().ToDictionary(p => p.Name, p => p.GetValue(State)?.ToString())
             );
         }
 

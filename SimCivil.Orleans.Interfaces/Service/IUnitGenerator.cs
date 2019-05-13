@@ -32,8 +32,8 @@ namespace SimCivil.Orleans.Interfaces.Service
 {
     public interface IUnitGenerator
     {
-        Unit GenerateInitiateUnit(CreateRoleOption option);
-        Unit GenerateByAsexual(Unit parent);
-        Unit GenerateBySexual(Unit father, Unit mother);
+        UnitState GenerateInitiateUnit(CreateRoleOption option);
+        UnitState GenerateByAsexual(UnitState parent);
+        UnitState GenerateBySexual(UnitState father, UnitState mother);
     }
 }

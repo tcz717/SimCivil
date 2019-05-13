@@ -42,7 +42,7 @@ using SimCivil.Orleans.Interfaces.Option;
 namespace SimCivil.Orleans.Grains.Component
 {
     [PublicAPI]
-    public class PositionGrain : BaseGrain<Position>, IPosition
+    public class PositionGrain : BaseGrain<PositionState>, IPosition
     {
         public IOptions<SyncOptions> SyncOptions { get; }
 
@@ -51,7 +51,7 @@ namespace SimCivil.Orleans.Grains.Component
             SyncOptions = syncOptions;
         }
 
-        public override async Task SetData(Position component)
+        public override async Task SetData(PositionState component)
         {
             if (!component.Equals(State))
             {
@@ -69,9 +69,9 @@ namespace SimCivil.Orleans.Grains.Component
             await base.SetData(component);
         }
 
-        public async Task<Position> Add((float X, float Y) offset)
+        public async Task<PositionState> Add((float X, float Y) offset)
         {
-            Position pos = await GetData();
+            PositionState pos = await GetData();
             pos += offset;
             await SetData(pos);
 
