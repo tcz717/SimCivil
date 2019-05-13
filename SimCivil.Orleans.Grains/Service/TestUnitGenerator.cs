@@ -51,8 +51,8 @@ namespace SimCivil.Orleans.Grains.Service
             return unit;
         }
 
-        public Unit GenerateByAsexual(Unit parent) => throw new NotImplementedException();
+        public UnitState GenerateByAsexual(UnitState parent) => throw new NotImplementedException();
 
-        public Unit GenerateBySexual(Unit father, Unit mother) => throw new NotImplementedException();
+        public UnitState GenerateBySexual(UnitState father, UnitState mother) => throw new NotImplementedException();
     }
 }

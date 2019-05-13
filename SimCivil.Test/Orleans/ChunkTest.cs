@@ -74,16 +74,15 @@ namespace SimCivil.Test.Orleans
         {
             IEntity entity = await GetNewRoleAsync();
 
-            var position = Cluster.GrainFactory.GetGrain<IComponent<Position>>(entity.GetPrimaryKey());
+            var position = Cluster.GrainFactory.GetGrain<IComponent<PositionState>>(entity.GetPrimaryKey());
             var observer = Cluster.GrainFactory.GetGrain<IObserver>(entity.GetPrimaryKey());
             await position.SetData(new PositionState(100f, 100f));
-            await observer.SetData(new ObserverState {NotifyRange = 5});
 
             IEntity testEntity = await GetNewRoleAsync();
             await testEntity.Enable();
-            await testEntity.Add<IComponent<Position>>();
-            await Cluster.GrainFactory.GetGrain<IComponent<Position>>(testEntity.GetPrimaryKey())
-                         .SetData(new Position(100f, 100.5f));
+            await testEntity.Add<IComponent<PositionState>>();
+            await Cluster.GrainFactory.GetGrain<IComponent<PositionState>>(testEntity.GetPrimaryKey())
+                         .SetData(new PositionState(100f, 100.5f));
 
             await Task.Delay(100);
 
