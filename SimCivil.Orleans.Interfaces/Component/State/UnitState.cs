@@ -20,7 +20,7 @@
 // 
 // SimCivil - SimCivil.Orleans.Interfaces - Unit.cs
 // Create Date: 2019/05/08
-// Update Date: 2019/05/11
+// Update Date: 2019/05/12
 
 using System;
 using System.Collections.Generic;
@@ -303,18 +303,202 @@ namespace SimCivil.Orleans.Interfaces.Component
 
         public UnboundedProperty[] Effects { get; set; } = new UnboundedProperty[EffectCount];
 
-        /// <summary>移动速率</summary>
-        public UnboundedProperty MoveSpeed
+        public UnboundedProperty MaterialMagicPower
         {
-            get => Effects[(int) EffectIndex.MoveSpeed];
-            set => Effects[(int) EffectIndex.MoveSpeed] = value;
+            get => Effects[(int) EffectIndex.MaterialMagicPower];
+            set => Effects[(int) EffectIndex.MaterialMagicPower] = value;
         }
 
-        /// <summary>视野距离</summary>
+        public UnboundedProperty DeformationMagicPower
+        {
+            get => Effects[(int) EffectIndex.DeformationMagicPower];
+            set => Effects[(int) EffectIndex.DeformationMagicPower] = value;
+        }
+
+        public UnboundedProperty BuffMagicPower
+        {
+            get => Effects[(int) EffectIndex.BuffMagicPower];
+            set => Effects[(int) EffectIndex.BuffMagicPower] = value;
+        }
+
+        public UnboundedProperty DecompositionMagicPower
+        {
+            get => Effects[(int) EffectIndex.DecompositionMagicPower];
+            set => Effects[(int) EffectIndex.DecompositionMagicPower] = value;
+        }
+
+        public UnboundedProperty MagicLearningEfficiency
+        {
+            get => Effects[(int) EffectIndex.MagicLearningEfficiency];
+            set => Effects[(int) EffectIndex.MagicLearningEfficiency] = value;
+        }
+
+        public UnboundedProperty SpiritResistance
+        {
+            get => Effects[(int) EffectIndex.SpiritResistance];
+            set => Effects[(int) EffectIndex.SpiritResistance] = value;
+        }
+
+        public UnboundedProperty SummonMagicPower
+        {
+            get => Effects[(int) EffectIndex.SummonMagicPower];
+            set => Effects[(int) EffectIndex.SummonMagicPower] = value;
+        }
+
+        public UnboundedProperty SpaceTimeMagicPower
+        {
+            get => Effects[(int) EffectIndex.SpaceTimeMagicPower];
+            set => Effects[(int) EffectIndex.SpaceTimeMagicPower] = value;
+        }
+
+        public UnboundedProperty PerceptionMagicPower
+        {
+            get => Effects[(int) EffectIndex.PerceptionMagicPower];
+            set => Effects[(int) EffectIndex.PerceptionMagicPower] = value;
+        }
+
+        public UnboundedProperty MagicTransformEfficiency
+        {
+            get => Effects[(int) EffectIndex.MagicTransformEfficiency];
+            set => Effects[(int) EffectIndex.MagicTransformEfficiency] = value;
+        }
+
+        public UnboundedProperty ControllingMagicPower
+        {
+            get => Effects[(int) EffectIndex.ControllingMagicPower];
+            set => Effects[(int) EffectIndex.ControllingMagicPower] = value;
+        }
+
+        public UnboundedProperty MagicHitRate
+        {
+            get => Effects[(int) EffectIndex.MagicHitRate];
+            set => Effects[(int) EffectIndex.MagicHitRate] = value;
+        }
+
+        public UnboundedProperty MagicLearningRate
+        {
+            get => Effects[(int) EffectIndex.MagicLearningRate];
+            set => Effects[(int) EffectIndex.MagicLearningRate] = value;
+        }
+
+        public UnboundedProperty AimingAccuracy
+        {
+            get => Effects[(int) EffectIndex.AimingAccuracy];
+            set => Effects[(int) EffectIndex.AimingAccuracy] = value;
+        }
+
         public UnboundedProperty SightRange
         {
             get => Effects[(int) EffectIndex.SightRange];
             set => Effects[(int) EffectIndex.SightRange] = value;
+        }
+
+        public UnboundedProperty InventionProbability
+        {
+            get => Effects[(int) EffectIndex.InventionProbability];
+            set => Effects[(int) EffectIndex.InventionProbability] = value;
+        }
+
+        public UnboundedProperty AimingSpeed
+        {
+            get => Effects[(int) EffectIndex.AimingSpeed];
+            set => Effects[(int) EffectIndex.AimingSpeed] = value;
+        }
+
+        public UnboundedProperty SkillLearningRate
+        {
+            get => Effects[(int) EffectIndex.SkillLearningRate];
+            set => Effects[(int) EffectIndex.SkillLearningRate] = value;
+        }
+
+        public UnboundedProperty DigestionEfficiency
+        {
+            get => Effects[(int) EffectIndex.DigestionEfficiency];
+            set => Effects[(int) EffectIndex.DigestionEfficiency] = value;
+        }
+
+        public UnboundedProperty MaximumEndurance
+        {
+            get => Effects[(int) EffectIndex.MaximumEndurance];
+            set => Effects[(int) EffectIndex.MaximumEndurance] = value;
+        }
+
+        public UnboundedProperty TemperatureRange
+        {
+            get => Effects[(int) EffectIndex.TemperatureRange];
+            set => Effects[(int) EffectIndex.TemperatureRange] = value;
+        }
+
+        public UnboundedProperty MaximumLoad
+        {
+            get => Effects[(int) EffectIndex.MaximumLoad];
+            set => Effects[(int) EffectIndex.MaximumLoad] = value;
+        }
+
+        public UnboundedProperty UpperAttackEfficiency
+        {
+            get => Effects[(int) EffectIndex.UpperAttackEfficiency];
+            set => Effects[(int) EffectIndex.UpperAttackEfficiency] = value;
+        }
+
+        public UnboundedProperty UpperAttackHitRate
+        {
+            get => Effects[(int) EffectIndex.UpperAttackHitRate];
+            set => Effects[(int) EffectIndex.UpperAttackHitRate] = value;
+        }
+
+        public UnboundedProperty UpperAttackSpeed
+        {
+            get => Effects[(int) EffectIndex.UpperAttackSpeed];
+            set => Effects[(int) EffectIndex.UpperAttackSpeed] = value;
+        }
+
+        public UnboundedProperty OperationEfficiency
+        {
+            get => Effects[(int) EffectIndex.OperationEfficiency];
+            set => Effects[(int) EffectIndex.OperationEfficiency] = value;
+        }
+
+        public UnboundedProperty CraftEfficiency
+        {
+            get => Effects[(int) EffectIndex.CraftEfficiency];
+            set => Effects[(int) EffectIndex.CraftEfficiency] = value;
+        }
+
+        public UnboundedProperty DodgeRate
+        {
+            get => Effects[(int) EffectIndex.DodgeRate];
+            set => Effects[(int) EffectIndex.DodgeRate] = value;
+        }
+
+        public UnboundedProperty MaximumJumpHeight
+        {
+            get => Effects[(int) EffectIndex.MaximumJumpHeight];
+            set => Effects[(int) EffectIndex.MaximumJumpHeight] = value;
+        }
+
+        public UnboundedProperty LowerAttackEfficiency
+        {
+            get => Effects[(int) EffectIndex.LowerAttackEfficiency];
+            set => Effects[(int) EffectIndex.LowerAttackEfficiency] = value;
+        }
+
+        public UnboundedProperty LowerAttackHitRate
+        {
+            get => Effects[(int) EffectIndex.LowerAttackHitRate];
+            set => Effects[(int) EffectIndex.LowerAttackHitRate] = value;
+        }
+
+        public UnboundedProperty LowerAttackSpeed
+        {
+            get => Effects[(int) EffectIndex.LowerAttackSpeed];
+            set => Effects[(int) EffectIndex.LowerAttackSpeed] = value;
+        }
+
+        public UnboundedProperty MoveSpeed
+        {
+            get => Effects[(int) EffectIndex.MoveSpeed];
+            set => Effects[(int) EffectIndex.MoveSpeed] = value;
         }
 
         #endregion
@@ -369,8 +553,170 @@ namespace SimCivil.Orleans.Interfaces.Component
 
     public enum EffectIndex
     {
-        MoveSpeed,
+        /// <summary>
+        /// 具现系魔法强度
+        /// </summary>
+        MaterialMagicPower,
+
+        /// <summary>
+        /// 变形系魔法强度
+        /// </summary>
+        DeformationMagicPower,
+
+        /// <summary>
+        /// 增强/衰减系魔法强度
+        /// </summary>
+        BuffMagicPower,
+
+        /// <summary>
+        /// 分解系魔法强度
+        /// </summary>
+        DecompositionMagicPower,
+
+        /// <summary>
+        /// 魔法学习效率
+        /// </summary>
+        MagicLearningEfficiency,
+
+        /// <summary>
+        /// 精神抗性
+        /// </summary>
+        SpiritResistance,
+
+        /// <summary>
+        /// 召唤系魔法强度
+        /// </summary>
+        SummonMagicPower,
+
+        /// <summary>
+        /// 时空系魔法强度
+        /// </summary>
+        SpaceTimeMagicPower,
+
+        /// <summary>
+        /// 感知系魔法强度
+        /// </summary>
+        PerceptionMagicPower,
+
+        /// <summary>
+        /// 魔力转换效率
+        /// </summary>
+        MagicTransformEfficiency,
+
+        /// <summary>
+        /// 控制系魔法强度
+        /// </summary>
+        ControllingMagicPower,
+
+        /// <summary>
+        /// 魔法命中
+        /// </summary>
+        MagicHitRate,
+
+        /// <summary>
+        /// 魔法学习速率
+        /// </summary>
+        MagicLearningRate,
+
+        /// <summary>
+        /// 瞄准精度
+        /// </summary>
+        AimingAccuracy,
+
+        /// <summary>
+        /// 视野距离
+        /// </summary>
         SightRange,
+
+        /// <summary>
+        /// 发明基础概率
+        /// </summary>
+        InventionProbability,
+
+        /// <summary>
+        /// 瞄准速率
+        /// </summary>
+        AimingSpeed,
+
+        /// <summary>
+        /// 技能学习效率
+        /// </summary>
+        SkillLearningRate,
+
+        /// <summary>
+        /// 消化效率
+        /// </summary>
+        DigestionEfficiency,
+
+        /// <summary>
+        /// 最大体力
+        /// </summary>
+        MaximumEndurance,
+
+        /// <summary>
+        /// 适宜温度范围
+        /// </summary>
+        TemperatureRange,
+
+        /// <summary>
+        /// 负重
+        /// </summary>
+        MaximumLoad,
+
+        /// <summary>
+        /// 上肢攻击基础效率
+        /// </summary>
+        UpperAttackEfficiency,
+
+        /// <summary>
+        /// 上肢基础命中率
+        /// </summary>
+        UpperAttackHitRate,
+
+        /// <summary>
+        /// 上肢攻击基础速率
+        /// </summary>
+        UpperAttackSpeed,
+
+        /// <summary>
+        /// 操作效率
+        /// </summary>
+        OperationEfficiency,
+
+        /// <summary>
+        /// 制造效率
+        /// </summary>
+        CraftEfficiency,
+
+        /// <summary>
+        /// 基础闪避率
+        /// </summary>
+        DodgeRate,
+
+        /// <summary>
+        /// 最大跳跃高度
+        /// </summary>
+        MaximumJumpHeight,
+
+        /// <summary>
+        /// 下肢攻击基础效率
+        /// </summary>
+        LowerAttackEfficiency,
+
+        /// <summary>
+        /// 下肢基础命中率
+        /// </summary>
+        LowerAttackHitRate,
+
+        /// <summary>
+        /// 下肢攻击基础速率
+        /// </summary>
+        LowerAttackSpeed,
+
+        /// <summary>
+        /// 移动基础速率
+        /// </summary>
+        MoveSpeed,
         EffectCount
     }
 

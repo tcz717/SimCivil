@@ -19,24 +19,17 @@
 // SOFTWARE.
 // 
 // SimCivil - SimCivil.Orleans.Interfaces - IUnit.cs
-// Create Date: 2018/06/14
-// Update Date: 2018/06/14
+// Create Date: 2019/05/08
+// Update Date: 2019/05/13
 
 using System;
 using System.Text;
 using System.Threading.Tasks;
 
-using SimCivil.Contract;
-
 namespace SimCivil.Orleans.Interfaces.Component
 {
     public interface IUnit : IComponent<UnitState>
     {
-        /// <summary>Fills the specified option.</summary>
-        /// <param name="option">The option.</param>
-        /// <returns></returns>
-        [Obsolete]
-        Task Fill(CreateRoleOption option);
         /// <summary>Gets the hp.</summary>
         /// <returns></returns>
         Task<float> GetHp();
@@ -44,11 +37,25 @@ namespace SimCivil.Orleans.Interfaces.Component
         /// <summary>Updates the abilities.</summary>
         /// <returns></returns>
         Task UpdateAbilities();
+
         /// <summary>Updates the effects.</summary>
         /// <returns></returns>
         Task UpdateEffects();
+        Task<UnboundedProperty> GetEffect(EffectIndex     effectIndex);
+        Task<UnboundedProperty> GetAbility(AbilityIndex   abilityIndex);
+        Task<BodyPart>          GetBodyPart(BodyPartIndex bodyPartIndex);
+    }
 
-        Task<float> GetMoveSpeed();
-        Task<uint> GetSightRange();
+    public static class UnitExtension
+    {
+        public static Task<float> GetMoveSpeed(this IUnit unit)
+        {
+            return unit.GetEffect(EffectIndex.MoveSpeed).ContinueWith(p => p.Result.Base);
+        }
+
+        public static Task<uint> GetSightRange(this IUnit unit)
+        {
+            return unit.GetEffect(EffectIndex.SightRange).ContinueWith(p => (uint) p.Result.Base);
+        }
     }
 }
