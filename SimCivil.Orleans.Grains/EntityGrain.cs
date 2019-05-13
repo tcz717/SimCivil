@@ -57,11 +57,12 @@ namespace SimCivil.Orleans.Grains
             return Task.CompletedTask;
         }
 
-        public Task Remove<T>() where T : IComponent
+        public async Task Remove<T>() where T : IComponent
         {
-            State.Components.Remove(GrainFactory.GetGrain<T>(this.GetPrimaryKey()));
-
-            return Task.CompletedTask;
+            var component = GrainFactory.GetGrain<T>(this.GetPrimaryKey());
+            State.Components.Remove(component);
+            await component.Delete();
+            await WriteStateAsync();
         }
 
         public async Task Enable()
