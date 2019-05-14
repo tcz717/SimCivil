@@ -28,7 +28,7 @@ using System.Text;
 
 using SimCivil.Contract.Model;
 
-namespace SimCivil.Orleans.Interfaces.Component
+namespace SimCivil.Orleans.Interfaces.Component.State
 {
     public class UnitState
     {
@@ -169,129 +169,129 @@ namespace SimCivil.Orleans.Interfaces.Component
 
         #region Ability
 
-        public UnboundedProperty[] Abilities { get; set; } = new UnboundedProperty[AbilityCount];
+        public UnitProperty[] Abilities { get; set; } = new UnitProperty[AbilityCount];
 
         /// <summary>重构能力</summary>
-        public UnboundedProperty ReconstructionAbility
+        public UnitProperty ReconstructionAbility
         {
             get => Abilities[(int) AbilityIndex.ReconstructionAbility];
             set => Abilities[(int) AbilityIndex.ReconstructionAbility] = value;
         }
 
         /// <summary>解析能力</summary>
-        public UnboundedProperty ResolvingAbility
+        public UnitProperty ResolvingAbility
         {
             get => Abilities[(int) AbilityIndex.ResolvingAbility];
             set => Abilities[(int) AbilityIndex.ResolvingAbility] = value;
         }
 
         /// <summary>感知能力</summary>
-        public UnboundedProperty PerceptionAbility
+        public UnitProperty PerceptionAbility
         {
             get => Abilities[(int) AbilityIndex.PerceptionAbility];
             set => Abilities[(int) AbilityIndex.PerceptionAbility] = value;
         }
 
         /// <summary>控制能力</summary>
-        public UnboundedProperty ControllingAbility
+        public UnitProperty ControllingAbility
         {
             get => Abilities[(int) AbilityIndex.ControllingAbility];
             set => Abilities[(int) AbilityIndex.ControllingAbility] = value;
         }
 
         /// <summary>精神力</summary>
-        public UnboundedProperty MentalAbility
+        public UnitProperty MentalAbility
         {
             get => Abilities[(int) AbilityIndex.MentalAbility];
             set => Abilities[(int) AbilityIndex.MentalAbility] = value;
         }
 
         /// <summary>视力</summary>
-        public UnboundedProperty Vision
+        public UnitProperty Vision
         {
             get => Abilities[(int) AbilityIndex.Vision];
             set => Abilities[(int) AbilityIndex.Vision] = value;
         }
 
         /// <summary>创造力</summary>
-        public UnboundedProperty Creativity
+        public UnitProperty Creativity
         {
             get => Abilities[(int) AbilityIndex.Creativity];
             set => Abilities[(int) AbilityIndex.Creativity] = value;
         }
 
         /// <summary>记忆力</summary>
-        public UnboundedProperty Memory
+        public UnitProperty Memory
         {
             get => Abilities[(int) AbilityIndex.Memory];
             set => Abilities[(int) AbilityIndex.Memory] = value;
         }
 
         /// <summary>理解力</summary>
-        public UnboundedProperty Understanding
+        public UnitProperty Understanding
         {
             get => Abilities[(int) AbilityIndex.Understanding];
             set => Abilities[(int) AbilityIndex.Understanding] = value;
         }
 
         /// <summary>意识</summary>
-        public UnboundedProperty Consciousness
+        public UnitProperty Consciousness
         {
             get => Abilities[(int) AbilityIndex.Consciousness];
             set => Abilities[(int) AbilityIndex.Consciousness] = value;
         }
 
         /// <summary>消化能力</summary>
-        public UnboundedProperty Digestion
+        public UnitProperty Digestion
         {
             get => Abilities[(int) AbilityIndex.Digestion];
             set => Abilities[(int) AbilityIndex.Digestion] = value;
         }
 
         /// <summary>反应力</summary>
-        public UnboundedProperty Reaction
+        public UnitProperty Reaction
         {
             get => Abilities[(int) AbilityIndex.Reaction];
             set => Abilities[(int) AbilityIndex.Reaction] = value;
         }
 
         /// <summary>耐力</summary>
-        public UnboundedProperty Endurance
+        public UnitProperty Endurance
         {
             get => Abilities[(int) AbilityIndex.Endurance];
             set => Abilities[(int) AbilityIndex.Endurance] = value;
         }
 
         /// <summary>毒素抗性</summary>
-        public UnboundedProperty Antitoxic
+        public UnitProperty Antitoxic
         {
             get => Abilities[(int) AbilityIndex.Antitoxic];
             set => Abilities[(int) AbilityIndex.Antitoxic] = value;
         }
 
         /// <summary>上肢力量</summary>
-        public UnboundedProperty UpperPower
+        public UnitProperty UpperPower
         {
             get => Abilities[(int) AbilityIndex.UpperPower];
             set => Abilities[(int) AbilityIndex.UpperPower] = value;
         }
 
         /// <summary>下肢力量</summary>
-        public UnboundedProperty LowerPower
+        public UnitProperty LowerPower
         {
             get => Abilities[(int) AbilityIndex.LowerPower];
             set => Abilities[(int) AbilityIndex.LowerPower] = value;
         }
 
         /// <summary>上肢灵巧</summary>
-        public UnboundedProperty UpperDexterity
+        public UnitProperty UpperDexterity
         {
             get => Abilities[(int) AbilityIndex.UpperDexterity];
             set => Abilities[(int) AbilityIndex.UpperDexterity] = value;
         }
 
         /// <summary>下肢灵巧</summary>
-        public UnboundedProperty LowerDexterity
+        public UnitProperty LowerDexterity
         {
             get => Abilities[(int) AbilityIndex.LowerDexterity];
             set => Abilities[(int) AbilityIndex.LowerDexterity] = value;
@@ -301,201 +301,201 @@ namespace SimCivil.Orleans.Interfaces.Component
 
         #region Effect
 
-        public UnboundedProperty[] Effects { get; set; } = new UnboundedProperty[EffectCount];
+        public UnitProperty[] Effects { get; set; } = new UnitProperty[EffectCount];
 
-        public UnboundedProperty MaterialMagicPower
+        public UnitProperty MaterialMagicPower
         {
             get => Effects[(int) EffectIndex.MaterialMagicPower];
             set => Effects[(int) EffectIndex.MaterialMagicPower] = value;
         }
 
-        public UnboundedProperty DeformationMagicPower
+        public UnitProperty DeformationMagicPower
         {
             get => Effects[(int) EffectIndex.DeformationMagicPower];
             set => Effects[(int) EffectIndex.DeformationMagicPower] = value;
         }
 
-        public UnboundedProperty BuffMagicPower
+        public UnitProperty BuffMagicPower
         {
             get => Effects[(int) EffectIndex.BuffMagicPower];
             set => Effects[(int) EffectIndex.BuffMagicPower] = value;
         }
 
-        public UnboundedProperty DecompositionMagicPower
+        public UnitProperty DecompositionMagicPower
         {
             get => Effects[(int) EffectIndex.DecompositionMagicPower];
             set => Effects[(int) EffectIndex.DecompositionMagicPower] = value;
         }
 
-        public UnboundedProperty MagicLearningEfficiency
+        public UnitProperty MagicLearningEfficiency
         {
             get => Effects[(int) EffectIndex.MagicLearningEfficiency];
             set => Effects[(int) EffectIndex.MagicLearningEfficiency] = value;
         }
 
-        public UnboundedProperty SpiritResistance
+        public UnitProperty SpiritResistance
         {
             get => Effects[(int) EffectIndex.SpiritResistance];
             set => Effects[(int) EffectIndex.SpiritResistance] = value;
         }
 
-        public UnboundedProperty SummonMagicPower
+        public UnitProperty SummonMagicPower
         {
             get => Effects[(int) EffectIndex.SummonMagicPower];
             set => Effects[(int) EffectIndex.SummonMagicPower] = value;
         }
 
-        public UnboundedProperty SpaceTimeMagicPower
+        public UnitProperty SpaceTimeMagicPower
         {
             get => Effects[(int) EffectIndex.SpaceTimeMagicPower];
             set => Effects[(int) EffectIndex.SpaceTimeMagicPower] = value;
         }
 
-        public UnboundedProperty PerceptionMagicPower
+        public UnitProperty PerceptionMagicPower
         {
             get => Effects[(int) EffectIndex.PerceptionMagicPower];
             set => Effects[(int) EffectIndex.PerceptionMagicPower] = value;
         }
 
-        public UnboundedProperty MagicTransformEfficiency
+        public UnitProperty MagicTransformEfficiency
         {
             get => Effects[(int) EffectIndex.MagicTransformEfficiency];
             set => Effects[(int) EffectIndex.MagicTransformEfficiency] = value;
         }
 
-        public UnboundedProperty ControllingMagicPower
+        public UnitProperty ControllingMagicPower
         {
             get => Effects[(int) EffectIndex.ControllingMagicPower];
             set => Effects[(int) EffectIndex.ControllingMagicPower] = value;
         }
 
-        public UnboundedProperty MagicHitRate
+        public UnitProperty MagicHitRate
         {
             get => Effects[(int) EffectIndex.MagicHitRate];
             set => Effects[(int) EffectIndex.MagicHitRate] = value;
         }
 
-        public UnboundedProperty MagicLearningRate
+        public UnitProperty MagicLearningRate
         {
             get => Effects[(int) EffectIndex.MagicLearningRate];
             set => Effects[(int) EffectIndex.MagicLearningRate] = value;
         }
 
-        public UnboundedProperty AimingAccuracy
+        public UnitProperty AimingAccuracy
         {
             get => Effects[(int) EffectIndex.AimingAccuracy];
             set => Effects[(int) EffectIndex.AimingAccuracy] = value;
         }
 
-        public UnboundedProperty SightRange
+        public UnitProperty SightRange
         {
             get => Effects[(int) EffectIndex.SightRange];
             set => Effects[(int) EffectIndex.SightRange] = value;
         }
 
-        public UnboundedProperty InventionProbability
+        public UnitProperty InventionProbability
         {
             get => Effects[(int) EffectIndex.InventionProbability];
             set => Effects[(int) EffectIndex.InventionProbability] = value;
         }
 
-        public UnboundedProperty AimingSpeed
+        public UnitProperty AimingSpeed
         {
             get => Effects[(int) EffectIndex.AimingSpeed];
             set => Effects[(int) EffectIndex.AimingSpeed] = value;
         }
 
-        public UnboundedProperty SkillLearningRate
+        public UnitProperty SkillLearningRate
         {
             get => Effects[(int) EffectIndex.SkillLearningRate];
             set => Effects[(int) EffectIndex.SkillLearningRate] = value;
         }
 
-        public UnboundedProperty DigestionEfficiency
+        public UnitProperty DigestionEfficiency
         {
             get => Effects[(int) EffectIndex.DigestionEfficiency];
             set => Effects[(int) EffectIndex.DigestionEfficiency] = value;
         }
 
-        public UnboundedProperty MaximumEndurance
+        public UnitProperty MaximumEndurance
         {
             get => Effects[(int) EffectIndex.MaximumEndurance];
             set => Effects[(int) EffectIndex.MaximumEndurance] = value;
         }
 
-        public UnboundedProperty TemperatureRange
+        public UnitProperty TemperatureRange
         {
             get => Effects[(int) EffectIndex.TemperatureRange];
             set => Effects[(int) EffectIndex.TemperatureRange] = value;
         }
 
-        public UnboundedProperty MaximumLoad
+        public UnitProperty MaximumLoad
         {
             get => Effects[(int) EffectIndex.MaximumLoad];
             set => Effects[(int) EffectIndex.MaximumLoad] = value;
         }
 
-        public UnboundedProperty UpperAttackEfficiency
+        public UnitProperty UpperAttackEfficiency
         {
             get => Effects[(int) EffectIndex.UpperAttackEfficiency];
             set => Effects[(int) EffectIndex.UpperAttackEfficiency] = value;
         }
 
-        public UnboundedProperty UpperAttackHitRate
+        public UnitProperty UpperAttackHitRate
         {
             get => Effects[(int) EffectIndex.UpperAttackHitRate];
             set => Effects[(int) EffectIndex.UpperAttackHitRate] = value;
         }
 
-        public UnboundedProperty UpperAttackSpeed
+        public UnitProperty UpperAttackSpeed
         {
             get => Effects[(int) EffectIndex.UpperAttackSpeed];
             set => Effects[(int) EffectIndex.UpperAttackSpeed] = value;
         }
 
-        public UnboundedProperty OperationEfficiency
+        public UnitProperty OperationEfficiency
         {
             get => Effects[(int) EffectIndex.OperationEfficiency];
             set => Effects[(int) EffectIndex.OperationEfficiency] = value;
         }
 
-        public UnboundedProperty CraftEfficiency
+        public UnitProperty CraftEfficiency
         {
             get => Effects[(int) EffectIndex.CraftEfficiency];
             set => Effects[(int) EffectIndex.CraftEfficiency] = value;
         }
 
-        public UnboundedProperty DodgeRate
+        public UnitProperty DodgeRate
         {
             get => Effects[(int) EffectIndex.DodgeRate];
             set => Effects[(int) EffectIndex.DodgeRate] = value;
         }
 
-        public UnboundedProperty MaximumJumpHeight
+        public UnitProperty MaximumJumpHeight
         {
             get => Effects[(int) EffectIndex.MaximumJumpHeight];
             set => Effects[(int) EffectIndex.MaximumJumpHeight] = value;
         }
 
-        public UnboundedProperty LowerAttackEfficiency
+        public UnitProperty LowerAttackEfficiency
         {
             get => Effects[(int) EffectIndex.LowerAttackEfficiency];
             set => Effects[(int) EffectIndex.LowerAttackEfficiency] = value;
         }
 
-        public UnboundedProperty LowerAttackHitRate
+        public UnitProperty LowerAttackHitRate
         {
             get => Effects[(int) EffectIndex.LowerAttackHitRate];
             set => Effects[(int) EffectIndex.LowerAttackHitRate] = value;
         }
 
-        public UnboundedProperty LowerAttackSpeed
+        public UnitProperty LowerAttackSpeed
         {
             get => Effects[(int) EffectIndex.LowerAttackSpeed];
             set => Effects[(int) EffectIndex.LowerAttackSpeed] = value;
         }
 
-        public UnboundedProperty MoveSpeed
+        public UnitProperty MoveSpeed
         {
             get => Effects[(int) EffectIndex.MoveSpeed];
             set => Effects[(int) EffectIndex.MoveSpeed] = value;
@@ -526,359 +526,4 @@ namespace SimCivil.Orleans.Interfaces.Component
 
     // TODO Wound
     public class Wound { }
-
-    public enum BodyPartIndex
-    {
-        Soul,
-        LeftEye,
-        RightEye,
-        Brain,
-        LeftEar,
-        RightEar,
-        Mouth,
-        Digestive,
-        Lung,
-        Heart,
-        Immunity,
-        LeftArm,
-        RightArm,
-        LeftHand,
-        RightHand,
-        LeftLeg,
-        RightLeg,
-        LeftFoot,
-        RightFoot,
-        BodyPartCount
-    }
-
-    public enum EffectIndex
-    {
-        /// <summary>
-        /// 具现系魔法强度
-        /// </summary>
-        MaterialMagicPower,
-
-        /// <summary>
-        /// 变形系魔法强度
-        /// </summary>
-        DeformationMagicPower,
-
-        /// <summary>
-        /// 增强/衰减系魔法强度
-        /// </summary>
-        BuffMagicPower,
-
-        /// <summary>
-        /// 分解系魔法强度
-        /// </summary>
-        DecompositionMagicPower,
-
-        /// <summary>
-        /// 魔法学习效率
-        /// </summary>
-        MagicLearningEfficiency,
-
-        /// <summary>
-        /// 精神抗性
-        /// </summary>
-        SpiritResistance,
-
-        /// <summary>
-        /// 召唤系魔法强度
-        /// </summary>
-        SummonMagicPower,
-
-        /// <summary>
-        /// 时空系魔法强度
-        /// </summary>
-        SpaceTimeMagicPower,
-
-        /// <summary>
-        /// 感知系魔法强度
-        /// </summary>
-        PerceptionMagicPower,
-
-        /// <summary>
-        /// 魔力转换效率
-        /// </summary>
-        MagicTransformEfficiency,
-
-        /// <summary>
-        /// 控制系魔法强度
-        /// </summary>
-        ControllingMagicPower,
-
-        /// <summary>
-        /// 魔法命中
-        /// </summary>
-        MagicHitRate,
-
-        /// <summary>
-        /// 魔法学习速率
-        /// </summary>
-        MagicLearningRate,
-
-        /// <summary>
-        /// 瞄准精度
-        /// </summary>
-        AimingAccuracy,
-
-        /// <summary>
-        /// 视野距离
-        /// </summary>
-        SightRange,
-
-        /// <summary>
-        /// 发明基础概率
-        /// </summary>
-        InventionProbability,
-
-        /// <summary>
-        /// 瞄准速率
-        /// </summary>
-        AimingSpeed,
-
-        /// <summary>
-        /// 技能学习效率
-        /// </summary>
-        SkillLearningRate,
-
-        /// <summary>
-        /// 消化效率
-        /// </summary>
-        DigestionEfficiency,
-
-        /// <summary>
-        /// 最大体力
-        /// </summary>
-        MaximumEndurance,
-
-        /// <summary>
-        /// 适宜温度范围
-        /// </summary>
-        TemperatureRange,
-
-        /// <summary>
-        /// 负重
-        /// </summary>
-        MaximumLoad,
-
-        /// <summary>
-        /// 上肢攻击基础效率
-        /// </summary>
-        UpperAttackEfficiency,
-
-        /// <summary>
-        /// 上肢基础命中率
-        /// </summary>
-        UpperAttackHitRate,
-
-        /// <summary>
-        /// 上肢攻击基础速率
-        /// </summary>
-        UpperAttackSpeed,
-
-        /// <summary>
-        /// 操作效率
-        /// </summary>
-        OperationEfficiency,
-
-        /// <summary>
-        /// 制造效率
-        /// </summary>
-        CraftEfficiency,
-
-        /// <summary>
-        /// 基础闪避率
-        /// </summary>
-        DodgeRate,
-
-        /// <summary>
-        /// 最大跳跃高度
-        /// </summary>
-        MaximumJumpHeight,
-
-        /// <summary>
-        /// 下肢攻击基础效率
-        /// </summary>
-        LowerAttackEfficiency,
-
-        /// <summary>
-        /// 下肢基础命中率
-        /// </summary>
-        LowerAttackHitRate,
-
-        /// <summary>
-        /// 下肢攻击基础速率
-        /// </summary>
-        LowerAttackSpeed,
-
-        /// <summary>
-        /// 移动基础速率
-        /// </summary>
-        MoveSpeed,
-        EffectCount
-    }
-
-    public enum AbilityIndex
-    {
-        /// <summary>重构能力</summary>
-        ReconstructionAbility,
-
-        /// <summary>解析能力</summary>
-        ResolvingAbility,
-
-        /// <summary>感知能力</summary>
-        PerceptionAbility,
-
-        /// <summary>控制能力</summary>
-        ControllingAbility,
-
-        /// <summary>精神力</summary>
-        MentalAbility,
-
-        /// <summary>视力</summary>
-        Vision,
-
-        /// <summary>创造力</summary>
-        Creativity,
-
-        /// <summary>记忆力</summary>
-        Memory,
-
-        /// <summary>理解力</summary>
-        Understanding,
-
-        /// <summary>意识</summary>
-        Consciousness,
-
-        /// <summary>消化能力</summary>
-        Digestion,
-
-        /// <summary>反应力</summary>
-        Reaction,
-
-        /// <summary>耐力</summary>
-        Endurance,
-
-        /// <summary>毒素抗性</summary>
-        Antitoxic,
-
-        /// <summary>上肢力量</summary>
-        UpperPower,
-
-        /// <summary>下肢力量</summary>
-        LowerPower,
-
-        /// <summary>上肢灵巧</summary>
-        UpperDexterity,
-
-        /// <summary>下肢灵巧</summary>
-        LowerDexterity,
-        AbilityCount
-    }
-
-    public enum EquipmentSlot
-    {
-        Helmet,
-        Mask,
-        Necklace,
-        Shoulder,
-        Belt,
-        Armor,
-        Backpack,
-        PrimaryWeapon,
-        SecondaryWeapon,
-        Gloves,
-        Pants,
-        Shoes,
-        LeftBracelet,
-        RightBracelet,
-        Ring1,
-        Ring2,
-        MaxSlotCount
-    }
-
-    /// <summary xml:lang="cn">表示一种无最大值约束的属性，可以被施加线性和倍率加成</summary>
-    public class UnboundedProperty
-    {
-        public float Base        { get; set; }
-        public float LinearBonus { get; set; }
-        public float ScaleBonus  { get; set; }
-
-        public float Value => Base * (1 + ScaleBonus) + LinearBonus;
-
-        /// <summary>Initializes a new instance of the <see cref="UnboundedProperty" /> struct.</summary>
-        /// <param name="init">The initialize base.</param>
-        public UnboundedProperty(float init)
-        {
-            Base = init;
-        }
-
-        /// <summary>Initializes a new instance of the <see cref="UnboundedProperty" /> struct.</summary>
-        /// <param name="base">The base.</param>
-        /// <param name="linearBonus">The linear bonus.</param>
-        /// <param name="scaleBonus">The scale bonus.</param>
-        public UnboundedProperty(float @base, float linearBonus, float scaleBonus)
-        {
-            Base        = @base;
-            LinearBonus = linearBonus;
-            ScaleBonus  = scaleBonus;
-        }
-
-        public UnboundedProperty() { }
-
-        /// <summary>Performs an implicit conversion from <see cref="UnboundedProperty" /> to <see cref="float" />.</summary>
-        /// <param name="property">The property.</param>
-        /// <returns>The result of the conversion.</returns>
-        public static implicit operator float(UnboundedProperty property) => property.Value;
-
-        /// <summary>Applies the linear bonus.</summary>
-        /// <param name="linearBonus">The linear bonus.</param>
-        public UnboundedProperty ApplyLinearBonus(float linearBonus)
-        {
-            LinearBonus += linearBonus;
-
-            return this;
-        }
-
-        /// <summary>Applies the scale bonus.</summary>
-        /// <param name="scaleBonus">The scale bonus.</param>
-        public UnboundedProperty ApplyScaleBonus(float scaleBonus)
-        {
-            ScaleBonus += scaleBonus;
-
-            return this;
-        }
-
-        public UnboundedProperty Update(float @base)
-        {
-            Base = @base;
-
-            return this;
-        }
-
-        /// <summary>Resets the linear bonus.</summary>
-        public UnboundedProperty ResetLinearBonus()
-        {
-            LinearBonus = 0;
-
-            return this;
-        }
-
-        /// <summary>Resets the scale bonus.</summary>
-        public UnboundedProperty ResetScaleBonus()
-        {
-            ScaleBonus = 0;
-
-            return this;
-        }
-
-        /// <summary>Resets this instance.</summary>
-        public UnboundedProperty Reset() => ResetLinearBonus().ResetScaleBonus();
-
-        /// <summary>Returns the fully qualified type name of this instance.</summary>
-        /// <returns>The fully qualified type name.</returns>
-        public override string ToString() => $"{Value:N} ({Base:N} * {1 + ScaleBonus:N} + {LinearBonus:N})";
-    }
 }

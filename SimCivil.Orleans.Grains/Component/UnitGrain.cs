@@ -19,8 +19,8 @@
 // SOFTWARE.
 // 
 // SimCivil - SimCivil.Orleans.Grains - UnitGrain.cs
-// Create Date: 2019/05/08
-// Update Date: 2019/05/12
+// Create Date: 2019/05/13
+// Update Date: 2019/05/13
 
 using System;
 using System.Collections.Generic;
@@ -34,6 +34,7 @@ using Microsoft.Extensions.Logging;
 
 using SimCivil.Orleans.Interfaces;
 using SimCivil.Orleans.Interfaces.Component;
+using SimCivil.Orleans.Interfaces.Component.State;
 
 namespace SimCivil.Orleans.Grains.Component
 {
@@ -53,10 +54,10 @@ namespace SimCivil.Orleans.Grains.Component
         /// <returns></returns>
         public Task<float> GetHp() => throw new NotImplementedException();
 
-        public Task<UnboundedProperty> GetEffect(EffectIndex effectIndex)
+        public Task<UnitProperty> GetEffect(EffectIndex effectIndex)
             => Task.FromResult(State.Effects[(int) effectIndex]);
 
-        public Task<UnboundedProperty> GetAbility(AbilityIndex abilityIndex)
+        public Task<UnitProperty> GetAbility(AbilityIndex abilityIndex)
             => Task.FromResult(State.Abilities[(int) abilityIndex]);
 
         public Task<BodyPart> GetBodyPart(BodyPartIndex bodyPartIndex)
@@ -97,6 +98,8 @@ namespace SimCivil.Orleans.Grains.Component
         private static T Min<T>(params T[] values) => values.Min();
 
         private static T Max<T>(params T[] values) => values.Max();
+
+        #region AbilitiesUpdate
 
         public void UpdateReconstructionAbility() => State.ReconstructionAbility.Update(
             State.Soul.Efficiency);
@@ -160,9 +163,14 @@ namespace SimCivil.Orleans.Grains.Component
                 State.LeftLeg.Efficiency,
                 State.RightLeg.Efficiency));
 
+        #endregion
+
+        #region EffectsUpdate
 
         public void UpdateSightRange() => State.SightRange = State.SightRange.Update(State.Vision);
 
         public void UpdateMoveSpeed() => State.MoveSpeed = State.MoveSpeed.Update(State.LowerDexterity);
+
+        #endregion
     }
 }

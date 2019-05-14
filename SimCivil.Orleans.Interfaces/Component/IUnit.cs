@@ -26,6 +26,8 @@ using System;
 using System.Text;
 using System.Threading.Tasks;
 
+using SimCivil.Orleans.Interfaces.Component.State;
+
 namespace SimCivil.Orleans.Interfaces.Component
 {
     public interface IUnit : IComponent<UnitState>
@@ -41,8 +43,8 @@ namespace SimCivil.Orleans.Interfaces.Component
         /// <summary>Updates the effects.</summary>
         /// <returns></returns>
         Task UpdateEffects();
-        Task<UnboundedProperty> GetEffect(EffectIndex     effectIndex);
-        Task<UnboundedProperty> GetAbility(AbilityIndex   abilityIndex);
+        Task<UnitProperty> GetEffect(EffectIndex     effectIndex);
+        Task<UnitProperty> GetAbility(AbilityIndex   abilityIndex);
         Task<BodyPart>          GetBodyPart(BodyPartIndex bodyPartIndex);
     }
 
