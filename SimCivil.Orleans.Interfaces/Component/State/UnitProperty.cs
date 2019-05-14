@@ -20,7 +20,7 @@
 // 
 // SimCivil - SimCivil.Orleans.Interfaces - UnitProperty.cs
 // Create Date: 2019/05/13
-// Update Date: 2019/05/13
+// Update Date: 2019/05/14
 
 using System;
 using System.Text;
@@ -28,8 +28,10 @@ using System.Text;
 namespace SimCivil.Orleans.Interfaces.Component.State
 {
     /// <summary xml:lang="cn">表示一种无最大值约束的属性，可以被施加线性和倍率加成</summary>
-    public class UnitProperty
+    public class UnitProperty : IComparable<UnitProperty>
     {
+        public int CompareTo(UnitProperty other) => Value.CompareTo(other.Value);
+
         public float Base        { get; set; }
         public float LinearBonus { get; set; }
         public float ScaleBonus  { get; set; }

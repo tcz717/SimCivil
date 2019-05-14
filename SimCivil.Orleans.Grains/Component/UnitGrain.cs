@@ -20,7 +20,7 @@
 // 
 // SimCivil - SimCivil.Orleans.Grains - UnitGrain.cs
 // Create Date: 2019/05/13
-// Update Date: 2019/05/13
+// Update Date: 2019/05/14
 
 using System;
 using System.Collections.Generic;
@@ -89,8 +89,39 @@ namespace SimCivil.Orleans.Grains.Component
 
         public Task UpdateEffects()
         {
-            UpdateMoveSpeed();
+            UpdateMaterialMagicPower();
+            UpdateDeformationMagicPower();
+            UpdateBuffMagicPower();
+            UpdateDecompositionMagicPower();
+            UpdateMagicLearningEfficiency();
+            UpdateSpiritResistance();
+            UpdateSummonMagicPower();
+            UpdateSpaceTimeMagicPower();
+            UpdatePerceptionMagicPower();
+            UpdateMagicTransformEfficiency();
+            UpdateControllingMagicPower();
+            UpdateMagicHitRate();
+            UpdateMagicLearningRate();
+            UpdateAimingAccuracy();
             UpdateSightRange();
+            UpdateInventionProbability();
+            UpdateAimingSpeed();
+            UpdateSkillLearningRate();
+            UpdateDigestionEfficiency();
+            UpdateMaximumEndurance();
+            UpdateTemperatureRange();
+            UpdateMaximumLoad();
+            UpdateUpperAttackEfficiency();
+            UpdateUpperAttackHitRate();
+            UpdateUpperAttackSpeed();
+            UpdateOperationEfficiency();
+            UpdateCraftEfficiency();
+            UpdateDodgeRate();
+            UpdateMaximumJumpHeight();
+            UpdateLowerAttackEfficiency();
+            UpdateLowerAttackHitRate();
+            UpdateLowerAttackSpeed();
+            UpdateMoveSpeed();
 
             return Task.CompletedTask;
         }
@@ -167,9 +198,78 @@ namespace SimCivil.Orleans.Grains.Component
 
         #region EffectsUpdate
 
-        public void UpdateSightRange() => State.SightRange = State.SightRange.Update(State.Vision);
+        // TODO: MentalAbility and Consciousness should influence all effects
+        public void UpdateMaterialMagicPower() => State.MaterialMagicPower.Update(State.ReconstructionAbility);
 
-        public void UpdateMoveSpeed() => State.MoveSpeed = State.MoveSpeed.Update(State.LowerDexterity);
+        public void UpdateDeformationMagicPower()
+            => State.DeformationMagicPower.Update(Min(State.ReconstructionAbility, State.ResolvingAbility));
+
+        public void UpdateBuffMagicPower()
+            => State.BuffMagicPower.Update(Min(State.ReconstructionAbility, State.ResolvingAbility));
+
+        public void UpdateDecompositionMagicPower()
+            => State.DecompositionMagicPower.Update(State.ResolvingAbility);
+
+        public void UpdateMagicLearningEfficiency()
+            => State.MagicLearningEfficiency.Update(Min(State.PerceptionAbility, State.ResolvingAbility));
+
+        public void UpdateSpiritResistance()
+            => State.SpiritResistance.Update(Min(State.PerceptionAbility, State.ResolvingAbility));
+
+        public void UpdateSummonMagicPower()
+            => State.SummonMagicPower.Update(Min(State.ReconstructionAbility, State.ControllingAbility));
+
+        public void UpdateSpaceTimeMagicPower()
+            => State.SpaceTimeMagicPower.Update(
+                Min(
+                    State.ReconstructionAbility,
+                    State.ControllingAbility,
+                    State.PerceptionAbility,
+                    State.ResolvingAbility));
+
+        public void UpdatePerceptionMagicPower() => State.PerceptionMagicPower.Update(State.PerceptionAbility);
+
+        public void UpdateMagicTransformEfficiency()
+            => State.MagicTransformEfficiency.Update(Min(State.PerceptionAbility, State.ControllingAbility));
+
+        public void UpdateControllingMagicPower() => State.ControllingMagicPower.Update(State.ControllingAbility);
+        public void UpdateMagicHitRate()          => State.MagicHitRate.Update(State.ControllingAbility);
+        public void UpdateMagicLearningRate()     => State.MagicLearningRate.Update(State.ControllingAbility);
+        public void UpdateAimingAccuracy()        => State.AimingAccuracy.Update(State.Vision);
+        public void UpdateSightRange()            => State.SightRange.Update(State.Vision);
+        public void UpdateInventionProbability()  => State.InventionProbability.Update(State.InventionProbability);
+        public void UpdateAimingSpeed()           => State.AimingSpeed.Update(Min(State.Vision, State.Reaction));
+
+        public void UpdateSkillLearningRate()
+            => State.SkillLearningRate.Update(Min(State.Memory, State.Understanding));
+
+        public void UpdateDigestionEfficiency()   => State.DigestionEfficiency.Update(State.Digestion);
+        public void UpdateMaximumEndurance()      => State.MaximumEndurance.Update(State.Endurance);
+        public void UpdateTemperatureRange()      => State.TemperatureRange.Update(State.Endurance);
+        public void UpdateMaximumLoad()           => State.MaximumLoad.Update(State.Endurance);
+        public void UpdateUpperAttackEfficiency() => State.UpperAttackEfficiency.Update(State.UpperPower);
+
+        public void UpdateUpperAttackHitRate()
+            => State.UpperAttackHitRate.Update(Min(State.Vision, State.Reaction, State.UpperDexterity));
+
+        public void UpdateUpperAttackSpeed() => State.UpperAttackSpeed.Update(State.UpperDexterity);
+
+        public void UpdateOperationEfficiency()
+            => State.OperationEfficiency.Update(Min(State.UpperDexterity, State.UpperPower));
+
+        public void UpdateCraftEfficiency() => State.CraftEfficiency.Update(State.UpperDexterity);
+
+        public void UpdateDodgeRate()
+            => State.DodgeRate.Update(Min(State.Reaction, State.UpperDexterity, State.LowerDexterity));
+
+        public void UpdateMaximumJumpHeight()     => State.MaximumJumpHeight.Update(State.LowerPower);
+        public void UpdateLowerAttackEfficiency() => State.LowerAttackEfficiency.Update(State.LowerPower);
+
+        public void UpdateLowerAttackHitRate()
+            => State.LowerAttackHitRate.Update(Min(State.Vision, State.Reaction, State.LowerDexterity));
+
+        public void UpdateLowerAttackSpeed() => State.LowerAttackSpeed.Update(State.LowerDexterity);
+        public void UpdateMoveSpeed()        => State.MoveSpeed.Update(State.LowerDexterity);
 
         #endregion
     }
