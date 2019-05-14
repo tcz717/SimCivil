@@ -27,6 +27,7 @@ using System.Text;
 
 using SimCivil.Contract;
 using SimCivil.Orleans.Interfaces.Component;
+using SimCivil.Orleans.Interfaces.Component.State;
 using SimCivil.Orleans.Interfaces.Service;
 
 namespace SimCivil.Orleans.Grains.Service
@@ -44,9 +45,9 @@ namespace SimCivil.Orleans.Grains.Service
             for (var i = 0; i < (int) BodyPartIndex.BodyPartCount; i++)
                 unit.BodyParts[i] = BodyPart.Create(1, 10);
             for (var i = 0; i < (int) AbilityIndex.AbilityCount; i++)
-                unit.Abilities[i] = new UnboundedProperty();
+                unit.Abilities[i] = new UnitProperty();
             for (var i = 0; i < (int) EffectIndex.EffectCount; i++)
-                unit.Effects[i] = new UnboundedProperty();
+                unit.Effects[i] = new UnitProperty();
 
             return unit;
         }

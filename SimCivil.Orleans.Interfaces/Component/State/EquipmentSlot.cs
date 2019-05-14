@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2017 TPDT
+// Copyright (c) 2017 TPDT
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -18,22 +18,33 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// SimCivil - SimCivil.Orleans.Interfaces - IUnitGenerator.cs
+// SimCivil - SimCivil.Orleans.Interfaces - EquipmentSlot.cs
 // Create Date: 2019/05/13
 // Update Date: 2019/05/13
 
 using System;
 using System.Text;
 
-using SimCivil.Contract;
-using SimCivil.Orleans.Interfaces.Component.State;
-
-namespace SimCivil.Orleans.Interfaces.Service
+namespace SimCivil.Orleans.Interfaces.Component.State
 {
-    public interface IUnitGenerator
+    public enum EquipmentSlot
     {
-        UnitState GenerateInitiateUnit(CreateRoleOption option);
-        UnitState GenerateByAsexual(UnitState           parent);
-        UnitState GenerateBySexual(UnitState            father, UnitState mother);
+        Helmet,
+        Mask,
+        Necklace,
+        Shoulder,
+        Belt,
+        Armor,
+        Backpack,
+        PrimaryWeapon,
+        SecondaryWeapon,
+        Gloves,
+        Pants,
+        Shoes,
+        LeftBracelet,
+        RightBracelet,
+        Ring1,
+        Ring2,
+        MaxSlotCount
     }
 }
