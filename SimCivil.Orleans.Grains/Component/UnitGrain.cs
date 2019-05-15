@@ -237,7 +237,7 @@ namespace SimCivil.Orleans.Grains.Component
         private void UpdateMagicLearningRate()     => State.MagicLearningRate.Update(State.ControllingAbility);
         private void UpdateAimingAccuracy()        => State.AimingAccuracy.Update(State.Vision);
         private void UpdateSightRange()            => State.SightRange.Update(State.Vision);
-        private void UpdateInventionProbability()  => State.InventionProbability.Update(State.InventionProbability);
+        private void UpdateInventionProbability()  => State.InventionProbability.Update(State.Creativity);
         private void UpdateAimingSpeed()           => State.AimingSpeed.Update(Min(State.Vision, State.Reaction));
 
         private void UpdateSkillLearningRate()
