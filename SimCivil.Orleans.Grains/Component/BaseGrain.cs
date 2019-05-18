@@ -57,7 +57,7 @@ namespace SimCivil.Orleans.Grains.Component
         {
             State = component;
 
-            return Task.CompletedTask;
+            return WriteStateAsync();
         }
 
         public virtual async Task<IComponent> CopyTo(IEntity target)
@@ -93,6 +93,7 @@ namespace SimCivil.Orleans.Grains.Component
 
         public Task Delete()
         {
+            DeactivateOnIdle();
             return ClearStateAsync();
         }
 

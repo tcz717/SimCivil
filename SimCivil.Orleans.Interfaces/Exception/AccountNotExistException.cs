@@ -18,51 +18,27 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// SimCivil - SimCivil.Orleans.Grains - EntityGroupGrain.cs
-// Create Date: 2018/02/25
-// Update Date: 2018/02/25
+// SimCivil - SimCivil.Orleans.Interfaces - AccountNotExistException.cs
+// Create Date: 2019/05/18
+// Update Date: 2019/05/18
 
 using System;
-using System.Collections.Generic;
+using System.Runtime.Serialization;
 using System.Text;
-using System.Threading.Tasks;
 
-using JetBrains.Annotations;
-
-using Orleans;
-
-using SimCivil.Orleans.Interfaces;
-
-namespace SimCivil.Orleans.Grains
+namespace SimCivil.Orleans.Interfaces.Exception
 {
-    [UsedImplicitly]
-    public class EntityGroupGrain : Grain<HashSet<Guid>>, IEntityGroup
+    [Serializable]
+    public class AccountNotExistException : global::System.Exception
     {
-        public Task AddEntity(Guid id)
-        {
-            State.Add(id);
-            return WriteStateAsync();
-        }
+        public AccountNotExistException() { }
 
-        public Task RemoveEntity(Guid id)
-        {
-            State.Remove(id);
-            return WriteStateAsync();
-        }
+        public AccountNotExistException(string message) : base(message) { }
 
-        public Task<IEnumerable<Guid>> GetEntities()
-        {
-            return Task.FromResult((IEnumerable<Guid>) State);
-        }
+        public AccountNotExistException(string message, global::System.Exception innerException) : base(
+            message,
+            innerException) { }
 
-        public override Task OnActivateAsync()
-        {
-            if (State == null)
-            {
-                State = new HashSet<Guid>();
-            }
-
-            return WriteStateAsync();
-        }
+        protected AccountNotExistException(SerializationInfo info, StreamingContext context) : base(info, context) { }
     }
 }

@@ -19,14 +19,16 @@
 // SOFTWARE.
 // 
 // SimCivil - SimCivil.Orleans.Grains - EntityGrain.cs
-// Create Date: 2018/06/14
-// Update Date: 2018/12/17
+// Create Date: 2019/05/13
+// Update Date: 2019/05/18
 
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+
+using JetBrains.Annotations;
 
 using Orleans;
 using Orleans.Runtime;
@@ -36,12 +38,11 @@ using SimCivil.Orleans.Interfaces;
 
 namespace SimCivil.Orleans.Grains
 {
+    [UsedImplicitly]
     public class EntityGrain : Grain<EntityState>, IEntity
     {
-        public Task<bool> Has<T>() where T : IComponent
-        {
-            return Task.FromResult(State.Components.Contains(GrainFactory.GetGrain<T>(this.GetPrimaryKey())));
-        }
+        public Task<bool> Has<T>() where T : IComponent => Task.FromResult(
+            State.Components.Contains(GrainFactory.GetGrain<T>(this.GetPrimaryKey())));
 
         public Task<T> Get<T>() where T : class, IComponent
         {
@@ -54,7 +55,7 @@ namespace SimCivil.Orleans.Grains
         {
             State.Components.Add(GrainFactory.GetGrain<T>(this.GetPrimaryKey()));
 
-            return Task.CompletedTask;
+            return WriteStateAsync();
         }
 
         public async Task Remove<T>() where T : IComponent
@@ -65,6 +66,8 @@ namespace SimCivil.Orleans.Grains
             await WriteStateAsync();
         }
 
+        public Task<bool> IsExisted() => Task.FromResult(State != null);
+
         public async Task Enable()
         {
             if (State.Enabled) return;
@@ -73,10 +76,11 @@ namespace SimCivil.Orleans.Grains
 
             await Task.WhenAll(
                 State.Components.OfType<GrainReference>()
-                    .Select(
-                        c => GrainFactory.GetGrain<IEntityGroup>(c.InterfaceName.GetHashCode())
-                            .AddEntity(this.GetPrimaryKey())));
+                     .Select(
+                          c => GrainFactory.GetGrain<IEntityGroup>(c.InterfaceName.GetHashCode())
+                                           .AddEntity(this.GetPrimaryKey())));
             State.Enabled = true;
+            await WriteStateAsync();
         }
 
         public async Task Disable()
@@ -86,21 +90,20 @@ namespace SimCivil.Orleans.Grains
             await GrainFactory.GetGrain<IEntityGroup>(0).RemoveEntity(this.GetPrimaryKey());
             await Task.WhenAll(
                 State.Components.Select(
-                    c => GrainFactory.GetGrain<IEntityGroup>(c.GetHashCode()).RemoveEntity(this.GetPrimaryKey())));
+                    c => GrainFactory.GetGrain<IEntityGroup>(c.GetHashCode())
+                                     .RemoveEntity(this.GetPrimaryKey())));
             State.Enabled = false;
+            await WriteStateAsync();
         }
 
-        public Task<bool> IsEnabled()
-        {
-            return Task.FromResult(State.Enabled);
-        }
+        public Task<bool> IsEnabled() => Task.FromResult(State.Enabled);
 
         public async Task CopyTo(IEntity targetEntity)
         {
             var components = await Task.WhenAll(
-                State.Components.Select(
-                        component => component.CopyTo(targetEntity))
-                    .ToArray());
+                                 State.Components.Select(
+                                           component => component.CopyTo(targetEntity))
+                                      .ToArray());
             await targetEntity.SetComponents(components);
         }
 
@@ -108,30 +111,24 @@ namespace SimCivil.Orleans.Grains
         {
             State.Name = name;
 
-            return Task.CompletedTask;
+            return WriteStateAsync();
         }
 
-        public Task<string> GetName()
-        {
-            return Task.FromResult(State.Name);
-        }
+        public Task<string> GetName() => Task.FromResult(State.Name);
 
         public Task<IReadOnlyCollection<IComponent>> GetComponents()
-        {
-            return Task.FromResult((IReadOnlyCollection<IComponent>) State.Components);
-        }
+            => Task.FromResult((IReadOnlyCollection<IComponent>) State.Components);
 
         public Task SetComponents(IEnumerable<IComponent> components)
         {
             var collection = components as IComponent[] ?? components.ToArray();
+
             if (collection.Any(component => component.GetPrimaryKey() != this.GetPrimaryKey()))
-            {
                 throw new ArgumentException("component key not match", nameof(components));
-            }
 
             State.Components = new HashSet<IComponent>(collection);
 
-            return Task.CompletedTask;
+            return WriteStateAsync();
         }
 
         public async Task Delete()
@@ -139,6 +136,7 @@ namespace SimCivil.Orleans.Grains
             await Task.WhenAll(State.Components.Select(c => c.Delete()));
             await ClearStateAsync();
             State = null;
+            DeactivateOnIdle();
         }
     }
 }

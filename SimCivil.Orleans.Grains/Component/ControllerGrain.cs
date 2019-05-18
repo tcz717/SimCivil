@@ -215,6 +215,7 @@ namespace SimCivil.Orleans.Grains.Component
 
         public Task Delete()
         {
+            DeactivateOnIdle();
             return Task.CompletedTask;
         }
 
