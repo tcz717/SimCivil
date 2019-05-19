@@ -62,7 +62,7 @@ namespace SimCivil.Orleans.Grains
                 State = new HashSet<Guid>();
             }
 
-            return WriteStateAsync();
+            return Task.CompletedTask;
         }
     }
 }
