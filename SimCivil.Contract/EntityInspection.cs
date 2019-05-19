@@ -33,6 +33,6 @@ namespace SimCivil.Contract
         public Guid EntityId { get; set; }
         public DateTime TimeStamp { get; set; }
         public Guid ObserverId { get; set; }
-        public Dictionary<string, string> Values { get; set; }
+        public Dictionary<string, object> Values { get; set; }
     }
 }

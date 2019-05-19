@@ -135,7 +135,7 @@ namespace SimCivil.Orleans.Server
                         o.BasePath = "logs";
                         o.EnsureBasePath = true;
                         o.FallbackFileName =
-                            $"{Assembly.GetExecutingAssembly().GetName().Version}-{DateTime.Now:yyyy-dd-M-HH-mm-ss}.log";
+                            $"server-{Assembly.GetExecutingAssembly().GetName().Version}-{DateTime.Now:yyyy-dd-M-HH-mm-ss}.log";
                     });
         }
     }
