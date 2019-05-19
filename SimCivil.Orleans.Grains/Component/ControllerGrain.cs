@@ -19,8 +19,8 @@
 // SOFTWARE.
 // 
 // SimCivil - SimCivil.Orleans.Grains - ControllerGrain.cs
-// Create Date: 2018/12/13
-// Update Date: 2019/04/28
+// Create Date: 2019/05/18
+// Update Date: 2019/05/19
 
 using System;
 using System.Collections.Generic;
@@ -45,35 +45,32 @@ namespace SimCivil.Orleans.Grains.Component
     public class ControllerGrain : Grain, IUnitController
     {
         private readonly ITerrainRepository _terrainRepository;
-        private double _lagPredict;
-        private DateTime _lastUpdateTime;
-        private IMovementSystem _moveSystem;
-        private (float X, float Y) _speed;
+        private          double             _lagPredict;
+        private          DateTime           _lastUpdateTime;
+        private          IMovementSystem    _moveSystem;
+        private          (float X, float Y) _speed;
 
         public TimeSpan UpdatePeriod { get; set; }
 
-        public ILogger<ControllerGrain> Logger { get; }
-        public IOptions<GameOptions> GameOptions { get; }
-        public IOptions<SyncOptions> SyncOptions { get; }
+        public ILogger<ControllerGrain> Logger      { get; }
+        public IOptions<GameOptions>    GameOptions { get; }
+        public IOptions<SyncOptions>    SyncOptions { get; }
 
         public ControllerGrain(
             ILogger<ControllerGrain> logger,
-            ITerrainRepository terrainRepository,
-            IOptions<GameOptions> gameOptions,
-            IOptions<SyncOptions> syncOptions)
+            ITerrainRepository       terrainRepository,
+            IOptions<GameOptions>    gameOptions,
+            IOptions<SyncOptions>    syncOptions)
         {
-            Logger = logger;
-            GameOptions = gameOptions;
-            SyncOptions = syncOptions;
+            Logger             = logger;
+            GameOptions        = gameOptions;
+            SyncOptions        = syncOptions;
             _terrainRepository = terrainRepository;
-            UpdatePeriod = TimeSpan.FromMilliseconds(syncOptions.Value.UpdatePeriod);
-            _lastUpdateTime = DateTime.Now - UpdatePeriod - UpdatePeriod;
+            UpdatePeriod       = TimeSpan.FromMilliseconds(syncOptions.Value.UpdatePeriod);
+            _lastUpdateTime    = DateTime.Now - UpdatePeriod - UpdatePeriod;
         }
 
-        public Task<(float X, float Y)> GetSpeed()
-        {
-            return Task.FromResult(_speed);
-        }
+        public Task<(float X, float Y)> GetSpeed() => Task.FromResult(_speed);
 
         /// <summary>
         /// Moves the specified direction.
@@ -106,7 +103,7 @@ namespace SimCivil.Orleans.Grains.Component
         public async Task MoveTo(PositionState position, DateTime timeStamp)
         {
             double delta = (timeStamp - DateTime.UtcNow).TotalMilliseconds;
-            _lagPredict = SyncOptions.Value.LagLearningRate * delta +
+            _lagPredict = SyncOptions.Value.LagLearningRate       * delta +
                           (1 - SyncOptions.Value.LagLearningRate) * _lagPredict;
             DateTime predictTimeStamp = timeStamp.AddMilliseconds(-_lagPredict);
             if (Math.Abs(delta - _lagPredict) > SyncOptions.Value.MaxLag)
@@ -150,7 +147,7 @@ namespace SimCivil.Orleans.Grains.Component
 
             // TODO check if construction exists
             if (_terrainRepository.GetTerrain((await GrainFactory.GetTile(position.Tile, GameOptions)).Terrain)
-                .Flags.HasFlag(TerrainFlags.NotMovable))
+                                  .Flags.HasFlag(TerrainFlags.NotMovable))
                 return;
 
             await GrainFactory.Get<IPosition>(this).SetData(position);
@@ -161,61 +158,49 @@ namespace SimCivil.Orleans.Grains.Component
             await _moveSystem.Stop(this.GetPrimaryKey());
         }
 
-        public Task Drop(IEntity target)
-        {
-            throw new NotImplementedException();
-        }
+        public Task Drop(IEntity target) => throw new NotImplementedException();
 
-        public Task Attack(IEntity target)
-        {
-            throw new NotImplementedException();
-        }
+        public Task Attack(IEntity target) => throw new NotImplementedException();
 
-        public Task Use(IEntity target)
-        {
-            throw new NotImplementedException();
-        }
+        public Task Use(IEntity target) => throw new NotImplementedException();
 
         public async Task<InspectionResult> InspectEntity(IEntity target)
         {
             var result = new InspectionResult
             {
-                EntityId = target.GetPrimaryKey(),
+                EntityId   = target.GetPrimaryKey(),
                 ObserverId = this.GetPrimaryKey(),
-                TimeStamp = DateTime.UtcNow,
-                Values = new Dictionary<string, string>()
+                TimeStamp  = DateTime.UtcNow,
+                Values     = new Dictionary<string, object>()
             };
 
             var components = await GrainFactory.GetEntity(this).GetComponents();
             var inspections = await Task.WhenAll(
-                components.Where(c => !(c is IUnitController)).Select(c => c.Inspect(target)));
+                                  components.Where(c => !(c is IUnitController)).Select(c => c.Inspect(target)));
             result.Values = inspections.Where(i => i != null).SelectMany(i => i).ToDictionary(i => i.Key, i => i.Value);
 
             return result;
         }
 
         public Task<IComponent> CopyTo(IEntity target)
-        {
-            return Task.FromResult((IComponent) GrainFactory.Get<IUnitController>(target));
-        }
+            => Task.FromResult((IComponent) GrainFactory.Get<IUnitController>(target));
 
-        public Task<IReadOnlyDictionary<string, string>> Dump()
-        {
-            return Task.FromResult(
-                (IReadOnlyDictionary<string, string>) new Dictionary<string, string>
-                {
-                    ["Speed"] = _speed.ToString()
-                });
-        }
+        public Task<IReadOnlyDictionary<string, string>> Dump() => Task.FromResult(
+            (IReadOnlyDictionary<string, string>) new Dictionary<string, string>
+            {
+                ["Speed"] = _speed.ToString()
+            });
 
-        public Task<IReadOnlyDictionary<string, string>> Inspect(IEntity target)
-        {
-            return Dump();
-        }
+        public Task<IReadOnlyDictionary<string, object>> Inspect(IEntity target) => Task.FromResult(
+            (IReadOnlyDictionary<string, object>) new Dictionary<string, object>
+            {
+                ["Speed"] = _speed.ToString()
+            });
 
         public Task Delete()
         {
             DeactivateOnIdle();
+
             return Task.CompletedTask;
         }
 

@@ -35,7 +35,7 @@ namespace SimCivil.Orleans.Interfaces
     {
         Task<IComponent> CopyTo(IEntity target);
         Task<IReadOnlyDictionary<string, string>> Dump();
-        Task<IReadOnlyDictionary<string, string>> Inspect(IEntity observer);
+        Task<IReadOnlyDictionary<string, object>> Inspect(IEntity observer);
         Task Delete();
     }
 
