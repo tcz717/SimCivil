@@ -45,8 +45,8 @@ namespace SimCivil.Rpc.Timeout
         private readonly int                              _waitTime;
         public event EventHandler<ClientTimeoutEventArgs> ClientTimeout;
 
-        protected List<KeyValuePair<IChannel, EntryValue>> ClientsToBeRemoved =
-            new List<KeyValuePair<IChannel, EntryValue>>();
+        protected List<KeyValuePair<IChannel, bool>> ClientsToBeRemoved =
+            new List<KeyValuePair<IChannel, bool>>();
 
         protected readonly RpcServer               Server;
         protected readonly ILogger                 Logger;
@@ -54,8 +54,8 @@ namespace SimCivil.Rpc.Timeout
         protected          CancellationTokenSource CancelSrc;
         public             bool                    IsRunning { get; private set; }
 
-        private readonly ConcurrentDictionary<IChannel, EntryValue> _receiveCounts =
-            new ConcurrentDictionary<IChannel, EntryValue>();
+        private readonly ConcurrentDictionary<IChannel, bool> _receiveCounts =
+            new ConcurrentDictionary<IChannel, bool>();
 
         public SimpleTimeoutDaemon(RpcServer server, ILogger logger, int waitTime)
         {
@@ -64,36 +64,29 @@ namespace SimCivil.Rpc.Timeout
             _waitTime = waitTime;
         }
 
+        /// <summary>
+        /// Notify a Packet has received for a chennel
+        /// </summary>
+        /// <param name="channel">The channel.</param>
+        /// <param name="request">The RpcRequest.</param>
+        /// <returns>Whether the notifed-state of channel changed to true</returns>
         public virtual bool NotifyPacketReceived(IChannel channel, RpcRequest request)
         {
-            if (!_receiveCounts.TryGetValue(channel, out EntryValue cnt))
+            if (!_receiveCounts.TryUpdate(channel, true, false))
             {
-                Logger.LogInformation($"Notify a timeout channel: {channel.RemoteAddress}");
+                Logger.LogDebug($"Notify a timeout channel or channel that has already been notified: {channel.RemoteAddress}");
 
                 return false;
             }
 
-            lock (cnt)
-            {
-                if (!_receiveCounts.TryGetValue(channel, out EntryValue _))
-                {
-                    Logger.LogInformation("Channel found but after lock it is timeout");
-
-                    return false;
-                }
-
-                cnt.Count++;
-                Logger.LogDebug($"Session cnt increased to {cnt.Count}, channel: {channel.RemoteAddress}");
-            }
-
+            Logger.LogInformation($"Notify successful and state changed: {channel.RemoteAddress}");
             return true;
         }
 
         public virtual void RegisterChannel(IChannel channel)
         {
             Assert(IsRunning, "Register session before daemon running");
-            var entryValue = new EntryValue {Count = 1};
-            Assert(_receiveCounts.TryAdd(channel, entryValue));
+            Assert(_receiveCounts.TryAdd(channel, true));
             Logger.LogInformation($"Channel registered: {channel.RemoteAddress}");
         }
 
@@ -133,22 +126,19 @@ namespace SimCivil.Rpc.Timeout
                 }
 
                 Logger.LogDebug("Timeout Daemon waked up");
-                ClientsToBeRemoved = new List<KeyValuePair<IChannel, EntryValue>>();
+                ClientsToBeRemoved = new List<KeyValuePair<IChannel, bool>>();
                 foreach (var entry in _receiveCounts)
                 {
-                    lock (entry.Value)
+                    if (!entry.Value)
                     {
-                        if (entry.Value.Count == 0)
-                        {
-                            ClientsToBeRemoved.Add(entry);
-                            Assert(_receiveCounts.TryRemove(entry.Key, out EntryValue _));
-                            Logger.LogInformation(
-                                $"Channel {entry.Key.RemoteAddress} timeout and removed, client enqueued to be removed: {entry.Key}");
-                        }
-                        else
-                        {
-                            entry.Value.Count = 0;
-                        }
+                        ClientsToBeRemoved.Add(entry);
+                        Assert(_receiveCounts.TryRemove(entry.Key, out bool _));
+                        Logger.LogInformation(
+                            $"Channel {entry.Key.RemoteAddress} timeout and removed, client enqueued to be removed: {entry.Key}");
+                    }
+                    else
+                    {
+                        _receiveCounts[entry.Key] = false;
                     }
                 }
 
@@ -181,10 +171,5 @@ namespace SimCivil.Rpc.Timeout
 
             CancelSrc.Dispose();
         }
-    }
-
-    public class EntryValue
-    {
-        public int Count { get; set; }
     }
 }
