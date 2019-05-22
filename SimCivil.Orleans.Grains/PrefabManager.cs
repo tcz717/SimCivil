@@ -64,7 +64,7 @@ namespace SimCivil.Orleans.Grains
         {
             State.Prefabs[key] = prefab;
 
-            return Task.CompletedTask;
+            return WriteStateAsync();
         }
 
         /// <summary>

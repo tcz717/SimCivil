@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2017 TPDT
+// Copyright (c) 2017 TPDT
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -84,7 +84,7 @@ namespace SimCivil.Orleans.Grains.Component
             UpdateLowerPower();
             UpdateVision();
 
-            return Task.CompletedTask;
+            return WriteStateAsync();
         }
 
         public Task UpdateEffects()
@@ -123,7 +123,7 @@ namespace SimCivil.Orleans.Grains.Component
             UpdateLowerAttackSpeed();
             UpdateMoveSpeed();
 
-            return Task.CompletedTask;
+            return WriteStateAsync();
         }
 
         private static T Min<T>(params T[] values) => values.Min();

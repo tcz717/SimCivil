@@ -28,6 +28,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using JetBrains.Annotations;
+
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -42,6 +44,7 @@ using static System.Math;
 
 namespace SimCivil.Orleans.Grains
 {
+    [UsedImplicitly]
     public class ChunkGrain : Grain, IChunk
     {
         public Dictionary<Guid, PositionState> Entities;

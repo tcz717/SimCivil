@@ -40,6 +40,7 @@ namespace SimCivil.Orleans.Interfaces
         Task Add<T>() where T : IComponent;
         Task Remove<T>() where T : IComponent;
 
+        Task<bool> IsExisted();
         Task Enable();
         Task Disable();
         Task<bool> IsEnabled();
