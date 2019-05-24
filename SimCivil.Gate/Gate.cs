@@ -124,7 +124,7 @@ namespace SimCivil.Gate
                         o.BasePath = "logs";
                         o.EnsureBasePath = true;
                         o.FallbackFileName =
-                            $"{Assembly.GetExecutingAssembly().GetName().Version}-{DateTime.Now:yyyy-dd-M-HH-mm-ss}.log";
+                            $"gate-{Assembly.GetExecutingAssembly().GetName().Version}-{DateTime.Now:yyyy-dd-M-HH-mm-ss}.log";
                     }))
                 .Configure<ClusterOptions>(configuration.GetSection("Cluster"))
                 .Configure<DynamoDBGatewayOptions>(configuration.GetSection("DynamoDBClustering"));

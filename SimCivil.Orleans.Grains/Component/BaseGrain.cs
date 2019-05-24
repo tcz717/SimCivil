@@ -86,9 +86,9 @@ namespace SimCivil.Orleans.Grains.Component
                     .ToDictionary(prop => prop.Name, prop => prop.GetValue(State, null)?.ToString()));
         }
 
-        public virtual Task<IReadOnlyDictionary<string, string>> Inspect(IEntity observer)
+        public virtual Task<IReadOnlyDictionary<string, object>> Inspect(IEntity observer)
         {
-            return Task.FromResult<IReadOnlyDictionary<string, string>>(null);
+            return Task.FromResult<IReadOnlyDictionary<string, object>>(null);
         }
 
         public Task Delete()

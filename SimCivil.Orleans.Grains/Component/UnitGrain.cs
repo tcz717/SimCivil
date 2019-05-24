@@ -1,4 +1,4 @@
-// Copyright (c) 2017 TPDT
+﻿// Copyright (c) 2017 TPDT
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -19,8 +19,8 @@
 // SOFTWARE.
 // 
 // SimCivil - SimCivil.Orleans.Grains - UnitGrain.cs
-// Create Date: 2019/05/13
-// Update Date: 2019/05/14
+// Create Date: 2019/05/14
+// Update Date: 2019/05/19
 
 using System;
 using System.Collections.Generic;
@@ -43,12 +43,15 @@ namespace SimCivil.Orleans.Grains.Component
     {
         public UnitGrain(ILoggerFactory factory) : base(factory) { }
 
-        public override Task<IReadOnlyDictionary<string, string>> Inspect(IEntity observer)
-        {
-            return Task.FromResult<IReadOnlyDictionary<string, string>>(
-                typeof(UnitState).GetProperties().ToDictionary(p => p.Name, p => p.GetValue(State)?.ToString())
+        public override Task<IReadOnlyDictionary<string, object>> Inspect(IEntity observer)
+            => Task.FromResult<IReadOnlyDictionary<string, object>>(
+                new Dictionary<string, object>
+                {
+                    [nameof(State.BodyParts)] = State.BodyParts,
+                    [nameof(State.Abilities)] = State.Abilities,
+                    [nameof(State.Effects)]   = State.Effects,
+                }
             );
-        }
 
         /// <summary>Gets the heath point.</summary>
         /// <returns></returns>
@@ -84,7 +87,7 @@ namespace SimCivil.Orleans.Grains.Component
             UpdateLowerPower();
             UpdateVision();
 
-            return WriteStateAsync();
+            return UpdateEffects();
         }
 
         public Task UpdateEffects()
@@ -144,9 +147,9 @@ namespace SimCivil.Orleans.Grains.Component
         private void UpdateMentalAbility() => State.MentalAbility.Update(State.Soul.Efficiency);
 
         private void UpdateVision() => State.Vision = State.Vision.Update(
-                                          Max(
-                                              State.LeftEye.Efficiency,
-                                              State.RightEye.Efficiency));
+                                           Max(
+                                               State.LeftEye.Efficiency,
+                                               State.RightEye.Efficiency));
 
         private void UpdateCreativity() => State.Creativity.Update(State.Brain.Efficiency);
 
