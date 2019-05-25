@@ -19,8 +19,8 @@
 // SOFTWARE.
 // 
 // SimCivil - SimCivil.Gate - Gate.cs
-// Create Date: 2018/12/15
-// Update Date: 2019/04/20
+// Create Date: 2019/05/25
+// Update Date: 2019/05/25
 
 using System;
 using System.Reflection;
@@ -33,8 +33,6 @@ using Autofac.Configuration;
 using Autofac.Extensions.DependencyInjection;
 
 using JetBrains.Annotations;
-
-using Karambolo.Extensions.Logging.File;
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -62,29 +60,30 @@ namespace SimCivil.Gate
         public Gate([NotNull] IClusterClient client)
         {
             Client = client ??
-                throw new ArgumentNullException(nameof(client));
+                     throw new ArgumentNullException(nameof(client));
         }
 
         private static async Task Main(string[] args)
         {
-            using(SentrySdk.Init("https://c091709188504c39a331cc91794fa4f4@sentry.io/216217"))
+            using (SentrySdk.Init("https://c091709188504c39a331cc91794fa4f4@sentry.io/216217"))
             {
                 IClusterClient client = new ClientBuilder()
-                    .UseEnvironment(EnvironmentName.Development)
-                    .UseDynamoDBClustering((Action<DynamoDBGatewayOptions>) null)
-                    .Configure<NetworkingOptions>(options => options.OpenConnectionTimeout = TimeSpan.FromSeconds(10))
-                    .ConfigureAppConfiguration(
-                        (context, configure) => configure
-                        .AddJsonFile(
-                            "appsettings.json",
-                            false)
-                        .AddJsonFile(
-                            $"appsettings.{context.HostingEnvironment.EnvironmentName}.json",
-                            true)
-                        .AddEnvironmentVariables()
-                        .AddCommandLine(args))
-                    .ConfigureServices(Configure)
-                    .Build();
+                                       .UseEnvironment(EnvironmentName.Development)
+                                       .UseDynamoDBClustering((Action<DynamoDBGatewayOptions>) null)
+                                       .Configure<NetworkingOptions>(
+                                            options => options.OpenConnectionTimeout = TimeSpan.FromSeconds(10))
+                                       .ConfigureAppConfiguration(
+                                            (context, configure) => configure
+                                                                   .AddJsonFile(
+                                                                        "appsettings.json",
+                                                                        false)
+                                                                   .AddJsonFile(
+                                                                        $"appsettings.{context.HostingEnvironment.EnvironmentName}.json",
+                                                                        true)
+                                                                   .AddEnvironmentVariables()
+                                                                   .AddCommandLine(args))
+                                       .ConfigureServices(Configure)
+                                       .Build();
 
                 try
                 {
@@ -107,7 +106,7 @@ namespace SimCivil.Gate
                 catch (OrleansConfigurationException configurationException)
                 {
                     client.ServiceProvider.GetService<ILogger<Gate>>()
-                        .LogCritical(configurationException, "Configuration missing");
+                          .LogCritical(configurationException, "Configuration missing");
                 }
             }
         }
@@ -116,24 +115,22 @@ namespace SimCivil.Gate
         {
             IConfiguration configuration = context.Configuration;
             serviceCollection
-                .AddLogging(
+               .AddLogging(
                     logging => logging.AddConsole()
-                    .AddConfiguration(configuration.GetSection("Logging"))
-                    .AddFile(o =>
-                    {
-                        o.BasePath = "logs";
-                        o.EnsureBasePath = true;
-                        o.FallbackFileName =
-                            $"gate-{Assembly.GetExecutingAssembly().GetName().Version}-{DateTime.Now:yyyy-dd-M-HH-mm-ss}.log";
-                    }))
-                .Configure<ClusterOptions>(configuration.GetSection("Cluster"))
-                .Configure<DynamoDBGatewayOptions>(configuration.GetSection("DynamoDBClustering"));
+                                      .AddConfiguration(configuration.GetSection("Logging"))
+                                      .AddFile(
+                                           o =>
+                                           {
+                                               o.BasePath       = "logs";
+                                               o.EnsureBasePath = true;
+                                               o.FallbackFileName =
+                                                   $"gate-{Assembly.GetExecutingAssembly().GetName().Version}-{DateTime.Now:yyyy-dd-M-HH-mm-ss}.log";
+                                           }))
+               .Configure<ClusterOptions>(configuration.GetSection("Cluster"))
+               .Configure<DynamoDBGatewayOptions>(configuration.GetSection("DynamoDBClustering"));
         }
 
-        public Task Run()
-        {
-            return Run(null);
-        }
+        public Task Run() => Run(null);
 
         public async Task Run(IServiceCollection services)
         {
@@ -159,7 +156,17 @@ namespace SimCivil.Gate
 
             if (services == null) services = new ServiceCollection();
 
-            services.AddLogging(n => n.AddConsole());
+            // TODO using one logger configuration with orleans's
+            services.AddLogging(
+                n => n.AddConsole()
+                      .AddFile(
+                           o =>
+                           {
+                               o.BasePath       = "logs";
+                               o.EnsureBasePath = true;
+                               o.FallbackFileName =
+                                   $"rpc-{Assembly.GetExecutingAssembly().GetName().Version}-{DateTime.Now:yyyy-dd-M-HH-mm-ss}.log";
+                           }));
 
             builder.RegisterModule(module);
             builder.Populate(services);
