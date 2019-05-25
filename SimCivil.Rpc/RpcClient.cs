@@ -19,8 +19,8 @@
 // SOFTWARE.
 // 
 // SimCivil - SimCivil.Rpc - RpcClient.cs
-// Create Date: 2018/01/02
-// Update Date: 2018/09/29
+// Create Date: 2019/05/08
+// Update Date: 2019/05/19
 
 using System;
 using System.Collections.Generic;
@@ -29,7 +29,6 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using static System.Diagnostics.Debug;
 
 using Castle.DynamicProxy;
 
@@ -38,8 +37,8 @@ using DotNetty.Transport.Bootstrapping;
 using DotNetty.Transport.Channels;
 using DotNetty.Transport.Channels.Sockets;
 
-using SimCivil.Rpc.Callback;
 using SimCivil.Contract;
+using SimCivil.Rpc.Callback;
 
 namespace SimCivil.Rpc
 {
@@ -49,22 +48,22 @@ namespace SimCivil.Rpc
         private readonly IChannelHandler _decoder = new JsonToMessageDecoder();
         private readonly IChannelHandler _encoder = new MessageToJsonEncoder<RpcRequest>();
 
-        private readonly ProxyGenerator _generator = new ProxyGenerator();
-        private readonly IChannelHandler _resolver;
+        private readonly ProxyGenerator     _generator = new ProxyGenerator();
+        private readonly IChannelHandler    _resolver;
         private readonly IConnectionControl _connectionControl;
         private readonly HeartbeatGenerator _heartbeatGenerator;
-        private int _nextCallbackId;
+        private          int                _nextCallbackId;
 
         private long _nextSeq;
 
-        public IPEndPoint EndPoint { get; private set; }
-        public IChannel Channel { get; private set; }
-        public Dictionary<Type, object> ProxyCache { get; } = new Dictionary<Type, object>();
-        public Dictionary<long, RpcRequest> ResponseWaitlist { get; } = new Dictionary<long, RpcRequest>();
-        public int ResponseTimeout { get; set; } = 3000;
-        public int HeartbeatDelay { get; set; } = 2000;
-        public IInterceptor Interceptor { get; }
-        public bool Connected { get; private set; }
+        public IPEndPoint                   EndPoint         { get; private set; }
+        public IChannel                     Channel          { get; private set; }
+        public Dictionary<Type, object>     ProxyCache       { get; }      = new Dictionary<Type, object>();
+        public Dictionary<long, RpcRequest> ResponseWaitlist { get; }      = new Dictionary<long, RpcRequest>();
+        public int                          ResponseTimeout  { get; set; } = 3000;
+        public int                          HeartbeatDelay   { get; set; } = 2000;
+        public IInterceptor                 Interceptor      { get; }
+        public bool                         Connected        { get; private set; }
 
         public Dictionary<int, Delegate> CallBackList { get; } = new Dictionary<int, Delegate>();
 
@@ -72,11 +71,11 @@ namespace SimCivil.Rpc
 
         public RpcClient(IPEndPoint endPoint)
         {
-            EndPoint = endPoint;
-            Interceptor = new RpcInterceptor(this);
-            _resolver = new RpcClientResolver(this);
-            _callbackResolver = new RpcCallbackResolver(this);
-            _connectionControl = Import<IConnectionControl>();
+            EndPoint            = endPoint;
+            Interceptor         = new RpcInterceptor(this);
+            _resolver           = new RpcClientResolver(this);
+            _callbackResolver   = new RpcCallbackResolver(this);
+            _connectionControl  = Import<IConnectionControl>();
             _heartbeatGenerator = new HeartbeatGenerator(this);
         }
 
@@ -116,14 +115,14 @@ namespace SimCivil.Rpc
             IEventLoopGroup loopGroup = new MultithreadEventLoopGroup();
             try
             {
-                Bootstrap bootstrap = new Bootstrap();
+                var bootstrap = new Bootstrap();
                 bootstrap.Group(loopGroup)
-                    .Channel<TcpSocketChannel>()
-                    .Option(ChannelOption.SoKeepalive, true)
-                    .Option(ChannelOption.TcpNodelay, true)
-                    .Handler(
-                        new ActionChannelInitializer<ISocketChannel>(
-                            ChannelInit));
+                         .Channel<TcpSocketChannel>()
+                         .Option(ChannelOption.SoKeepalive, true)
+                         .Option(ChannelOption.TcpNodelay,  true)
+                         .Handler(
+                              new ActionChannelInitializer<ISocketChannel>(
+                                  ChannelInit));
                 Channel = await bootstrap.ConnectAsync(EndPoint);
             }
             catch
@@ -133,19 +132,20 @@ namespace SimCivil.Rpc
 
                 throw;
             }
+
             _heartbeatGenerator.Start();
             _heartbeatGenerator.HeartbeatNeeded += (sender, args) => SendHeartbeat();
-            Connected = true;
+            Connected                           =  true;
         }
 
         protected virtual void ChannelInit(ISocketChannel channel)
         {
             channel.Pipeline.AddLast(new LengthFieldPrepender(2))
-                .AddLast(new LengthFieldBasedFrameDecoder(ushort.MaxValue, 0, 2, 0, 2))
-                .AddLast(_decoder)
-                .AddLast(_encoder)
-                .AddLast(_resolver)
-                .AddLast(_callbackResolver);
+                   .AddLast(new LengthFieldBasedFrameDecoder(ushort.MaxValue, 0, 2, 0, 2))
+                   .AddLast(_decoder)
+                   .AddLast(_encoder)
+                   .AddLast(_resolver)
+                   .AddLast(_callbackResolver);
         }
 
         [MethodImpl(MethodImplOptions.Synchronized)]
@@ -156,7 +156,7 @@ namespace SimCivil.Rpc
                 _heartbeatGenerator.Stop();
                 Channel?.DisconnectAsync();
                 Connected = false;
-                Channel = null;
+                Channel   = null;
                 ProxyCache.Clear();
             }
         }
@@ -168,22 +168,16 @@ namespace SimCivil.Rpc
         /// <returns></returns>
         public T Import<T>() where T : class
         {
-            if (ProxyCache.TryGetValue(typeof(T), out object service))
-            {
-                return service as T;
-            }
+            if (ProxyCache.TryGetValue(typeof(T), out object service)) return service as T;
 
-            T newService = _generator.CreateInterfaceProxyWithoutTarget<T>(Interceptor);
+            var newService = _generator.CreateInterfaceProxyWithoutTarget<T>(Interceptor);
             ProxyCache[typeof(T)] = newService;
 
             return newService;
         }
 
         [MethodImpl(MethodImplOptions.Synchronized)]
-        public long GetNextSequence()
-        {
-            return _nextSeq++;
-        }
+        public long GetNextSequence() => _nextSeq++;
 
         protected virtual void OnDecodeFail(EventArgs<string> e)
         {
@@ -203,24 +197,26 @@ namespace SimCivil.Rpc
 
         public void SendHeartbeat()
         {
-            Task.Run(() =>
-            {
-                try
+            Task.Run(
+                () =>
                 {
-                    _connectionControl.Noop();
-                }
-                catch
-                {
-                    // Heartbeat failed
-                    Disconnect();
-                }
-            });
+                    try
+                    {
+                        _connectionControl.Noop();
+                    }
+                    catch
+                    {
+                        // Heartbeat failed
+                        Disconnect();
+                    }
+                });
         }
 
         public void NotifyPacketSent()
         {
             if (!Connected)
                 throw new InvalidOperationException("Rpc Client is disconnected");
+
             _heartbeatGenerator.NotifyPacketSent();
         }
     }
@@ -228,12 +224,12 @@ namespace SimCivil.Rpc
     /// <summary>
     /// Heartbeat generation indication
     /// </summary>
-    class HeartbeatGenerator : IDisposable
+    internal class HeartbeatGenerator : IDisposable
     {
-        private CancellationTokenSource cancel;
-        private Task runTask;
-        private bool sentPacket;
-        private readonly RpcClient client;
+        private          CancellationTokenSource _cancel;
+        private          Task                    _runTask;
+        private          bool                    _sentPacket;
+        private readonly RpcClient               _client;
 
         /// <summary>
         /// Is running
@@ -247,7 +243,7 @@ namespace SimCivil.Rpc
 
         public HeartbeatGenerator(RpcClient client)
         {
-            this.client = client;
+            _client = client;
         }
 
         /// <summary>
@@ -255,9 +251,13 @@ namespace SimCivil.Rpc
         /// </summary>
         public void Start()
         {
-            cancel = new CancellationTokenSource();
-            var tf = new TaskFactory(cancel.Token, TaskCreationOptions.LongRunning, TaskContinuationOptions.None, TaskScheduler.Default);
-            runTask = tf.StartNew(Run);
+            _cancel = new CancellationTokenSource();
+            var tf = new TaskFactory(
+                _cancel.Token,
+                TaskCreationOptions.LongRunning,
+                TaskContinuationOptions.None,
+                TaskScheduler.Default);
+            _runTask   = tf.StartNew(Run);
             IsRunning = true;
         }
 
@@ -266,8 +266,8 @@ namespace SimCivil.Rpc
         /// </summary>
         public void Stop()
         {
-            cancel.Cancel();
-            runTask.Wait();
+            _cancel.Cancel();
+            _runTask.Wait();
             IsRunning = false;
         }
 
@@ -278,29 +278,27 @@ namespace SimCivil.Rpc
         {
             if (!IsRunning)
                 throw new InvalidOperationException("HeartbeatGenerator is stopped");
-            sentPacket = true;
+
+            _sentPacket = true;
         }
 
         private void Run()
         {
-            while (!cancel.IsCancellationRequested)
+            while (!_cancel.IsCancellationRequested)
             {
                 try
                 {
-                    Task.Delay(client.HeartbeatDelay, cancel.Token).Wait();
+                    Task.Delay(_client.HeartbeatDelay, _cancel.Token).Wait();
                 }
                 catch
                 {
                     // Log cancelled
                 }
-                if (!sentPacket)
-                {
+
+                if (!_sentPacket)
                     HeartbeatNeeded?.Invoke(this, new EventArgs());
-                }
                 else
-                {
-                    sentPacket = false;
-                }
+                    _sentPacket = false;
             }
         }
 
@@ -308,7 +306,7 @@ namespace SimCivil.Rpc
         {
             if (IsRunning)
                 Stop();
-            cancel.Dispose();
+            _cancel.Dispose();
         }
     }
 }
