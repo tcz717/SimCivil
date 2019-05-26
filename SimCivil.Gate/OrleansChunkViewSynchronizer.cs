@@ -19,8 +19,8 @@
 // SOFTWARE.
 // 
 // SimCivil - SimCivil.Gate - OrleansChunkViewSynchronizer.cs
-// Create Date: 2018/06/16
-// Update Date: 2018/12/02
+// Create Date: 2019/05/08
+// Update Date: 2019/05/25
 
 using System;
 using System.Collections.Generic;
@@ -45,22 +45,23 @@ namespace SimCivil.Gate
 {
     internal class OrleansChunkViewSynchronizer : IViewSynchronizer, ISessionRequired
     {
-        public IGrainFactory GrainFactory { get; }
-        public ILogger<IViewSynchronizer> Logger { get; }
+        public IGrainFactory                         GrainFactory { get; }
+        public ILogger<OrleansChunkViewSynchronizer> Logger       { get; }
 
         static OrleansChunkViewSynchronizer()
         {
-            Mapper.Initialize(c =>
-            {
-                c.CreateMap<Tile, TileDto>();
-                c.CreateMap<AppearanceEntry, AppearanceDto>();
-            });
+            Mapper.Initialize(
+                c =>
+                {
+                    c.CreateMap<Tile, TileDto>();
+                    c.CreateMap<AppearanceEntry, AppearanceDto>();
+                });
         }
 
-        public OrleansChunkViewSynchronizer(IGrainFactory grainFactory, ILogger<IViewSynchronizer> logger)
+        public OrleansChunkViewSynchronizer(IGrainFactory grainFactory, ILogger<OrleansChunkViewSynchronizer> logger)
         {
             GrainFactory = grainFactory;
-            Logger = logger;
+            Logger       = logger;
         }
 
         public AsyncLocal<IRpcSession> Session { get; set; } = new AsyncLocal<IRpcSession>();
@@ -105,8 +106,9 @@ namespace SimCivil.Gate
 
         public void StartSync(RpcServer server)
         {
-            Task.Run(
-                () =>
+            Task SyncLoop()
+            {
+                try
                 {
                     while (true)
                     {
@@ -121,7 +123,20 @@ namespace SimCivil.Gate
 
                         Thread.Sleep(50);
                     }
-                });
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError(ex, "SyncLoop occured a exception");
+
+                    throw;
+                }
+                finally
+                {
+                    Logger.LogInformation($"{nameof(OrleansChunkViewSynchronizer)} stopped");
+                }
+            }
+
+            Task.Run(SyncLoop);
         }
     }
 }

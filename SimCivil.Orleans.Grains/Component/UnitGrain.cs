@@ -19,8 +19,8 @@
 // SOFTWARE.
 // 
 // SimCivil - SimCivil.Orleans.Grains - UnitGrain.cs
-// Create Date: 2019/05/14
-// Update Date: 2019/05/19
+// Create Date: 2019/05/25
+// Update Date: 2019/05/25
 
 using System;
 using System.Collections.Generic;
@@ -55,7 +55,8 @@ namespace SimCivil.Orleans.Grains.Component
 
         /// <summary>Gets the heath point.</summary>
         /// <returns></returns>
-        public Task<float> GetHp() => throw new NotImplementedException();
+        public Task<float> GetHp() => Task.FromResult(
+            State.BodyParts.Select(b => (float) b.Hp).Sum() / State.BodyParts.Select(b => (float) b.MaxHp).Sum());
 
         public Task<UnitProperty> GetEffect(EffectIndex effectIndex)
             => Task.FromResult(State.Effects[(int) effectIndex]);
