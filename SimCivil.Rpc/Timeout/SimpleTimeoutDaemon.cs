@@ -1,10 +1,38 @@
-﻿using DotNetty.Transport.Channels;
-using Microsoft.Extensions.Logging;
+﻿// Copyright (c) 2017 TPDT
+// 
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+// 
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+// 
+// SimCivil - SimCivil.Rpc - SimpleTimeoutDaemon.cs
+// Create Date: 2019/05/08
+// Update Date: 2019/05/19
+
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+
+using DotNetty.Transport.Channels;
+
+using Microsoft.Extensions.Logging;
+
 using static System.Diagnostics.Debug;
 
 namespace SimCivil.Rpc.Timeout
@@ -12,135 +40,136 @@ namespace SimCivil.Rpc.Timeout
     /// <summary>
     /// One clock hand algorithm timeout daemon
     /// </summary>
-    public class SimpleTimeoutDaemon : ITimeoutDaemon, IDisposable
+    public class SimpleTimeoutDaemon : ITimeoutDaemon
     {
-        private readonly int waitTime;
+        private readonly int                              _waitTime;
         public event EventHandler<ClientTimeoutEventArgs> ClientTimeout;
-        protected List<KeyValuePair<IChannel, EntryValue>> clientsToBeRemoved = new List<KeyValuePair<IChannel, EntryValue>>();
-        protected readonly RpcServer server;
-        protected readonly ILogger log;
-        protected Task daemon;
-        protected CancellationTokenSource cancelSrc;
-        public bool IsRunning { get; private set; }
 
-        private readonly ConcurrentDictionary<IChannel, EntryValue> receiveCounts = new ConcurrentDictionary<IChannel, EntryValue>();
+        protected List<KeyValuePair<IChannel, bool>> ClientsToBeRemoved =
+            new List<KeyValuePair<IChannel, bool>>();
+
+        protected readonly RpcServer               Server;
+        protected readonly ILogger                 Logger;
+        protected          Task                    Daemon;
+        protected          CancellationTokenSource CancelSrc;
+        public             bool                    IsRunning { get; private set; }
+
+        private readonly ConcurrentDictionary<IChannel, bool> _receiveCounts =
+            new ConcurrentDictionary<IChannel, bool>();
 
         public SimpleTimeoutDaemon(RpcServer server, ILogger logger, int waitTime)
         {
-            this.server = server ?? throw new ArgumentNullException(nameof(server));
-            this.log = logger ?? throw new ArgumentNullException(nameof(logger));
-            this.waitTime = waitTime;
+            Server    = server ?? throw new ArgumentNullException(nameof(server));
+            Logger    = logger ?? throw new ArgumentNullException(nameof(logger));
+            _waitTime = waitTime;
         }
 
+        /// <summary>
+        /// Notify a Packet has received for a chennel
+        /// </summary>
+        /// <param name="channel">The channel.</param>
+        /// <param name="request">The RpcRequest.</param>
+        /// <returns>Whether the notifed-state of channel changed to true</returns>
         public virtual bool NotifyPacketReceived(IChannel channel, RpcRequest request)
         {
-            if (!receiveCounts.TryGetValue(channel, out EntryValue cnt))
+            if (!_receiveCounts.TryUpdate(channel, true, false))
             {
-                log.LogInformation($"Notify a timeout channel: {channel.RemoteAddress}");
+                Logger.LogDebug($"Notify a timeout channel or channel that has already been notified: {channel.RemoteAddress}");
+
                 return false;
             }
 
-            lock (cnt)
-            {
-                if (!receiveCounts.TryGetValue(channel, out EntryValue sameCnt))
-                {
-                    log.LogInformation("Channel found but after lock it is timeout");
-                    return false;
-                }
-                cnt.Count++;
-                log.LogDebug($"Session cnt increased to {cnt.Count}, channel: {channel.RemoteAddress}");
-            }
+            Logger.LogInformation($"Notify successful and state changed: {channel.RemoteAddress}");
             return true;
         }
 
         public virtual void RegisterChannel(IChannel channel)
         {
             Assert(IsRunning, "Register session before daemon running");
-            var entryValue = new EntryValue { Count = 1 };
-            Assert(receiveCounts.TryAdd(channel, entryValue));
-            log.LogInformation($"Channel registered: {channel.RemoteAddress}");
+            Assert(_receiveCounts.TryAdd(channel, true));
+            Logger.LogInformation($"Channel registered: {channel.RemoteAddress}");
         }
 
         public virtual void UnregisterChannel(IChannel channel)
         {
             Assert(IsRunning, "Register session before daemon running");
-            var res = receiveCounts.TryRemove(channel, out _);
-            log.LogInformation($"Channel unregistered: {channel.RemoteAddress}, exist before remove: {res}");
+            bool res = _receiveCounts.TryRemove(channel, out _);
+            Logger.LogInformation($"Channel unregistered: {channel.RemoteAddress}, exist before remove: {res}");
         }
 
         public virtual void Start()
         {
-            receiveCounts.Clear();
-            cancelSrc = new CancellationTokenSource();
-            TaskFactory taskFac = new TaskFactory(cancelSrc.Token, TaskCreationOptions.LongRunning, TaskContinuationOptions.None, TaskScheduler.Default);
-            daemon = taskFac.StartNew(DaemonRun);
+            _receiveCounts.Clear();
+            CancelSrc = new CancellationTokenSource();
+            var taskFac = new TaskFactory(
+                CancelSrc.Token,
+                TaskCreationOptions.LongRunning,
+                TaskContinuationOptions.None,
+                TaskScheduler.Default);
+            Daemon    = taskFac.StartNew(DaemonRun);
             IsRunning = true;
-            log.LogInformation("Timeout Daemon started");
+            Logger.LogInformation("Timeout Daemon started");
         }
 
         protected virtual void DaemonRun()
         {
-            while (!cancelSrc.Token.IsCancellationRequested)
+            while (!CancelSrc.Token.IsCancellationRequested)
             {
-                log.LogDebug("Timeout Daemon fell asleep");
+                Logger.LogDebug("Timeout Daemon fell asleep");
                 try
                 {
-                    Task.Delay(waitTime, cancelSrc.Token).Wait();
+                    Task.Delay(_waitTime, CancelSrc.Token).Wait();
                 }
                 catch
                 {
-                    log.LogInformation("Timeout Daemon waked up by cancellation");
+                    Logger.LogInformation("Timeout Daemon waked up by cancellation");
                 }
 
-                log.LogDebug("Timeout Daemon waked up");
-                clientsToBeRemoved = new List<KeyValuePair<IChannel, EntryValue>>();
-                foreach (var entry in receiveCounts)
+                Logger.LogDebug("Timeout Daemon waked up");
+                ClientsToBeRemoved = new List<KeyValuePair<IChannel, bool>>();
+                foreach (var entry in _receiveCounts)
                 {
-                    lock (entry.Value)
+                    if (!entry.Value)
                     {
-                        if (entry.Value.Count == 0)
-                        {
-                            clientsToBeRemoved.Add(entry);
-                            Assert(receiveCounts.TryRemove(entry.Key, out EntryValue val));
-                            log.LogInformation($"Channel {entry.Key.RemoteAddress} timeout and removed, client enqueued to be removed: {entry.Key}");
-                        }
-                        else
-                        {
-                            entry.Value.Count = 0;
-                        }
+                        ClientsToBeRemoved.Add(entry);
+                        Assert(_receiveCounts.TryRemove(entry.Key, out bool _));
+                        Logger.LogInformation(
+                            $"Channel {entry.Key.RemoteAddress} timeout and removed, client enqueued to be removed: {entry.Key}");
+                    }
+                    else
+                    {
+                        _receiveCounts[entry.Key] = false;
                     }
                 }
-                foreach (var entry in clientsToBeRemoved)
+
+                foreach (var entry in ClientsToBeRemoved)
                 {
-                    log.LogDebug($"Calling upper level to dispose channel: {entry.Key}");
+                    Logger.LogDebug($"Calling upper level to dispose channel: {entry.Key}");
                     ClientTimeout?.Invoke(this, new ClientTimeoutEventArgs(entry.Key));
                 }
-                clientsToBeRemoved.Clear();
+
+                ClientsToBeRemoved.Clear();
             }
         }
 
         public virtual void Stop()
         {
-            log.LogInformation("Timeout Daemon cancelled");
-            cancelSrc.Cancel();
-            daemon.Wait();
+            Logger.LogInformation("Timeout Daemon cancelled");
+            CancelSrc.Cancel();
+            Daemon.Wait();
             IsRunning = false;
-            log.LogInformation("Timeout Daemon stopped");
+            Logger.LogInformation("Timeout Daemon stopped");
         }
 
         public void Dispose()
         {
             if (IsRunning)
             {
-                log.LogWarning("Dispose before stop");
+                Logger.LogWarning("Dispose before stop");
                 Stop();
             }
-            cancelSrc.Dispose();
-        }
-    }
 
-    public class EntryValue
-    {
-        public int Count { get; set; }
+            CancelSrc.Dispose();
+        }
     }
 }

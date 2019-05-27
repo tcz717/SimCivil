@@ -19,8 +19,8 @@
 // SOFTWARE.
 // 
 // SimCivil - SimCivil.Rpc - RpcServer.cs
-// Create Date: 2018/01/02
-// Update Date: 2018/12/11
+// Create Date: 2019/05/08
+// Update Date: 2019/05/19
 
 using System;
 using System.Collections.Generic;
@@ -34,44 +34,34 @@ using DotNetty.Codecs;
 using DotNetty.Transport.Bootstrapping;
 using DotNetty.Transport.Channels;
 using DotNetty.Transport.Channels.Sockets;
-using Microsoft.Extensions.Configuration;
+
 using Microsoft.Extensions.Logging;
+
 using SimCivil.Rpc.Callback;
 using SimCivil.Rpc.Session;
 using SimCivil.Rpc.Timeout;
+
 using static System.Diagnostics.Debug;
 
 namespace SimCivil.Rpc
 {
     public class RpcServer
     {
-        private readonly IEventLoopGroup _workerGroup = new MultithreadEventLoopGroup();
-        public Dictionary<string, Type> Services { get; } = new Dictionary<string, Type>();
+        private readonly IEventLoopGroup          _workerGroup = new MultithreadEventLoopGroup();
+        public           Dictionary<string, Type> Services       { get; } = new Dictionary<string, Type>();
+        public           IPEndPoint               EndPoint       { get; set; }
+        public           IChannel                 ServerChannel  { get; private set; }
+        public           IContainer               Container      { get; }
+        public           ITimeoutDaemon           TimeoutDaemon  { get; }
+        public           bool                     SupportSession { get; }
+        public           RpcSessionManager        Sessions       { get; }      = new RpcSessionManager();
+        public           bool                     Debug          { get; set; } = false;
 
-        public IPEndPoint EndPoint { get; set; }
-
-        public IChannel ServerChannel { get; private set; }
-
-        public IContainer Container { get; }
-
-        public ITimeoutDaemon TimeoutDaemon { get; }
-
-        public bool SupportSession { get; }
-        public RpcSessionManager Sessions { get; } = new RpcSessionManager();
-        public bool Debug { get; set; } = false;
-
-        protected ILogger log;
-        protected ILoggerFactory logFac;
-
-        internal RpcServer()
-        {
-            // TODO Set InternalLoggerFactory.DefaultFactory
-        }
+        protected ILogger Logger;
 
         public RpcServer(IContainer container)
-            : this()
         {
-            Container = container ?? throw new ArgumentNullException(nameof(container));
+            Container      = container ?? throw new ArgumentNullException(nameof(container));
             SupportSession = container.IsRegistered<IRpcSession>();
             foreach (Type serviceType in container.GetRpcServiceTypes())
             {
@@ -79,13 +69,13 @@ namespace SimCivil.Rpc
                 Services.Add(serviceType.FullName, serviceType);
             }
 
-            log = GetLogger<RpcServer>();
-            
+            Logger = GetLogger<RpcServer>();
+
             // Create Timeout daemon
-            TimeoutDaemon = new SimpleTimeoutDaemon(this, GetLogger<SimpleTimeoutDaemon>(), 5000);
+            TimeoutDaemon               =  new SimpleTimeoutDaemon(this, GetLogger<SimpleTimeoutDaemon>(), 5000);
             TimeoutDaemon.ClientTimeout += (sender, args) => CloseChannel(args.Channel);
 
-            log.LogInformation("RpcServer initialized");
+            Logger.LogInformation("RpcServer initialized");
         }
 
         private void CloseChannel(IChannel channel)
@@ -93,11 +83,11 @@ namespace SimCivil.Rpc
             if (channel.Open)
             {
                 channel.CloseAsync().Wait();
-                log.LogInformation($"Channel closed: {channel}");
+                Logger.LogInformation($"Channel closed: {channel}");
             }
             else
             {
-                log.LogWarning($"Channel already closed while closing: {channel}");
+                Logger.LogWarning($"Channel already closed while closing: {channel}");
             }
         }
 
@@ -113,7 +103,7 @@ namespace SimCivil.Rpc
         public RpcServer Bind(int port)
         {
             EndPoint = new IPEndPoint(IPAddress.Any, port);
-            log.LogInformation($"Server bind to port: {port}");
+            Logger.LogInformation($"Server bind to port: {port}");
 
             return this;
         }
@@ -121,7 +111,7 @@ namespace SimCivil.Rpc
         public RpcServer Bind(string ip, int port)
         {
             EndPoint = new IPEndPoint(IPAddress.Parse(ip), port);
-            log.LogInformation($"Server bind to port: {port}");
+            Logger.LogInformation($"Server bind to port: {port}");
 
             return this;
         }
@@ -129,10 +119,8 @@ namespace SimCivil.Rpc
         public RpcServer Expose<T>()
         {
             Type type = typeof(T);
-            if (!Container.IsRegistered(type))
-            {
-                throw new ArgumentNullException(nameof(T));
-            }
+
+            if (!Container.IsRegistered(type)) throw new ArgumentNullException(nameof(T));
 
             Assert(type.FullName != null, "type.FullName != null");
             Services[type.FullName] = type;
@@ -145,14 +133,14 @@ namespace SimCivil.Rpc
             IEventLoopGroup bossGroup = new MultithreadEventLoopGroup();
             try
             {
-                ServerBootstrap bootstrap = new ServerBootstrap();
+                var bootstrap = new ServerBootstrap();
                 bootstrap
-                    .Group(bossGroup, _workerGroup)
-                    .Channel<TcpServerSocketChannel>()
-                    .Option(ChannelOption.SoBacklog, 100)
-                    .ChildOption(ChannelOption.TcpNodelay, true)
-                    .ChildOption(ChannelOption.SoKeepalive, true)
-                    .ChildHandler(
+                   .Group(bossGroup, _workerGroup)
+                   .Channel<TcpServerSocketChannel>()
+                   .Option(ChannelOption.SoBacklog, 100)
+                   .ChildOption(ChannelOption.TcpNodelay,  true)
+                   .ChildOption(ChannelOption.SoKeepalive, true)
+                   .ChildHandler(
                         new ActionChannelInitializer<IChannel>(
                             ChildChannelInit));
 
@@ -162,9 +150,10 @@ namespace SimCivil.Rpc
             }
             catch (Exception ex)
             {
-                log.LogCritical("Server fatal error while running", ex.Message);
+                Logger.LogCritical("Server fatal error while running", ex.Message);
                 Task.WaitAll(bossGroup.ShutdownGracefullyAsync(), _workerGroup.ShutdownGracefullyAsync());
                 TimeoutDaemon.Stop();
+
                 throw;
             }
         }
@@ -172,13 +161,13 @@ namespace SimCivil.Rpc
         protected virtual void ChildChannelInit(IChannel channel)
         {
             channel.Pipeline.AddLast(new HttpRequestHandler())
-                .AddLast(new LengthFieldPrepender(2))
-                .AddLast(new Log4NetHandler())
-                .AddLast(new LengthFieldBasedFrameDecoder(ushort.MaxValue, 0, 2, 0, 2))
-                .AddLast(new JsonToMessageDecoder())
-                .AddLast(new MessageToJsonEncoder<RpcResponse>())
-                .AddLast(new MessageToJsonEncoder<RpcCallback>())
-                .AddLast(new RpcResolver(this));
+                   .AddLast(new LengthFieldPrepender(2))
+                   .AddLast(new Log4NetHandler())
+                   .AddLast(new LengthFieldBasedFrameDecoder(ushort.MaxValue, 0, 2, 0, 2))
+                   .AddLast(new JsonToMessageDecoder())
+                   .AddLast(new MessageToJsonEncoder<RpcResponse>())
+                   .AddLast(new MessageToJsonEncoder<RpcCallback>())
+                   .AddLast(new RpcResolver(this));
         }
 
         public void Stop()

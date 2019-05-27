@@ -19,8 +19,8 @@
 // SOFTWARE.
 // 
 // SimCivil - SimCivil.Orleans.Grains - UnitGrain.cs
-// Create Date: 2019/05/13
-// Update Date: 2019/05/14
+// Create Date: 2019/05/25
+// Update Date: 2019/05/25
 
 using System;
 using System.Collections.Generic;
@@ -43,16 +43,20 @@ namespace SimCivil.Orleans.Grains.Component
     {
         public UnitGrain(ILoggerFactory factory) : base(factory) { }
 
-        public override Task<IReadOnlyDictionary<string, string>> Inspect(IEntity observer)
-        {
-            return Task.FromResult<IReadOnlyDictionary<string, string>>(
-                typeof(UnitState).GetProperties().ToDictionary(p => p.Name, p => p.GetValue(State)?.ToString())
+        public override Task<IReadOnlyDictionary<string, object>> Inspect(IEntity observer)
+            => Task.FromResult<IReadOnlyDictionary<string, object>>(
+                new Dictionary<string, object>
+                {
+                    [nameof(State.BodyParts)] = State.BodyParts,
+                    [nameof(State.Abilities)] = State.Abilities,
+                    [nameof(State.Effects)]   = State.Effects,
+                }
             );
-        }
 
         /// <summary>Gets the heath point.</summary>
         /// <returns></returns>
-        public Task<float> GetHp() => throw new NotImplementedException();
+        public Task<float> GetHp() => Task.FromResult(
+            State.BodyParts.Select(b => (float) b.Hp).Sum() / State.BodyParts.Select(b => (float) b.MaxHp).Sum());
 
         public Task<UnitProperty> GetEffect(EffectIndex effectIndex)
             => Task.FromResult(State.Effects[(int) effectIndex]);
@@ -84,7 +88,7 @@ namespace SimCivil.Orleans.Grains.Component
             UpdateLowerPower();
             UpdateVision();
 
-            return Task.CompletedTask;
+            return UpdateEffects();
         }
 
         public Task UpdateEffects()
@@ -123,7 +127,7 @@ namespace SimCivil.Orleans.Grains.Component
             UpdateLowerAttackSpeed();
             UpdateMoveSpeed();
 
-            return Task.CompletedTask;
+            return WriteStateAsync();
         }
 
         private static T Min<T>(params T[] values) => values.Min();
@@ -144,9 +148,9 @@ namespace SimCivil.Orleans.Grains.Component
         private void UpdateMentalAbility() => State.MentalAbility.Update(State.Soul.Efficiency);
 
         private void UpdateVision() => State.Vision = State.Vision.Update(
-                                          Max(
-                                              State.LeftEye.Efficiency,
-                                              State.RightEye.Efficiency));
+                                           Max(
+                                               State.LeftEye.Efficiency,
+                                               State.RightEye.Efficiency));
 
         private void UpdateCreativity() => State.Creativity.Update(State.Brain.Efficiency);
 

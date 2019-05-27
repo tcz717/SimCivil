@@ -74,6 +74,7 @@ namespace SimCivil.IntegrationTest.Testcase
 
         public async Task Test()
         {
+            bool synced=false;
             IsRunning = true;
             await Client.ConnectAsync();
             await RegisterAndLogin();
@@ -88,6 +89,7 @@ namespace SimCivil.IntegrationTest.Testcase
             sync.RegisterViewSync(
                 vc =>
                 {
+                    synced = true;
                     pos = vc.Position;
                     speed = vc.Speed;
                     if (vc.EntityChange?.Any() ?? false)
@@ -104,6 +106,10 @@ namespace SimCivil.IntegrationTest.Testcase
                 await controller.MoveTo((pos.x + speed * 0.05f, pos.y), DateTime.UtcNow);
 
                 await Task.Delay(50);
+
+                if(!synced)
+                    Logger.LogWarning("no view sync received");
+                synced = false;
             }
 
             Logger.LogInformation($"{RoleName} test end");

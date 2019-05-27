@@ -18,30 +18,27 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// SimCivil - SimCivil.Orleans.Interfaces - IComponent.cs
-// Create Date: 2018/06/14
-// Update Date: 2018/12/30
+// SimCivil - SimCivil.Orleans.Interfaces - AccountNotExistException.cs
+// Create Date: 2019/05/18
+// Update Date: 2019/05/18
 
 using System;
-using System.Collections.Generic;
+using System.Runtime.Serialization;
 using System.Text;
-using System.Threading.Tasks;
 
-using Orleans;
-
-namespace SimCivil.Orleans.Interfaces
+namespace SimCivil.Orleans.Interfaces.Exception
 {
-    public interface IComponent : IGrainWithGuidKey
+    [Serializable]
+    public class AccountNotExistException : global::System.Exception
     {
-        Task<IComponent> CopyTo(IEntity target);
-        Task<IReadOnlyDictionary<string, string>> Dump();
-        Task<IReadOnlyDictionary<string, object>> Inspect(IEntity observer);
-        Task Delete();
-    }
+        public AccountNotExistException() { }
 
-    public interface IComponent<T> : IComponent where T : new()
-    {
-        Task<T> GetData();
-        Task SetData(T component);
+        public AccountNotExistException(string message) : base(message) { }
+
+        public AccountNotExistException(string message, global::System.Exception innerException) : base(
+            message,
+            innerException) { }
+
+        protected AccountNotExistException(SerializationInfo info, StreamingContext context) : base(info, context) { }
     }
 }

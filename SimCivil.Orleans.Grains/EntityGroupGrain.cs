@@ -27,24 +27,27 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 
+using JetBrains.Annotations;
+
 using Orleans;
 
 using SimCivil.Orleans.Interfaces;
 
 namespace SimCivil.Orleans.Grains
 {
+    [UsedImplicitly]
     public class EntityGroupGrain : Grain<HashSet<Guid>>, IEntityGroup
     {
         public Task AddEntity(Guid id)
         {
             State.Add(id);
-            return Task.CompletedTask;
+            return WriteStateAsync();
         }
 
         public Task RemoveEntity(Guid id)
         {
             State.Remove(id);
-            return Task.CompletedTask;
+            return WriteStateAsync();
         }
 
         public Task<IEnumerable<Guid>> GetEntities()
@@ -59,7 +62,7 @@ namespace SimCivil.Orleans.Grains
                 State = new HashSet<Guid>();
             }
 
-            return base.OnActivateAsync();
+            return Task.CompletedTask;
         }
     }
 }

@@ -19,8 +19,8 @@
 // SOFTWARE.
 // 
 // SimCivil - SimCivil.Orleans.Grains - AccountGrain.cs
-// Create Date: 2018/06/13
-// Update Date: 2019/04/13
+// Create Date: 2019/05/13
+// Update Date: 2019/05/18
 
 using System;
 using System.Collections.Generic;
@@ -38,6 +38,7 @@ using SimCivil.Contract.Model;
 using SimCivil.Orleans.Grains.State;
 using SimCivil.Orleans.Interfaces;
 using SimCivil.Orleans.Interfaces.Component;
+using SimCivil.Orleans.Interfaces.Exception;
 using SimCivil.Orleans.Interfaces.Option;
 using SimCivil.Orleans.Interfaces.Service;
 using SimCivil.Orleans.Interfaces.System;
@@ -46,17 +47,17 @@ namespace SimCivil.Orleans.Grains
 {
     public class AccountGrain : Grain<AccountState>, IAccount
     {
-        public ILogger<AccountGrain> Logger { get; }
-        public IOptions<GameOptions> GameOptions { get; }
-        public IUnitGenerator UnitGenerator { get; }
+        public ILogger<AccountGrain> Logger        { get; }
+        public IOptions<GameOptions> GameOptions   { get; }
+        public IUnitGenerator        UnitGenerator { get; }
 
         public AccountGrain(
             ILogger<AccountGrain> logger,
             IOptions<GameOptions> gameOptions,
-            IUnitGenerator unitGenerator)
+            IUnitGenerator        unitGenerator)
         {
-            Logger = logger;
-            GameOptions = gameOptions;
+            Logger        = logger;
+            GameOptions   = gameOptions;
             UnitGenerator = unitGenerator;
         }
 
@@ -64,10 +65,7 @@ namespace SimCivil.Orleans.Grains
         /// Determines whether this instance is existed.
         /// </summary>
         /// <returns></returns>
-        public Task<bool> IsExisted()
-        {
-            return Task.FromResult(State?.Enabled ?? false);
-        }
+        public Task<bool> IsExisted() => Task.FromResult(State?.Enabled ?? false);
 
         /// <summary>
         /// Registers the specified token.
@@ -112,7 +110,7 @@ namespace SimCivil.Orleans.Grains
                 return false;
             }
 
-            State.Online = true;
+            State.Online         = true;
             State.LastOnlineTime = DateTime.Now;
             await WriteStateAsync();
 #pragma warning disable 4014
@@ -143,10 +141,7 @@ namespace SimCivil.Orleans.Grains
         /// </summary>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public Task<IEnumerable<IEntity>> GetRoleList()
-        {
-            return Task.FromResult((IEnumerable<IEntity>) State.Roles);
-        }
+        public Task<IEnumerable<IEntity>> GetRoleList() => Task.FromResult((IEnumerable<IEntity>) State.Roles);
 
         /// <summary>
         /// Creates the role.
@@ -185,33 +180,30 @@ namespace SimCivil.Orleans.Grains
             return role;
         }
 
-        public Task<IEntity> GetCurrentRole()
-        {
-            throw new NotImplementedException();
-        }
+        public Task<IEntity> GetCurrentRole() => throw new NotImplementedException();
 
         public async Task UseRole(IEntity role)
         {
-            if (State != null && !State.Roles.Contains(role))
-            {
-                throw new KeyNotFoundException($"Role: {role.GetPrimaryKey()}");
-            }
+            if (!await role.IsExisted()) throw new ArgumentException(nameof(role));
 
-            if (State != null)
-            {
-                Logger.LogInformation(
-                    "User {0} used role {1}",
-                    this.GetPrimaryKeyString(),
-                    await role.GetName());
+            if (State == null) throw new AccountNotExistException(await role.GetName());
 
-                State.CurrentRole = role;
-            }
+            if (!State.Roles.Contains(role)) throw new KeyNotFoundException($"Role: {role.GetPrimaryKey()}");
+
+            Logger.LogInformation(
+                "User {0} used role {1}",
+                this.GetPrimaryKeyString(),
+                await role.GetName());
+
+            State.CurrentRole = role;
 
             await role.Enable();
         }
 
         public async Task ReleaseRole()
         {
+            if (State == null) throw new AccountNotExistException(nameof(State));
+
             if (State?.CurrentRole != null)
             {
                 Logger.LogInformation(
@@ -219,12 +211,11 @@ namespace SimCivil.Orleans.Grains
                     this.GetPrimaryKeyString(),
                     await State.CurrentRole.GetName());
                 await State.CurrentRole.Disable();
+                State.CurrentRole = null;
+                await WriteStateAsync();
             }
         }
 
-        public Task DeleteRole(IEntity role)
-        {
-            throw new NotImplementedException();
-        }
+        public Task DeleteRole(IEntity role) => throw new NotImplementedException();
     }
 }
