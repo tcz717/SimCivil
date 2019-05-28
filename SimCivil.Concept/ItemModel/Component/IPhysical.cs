@@ -8,13 +8,19 @@ namespace SimCivil.Concept.ItemModel
 {
     interface IPhysical : IComponent
     {
-        Task<Result<IEnumerable<Assembly>>> GetSubAssemblies();
+        Task<Result<IEnumerable<AssemblyPart>>> GetSubAssemblies();
 
-        Task<Result<IEnumerable<Compound>>> GetCompounds();
+        Task<Result<IEnumerable<CompoundPart>>> GetCompounds();
 
-        Task<Result> AddSubAssembly(Assembly assembly, double weight);
+        Task<Result> AddSubAssembly(string partName, AssemblyPart assembly);
 
-        Task<Result> AddCompound(Compound compound, double weight);
+        Task<Result> AddCompound(string partName, CompoundPart compound);
+
+        Task<Result> RemoveSubAssembly(string partName);
+
+        Task<Result> RemoveCompound(string partName);
+
+        Task<Result<Assembly>> ToAssembly();
 
         Task<Result<double>> GetWeight();
 

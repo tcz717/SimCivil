@@ -14,8 +14,8 @@ namespace SimCivil.Concept.ItemModel
     {
         public AssemblyType Type { get; set; }
 
-        public IDictionary<Assembly, double> SubAssemblies { get; } = new Dictionary<Assembly, double>();
+        public IDictionary<string, AssemblyPart> SubAssemblies { get; set; } = new Dictionary<string, AssemblyPart>();
 
-        public IDictionary<Compound, double> Compounds { get; } = new Dictionary<Compound, double>();
+        public IDictionary<string, CompoundPart> Compounds { get; set; } = new Dictionary<string, CompoundPart>();
     }
 }
