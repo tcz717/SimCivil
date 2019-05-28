@@ -1,11 +1,12 @@
-﻿using System;
+﻿using SimCivil.Orleans.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace SimCivil.Concept.ItemModel
 {
-    interface IPhysical
+    interface IPhysical : IComponent
     {
         Task<Result<IEnumerable<Assembly>>> GetSubAssemblies();
 

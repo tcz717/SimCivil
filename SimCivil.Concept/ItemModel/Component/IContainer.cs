@@ -5,9 +5,9 @@ using System.Threading.Tasks;
 
 namespace SimCivil.Concept.ItemModel
 {
-    interface IContainer : IComponent, IEntityGroup
+    interface IContainer : IComponent
     {
-        Task<Result<IEnumerable<IEntity>>> GetContents();
+        Task<Result<IEnumerable<IEntity>>> GetAll();
 
         Task<Result<IEnumerable<IEntity>>> SearchItem(string itemName);
 
@@ -45,6 +45,6 @@ namespace SimCivil.Concept.ItemModel
         /// </summary>
         /// <param name="items">The items.</param>
         /// <returns></returns>
-        Task<Result> PutItems(IEntity items);
+        Task<Result> PutItems(IEnumerable<IEntity> items);
     }
 }
