@@ -8,6 +8,7 @@ namespace SimCivil.Concept.ItemModel
     {
         Success = 0,
         ItemNotFound,
+        InvalidOperation,
     }
 
     public struct Result

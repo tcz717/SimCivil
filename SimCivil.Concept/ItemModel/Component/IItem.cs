@@ -13,6 +13,8 @@ namespace SimCivil.Concept.ItemModel
     {
         Task<Result<IEntity>> GetContainer();
 
+        Task<Result> SetContainer(IEntity container);
+
         Task<Result> Destroy();
     }
 }

@@ -7,10 +7,24 @@ namespace SimCivil.Concept.ItemModel
 {
     interface IContainer : IComponent
     {
+        /// <summary>
+        /// Gets all the names of items.
+        /// </summary>
+        /// <returns></returns>
         Task<Result<IEnumerable<IEntity>>> GetAll();
 
+        /// <summary>
+        /// Searches the item by the name.
+        /// </summary>
+        /// <param name="itemName">Name of the item.</param>
+        /// <returns></returns>
         Task<Result<IEnumerable<IEntity>>> SearchItem(string itemName);
 
+        /// <summary>
+        /// Searches the item by the id.
+        /// </summary>
+        /// <param name="itemId">The item identifier.</param>
+        /// <returns></returns>
         Task<IEntity> SearchItem(Guid itemId);
 
         /// <summary>

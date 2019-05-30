@@ -22,6 +22,10 @@ namespace SimCivil.Concept.ItemModel
 
     public class ElementData
     {
+        public static ElementData Instance { get; } = new ElementData();
+
+        private ElementData() { }
+
         public IReadOnlyDictionary<Element, ElementProperty> Properties { get; } = new Dictionary<Element, ElementProperty>
         {
             {
