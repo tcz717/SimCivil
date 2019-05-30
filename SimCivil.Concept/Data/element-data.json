@@ -2,6 +2,10 @@
   "$schema": "element-schema.json",
   "Data": [
     {
+      "Type": "Nan",
+      "FullName": "N/A"
+    },
+    {
       "Type": "H",
       "FullName": "Hydrogen"
     },

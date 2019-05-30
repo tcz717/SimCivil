@@ -1,8 +1,8 @@
 {
-  "$schema": "compound-schema.json",
+  "$schema": "compound-schema.gen.json",
   "Data": [
     {
-      "CompoundType": "Hydrogen",
+      "Type": "Hydrogen",
       "Density": 0.1,
       "MeltPoint": 1,
       "BoilPoint": 2,
@@ -15,7 +15,7 @@
       ]
     },
     {
-      "CompoundType": "Oxygen",
+      "Type": "Oxygen",
       "Density": 1.2,
       "MeltPoint": 10,
       "BoilPoint": 100,
@@ -28,7 +28,7 @@
       ]
     },
     {
-      "CompoundType": "Water",
+      "Type": "Water",
       "Density": 1000,
       "MeltPoint": 273,
       "BoilPoint": 373,
@@ -45,7 +45,7 @@
       ]
     },
     {
-      "CompoundType": "Wood",
+      "Type": "Wood",
       "Density": 500,
       "MeltPoint": 473,
       "BoilPoint": 474,
@@ -66,7 +66,7 @@
       ]
     },
     {
-      "CompoundType": "Iron",
+      "Type": "Iron",
       "Density": 3000,
       "MeltPoint": 1000,
       "BoilPoint": 2000,

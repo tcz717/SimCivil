@@ -1,4 +1,4 @@
-{
+﻿{
   "$id": "compound-schema",
   "$schema": "http://json-schema.org/draft-04/schema",
   "title": "JSON Schema for Compound Data",
@@ -11,7 +11,7 @@
       "items": {
         "type": "object",
         "properties": {
-          "CompoundType": {
+          "Type": {
             "type": "string",
             "description": "Name of the compound."
           },
@@ -44,7 +44,10 @@
               "properties": {
                 "Type": {
                   "type": "string",
-                  "description": "Element name."
+                  "description": "Element type.",
+                  "enum": [
+                    "Nan","H","O","C","Fe"
+                  ]
                 },
                 "Portion": {
                   "type": "number",

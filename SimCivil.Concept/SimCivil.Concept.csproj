@@ -5,7 +5,65 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Data\compound-data.json" />
+    <None Remove="Data\compound-schema.json" />
+    <None Remove="Data\element-data.json" />
+    <None Remove="Data\element-schema.json" />
+    <None Remove="ItemModel\Composition\ElementDataTemplate.tt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Data\compound-data.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Data\compound-schema.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Data\element-data.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Data\element-schema.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Data\compound-schema.gen.json">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>compound-schema.tt</DependentUpon>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\SimCivil.Orleans.Interfaces\SimCivil.Orleans.Interfaces.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="ItemModel\Composition\ElementData.Generated.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>ElementData.tt</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Data\compound-schema.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>compound-schema.gen.json</LastGenOutput>
+    </None>
+    <None Update="ItemModel\Composition\ElementData.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>ElementData.Generated.cs</LastGenOutput>
+    </None>
   </ItemGroup>
 
   <ProjectExtensions><VisualStudio><UserProperties /></VisualStudio></ProjectExtensions>

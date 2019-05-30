@@ -1,0 +1,24 @@
+﻿<#@ template debug="true" hostspecific="true" language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ assembly name="Newtonsoft.Json" #>
+<#@ assembly name="EnvDTE" #>
+<#@ import namespace="Newtonsoft.Json" #>
+<#@ import namespace="Newtonsoft.Json.Linq" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.IO" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ output extension="gen.json" #>
+<#@ include file="%SCROOT%\\SimCivil.Concept\\TemplateUtil.t4" once="true" #>
+<#
+string data = File.ReadAllText(@"SimCivil.Concept\Data\compound-schema.json");
+var elements = ResolveJson(@"SimCivil.Concept\Data\element-data.json").SelectToken("Data");
+var lst = new List<string>();
+foreach (var t in elements.AsJEnumerable())
+{
+	lst.Add($"\"{t.SelectToken("Type")}\"");
+}
+var res = string.Join(",", lst.ToArray());
+data = data.Replace("\"[element enum]\"", res);
+Write(data);
+#>

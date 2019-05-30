@@ -1,0 +1,65 @@
+{
+  "$id": "compound-schema",
+  "$schema": "http://json-schema.org/draft-04/schema",
+  "title": "JSON Schema for Compound Data",
+
+  "type": "object",
+
+  "properties": {
+    "Data": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "Type": {
+            "type": "string",
+            "description": "Name of the compound."
+          },
+          "Density": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Density of the compound."
+          },
+          "MeltPoint": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Melting Point of the compound."
+          },
+          "BoilPoint": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Boiling Point of the compound."
+          },
+          "FlashPoint": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Flash Point of the compound."
+          },
+          "Elements": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {
+              "type": "object",
+              "properties": {
+                "Type": {
+                  "type": "string",
+                  "description": "Element type.",
+                  "enum": [
+                    "[element enum]"
+                  ]
+                },
+                "Portion": {
+                  "type": "number",
+                  "minimum": 0,
+                  "exclusiveMinimum": true,
+                  "description": "Portion of the element, may sum to any number."
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

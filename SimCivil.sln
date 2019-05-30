@@ -24,11 +24,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.travis.yml = .travis.yml
 		appsettings.json = appsettings.json
 		docker-compose.yml = docker-compose.yml
+		init.cmd = init.cmd
 		README.md = README.md
 		xunit.bash = xunit.bash
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimCivil.Concept", "SimCivil.Concept\SimCivil.Concept.csproj", "{52816E12-9D1B-4C81-B178-42305C28726D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SimCivil.Concept", "SimCivil.Concept\SimCivil.Concept.csproj", "{52816E12-9D1B-4C81-B178-42305C28726D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
