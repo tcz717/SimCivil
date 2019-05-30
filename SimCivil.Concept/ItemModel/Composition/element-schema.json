@@ -1,0 +1,27 @@
+{
+  "$id": "element-schema",
+  "$schema": "http://json-schema.org/draft-04/schema",
+  "title": "JSON Schema for Element Data",
+
+  "type": "object",
+
+  "properties": {
+    "Data": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "Type": {
+            "type": "string",
+            "pattern": "[A-Z][a-z]{0,2}",
+            "description": "Short name of the element."
+          },
+          "FullName": {
+            "type": "string",
+            "description": "Full name of the element."
+          }
+        }
+      }
+    }
+  }
+}

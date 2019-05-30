@@ -1,0 +1,21 @@
+{
+  "$schema": "element-schema.json",
+  "Data": [
+    {
+      "Type": "H",
+      "FullName": "Hydrogen"
+    },
+    {
+      "Type": "O",
+      "FullName": "Oxygen"
+    },
+    {
+      "Type": "C",
+      "FullName": "Carbon"
+    },
+    {
+      "Type": "Fe",
+      "FullName": "Iron"
+    }
+  ]
+}

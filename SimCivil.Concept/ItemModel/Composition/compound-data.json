@@ -1,0 +1,82 @@
+{
+  "$schema": "compound-schema.json",
+  "Data": [
+    {
+      "CompoundType": "Hydrogen",
+      "Density": 0.1,
+      "MeltPoint": 1,
+      "BoilPoint": 2,
+      "FlashPoint": 2,
+      "Elements": [
+        {
+          "Type": "H",
+          "Portion": 1
+        }
+      ]
+    },
+    {
+      "CompoundType": "Oxygen",
+      "Density": 1.2,
+      "MeltPoint": 10,
+      "BoilPoint": 100,
+      "FlashPoint": 100,
+      "Elements": [
+        {
+          "Type": "H",
+          "Portion": 1
+        }
+      ]
+    },
+    {
+      "CompoundType": "Water",
+      "Density": 1000,
+      "MeltPoint": 273,
+      "BoilPoint": 373,
+      "FlashPoint": 273,
+      "Elements": [
+        {
+          "Type": "H",
+          "Portion": 2
+        },
+        {
+          "Type": "O",
+          "Portion": 1
+        }
+      ]
+    },
+    {
+      "CompoundType": "Wood",
+      "Density": 500,
+      "MeltPoint": 473,
+      "BoilPoint": 474,
+      "FlashPoint": 373,
+      "Elements": [
+        {
+          "Type": "H",
+          "Portion": 2
+        },
+        {
+          "Type": "O",
+          "Portion": 1
+        },
+        {
+          "Type": "C",
+          "Portion": 3
+        }
+      ]
+    },
+    {
+      "CompoundType": "Iron",
+      "Density": 3000,
+      "MeltPoint": 1000,
+      "BoilPoint": 2000,
+      "FlashPoint": 2000,
+      "Elements": [
+        {
+          "Type": "Fe",
+          "Portion": 1
+        }
+      ]
+    }
+  ]
+}

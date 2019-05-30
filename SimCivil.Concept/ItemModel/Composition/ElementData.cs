@@ -26,37 +26,11 @@ namespace SimCivil.Concept.ItemModel
 
         private ElementData() { }
 
-        public IReadOnlyDictionary<Element, ElementProperty> Properties { get; } = new Dictionary<Element, ElementProperty>
-        {
-            {
-                Element.H,
-                new ElementProperty()
-                {
-                    FullName = "Hydrogen",
-                }
-            },
-            {
-                Element.O,
-                new ElementProperty()
-                {
-                    FullName = "Oxygen",
-                }
-            },
-            {
-                Element.C,
-                new ElementProperty()
-                {
-                    FullName = "Carbon",
-                }
-            },
-            {
-                Element.Fe,
-                new ElementProperty()
-                {
-                    FullName = "Iron",
-                }
-            },
-        };
+        public IReadOnlyDictionary<Element, ElementProperty> Properties { get; }
+
+        public void Load() {
+            throw new NotImplementedException("Load data into properties.");
+        }
 
         public string GetFullName(Element element)
         {

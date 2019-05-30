@@ -32,77 +32,12 @@ namespace SimCivil.Concept.ItemModel
 
         private CompoundData() { }
 
-        public IReadOnlyDictionary<CompoundType, CompoundProperty> Properties { get; } = new Dictionary<CompoundType, CompoundProperty>
+        public IReadOnlyDictionary<CompoundType, CompoundProperty> Properties { get; }
+
+        public void Load()
         {
-            {
-                CompoundType.Hydrogen, new CompoundProperty()
-                {
-                    Density = 0.1,
-                    MeltPoint = 1,
-                    BoilPoint = 2,
-                    FlashPoint = 2,
-                    Elements = new Dictionary<Element, double>()
-                    {
-                        { Element.H, 1 }
-                    },
-                }
-            },
-            {
-                CompoundType.Oxygen, new CompoundProperty()
-                {
-                    Density = 1.2,
-                    MeltPoint = 10,
-                    BoilPoint = 100,
-                    FlashPoint = 100,
-                    Elements = new Dictionary<Element, double>()
-                    {
-                        { Element.O, 1 }
-                    },
-                }
-            },
-            {
-                CompoundType.Water, new CompoundProperty()
-                {
-                    Density = 1000,
-                    MeltPoint = 273,
-                    BoilPoint = 373,
-                    FlashPoint = 273,
-                    Elements = new Dictionary<Element, double>()
-                    {
-                        { Element.H, 2 },
-                        { Element.O, 1 }
-                    },
-                }
-            },
-            {
-                CompoundType.Wood, new CompoundProperty()
-                {
-                    Density = 500,
-                    MeltPoint = 473,
-                    BoilPoint = 474,
-                    FlashPoint = 273,
-                    Elements = new Dictionary<Element, double>()
-                    {
-                        { Element.H, 2 },
-                        { Element.O, 1 },
-                        { Element.C, 3 },
-                    },
-                }
-            },
-            {
-                CompoundType.Iron, new CompoundProperty()
-                {
-                    Density = 3000,
-                    MeltPoint = 1000,
-                    BoilPoint = 2000,
-                    FlashPoint = 2000,
-                    Elements = new Dictionary<Element, double>()
-                    {
-                        { Element.Fe, 2 },
-                    },
-                }
-            },
-        };
+            throw new NotImplementedException("Load data into properties.");
+        }
 
         public double GetProperty(CompoundType compound)
         {
