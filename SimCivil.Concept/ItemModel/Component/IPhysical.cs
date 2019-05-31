@@ -8,39 +8,74 @@ namespace SimCivil.Concept.ItemModel
 {
     interface IPhysical : IComponent<PhysicalState>
     {
-        Task<Result<IEnumerable<AssemblyPart>>> GetSubAssemblies();
-
-        Task<Result<IEnumerable<SinglePart>>> GetCompounds();
+        /// <summary>
+        /// Clears compounds or sub physical parts.
+        /// </summary>
+        /// <returns></returns>
+        Task<Result> Clear();
 
         /// <summary>
-        /// Adds the compound to this item if the item is single part.
+        /// Gets the compounds of this item if the item is single part.
         /// </summary>
-        /// <param name="compound">The compound.</param>
-        /// <param name="weight">The weight.</param>
         /// <returns></returns>
-        Task<Result> AddCompound(CompoundType compound, double weight);
+        Task<Result<IDictionary<CompoundType, double>>> GetCompounds();
 
         /// <summary>
-        /// Sets the compound in this item if the item is single part.
+        /// Clears and sets the compounds of this item if the item is single part.
         /// </summary>
-        /// <param name="compound">The compound.</param>
-        /// <param name="weight">The weight.</param>
+        /// <param name="compounds">The compounds.</param>
         /// <returns></returns>
-        Task<Result> SetCompound(CompoundType compound, double weight);
+        Task<Result> SetCompounds(IDictionary<CompoundType, double> compounds);
+
+        /// <summary>
+        /// Adds the compounds to this item if the item is single part.
+        /// If a compound exists, then adds the weight.
+        /// </summary>
+        /// <param name="compounds">The compound types and weights.</param>
+        /// <returns></returns>
+        Task<Result> AddCompounds(IDictionary<CompoundType, double> compounds);
+
+        /// <summary>
+        /// Update the compounds weight in this item if the item is single part.
+        /// </summary>
+        /// <param name="compounds">The compound types and weights.</param>
+        /// <returns></returns>
+        Task<Result> UpdateCompounds(IDictionary<CompoundType, double> compounds);
 
         /// <summary>
         /// Removes the compound from this item if the item is single part.
+        /// The compounds may not in the item.
         /// </summary>
-        /// <param name="compound">The compound.</param>
+        /// <param name="compounds">The compounds to be removed.</param>
         /// <returns></returns>
-        Task<Result> RemoveCompound(CompoundType compound);
+        Task<Result> RemoveCompound(IEnumerable<CompoundType> compounds);
+
+        /// <summary>
+        /// Gets the sub physical parts of this item if the item is assembly.
+        /// </summary>
+        /// <returns></returns>
+        Task<Result<IDictionary<string, IPhysicalPart>>> GetPhysicalParts();
+
+        /// <summary>
+        /// Clears and sets the sub physical parts of this item if the item is assembly.
+        /// </summary>
+        /// <param name="subparts">The sub parts.</param>
+        /// <returns></returns>
+        Task<Result> SetPhysicalParts(IDictionary<string, IPhysicalPart> subparts);
 
         /// <summary>
         /// Inserts the physical part. This item must be an Assembly.
         /// </summary>
-        /// <param name="physicalPart">The physical part.</param>
+        /// <param name="subparts">The physical part names and parts.</param>
         /// <returns></returns>
-        Task<Result> AddPhysicalPart(string partName, IPhysicalPart physicalPart);
+        Task<Result> AddPhysicalPart(IDictionary<string, IPhysicalPart> subparts);
+
+        /// <summary>
+        /// Update the sub physical parts weight in this item if the item is assembly.
+        /// </summary>
+        /// <param name="subparts">The physical part names and parts.</param>
+        /// <returns></returns>
+        Task<Result> UpdatePhysicalPart(IDictionary<string, IPhysicalPart> subparts);
 
         /// <summary>
         /// Removes the physical part. This item must be an Assembly.
