@@ -2,8 +2,8 @@
   "$schema": "element-schema.json",
   "Data": [
     {
-      "Type": "Nan",
-      "FullName": "N/A"
+      "Type": "Nae",
+      "FullName": "N/A - Not an Element"
     },
     {
       "Type": "H",

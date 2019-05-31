@@ -9,8 +9,8 @@ namespace SimCivil.Concept.ItemModel
 {
     public enum Element
     {
-		// N/A
-        Nan,
+		// N/A - Not an Element
+        Nae,
 
 		// Hydrogen
         H,

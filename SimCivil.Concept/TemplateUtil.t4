@@ -1,22 +1,14 @@
 ﻿<#+
-	public string GetFolder(IServiceProvider host)
-	{
-		EnvDTE.DTE dte = (EnvDTE.DTE) host.GetService(typeof(EnvDTE.DTE));
-		return dte.ActiveDocument.Path;
-	}
-
-	public string FullPath(string folder, string path)
-	{
-		return Path.Combine(folder, path);
+	public string SolutionFolder {
+		get 
+		{
+			EnvDTE.DTE dte = (EnvDTE.DTE) ((IServiceProvider)this.Host).GetService(typeof(EnvDTE.DTE));
+			return Path.GetDirectoryName(dte.Solution.FullName);
+		}
 	}
 
 	public JObject ResolveJson(string path)
 	{
 		return JObject.Parse(File.ReadAllText(path));
-	}
-
-	public JObject ResolveJsonAuto(IServiceProvider host, string path)
-	{
-		return JObject.Parse(File.ReadAllText(FullPath(GetFolder(host), path)));
 	}
 #>

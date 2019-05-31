@@ -9,7 +9,7 @@
 <#@ import namespace="System.Text" #>
 <#@ import namespace="System.Collections.Generic" #>
 <#@ output extension="gen.json" #>
-<#@ include file="%SCROOT%\\SimCivil.Concept\\TemplateUtil.t4" once="true" #>
+<#@ include file="$(SolutionDir)\\SimCivil.Concept\\TemplateUtil.t4" once="true" #>
 <#
 string data = File.ReadAllText(@"SimCivil.Concept\Data\compound-schema.json");
 var elements = ResolveJson(@"SimCivil.Concept\Data\element-data.json").SelectToken("Data");

@@ -46,7 +46,7 @@
                   "type": "string",
                   "description": "Element type.",
                   "enum": [
-                    "Nan","H","O","C","Fe"
+                    "Nae","H","O","C","Fe"
                   ]
                 },
                 "Portion": {
