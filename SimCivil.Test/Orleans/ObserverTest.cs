@@ -19,27 +19,28 @@
 // SOFTWARE.
 // 
 // SimCivil - SimCivil.Test - ObserverTest.cs
-// Create Date: 2018/11/24
-// Update Date: 2018/11/24
+// Create Date: 2019/05/05
+// Update Date: 2019/05/31
 
-using Orleans.TestingHost;
+using System;
+using System.Diagnostics;
+using System.Text;
+using System.Threading.Tasks;
 
+using Orleans;
+
+using SimCivil.Contract;
 using SimCivil.Orleans.Interfaces;
+using SimCivil.Orleans.Interfaces.Component;
 
 using Xunit;
+using Xunit.Abstractions;
 
 namespace SimCivil.Test.Orleans
 {
     [Collection(ClusterCollection.Name)]
-    public class ObserverTest
+    public class ObserverTest : OrleansBaseTest
     {
-        /// <summary>Initializes a new instance of the <see cref="T:System.Object"></see> class.</summary>
-        public ObserverTest(OrleansFixture fixture)
-        {
-            Cluster = fixture.Cluster;
-        }
-        public TestCluster Cluster { get; set; }
-
         [Fact]
         public void DumpTest()
         {
@@ -47,5 +48,31 @@ namespace SimCivil.Test.Orleans
 
             Assert.NotEmpty(tiles);
         }
+
+        [Fact]
+        public async Task UpdateViewTest()
+        {
+            IEntity entity = await GetNewRoleAsync();
+
+            var position = Cluster.GrainFactory.GetGrain<IComponent<PositionState>>(entity.GetPrimaryKey());
+            var observer = Cluster.GrainFactory.GetGrain<IObserver>(entity.GetPrimaryKey());
+            await position.SetData(new PositionState(100f, 100f));
+
+            IEntity testEntity = await GetNewRoleAsync();
+            await testEntity.Enable();
+            await testEntity.Add<IComponent<PositionState>>();
+            await Cluster.GrainFactory.GetGrain<IComponent<PositionState>>(testEntity.GetPrimaryKey())
+                         .SetData(new PositionState(100f, 100.5f));
+
+            await Task.Delay(100);
+
+            ViewChange viewChange = await observer.UpdateView();
+
+            Assert.NotNull(viewChange.EntityChange);
+            Assert.NotEmpty(viewChange.EntityChange);
+            Assert.Contains(viewChange.EntityChange, e => e.MaxSpeed != null && e.Hp != null);
+        }
+
+        public ObserverTest(OrleansFixture fixture, ITestOutputHelper output) : base(fixture, output) { }
     }
 }

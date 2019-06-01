@@ -19,8 +19,8 @@
 // SOFTWARE.
 // 
 // SimCivil - SimCivil.Gate - OrleansPlayerController.cs
-// Create Date: 2018/09/27
-// Update Date: 2018/10/17
+// Create Date: 2019/05/13
+// Update Date: 2019/05/31
 
 using System;
 using System.Text;
@@ -47,32 +47,13 @@ namespace SimCivil.Gate
             Factory = factory;
         }
 
-        /// <summary>
-        /// Moves the specified direction.
-        /// </summary>
-        /// <param name="direction">The direction.</param>
-        /// <param name="speed">The speed.</param>
-        /// <returns></returns>
-        public async Task Move((float X, float Y) direction, float speed)
-        {
-            var controller = Factory.GetGrain<IUnitController>(Session.Value.Get<IEntity>().GetPrimaryKey());
-
-            await controller.Move(direction, speed);
-        }
-
-        public async Task Stop()
-        {
-            var controller = Factory.GetGrain<IUnitController>(Session.Value.Get<IEntity>().GetPrimaryKey());
-            await controller.Stop();
-        }
-
         public AsyncLocal<IRpcSession> Session { get; set; } = new AsyncLocal<IRpcSession>();
 
-        public async Task MoveTo((float X, float Y) position, DateTime timestamp)
+        public async Task<(float X, float Y)> MoveTo((float X, float Y) position, DateTime timestamp)
         {
             var controller = Factory.GetGrain<IUnitController>(Session.Value.Get<IEntity>().GetPrimaryKey());
 
-            await controller.MoveTo(new PositionState(position), timestamp);
+            return await controller.MoveTo(new PositionState(position), timestamp);
         }
 
         public async Task<InspectionResult> Inspect(Guid entityId)

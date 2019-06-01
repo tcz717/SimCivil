@@ -19,8 +19,8 @@
 // SOFTWARE.
 // 
 // SimCivil - SimCivil.Orleans.Grains - PositionGrain.cs
-// Create Date: 2018/12/15
-// Update Date: 2018/12/17
+// Create Date: 2019/05/13
+// Update Date: 2019/05/31
 
 using System;
 using System.Collections.Generic;
@@ -38,17 +38,23 @@ using Orleans;
 using SimCivil.Orleans.Interfaces;
 using SimCivil.Orleans.Interfaces.Component;
 using SimCivil.Orleans.Interfaces.Option;
+using SimCivil.Orleans.Interfaces.Service;
 
 namespace SimCivil.Orleans.Grains.Component
 {
     [PublicAPI]
     public class PositionGrain : BaseGrain<PositionState>, IPosition
     {
-        public IOptions<SyncOptions> SyncOptions { get; }
+        public ITerrainRepository    TerrainRepository { get; }
+        public IOptions<SyncOptions> SyncOptions       { get; }
 
-        public PositionGrain(ILoggerFactory factory, IOptions<SyncOptions> syncOptions) : base(factory)
+        public PositionGrain(
+            ILoggerFactory        factory,
+            ITerrainRepository    terrainRepository,
+            IOptions<SyncOptions> syncOptions) : base(factory)
         {
-            SyncOptions = syncOptions;
+            TerrainRepository = terrainRepository;
+            SyncOptions       = syncOptions;
         }
 
         public override async Task SetData(PositionState component)
@@ -63,7 +69,7 @@ namespace SimCivil.Orleans.Grains.Component
                 await Task.WhenAll(
                     effectChunks.Select(
                         chunk => GrainFactory.GetGrain<IChunk>(chunk)
-                            .OnEntityMoved(entityGuid, (State ?? component), component)));
+                                             .OnEntityMoved(entityGuid, State ?? component, component)));
             }
 
             await base.SetData(component);
@@ -78,13 +84,10 @@ namespace SimCivil.Orleans.Grains.Component
             return pos;
         }
 
-        public override Task<IReadOnlyDictionary<string, string>> Dump()
-        {
-            return Task.FromResult(
-                (IReadOnlyDictionary<string, string>) new Dictionary<string, string>
-                {
-                    ["Position"] = State.ToString()
-                });
-        }
+        public override Task<IReadOnlyDictionary<string, string>> Dump() => Task.FromResult(
+            (IReadOnlyDictionary<string, string>) new Dictionary<string, string>
+            {
+                ["Position"] = State.ToString()
+            });
     }
 }
