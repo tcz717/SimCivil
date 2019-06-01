@@ -20,7 +20,7 @@
 // 
 // SimCivil - SimCivil.Orleans.Grains - ControllerGrain.cs
 // Create Date: 2019/05/25
-// Update Date: 2019/05/31
+// Update Date: 2019/06/01
 
 using System;
 using System.Collections.Generic;
@@ -43,9 +43,9 @@ namespace SimCivil.Orleans.Grains.Component
 {
     public class ControllerGrain : Grain, IUnitController
     {
-        private readonly IMapService        _mapService;
-        private          double             _lagPredict;
-        private          DateTime           _lastUpdateTime;
+        private readonly IMapService _mapService;
+        private          double      _lagPredict;
+        private          DateTime    _lastUpdateTime;
 
         public TimeSpan UpdatePeriod { get; set; }
 
@@ -59,12 +59,12 @@ namespace SimCivil.Orleans.Grains.Component
             IOptions<GameOptions>    gameOptions,
             IOptions<SyncOptions>    syncOptions)
         {
-            Logger             = logger;
-            GameOptions        = gameOptions;
-            SyncOptions        = syncOptions;
-            _mapService        = mapService;
-            UpdatePeriod       = TimeSpan.FromMilliseconds(syncOptions.Value.UpdatePeriod);
-            _lastUpdateTime    = DateTime.Now - UpdatePeriod - UpdatePeriod;
+            Logger          = logger;
+            GameOptions     = gameOptions;
+            SyncOptions     = syncOptions;
+            _mapService     = mapService;
+            UpdatePeriod    = TimeSpan.FromMilliseconds(syncOptions.Value.UpdatePeriod);
+            _lastUpdateTime = DateTime.Now - UpdatePeriod - UpdatePeriod;
         }
 
         /// <summary>
@@ -153,7 +153,7 @@ namespace SimCivil.Orleans.Grains.Component
             => Task.FromResult((IComponent) GrainFactory.Get<IUnitController>(target));
 
         public Task<IReadOnlyDictionary<string, string>> Dump() => Task.FromResult(
-            (IReadOnlyDictionary<string, string>)null);
+            (IReadOnlyDictionary<string, string>) new Dictionary<string, string>());
 
         public Task<IReadOnlyDictionary<string, object>> Inspect(IEntity target) => Task.FromResult(
             (IReadOnlyDictionary<string, object>) null);
