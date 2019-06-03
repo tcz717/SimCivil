@@ -29,7 +29,9 @@ var token = data.SelectToken("Data");
 foreach (var t in token.AsJEnumerable())
 {
 #>
-		// <#= t.SelectToken("FullName") #>
+        /// <summary>
+        /// The <#= t.SelectToken("FullName") #>
+        /// </summary>
         <#= t.SelectToken("Type") #>,
 
 <#

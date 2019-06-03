@@ -12,15 +12,15 @@ namespace SimCivil.Concept.ItemModel
         public string FullName;
     }
 
-    public class ElementData
+    public class JsonElementRepository : IElementRepository, IDataLoader
     {
-        public static ElementData Instance { get; } = new ElementData();
+        public static JsonElementRepository Instance { get; } = new JsonElementRepository();
 
-        private ElementData() { }
+        private JsonElementRepository() { }
 
         public IReadOnlyDictionary<Element, ElementProperty> Properties { get; }
 
-        public void Load() {
+        public void LoadData() {
             throw new NotImplementedException("Load data into properties.");
         }
 

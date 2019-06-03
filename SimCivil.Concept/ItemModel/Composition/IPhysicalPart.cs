@@ -13,6 +13,6 @@ namespace SimCivil.Concept.ItemModel
 
         double Volume { get; set; }
 
-        double Quality { get; set; }
+        double Quality { get; }
     }
 }

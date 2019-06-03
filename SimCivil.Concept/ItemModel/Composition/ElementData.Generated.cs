@@ -9,19 +9,29 @@ namespace SimCivil.Concept.ItemModel
 {
     public enum Element
     {
-		// N/A - Not an Element
+        /// <summary>
+        /// The N/A - Not an Element
+        /// </summary>
         Nae,
 
-		// Hydrogen
+        /// <summary>
+        /// The Hydrogen
+        /// </summary>
         H,
 
-		// Oxygen
+        /// <summary>
+        /// The Oxygen
+        /// </summary>
         O,
 
-		// Carbon
+        /// <summary>
+        /// The Carbon
+        /// </summary>
         C,
 
-		// Iron
+        /// <summary>
+        /// The Iron
+        /// </summary>
         Fe,
 
     }

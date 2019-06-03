@@ -26,15 +26,15 @@ namespace SimCivil.Concept.ItemModel
         public IReadOnlyDictionary<Element, double> Elements;
     }
 
-    public class CompoundData
+    public class JsonCompoundRepository : ICompoundRepository, IDataLoader
     {
-        public static CompoundData Instance { get; } = new CompoundData();
+        public static JsonCompoundRepository Instance { get; } = new JsonCompoundRepository();
 
-        private CompoundData() { }
+        private JsonCompoundRepository() { }
 
         public IReadOnlyDictionary<CompoundType, CompoundProperty> Properties { get; }
 
-        public void Load()
+        public void LoadData()
         {
             throw new NotImplementedException("Load data into properties.");
         }

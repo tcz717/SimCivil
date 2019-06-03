@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace SimCivil.Concept.ItemModel
 {
@@ -14,10 +13,10 @@ namespace SimCivil.Concept.ItemModel
     {
         public AssemblyType Type { get; set; }
 
-        public IDictionary<string, IPhysicalPart> SubAssemblies { get; set; }
+        public IDictionary<string, IPhysicalPart> Parts { get; set; }
 
         public double Weight
-            => SubAssemblies.Values.Sum(part => part.Weight);
+            => Parts.Values.Sum(part => part.Weight);
 
         /// <summary>
         /// Gets or sets the volume. This volume has no (or not too much) relation with inner parts, because assembly has its own shape.
@@ -28,11 +27,17 @@ namespace SimCivil.Concept.ItemModel
         public double Volume { get; set; }
 
         /// <summary>
-        /// Gets or sets the quality.
+        /// Gets or the overall quality.
         /// </summary>
         /// <value>
         /// The quality.
         /// </value>
-        public double Quality { get; set; }
+        public double Quality
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+        }
     }
 }
