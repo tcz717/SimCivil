@@ -9,6 +9,8 @@
     <None Remove="Data\compound-schema.json" />
     <None Remove="Data\element-data.json" />
     <None Remove="Data\element-schema.json" />
+    <None Remove="Data\magicelement-data.json" />
+    <None Remove="Data\magicelement-schema.json" />
     <None Remove="ItemModel\Composition\ElementDataTemplate.tt" />
   </ItemGroup>
 
@@ -19,7 +21,13 @@
     <Content Include="Data\compound-schema.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Data\magicelement-data.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Data\element-data.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Data\magicelement-schema.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Data\element-schema.json">
@@ -53,6 +61,11 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>ElementData.tt</DependentUpon>
     </Compile>
+    <Compile Update="ItemModel\Magic\MadicElement.Generated.cs">
+      <DependentUpon>MadicElement.tt</DependentUpon>
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+    </Compile>
   </ItemGroup>
 
   <ItemGroup>
@@ -63,6 +76,10 @@
     <None Update="ItemModel\Composition\ElementData.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>ElementData.Generated.cs</LastGenOutput>
+    </None>
+    <None Update="ItemModel\Magic\MadicElement.tt">
+      <LastGenOutput>MadicElement.Generated.cs</LastGenOutput>
+      <Generator>TextTemplatingFileGenerator</Generator>
     </None>
   </ItemGroup>
 

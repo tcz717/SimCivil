@@ -1,0 +1,21 @@
+{
+  "$schema": "magicelement-schema.json",
+  "Data": [
+    {
+      "Type": "Nae",
+      "FullName": "N/A - Not an Element"
+    },
+    {
+      "Type": "Element1",
+      "FullName": "Element1"
+    },
+    {
+      "Type": "Element2",
+      "FullName": "Element2"
+    },
+    {
+      "Type": "Element3",
+      "FullName": "Element3"
+    }
+  ]
+}

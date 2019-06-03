@@ -1,0 +1,27 @@
+{
+  "$id": "magicelement-schema",
+  "$schema": "http://json-schema.org/draft-04/schema",
+  "title": "JSON Schema for Magic Element Data",
+
+  "type": "object",
+
+  "properties": {
+    "Data": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "Type": {
+            "type": "string",
+            "pattern": "^[A-Z]\\w{0,10}$",
+            "description": "Short name of the element."
+          },
+          "FullName": {
+            "type": "string",
+            "description": "Full name of the element."
+          }
+        }
+      }
+    }
+  }
+}
