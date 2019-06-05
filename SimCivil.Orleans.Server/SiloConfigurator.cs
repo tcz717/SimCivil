@@ -37,9 +37,11 @@ using Orleans.Configuration;
 using Orleans.Hosting;
 
 using SimCivil.Orleans.Grains.Service;
+using SimCivil.Orleans.Grains.Strategy;
 using SimCivil.Orleans.Interfaces;
 using SimCivil.Orleans.Interfaces.Option;
 using SimCivil.Orleans.Interfaces.Service;
+using SimCivil.Orleans.Interfaces.Strategy;
 
 namespace SimCivil.Orleans.Server
 {
@@ -99,7 +101,8 @@ namespace SimCivil.Orleans.Server
             services.AddSingleton<IMapGenerator, RandomMapGen>()
                     .AddSingleton<ITerrainRepository, TestTerrainRepository>()
                     .AddTransient<IUnitGenerator, TestUnitGenerator>()
-                    .AddTransient<IMapService, MapService>();
+                    .AddTransient<IMapService, MapService>()
+                    .AddTransient<IHitStrategy, TestHitStrategy>();
         }
 
         protected virtual void ConfigureLogging(HostBuilderContext context, ILoggingBuilder logging)

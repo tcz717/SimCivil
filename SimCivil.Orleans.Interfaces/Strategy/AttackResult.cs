@@ -18,35 +18,38 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// SimCivil - SimCivil.Orleans.Interfaces - IUnitController.cs
-// Create Date: 2018/09/27
-// Update Date: 2018/10/15
+// SimCivil - SimCivil.Orleans.Interfaces - AttackResult.cs
+// Create Date: 2019/06/04
+// Update Date: 2019/06/05
 
 using System;
+using System.Collections.Immutable;
 using System.Text;
-using System.Threading.Tasks;
 
-using SimCivil.Contract;
-using SimCivil.Orleans.Interfaces.Strategy;
+using Orleans.Concurrency;
 
-namespace SimCivil.Orleans.Interfaces.Component
+using SimCivil.Orleans.Interfaces.Component.State;
+
+namespace SimCivil.Orleans.Interfaces.Strategy
 {
-    public interface IUnitController : IComponent
+    [Immutable]
+    public class AttackResult
     {
-        /// <summary>
-        /// Moves to specified position.
-        /// </summary>
-        /// <param name="position">The position.</param>
-        /// <param name="timestamp"></param>
-        /// <returns></returns>
-        Task<PositionState> MoveTo(PositionState position, DateTime timestamp);
+        public IImmutableDictionary<BodyPartIndex, Wound> Wounds { get; set; }
+        public AttackResultType                           Result { get; set; }
 
-        Task Drop(IEntity target);
+        public static AttackResult Miss() => new AttackResult {Result = AttackResultType.Miss};
 
-        Task<AttackResult> Attack(IEntity target, IEntity injurant, HitMethod hitMethod);
+        public static AttackResult Hit(IImmutableDictionary<BodyPartIndex, Wound> wounds)
+            => new AttackResult {Result = AttackResultType.Hit, Wounds = wounds};
 
-        Task Use(IEntity target);
+        public static AttackResult OutOfRange() => new AttackResult {Result = AttackResultType.OutOfRange};
+    }
 
-        Task<InspectionResult> InspectEntity(IEntity target);
+    public enum AttackResultType
+    {
+        Hit,
+        Miss,
+        OutOfRange,
     }
 }

@@ -140,7 +140,6 @@ namespace SimCivil.Orleans.Grains
         /// Gets the role list.
         /// </summary>
         /// <returns></returns>
-        /// <exception cref="NotImplementedException"></exception>
         public Task<IEnumerable<IEntity>> GetRoleList() => Task.FromResult((IEnumerable<IEntity>) State.Roles);
 
         /// <summary>

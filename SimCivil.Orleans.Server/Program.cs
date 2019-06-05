@@ -19,8 +19,8 @@
 // SOFTWARE.
 // 
 // SimCivil - SimCivil.Orleans.Server - Program.cs
-// Create Date: 2019/05/31
-// Update Date: 2019/05/31
+// Create Date: 2019/06/04
+// Update Date: 2019/06/05
 
 using System;
 using System.Net;
@@ -41,9 +41,11 @@ using Orleans.Runtime;
 using Sentry;
 
 using SimCivil.Orleans.Grains.Service;
+using SimCivil.Orleans.Grains.Strategy;
 using SimCivil.Orleans.Interfaces;
 using SimCivil.Orleans.Interfaces.Option;
 using SimCivil.Orleans.Interfaces.Service;
+using SimCivil.Orleans.Interfaces.Strategy;
 
 using EnvironmentName = Microsoft.Extensions.Hosting.EnvironmentName;
 using HostBuilderContext = Microsoft.Extensions.Hosting.HostBuilderContext;
@@ -110,7 +112,8 @@ namespace SimCivil.Orleans.Server
             services.AddSingleton<IMapGenerator, RandomMapGen>()
                     .AddSingleton<ITerrainRepository, TestTerrainRepository>()
                     .AddTransient<IUnitGenerator, TestUnitGenerator>()
-                    .AddTransient<IMapService, MapService>();
+                    .AddTransient<IMapService, MapService>()
+                    .AddTransient<IHitStrategy, TestHitStrategy>();
         }
 
         private static void ConfigureOption(HostBuilderContext context, IServiceCollection services)

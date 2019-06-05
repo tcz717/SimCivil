@@ -18,35 +18,42 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// SimCivil - SimCivil.Orleans.Interfaces - IUnitController.cs
-// Create Date: 2018/09/27
-// Update Date: 2018/10/15
+// SimCivil - SimCivil.Orleans.Interfaces - HitStrategyOptions.cs
+// Create Date: 2019/05/27
+// Update Date: 2019/05/27
 
 using System;
 using System.Text;
-using System.Threading.Tasks;
 
-using SimCivil.Contract;
-using SimCivil.Orleans.Interfaces.Strategy;
+using SimCivil.Orleans.Interfaces.Component.State;
 
-namespace SimCivil.Orleans.Interfaces.Component
+namespace SimCivil.Orleans.Interfaces.Option
 {
-    public interface IUnitController : IComponent
+    public class HitStrategyOptions
     {
-        /// <summary>
-        /// Moves to specified position.
-        /// </summary>
-        /// <param name="position">The position.</param>
-        /// <param name="timestamp"></param>
-        /// <returns></returns>
-        Task<PositionState> MoveTo(PositionState position, DateTime timestamp);
-
-        Task Drop(IEntity target);
-
-        Task<AttackResult> Attack(IEntity target, IEntity injurant, HitMethod hitMethod);
-
-        Task Use(IEntity target);
-
-        Task<InspectionResult> InspectEntity(IEntity target);
+        public float[] BodyHitBaseProbability { get; set; }
+        // ReSharper disable once RedundantExplicitArraySize
+            = new float [(int) BodyPartIndex.BodyPartCount]
+            {
+                0.1f,
+                0.1f,
+                0.1f,
+                0.1f,
+                0.1f,
+                0.1f,
+                0.1f,
+                0.1f,
+                0.1f,
+                0.1f,
+                0.1f,
+                0.1f,
+                0.1f,
+                0.1f,
+                0.1f,
+                0.1f,
+                0.1f,
+                0.1f,
+                0.1f,
+            };
     }
 }

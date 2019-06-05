@@ -18,47 +18,39 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// SimCivil - SimCivil.Orleans.Interfaces - IUnit.cs
-// Create Date: 2019/05/31
-// Update Date: 2019/05/31
+// SimCivil - SimCivil.Orleans.Interfaces - IHitStrategy.cs
+// Create Date: 2019/05/26
+// Update Date: 2019/05/27
 
 using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Text;
 using System.Threading.Tasks;
 
+using Orleans.Concurrency;
+
 using SimCivil.Orleans.Interfaces.Component.State;
 
-namespace SimCivil.Orleans.Interfaces.Component
+namespace SimCivil.Orleans.Interfaces.Strategy
 {
-    public interface IUnit : IComponent<UnitState>
+    public interface IHitStrategy
     {
-        /// <summary>Gets the hp.</summary>
-        /// <returns></returns>
-        Task<float> GetHp();
-
-        /// <summary>Updates the abilities.</summary>
-        /// <returns></returns>
-        Task UpdateAbilities();
-
-        /// <summary>Updates the effects.</summary>
-        /// <returns></returns>
-        Task UpdateEffects();
-
-        Task<UnitProperty> GetEffect(EffectIndex     effectIndex);
-        Task<UnitProperty> GetAbility(AbilityIndex   abilityIndex);
-        Task<BodyPart>     GetBodyPart(BodyPartIndex bodyPartIndex);
+        Task<ImmutableDictionary<BodyPartIndex, Wound>> HitCalculateAsync(
+            Immutable<IEntity> attacker,
+            Immutable<IEntity> defender,
+            Immutable<IEntity> injurant,
+            HitMethod          hitMethod);
     }
 
-    public static class UnitExtension
+    public enum HitMethod
     {
-        public static Task<float> GetMoveSpeed(this IUnit unit)
-        {
-            return unit.GetEffect(EffectIndex.MoveSpeed).ContinueWith(p => p.Result.Value);
-        }
-
-        public static Task<uint> GetSightRange(this IUnit unit)
-        {
-            return unit.GetEffect(EffectIndex.SightRange).ContinueWith(p => (uint) p.Result.Value);
-        }
+        Fist,
+        Foot,
+        Melee,
+        Magic,
+        Projectile,
+        Temperature,
+        Trap
     }
 }
