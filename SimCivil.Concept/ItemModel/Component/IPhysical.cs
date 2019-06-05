@@ -18,14 +18,14 @@ namespace SimCivil.Concept.ItemModel
         /// Gets the compounds of this item if the item is single part.
         /// </summary>
         /// <returns></returns>
-        Task<Result<IDictionary<CompoundType, double>>> GetCompounds();
+        Task<Result<IDictionary<string, double>>> GetCompounds();
 
         /// <summary>
         /// Clears and sets the compounds of this item if the item is single part.
         /// </summary>
         /// <param name="compounds">The compounds.</param>
         /// <returns></returns>
-        Task<Result> SetCompounds(IDictionary<CompoundType, double> compounds);
+        Task<Result> SetCompounds(IDictionary<string, double> compounds);
 
         /// <summary>
         /// Adds the compounds to this item if the item is single part.
@@ -33,14 +33,14 @@ namespace SimCivil.Concept.ItemModel
         /// </summary>
         /// <param name="compounds">The compound types and weights.</param>
         /// <returns></returns>
-        Task<Result> AddCompounds(IDictionary<CompoundType, double> compounds);
+        Task<Result> AddCompounds(IDictionary<string, double> compounds);
 
         /// <summary>
         /// Update the compounds weight in this item if the item is single part.
         /// </summary>
         /// <param name="compounds">The compound types and weights.</param>
         /// <returns></returns>
-        Task<Result> UpdateCompounds(IDictionary<CompoundType, double> compounds);
+        Task<Result> UpdateCompounds(IDictionary<string, double> compounds);
 
         /// <summary>
         /// Removes the compound from this item if the item is single part.
@@ -48,7 +48,7 @@ namespace SimCivil.Concept.ItemModel
         /// </summary>
         /// <param name="compounds">The compounds to be removed.</param>
         /// <returns></returns>
-        Task<Result> RemoveCompound(IEnumerable<CompoundType> compounds);
+        Task<Result> RemoveCompound(IEnumerable<string> compounds);
 
         /// <summary>
         /// Gets the sub physical parts of this item if the item is assembly.

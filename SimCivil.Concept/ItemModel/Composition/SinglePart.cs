@@ -5,7 +5,7 @@ namespace SimCivil.Concept.ItemModel
 {
     public class SinglePart : IPhysicalPart
     {
-        public IDictionary<CompoundType, double> CompoundWeights { get; set; }
+        public IDictionary<string, double> CompoundWeights { get; set; }
 
         /// <summary>
         /// Gets the weight of all compounds.

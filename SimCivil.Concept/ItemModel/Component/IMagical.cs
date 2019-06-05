@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace SimCivil.Concept.ItemModel.Component
 {
-    interface IMagical : IComponent
+    interface IMagical : IComponent<MagicalState>
     {
         /// <summary>
         /// Clears elements.
@@ -18,34 +18,34 @@ namespace SimCivil.Concept.ItemModel.Component
         /// Gets the magic elements.
         /// </summary>
         /// <returns></returns>
-        Task<Result<IDictionary<MagicElement, double>>> GetMagicElements();
+        Task<Result<IDictionary<string, double>>> GetMagicElements();
 
         /// <summary>
         /// Clears and sets the magic elements.
         /// </summary>
         /// <param name="elements">The elements.</param>
         /// <returns></returns>
-        Task<Result> SetMagicElements(IDictionary<MagicElement, double> elements);
+        Task<Result> SetMagicElements(IDictionary<string, double> elements);
 
         /// <summary>
         /// Adds the magic elements.
         /// </summary>
         /// <param name="elements">The elements.</param>
         /// <returns></returns>
-        Task<Result> AddMagicElements(IDictionary<MagicElement, double> elements);
+        Task<Result> AddMagicElements(IDictionary<string, double> elements);
 
         /// <summary>
         /// Updates the magic elements.
         /// </summary>
         /// <param name="elements">The elements.</param>
         /// <returns></returns>
-        Task<Result> UpdateMagicElements(IDictionary<MagicElement, double> elements);
+        Task<Result> UpdateMagicElements(IDictionary<string, double> elements);
 
         /// <summary>
         /// Removes the magic elements.
         /// </summary>
         /// <param name="elements">The elements.</param>
         /// <returns></returns>
-        Task<Result> RemoveMagicElements(IEnumerable<MagicElement> elements);
+        Task<Result> RemoveMagicElements(IEnumerable<string> elements);
     }
 }

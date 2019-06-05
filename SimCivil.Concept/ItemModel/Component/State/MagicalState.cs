@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace SimCivil.Concept.ItemModel.Component.State
+namespace SimCivil.Concept.ItemModel.Component
 {
     class MagicalState
     {
-        public IDictionary<MagicElement, double> ElementQuantities { get; set; }
+        public IDictionary<string, double> ElementQuantities { get; set; }
     }
 }

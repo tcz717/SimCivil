@@ -11,10 +11,28 @@ namespace SimCivil.Concept.ItemModel
     /// <seealso cref="SimCivil.Concept.ItemModel.IPhysicalPart" />
     public class AssemblyPart : IPhysicalPart
     {
-        public AssemblyType Type { get; set; }
+        /// <summary>
+        /// Gets or sets the name.
+        /// </summary>
+        /// <value>
+        /// The name of assembly. Can be used for recognizing the item function.
+        /// </value>
+        public string Name { get; set; }
 
+        /// <summary>
+        /// Gets or sets the subparts.
+        /// </summary>
+        /// <value>
+        /// The subparts.
+        /// </value>
         public IDictionary<string, IPhysicalPart> Parts { get; set; }
 
+        /// <summary>
+        /// Gets the total weight.
+        /// </summary>
+        /// <value>
+        /// The weight.
+        /// </value>
         public double Weight
             => Parts.Values.Sum(part => part.Weight);
 

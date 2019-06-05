@@ -56,30 +56,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="ItemModel\Composition\ElementData.Generated.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>ElementData.tt</DependentUpon>
-    </Compile>
-    <Compile Update="ItemModel\Magic\MadicElement.Generated.cs">
-      <DependentUpon>MadicElement.tt</DependentUpon>
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-    </Compile>
-  </ItemGroup>
-
-  <ItemGroup>
     <None Update="Data\compound-schema.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>compound-schema.gen.json</LastGenOutput>
-    </None>
-    <None Update="ItemModel\Composition\ElementData.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>ElementData.Generated.cs</LastGenOutput>
-    </None>
-    <None Update="ItemModel\Magic\MadicElement.tt">
-      <LastGenOutput>MadicElement.Generated.cs</LastGenOutput>
-      <Generator>TextTemplatingFileGenerator</Generator>
     </None>
   </ItemGroup>
 
