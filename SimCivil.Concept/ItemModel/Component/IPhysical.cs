@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace SimCivil.Concept.ItemModel
 {
-    interface IPhysical : IComponent<PhysicalState>
+    public interface IPhysical : IItemComponent<PhysicalState>
     {
         /// <summary>
         /// Clears compounds or sub physical parts.

@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace SimCivil.Concept.ItemModel
 {
-    interface IContainer : IComponent
+    public interface IContainer : IItemComponent<ContainerState>
     {
         /// <summary>
         /// Gets all the names of items.

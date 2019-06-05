@@ -4,7 +4,7 @@ using System.Text;
 
 namespace SimCivil.Concept.ItemModel.Component
 {
-    class MagicalState
+    public class MagicalState
     {
         public IDictionary<string, double> ElementQuantities { get; set; }
     }

@@ -4,8 +4,10 @@ using System.Text;
 
 namespace SimCivil.Concept.ItemModel
 {
-    public class PhysicalState
+    public class ItemState
     {
-        public IPhysicalPart Part { get; set; }
+        string Name { get; set; }
+
+        Orleans.Interfaces.IEntity Container { get; set; }
     }
 }

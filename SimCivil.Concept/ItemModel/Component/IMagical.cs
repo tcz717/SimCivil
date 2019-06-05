@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace SimCivil.Concept.ItemModel.Component
 {
-    interface IMagical : IComponent<MagicalState>
+    public interface IMagical : IItemComponent<MagicalState>
     {
         /// <summary>
         /// Clears elements.

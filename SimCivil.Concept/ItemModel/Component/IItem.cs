@@ -9,11 +9,15 @@ namespace SimCivil.Concept.ItemModel
     /// Item that can be held and used by a player
     /// </summary>
     /// <seealso cref="SimCivil.Orleans.Interfaces.IComponent{T}" />
-    interface IItem : IComponent
+    public interface IItem : IItemComponent<ItemState>
     {
         Task<Result<IEntity>> GetContainer();
 
         Task<Result> SetContainer(IEntity container);
+
+        Task<Result<string>> GetName();
+
+        Task<Result> SetName(string name);
 
         Task<Result> Destroy();
     }
