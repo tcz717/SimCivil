@@ -26,9 +26,11 @@ using System;
 using System.Text;
 
 using SimCivil.Orleans.Interfaces.Component.State;
+using SimCivil.Utilities.AutoService;
 
 namespace SimCivil.Orleans.Interfaces.Option
 {
+    [AutoOptions("HitStrategy")]
     public class HitStrategyOptions
     {
         public float[] BodyHitBaseProbability { get; set; }

@@ -18,53 +18,28 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// SimCivil - SimCivil.Test - TestServiceA.cs
-// Create Date: 2019/05/05
+// SimCivil - SimCivil.Utilities - AutoOptionsAttribute.cs
+// Create Date: 2019/06/05
 // Update Date: 2019/06/05
 
 using System;
 using System.Text;
 
-using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
-using SimCivil.Rpc.Session;
-using SimCivil.Utilities.AutoService;
-
-namespace SimCivil.Test
+namespace SimCivil.Utilities.AutoService
 {
-    [AutoService(ServiceLifetime.Transient)]
-    public class TestServiceA : ITestServiceA
+    [AttributeUsage(AttributeTargets.Class, AllowMultiple = true, Inherited = false)]
+    public class AutoOptionsAttribute : Attribute
     {
-        public IRpcSession Session { get; }
-        public string      Name    { get; set; }
+        public string Key { get; }
 
-        public TestServiceA(IRpcSession session)
+        public string Name { get; }
+
+        public AutoOptionsAttribute(string key = default, string name = null)
         {
-            Session = session;
+            Name = name ?? Options.DefaultName;
+            Key  = key;
         }
-
-        public string GetName() => Name;
-
-        public string HelloWorld(string name)
-        {
-            Name = name;
-
-            return $"Hello {name}!";
-        }
-
-        public int NotImplementedFuc(int i) => throw new NotImplementedException();
-
-        public string GetSession(string key) => Session[key].ToString();
-
-        public void Echo(string str, Action<string> callback)
-        {
-            callback(str);
-        }
-
-        public (double, double) TupleEcho((double, double) dump) => dump;
-
-        public PropertyTuple PropertyTupleEcho(PropertyTuple dump) => dump;
-
-        public DateTime EchoTime(DateTime time) => time;
     }
 }

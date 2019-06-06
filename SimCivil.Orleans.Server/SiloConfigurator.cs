@@ -19,8 +19,8 @@
 // SOFTWARE.
 // 
 // SimCivil - SimCivil.Orleans.Server - SiloConfigurator.cs
-// Create Date: 2019/05/08
-// Update Date: 2019/05/31
+// Create Date: 2019/06/04
+// Update Date: 2019/06/05
 
 using System;
 using System.Net;
@@ -36,12 +36,9 @@ using Orleans;
 using Orleans.Configuration;
 using Orleans.Hosting;
 
-using SimCivil.Orleans.Grains.Service;
-using SimCivil.Orleans.Grains.Strategy;
+using SimCivil.Orleans.Grains;
 using SimCivil.Orleans.Interfaces;
-using SimCivil.Orleans.Interfaces.Option;
-using SimCivil.Orleans.Interfaces.Service;
-using SimCivil.Orleans.Interfaces.Strategy;
+using SimCivil.Utilities.AutoService;
 
 namespace SimCivil.Orleans.Server
 {
@@ -86,10 +83,9 @@ namespace SimCivil.Orleans.Server
             IConfiguration configuration = context.Configuration;
 
             services
-               .Configure<EndpointOptions>(configuration.GetSection("Endpoint"))
-               .Configure<ClusterOptions>(configuration.GetSection("Cluster"))
-               .Configure<GameOptions>(configuration.GetSection("Game"))
-               .Configure<SyncOptions>(configuration.GetSection("Sync"));
+               .AutoService(typeof(GameGrain).Assembly)
+               .AutoOptions(typeof(GameGrain).Assembly, configuration)
+               .Configure<EndpointOptions>(configuration.GetSection("Endpoint"));
 
             services.PostConfigure<EndpointOptions>(
                 options =>
@@ -97,12 +93,6 @@ namespace SimCivil.Orleans.Server
                     options.GatewayListeningEndpoint = new IPEndPoint(IPAddress.Any, options.GatewayPort);
                     options.SiloListeningEndpoint    = new IPEndPoint(IPAddress.Any, options.SiloPort);
                 });
-
-            services.AddSingleton<IMapGenerator, RandomMapGen>()
-                    .AddSingleton<ITerrainRepository, TestTerrainRepository>()
-                    .AddTransient<IUnitGenerator, TestUnitGenerator>()
-                    .AddTransient<IMapService, MapService>()
-                    .AddTransient<IHitStrategy, TestHitStrategy>();
         }
 
         protected virtual void ConfigureLogging(HostBuilderContext context, ILoggingBuilder logging)

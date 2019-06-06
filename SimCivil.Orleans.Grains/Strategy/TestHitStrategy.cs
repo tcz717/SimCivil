@@ -30,6 +30,7 @@ using System.Threading.Tasks;
 
 using JetBrains.Annotations;
 
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
 using Orleans;
@@ -40,10 +41,12 @@ using SimCivil.Orleans.Interfaces.Component;
 using SimCivil.Orleans.Interfaces.Component.State;
 using SimCivil.Orleans.Interfaces.Option;
 using SimCivil.Orleans.Interfaces.Strategy;
+using SimCivil.Utilities.AutoService;
 
 namespace SimCivil.Orleans.Grains.Strategy
 {
     [PublicAPI]
+    [AutoService(ServiceLifetime.Transient)]
     public class TestHitStrategy : IHitStrategy
     {
         public TestHitStrategy(IGrainFactory grainFactory, IOptions<HitStrategyOptions> options)

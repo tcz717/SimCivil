@@ -26,10 +26,14 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
+using Microsoft.Extensions.DependencyInjection;
+
 using SimCivil.Orleans.Interfaces.Service;
+using SimCivil.Utilities.AutoService;
 
 namespace SimCivil.Orleans.Grains.Service
 {
+    [AutoService(ServiceLifetime.Singleton)]
     public class TestTerrainRepository : ITerrainRepository
     {
         private readonly IReadOnlyList<Terrain> _initTerrains;
