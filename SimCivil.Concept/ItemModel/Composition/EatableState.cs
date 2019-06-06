@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace SimCivil.Concept.ItemModel
 {
@@ -12,16 +13,16 @@ namespace SimCivil.Concept.ItemModel
 
         public int HealthFactor { get; set; }
 
-        public string EffectFunctionId { get; set; }
+        public IEnumerable<EffectInvocation> Effects { get; set; }
     }
 
     [Flags]
     public enum FoodType
     {
-        Staple,
-        Meat,
-        Vegetable,
-        Snack,
-        Medicine,
+        Staple = 0x01,
+        Meat = 0x02,
+        Vegetable = 0x04,
+        Snack = 0x08,
+        Medicine = 0x10,
     }
 }

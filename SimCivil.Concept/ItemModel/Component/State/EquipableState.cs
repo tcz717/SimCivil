@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using SimCivil.Orleans.Interfaces.Component.State;
 
 namespace SimCivil.Concept.ItemModel
 {
-    public class EquipmentState
+    public class EquipableState
     {
         /// <summary>
         /// Gets or sets the type of equipment, eg. ring, hat, bag, shoes...
@@ -12,7 +13,7 @@ namespace SimCivil.Concept.ItemModel
         /// <value>
         /// The type.
         /// </value>
-        public string Type { get; set; }
+        public EquipmentSlot Type { get; set; }
 
         /// <summary>
         /// Gets or sets the effect function identifier. The effect takes place on the moment a player wear the equipment.
@@ -21,6 +22,6 @@ namespace SimCivil.Concept.ItemModel
         /// <value>
         /// The effect function identifier.
         /// </value>
-        public string EffectFunctionId { get; set; }
+        public EffectInvocation Effect { get; set; }
     }
 }

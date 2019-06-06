@@ -4,14 +4,14 @@ using System.Text;
 
 namespace SimCivil.Concept.ItemModel
 {
-    public struct Compound
+    public class Compound
     {
-        public string Name;
-        public double Density;
-        public double MeltPoint;
-        public double BoilPoint;
-        public double FlashPoint;
-        public IReadOnlyDictionary<Element, double> Elements;
+        public string Name { get; set; }
+        public double Density { get; set; }
+        public double MeltPoint { get; set; }
+        public double BoilPoint { get; set; }
+        public double FlashPoint { get; set; }
+        public IReadOnlyDictionary<string, double> Elements { get; set; }
     }
 
     public class JsonCompoundRepository : Dictionary<string, Compound>, IRepository<string, Compound>, IDataLoader

@@ -15,7 +15,7 @@ namespace SimCivil.Concept.ItemModel
         /// Gets or sets the name.
         /// </summary>
         /// <value>
-        /// The name of assembly. Can be used for recognizing the item function.
+        /// The name or type of assembly. Can be used for recognizing the item function.
         /// </value>
         public string Name { get; set; }
 
@@ -57,5 +57,8 @@ namespace SimCivil.Concept.ItemModel
                 throw new NotImplementedException();
             }
         }
+
+        public bool IsEatable
+            => Parts.Values.Any(p => p.IsEatable);
     }
 }

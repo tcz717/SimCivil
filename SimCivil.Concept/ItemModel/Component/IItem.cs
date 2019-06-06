@@ -1,5 +1,3 @@
-﻿using SimCivil.Orleans.Interfaces;
-using SimCivil.Orleans.Interfaces.Component;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -11,13 +9,13 @@ namespace SimCivil.Concept.ItemModel
     /// <seealso cref="SimCivil.Orleans.Interfaces.IComponent{T}" />
     public interface IItem : IItemComponent<ItemState>
     {
-        Task<Result<IEntity>> GetContainer();
+        #region StateProperty
 
-        Task<Result> SetContainer(IEntity container);
+        Task<Result<Orleans.Interfaces.IEntity>> GetContainer();
 
-        Task<Result<string>> GetName();
+        Task<Result> SetContainer(Orleans.Interfaces.IEntity value);
 
-        Task<Result> SetName(string name);
+        #endregion
 
         Task<Result> Destroy();
     }
