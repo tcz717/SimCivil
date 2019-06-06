@@ -34,16 +34,7 @@ namespace SimCivil.Contract
     [PublicAPI]
     public interface IPlayerController
     {
-        /// <summary>
-        /// Moves the specified direction.
-        /// </summary>
-        /// <param name="direction">The direction.</param>
-        /// <param name="speed">The speed.</param>
-        /// <returns></returns>
-        Task Move((float X, float Y) direction, float speed);
-
-        Task Stop();
-        Task MoveTo((float X, float Y) position, DateTime timestamp);
+        Task<(float X, float Y)> MoveTo((float X, float Y) position, DateTime timestamp);
 
         Task<InspectionResult> Inspect(Guid entityId);
     }

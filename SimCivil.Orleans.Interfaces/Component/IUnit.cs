@@ -19,8 +19,8 @@
 // SOFTWARE.
 // 
 // SimCivil - SimCivil.Orleans.Interfaces - IUnit.cs
-// Create Date: 2019/05/08
-// Update Date: 2019/05/13
+// Create Date: 2019/05/31
+// Update Date: 2019/05/31
 
 using System;
 using System.Text;
@@ -43,21 +43,22 @@ namespace SimCivil.Orleans.Interfaces.Component
         /// <summary>Updates the effects.</summary>
         /// <returns></returns>
         Task UpdateEffects();
+
         Task<UnitProperty> GetEffect(EffectIndex     effectIndex);
         Task<UnitProperty> GetAbility(AbilityIndex   abilityIndex);
-        Task<BodyPart>          GetBodyPart(BodyPartIndex bodyPartIndex);
+        Task<BodyPart>     GetBodyPart(BodyPartIndex bodyPartIndex);
     }
 
     public static class UnitExtension
     {
         public static Task<float> GetMoveSpeed(this IUnit unit)
         {
-            return unit.GetEffect(EffectIndex.MoveSpeed).ContinueWith(p => p.Result.Base);
+            return unit.GetEffect(EffectIndex.MoveSpeed).ContinueWith(p => p.Result.Value);
         }
 
         public static Task<uint> GetSightRange(this IUnit unit)
         {
-            return unit.GetEffect(EffectIndex.SightRange).ContinueWith(p => (uint) p.Result.Base);
+            return unit.GetEffect(EffectIndex.SightRange).ContinueWith(p => (uint) p.Result.Value);
         }
     }
 }

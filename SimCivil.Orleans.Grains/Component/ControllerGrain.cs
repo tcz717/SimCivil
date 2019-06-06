@@ -19,8 +19,8 @@
 // SOFTWARE.
 // 
 // SimCivil - SimCivil.Orleans.Grains - ControllerGrain.cs
-// Create Date: 2019/05/18
-// Update Date: 2019/05/19
+// Create Date: 2019/05/25
+// Update Date: 2019/06/01
 
 using System;
 using System.Collections.Generic;
@@ -38,17 +38,14 @@ using SimCivil.Orleans.Interfaces;
 using SimCivil.Orleans.Interfaces.Component;
 using SimCivil.Orleans.Interfaces.Option;
 using SimCivil.Orleans.Interfaces.Service;
-using SimCivil.Orleans.Interfaces.System;
 
 namespace SimCivil.Orleans.Grains.Component
 {
     public class ControllerGrain : Grain, IUnitController
     {
-        private readonly ITerrainRepository _terrainRepository;
-        private          double             _lagPredict;
-        private          DateTime           _lastUpdateTime;
-        private          IMovementSystem    _moveSystem;
-        private          (float X, float Y) _speed;
+        private readonly IMapService _mapService;
+        private          double      _lagPredict;
+        private          DateTime    _lastUpdateTime;
 
         public TimeSpan UpdatePeriod { get; set; }
 
@@ -58,40 +55,16 @@ namespace SimCivil.Orleans.Grains.Component
 
         public ControllerGrain(
             ILogger<ControllerGrain> logger,
-            ITerrainRepository       terrainRepository,
+            IMapService              mapService,
             IOptions<GameOptions>    gameOptions,
             IOptions<SyncOptions>    syncOptions)
         {
-            Logger             = logger;
-            GameOptions        = gameOptions;
-            SyncOptions        = syncOptions;
-            _terrainRepository = terrainRepository;
-            UpdatePeriod       = TimeSpan.FromMilliseconds(syncOptions.Value.UpdatePeriod);
-            _lastUpdateTime    = DateTime.Now - UpdatePeriod - UpdatePeriod;
-        }
-
-        public Task<(float X, float Y)> GetSpeed() => Task.FromResult(_speed);
-
-        /// <summary>
-        /// Moves the specified direction.
-        /// </summary>
-        /// <param name="direction">The direction.</param>
-        /// <param name="speed">The speed.</param>
-        /// <returns></returns>
-        public async Task Move((float X, float Y) direction, float speed)
-        {
-            if (speed < 0 || speed > 1) throw new ArgumentOutOfRangeException(nameof(speed));
-
-            direction = Utils.Normalize(direction);
-            if (Math.Abs(direction.X) < 0.001 && Math.Abs(direction.Y) < 0.001)
-            {
-                await _moveSystem.Stop(this.GetPrimaryKey());
-
-                return;
-            }
-
-            _speed = (direction.X * speed, direction.Y * speed);
-            await _moveSystem.Move(this.GetPrimaryKey(), _speed);
+            Logger          = logger;
+            GameOptions     = gameOptions;
+            SyncOptions     = syncOptions;
+            _mapService     = mapService;
+            UpdatePeriod    = TimeSpan.FromMilliseconds(syncOptions.Value.UpdatePeriod);
+            _lastUpdateTime = DateTime.Now - UpdatePeriod - UpdatePeriod;
         }
 
         /// <summary>
@@ -100,7 +73,7 @@ namespace SimCivil.Orleans.Grains.Component
         /// <param name="position">The position.</param>
         /// <param name="timeStamp"></param>
         /// <returns></returns>
-        public async Task MoveTo(PositionState position, DateTime timeStamp)
+        public async Task<PositionState> MoveTo(PositionState position, DateTime timeStamp)
         {
             double delta = (timeStamp - DateTime.UtcNow).TotalMilliseconds;
             _lagPredict = SyncOptions.Value.LagLearningRate       * delta +
@@ -115,7 +88,6 @@ namespace SimCivil.Orleans.Grains.Component
             }
 
             PositionState previous = await GrainFactory.Get<IPosition>(this).GetData();
-            Tile tile = await GrainFactory.GetTile(previous.Tile, GameOptions);
             TimeSpan dt = predictTimeStamp - _lastUpdateTime;
 
             _lastUpdateTime = predictTimeStamp;
@@ -127,8 +99,7 @@ namespace SimCivil.Orleans.Grains.Component
                          (position.Y - previous.Y) * (position.Y - previous.Y);
 
             double v2 = dx2 / (dt.TotalSeconds * dt.TotalSeconds);
-            float speed = await GrainFactory.Get<IUnit>(this).GetMoveSpeed();
-            double maxv2 = _terrainRepository.GetTerrain(tile.Terrain).BaseMoveSpeed * speed;
+            double maxv2 = await _mapService.GetEntityActualMaxSpeed(GrainFactory.GetEntity(this));
             maxv2 *= maxv2;
 
             if (v2 > maxv2 + 0.001)
@@ -139,23 +110,19 @@ namespace SimCivil.Orleans.Grains.Component
                         $"{this.GetPrimaryKey()} moves too fast: {nameof(alpha)} = {alpha}, expected = {position}");
 
                 if (SyncOptions.Value.NoSpeedFix)
-                    return;
+                    return previous;
 
                 position.X = previous.X + alpha * (position.X - previous.X);
                 position.Y = previous.Y + alpha * (position.Y - previous.Y);
             }
 
             // TODO check if construction exists
-            if (_terrainRepository.GetTerrain((await GrainFactory.GetTile(position.Tile, GameOptions)).Terrain)
-                                  .Flags.HasFlag(TerrainFlags.NotMovable))
-                return;
+            if ((await _mapService.GetTerrain(position.Tile)).Flags.HasFlag(TerrainFlags.NotMovable))
+                return previous;
 
             await GrainFactory.Get<IPosition>(this).SetData(position);
-        }
 
-        public async Task Stop()
-        {
-            await _moveSystem.Stop(this.GetPrimaryKey());
+            return position;
         }
 
         public Task Drop(IEntity target) => throw new NotImplementedException();
@@ -186,34 +153,16 @@ namespace SimCivil.Orleans.Grains.Component
             => Task.FromResult((IComponent) GrainFactory.Get<IUnitController>(target));
 
         public Task<IReadOnlyDictionary<string, string>> Dump() => Task.FromResult(
-            (IReadOnlyDictionary<string, string>) new Dictionary<string, string>
-            {
-                ["Speed"] = _speed.ToString()
-            });
+            (IReadOnlyDictionary<string, string>) new Dictionary<string, string>());
 
         public Task<IReadOnlyDictionary<string, object>> Inspect(IEntity target) => Task.FromResult(
-            (IReadOnlyDictionary<string, object>) new Dictionary<string, object>
-            {
-                ["Speed"] = _speed.ToString()
-            });
+            (IReadOnlyDictionary<string, object>) null);
 
         public Task Delete()
         {
             DeactivateOnIdle();
 
             return Task.CompletedTask;
-        }
-
-        /// <summary>
-        /// This method is called at the end of the process of activating a grain.
-        /// It is called before any messages have been dispatched to the grain.
-        /// For grains with declared persistent state, this method is called after the State property has been populated.
-        /// </summary>
-        public override Task OnActivateAsync()
-        {
-            _moveSystem = GrainFactory.GetGrain<IMovementSystem>(0);
-
-            return base.OnActivateAsync();
         }
     }
 }

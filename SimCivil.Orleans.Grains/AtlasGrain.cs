@@ -168,13 +168,4 @@ namespace SimCivil.Orleans.Grains
             set => Tiles[x, y] = value;
         }
     }
-
-    public static class AtlasExtension
-    {
-        public static async Task<Tile> GetTile(
-            this IGrainFactory    factory,
-            (int X, int Y)        position,
-            IOptions<GameOptions> gameOptions)
-            => await factory.GetGrain<IAtlas>(position.DivDown(gameOptions.Value.AtlasSize)).GetTile(position);
-    }
 }

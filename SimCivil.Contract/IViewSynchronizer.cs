@@ -19,8 +19,8 @@
 // SOFTWARE.
 // 
 // SimCivil - SimCivil.Contract - IViewSynchronizer.cs
-// Create Date: 2018/01/10
-// Update Date: 2018/12/18
+// Create Date: 2019/05/08
+// Update Date: 2019/05/31
 
 using System;
 using System.Text;
@@ -59,12 +59,12 @@ namespace SimCivil.Contract
     [PublicAPI]
     public class AppearanceDto
     {
-        public AppearanceType Type { get; set; }
-        public uint Id { get; set; }
-        public uint PrimaryColor { get; set; }
-        public uint SecondaryColor { get; set; }
-        public float Quality { get; set; }
-        public Material Material { get; set; }
+        public AppearanceType Type           { get; set; }
+        public uint           Id             { get; set; }
+        public uint           PrimaryColor   { get; set; }
+        public uint           SecondaryColor { get; set; }
+        public float          Quality        { get; set; }
+        public Material       Material       { get; set; }
     }
 
     public enum Material
@@ -76,7 +76,7 @@ namespace SimCivil.Contract
     public enum AppearanceType
     {
         Block = 1,
-        Body = 10,
+        Body  = 10,
         Hair,
         Helmet = 20,
         Mask,
@@ -122,9 +122,7 @@ namespace SimCivil.Contract
         /// <summary>Returns a string that represents the current object.</summary>
         /// <returns>A string that represents the current object.</returns>
         public override string ToString()
-        {
-            return $"{nameof(TickCount)}: {TickCount}, {nameof(Position)}: {Position}, {nameof(Speed)}: {Speed}";
-        }
+            => $"{nameof(TickCount)}: {TickCount}, {nameof(Position)}: {Position}, {nameof(Speed)}: {Speed}";
     }
 
     public class ViewEvent
@@ -133,21 +131,16 @@ namespace SimCivil.Contract
 
         public Guid TargetEntityId { get; set; }
 
-        public static ViewEvent EntityLeave(Guid targetEntityId)
+        public static ViewEvent EntityLeave(Guid targetEntityId) => new ViewEvent
         {
-            return new ViewEvent
-            {
-                EventType = ViewEventType.EntityLeave,
-                TargetEntityId = targetEntityId
-            };
-        }
+            EventType      = ViewEventType.EntityLeave,
+            TargetEntityId = targetEntityId
+        };
 
         /// <summary>Returns a string that represents the current object.</summary>
         /// <returns>A string that represents the current object.</returns>
         public override string ToString()
-        {
-            return $"{nameof(EventType)}: {EventType}, {nameof(TargetEntityId)}: {TargetEntityId}";
-        }
+            => $"{nameof(EventType)}: {EventType}, {nameof(TargetEntityId)}: {TargetEntityId}";
     }
 
     public class EntityDto
@@ -164,14 +157,16 @@ namespace SimCivil.Contract
         public (float X, float Y) Pos { get; set; }
         /// <summary>Gets or sets the heath point. 1.0 means the hp. If the heath point is not applicable, it will be -1.</summary>
         /// <value>The hp.</value>
-        public float Hp { get; set; }
+        public float? Hp { get; set; }
+        /// <summary>
+        /// Gets or sets the maximum speed of the entity
+        /// </summary>
+        public float? MaxSpeed { get; set; }
 
         /// <summary>Returns a string that represents the current object.</summary>
         /// <returns>A string that represents the current object.</returns>
         public override string ToString()
-        {
-            return $"{nameof(Id)}: {Id}, {nameof(Name)}: {Name}, {nameof(Pos)}: {Pos}, {nameof(Hp)}: {Hp}";
-        }
+            => $"{nameof(Id)}: {Id}, {nameof(Name)}: {Name}, {nameof(Pos)}: {Pos}, {nameof(Hp)}: {Hp}, {nameof(MaxSpeed)}: {MaxSpeed}";
     }
 
     public class TileDto
