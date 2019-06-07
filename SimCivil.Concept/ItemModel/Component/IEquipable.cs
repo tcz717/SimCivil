@@ -7,13 +7,13 @@ namespace SimCivil.Concept.ItemModel.Component
     {
         #region StateProperty
 
-        Task<Result<EquipmentSlot>> GetType();
+        Task<EquipmentSlot> GetType();
 
-        Task<Result> SetType(EquipmentSlot value);
+        Task SetType(EquipmentSlot value);
 
-        Task<Result<EffectInvocation>> GetEffect();
+        Task<EffectInvocation> GetEffect();
 
-        Task<Result> SetEffect(EffectInvocation value);
+        Task SetEffect(EffectInvocation value);
 
         #endregion
     }

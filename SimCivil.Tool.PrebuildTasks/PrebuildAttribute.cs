@@ -4,8 +4,8 @@ using System.Text;
 
 namespace SimCivil.Tool.PrebuildTasks
 {
-    [AttributeUsage(AttributeTargets.Method)]
-    class PrebuildMethodAttribute : Attribute
+    [AttributeUsage(AttributeTargets.Class)]
+    class PrebuildAttribute : Attribute
     {
         public string ProjectName { get; set; }
     }

@@ -1,45 +1,19 @@
-﻿using System;
-using System.Linq;
-using System.Reflection;
-using System.CodeDom;
-using System.CodeDom.Compiler;
-using System.IO;
-using Microsoft.CSharp;
-using Microsoft.CodeAnalysis.CSharp;
+﻿using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text;
 
-namespace SimCivil.Tool.PrebuildTasks
+namespace SimCivil.Tool.PrebuildTasks.Prebuilders
 {
-    public partial class Prebuilder
+    [Prebuild(ProjectName = "SimCivil.Concept")]
+    public class ConceptPrebuilder : IPrebuilder
     {
-        public string ProjectPath { get; set; }
-
-        public void Prebuild(string projPath, string projName)
+        public void Build(string projPath, string projName)
         {
-            ProjectPath = projPath;
-
-            var method =
-                GetType()
-                .GetMethods()
-                .Where(m => m.GetCustomAttribute<PrebuildMethodAttribute>()?.ProjectName == projName)
-                .FirstOrDefault();
-
-            if (method == null)
-            {
-                Console.WriteLine("No prebuild method found and executed.");
-                return;
-            }
-
-            Console.WriteLine($"Running prebuild method for {projName}");
-            method.Invoke(this, new object[0]);
-            Console.WriteLine($"Finished prebuild method for {projName}");
-        }
-
-        [PrebuildMethod(ProjectName = "SimCivil.Concept")]
-        public void ConceptPrebuild()
-        {
-            foreach (string fileFullName in Directory.GetFiles(Path.Combine(ProjectPath, "ItemModel", "Component", "State")).Where(s => s.EndsWith("State.cs")))
+            foreach (string fileFullName in Directory.GetFiles(Path.Combine(projPath, "ItemModel", "Component", "State")).Where(s => s.EndsWith("State.cs")))
             {
                 var fileNameWithoutExtension = Path.GetFileNameWithoutExtension(fileFullName);
                 Console.WriteLine($"Updating {fileNameWithoutExtension}.");
@@ -55,11 +29,11 @@ namespace SimCivil.Tool.PrebuildTasks
                 List<string> res = new List<string>();
                 foreach (var prop in props)
                 {
-                    res.Add($"Task<Result<{prop.Type}>> Get{prop.Identifier}();");
-                    res.Add($"Task<Result> Set{prop.Identifier}({prop.Type} value);");
+                    res.Add($"Task<{prop.Type}> Get{prop.Identifier}();");
+                    res.Add($"Task Set{prop.Identifier}({prop.Type} value);");
                 }
 
-                string target = Path.Combine(ProjectPath, "ItemModel", "Component", "I" + fileNameWithoutExtension.Substring(0, fileNameWithoutExtension.Length - "State".Length) + ".cs");
+                string target = Path.Combine(projPath, "ItemModel", "Component", "I" + fileNameWithoutExtension.Substring(0, fileNameWithoutExtension.Length - "State".Length) + ".cs");
                 List<string> lines = File.ReadAllLines(target).ToList();
 
                 int start = 0;

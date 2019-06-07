@@ -11,12 +11,12 @@ namespace SimCivil.Concept.ItemModel
     {
         #region StateProperty
 
-        Task<Result<Orleans.Interfaces.IEntity>> GetContainer();
+        Task<Orleans.Interfaces.IEntity> GetContainer();
 
-        Task<Result> SetContainer(Orleans.Interfaces.IEntity value);
+        Task SetContainer(Orleans.Interfaces.IEntity value);
 
         #endregion
-
+        
         Task<Result> Destroy();
     }
 }

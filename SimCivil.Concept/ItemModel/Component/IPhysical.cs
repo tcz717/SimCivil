@@ -12,7 +12,7 @@ namespace SimCivil.Concept.ItemModel
         /// Clears compounds or sub physical parts.
         /// </summary>
         /// <returns></returns>
-        Task<Result> Clear();
+        Task Clear();
 
         /// <summary>
         /// Gets the compounds of this item if the item is single part.
@@ -88,7 +88,7 @@ namespace SimCivil.Concept.ItemModel
         /// Determines whether this item is assembly.
         /// </summary>
         /// <returns><c>true</c> if this item is Assembly, else <c>false</c></returns>
-        Task<Result<bool>> IsAssembly();
+        Task<bool> IsAssembly();
 
         /// <summary>
         /// Converts to assembly. Convertable iff this item is an Assembly.
@@ -102,8 +102,8 @@ namespace SimCivil.Concept.ItemModel
         /// <returns></returns>
         Task<Result<SinglePart>> ToSinglePart();
 
-        Task<Result<double>> GetWeight();
+        Task<double> GetWeight();
 
-        Task<Result<double>> GetVolume();
+        Task<double> GetVolume();
     }
 }

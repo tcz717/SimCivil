@@ -9,37 +9,37 @@ namespace SimCivil.Concept.ItemModel
     {
         #region StateProperty
 
-        Task<Result<bool>> GetIsDeployed();
+        Task<bool> GetIsDeployed();
 
-        Task<Result> SetIsDeployed(bool value);
+        Task SetIsDeployed(bool value);
 
-        Task<Result<string>> GetStructureType();
+        Task<string> GetStructureType();
 
-        Task<Result> SetStructureType(string value);
+        Task SetStructureType(string value);
 
-        Task<Result<(int length, int width)>> GetSize();
+        Task<(int length, int width)> GetSize();
 
-        Task<Result> SetSize((int length, int width) value);
+        Task SetSize((int length, int width) value);
 
-        Task<Result<IRange>> GetEffectRange();
+        Task<IRange> GetEffectRange();
 
-        Task<Result> SetEffectRange(IRange value);
+        Task SetEffectRange(IRange value);
 
-        Task<Result<EffectInvocation>> GetRangeEffect();
+        Task<EffectInvocation> GetRangeEffect();
 
-        Task<Result> SetRangeEffect(EffectInvocation value);
+        Task SetRangeEffect(EffectInvocation value);
 
-        Task<Result<EffectInvocation>> GetTouchEffect();
+        Task<EffectInvocation> GetTouchEffect();
 
-        Task<Result> SetTouchEffect(EffectInvocation value);
+        Task SetTouchEffect(EffectInvocation value);
 
-        Task<Result<EffectInvocation>> GetWalkOnEffect();
+        Task<EffectInvocation> GetWalkOnEffect();
 
-        Task<Result> SetWalkOnEffect(EffectInvocation value);
+        Task SetWalkOnEffect(EffectInvocation value);
 
-        Task<Result<EffectInvocation>> GetOperateEffect();
+        Task<EffectInvocation> GetOperateEffect();
 
-        Task<Result> SetOperateEffect(EffectInvocation value);
+        Task SetOperateEffect(EffectInvocation value);
 
         #endregion
     }

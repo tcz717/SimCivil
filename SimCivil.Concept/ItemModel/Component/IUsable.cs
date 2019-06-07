@@ -9,17 +9,17 @@ namespace SimCivil.Concept.ItemModel
     {
         #region StateProperty
 
-        Task<Result<IList<EffectInvocation>>> GetWeaponEffects();
+        Task<IList<EffectInvocation>> GetWeaponEffects();
 
-        Task<Result> SetWeaponEffects(IList<EffectInvocation> value);
+        Task SetWeaponEffects(IList<EffectInvocation> value);
 
-        Task<Result<IList<EffectInvocation>>> GetToolEffects();
+        Task<IList<EffectInvocation>> GetToolEffects();
 
-        Task<Result> SetToolEffects(IList<EffectInvocation> value);
+        Task SetToolEffects(IList<EffectInvocation> value);
 
-        Task<Result<IList<EffectInvocation>>> GetUniversalEffects();
+        Task<IList<EffectInvocation>> GetUniversalEffects();
 
-        Task<Result> SetUniversalEffects(IList<EffectInvocation> value);
+        Task SetUniversalEffects(IList<EffectInvocation> value);
 
         #endregion
     }
