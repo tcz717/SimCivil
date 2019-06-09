@@ -19,16 +19,14 @@
 // SOFTWARE.
 // 
 // SimCivil - SimCivil.Orleans.Server - Program.cs
-// Create Date: 2018/06/13
-// Update Date: 2019/04/20
+// Create Date: 2019/05/31
+// Update Date: 2019/05/31
 
 using System;
 using System.Net;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
-
-using Karambolo.Extensions.Logging.File;
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -61,33 +59,37 @@ namespace SimCivil.Orleans.Server
             using (SentrySdk.Init(Dsn))
             {
                 IHost host = new HostBuilder()
-                    .UseEnvironment(EnvironmentName.Development)
-                    .UseOrleans(
-                        (context, builder) =>
-                        {
-                            builder.AddMemoryGrainStorageAsDefault()
-                                .UseDynamoDBClustering((Action<DynamoDBClusteringOptions>) null)
-                                .ConfigureEndpoints(Dns.GetHostName(), 11111, 30000, listenOnAnyHostAddress : true)
-                                .AddStartupTask(
-                                    (provider, token) => provider.GetRequiredService<IGrainFactory>()
-                                        .GetGrain<IGame>(0)
-                                        .InitGame());
-                        })
-                    .ConfigureAppConfiguration(
-                        (context, builder) =>
-                            builder
-                                .AddJsonFile(
-                                    "appsettings.json",
-                                    false)
-                                .AddJsonFile(
-                                    $"appsettings.{context.HostingEnvironment.EnvironmentName}.json",
-                                    true)
-                                .AddEnvironmentVariables("SC_")
-                                .AddCommandLine(args))
-                    .ConfigureLogging(ConfigureLogging)
-                    .ConfigureServices(ConfigureOption)
-                    .ConfigureServices(ConfigureServices)
-                    .Build();
+                            .UseEnvironment(EnvironmentName.Development)
+                            .UseOrleans(
+                                 (context, builder) =>
+                                 {
+                                     builder.AddMemoryGrainStorageAsDefault()
+                                            .UseDynamoDBClustering((Action<DynamoDBClusteringOptions>) null)
+                                            .ConfigureEndpoints(
+                                                 Dns.GetHostName(),
+                                                 11111,
+                                                 30000,
+                                                 listenOnAnyHostAddress: true)
+                                            .AddStartupTask(
+                                                 (provider, token) => provider.GetRequiredService<IGrainFactory>()
+                                                                              .GetGrain<IGame>(0)
+                                                                              .InitGame());
+                                 })
+                            .ConfigureAppConfiguration(
+                                 (context, builder) =>
+                                     builder
+                                        .AddJsonFile(
+                                             "appsettings.json",
+                                             false)
+                                        .AddJsonFile(
+                                             $"appsettings.{context.HostingEnvironment.EnvironmentName}.json",
+                                             true)
+                                        .AddEnvironmentVariables("SC_")
+                                        .AddCommandLine(args))
+                            .ConfigureLogging(ConfigureLogging)
+                            .ConfigureServices(ConfigureOption)
+                            .ConfigureServices(ConfigureServices)
+                            .Build();
 
                 try
                 {
@@ -106,8 +108,9 @@ namespace SimCivil.Orleans.Server
         private static void ConfigureServices(HostBuilderContext context, IServiceCollection services)
         {
             services.AddSingleton<IMapGenerator, RandomMapGen>()
-                .AddSingleton<ITerrainRepository, TestTerrainRepository>()
-                .AddTransient<IUnitGenerator, TestUnitGenerator>();
+                    .AddSingleton<ITerrainRepository, TestTerrainRepository>()
+                    .AddTransient<IUnitGenerator, TestUnitGenerator>()
+                    .AddTransient<IMapService, MapService>();
         }
 
         private static void ConfigureOption(HostBuilderContext context, IServiceCollection services)
@@ -115,24 +118,24 @@ namespace SimCivil.Orleans.Server
             IConfiguration configuration = context.Configuration;
 
             services
-                .Configure<EndpointOptions>(configuration.GetSection("Endpoint"))
-                .Configure<ClusterOptions>(configuration.GetSection("Cluster"))
-                .Configure<GameOptions>(configuration.GetSection("Game"))
-                .Configure<SyncOptions>(configuration.GetSection("Sync"))
-                .Configure<DynamoDBClusteringOptions>(configuration.GetSection("DynamoDBClustering"));
+               .Configure<EndpointOptions>(configuration.GetSection("Endpoint"))
+               .Configure<ClusterOptions>(configuration.GetSection("Cluster"))
+               .Configure<GameOptions>(configuration.GetSection("Game"))
+               .Configure<SyncOptions>(configuration.GetSection("Sync"))
+               .Configure<DynamoDBClusteringOptions>(configuration.GetSection("DynamoDBClustering"));
         }
 
         private static void ConfigureLogging(HostBuilderContext context, ILoggingBuilder builder)
         {
             builder.AddConsole()
-                .AddSentry(Dsn)
-                .AddConfiguration(context.Configuration.GetSection("Logging"));
+                   .AddSentry(Dsn)
+                   .AddConfiguration(context.Configuration.GetSection("Logging"));
 
             if (context.HostingEnvironment.IsDevelopment())
                 builder.AddFile(
                     o =>
                     {
-                        o.BasePath = "logs";
+                        o.BasePath       = "logs";
                         o.EnsureBasePath = true;
                         o.FallbackFileName =
                             $"server-{Assembly.GetExecutingAssembly().GetName().Version}-{DateTime.Now:yyyy-dd-M-HH-mm-ss}.log";

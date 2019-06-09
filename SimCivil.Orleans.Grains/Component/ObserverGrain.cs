@@ -19,8 +19,8 @@
 // SOFTWARE.
 // 
 // SimCivil - SimCivil.Orleans.Grains - ObserverGrain.cs
-// Create Date: 2019/05/08
-// Update Date: 2019/05/11
+// Create Date: 2019/05/13
+// Update Date: 2019/05/31
 
 using System;
 using System.Collections.Generic;
@@ -37,17 +37,21 @@ using SimCivil.Contract;
 using SimCivil.Orleans.Interfaces;
 using SimCivil.Orleans.Interfaces.Component;
 using SimCivil.Orleans.Interfaces.Option;
+using SimCivil.Orleans.Interfaces.Service;
 
 namespace SimCivil.Orleans.Grains.Component
 {
     [PublicAPI]
     public class ObserverGrain : BaseGrain<ObserverState>, IObserver
     {
+        public IMapService           MapService  { get; }
         public IOptions<SyncOptions> SyncOptions { get; }
         public HashSet<Guid>         Entities    { get; set; }
 
-        public ObserverGrain(ILoggerFactory factory, IOptions<SyncOptions> syncOptions) : base(factory)
+        public ObserverGrain(ILoggerFactory factory, IMapService mapService, IOptions<SyncOptions> syncOptions) : base(
+            factory)
         {
+            MapService  = mapService;
             SyncOptions = syncOptions;
         }
 
@@ -90,30 +94,37 @@ namespace SimCivil.Orleans.Grains.Component
             if (await GrainFactory.GetEntity(this).Has<IUnit>())
                 viewChange.Speed = await GrainFactory.Get<IUnit>(this).GetMoveSpeed();
 
-            var entities = await Task.WhenAll(
-                               Entities.Select(
-                                   async e =>
-                                   {
-                                       var entity = GrainFactory.GetGrain<IEntity>(e);
-                                       float hp = await entity.Has<IUnit>()
-                                                      ? await GrainFactory.Get<IUnit>(e).GetHp()
-                                                      : -1;
-
-                                       var dto = new EntityDto
-                                       {
-                                           Name = await entity.GetName(),
-                                           Pos  = await GrainFactory.Get<IPosition>(e).GetData(),
-                                           Id   = e,
-                                           Hp   = hp
-                                       };
-
-                                       return dto;
-                                   }));
+            var entities = await Task.WhenAll(Entities.Select(ToEntityDto));
             Entities.Clear();
 
             viewChange.EntityChange = entities;
 
             return viewChange;
+        }
+
+        private async Task<EntityDto> ToEntityDto(Guid e)
+        {
+            var entity = GrainFactory.GetGrain<IEntity>(e);
+            PositionState position = await GrainFactory.Get<IPosition>(e).GetData();
+            float? maxSpeed = null;
+            float? hp = null;
+            if (await entity.Has<IUnit>())
+            {
+                var unit = GrainFactory.Get<IUnit>(e);
+                hp       = await unit.GetHp();
+                maxSpeed = await MapService.GetEntityActualMaxSpeed(entity);
+            }
+
+            var dto = new EntityDto
+            {
+                Name     = await entity.GetName(),
+                Pos      = position,
+                Id       = e,
+                Hp       = hp,
+                MaxSpeed = maxSpeed
+            };
+
+            return dto;
         }
 
         /// <summary>

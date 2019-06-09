@@ -18,25 +18,21 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// SimCivil - SimCivil.Orleans.Interfaces - IMovementSystem.cs
-// Create Date: 2018/09/27
-// Update Date: 2018/10/05
+// SimCivil - SimCivil.Orleans.Interfaces - IMapSystem.cs
+// Create Date: 2019/05/31
+// Update Date: 2019/05/31
 
 using System;
 using System.Text;
 using System.Threading.Tasks;
 
-using Orleans;
-using Orleans.Concurrency;
-
-namespace SimCivil.Orleans.Interfaces.System
+namespace SimCivil.Orleans.Interfaces.Service
 {
-    public interface IMovementSystem : IGrainWithIntegerKey
+    public interface IMapService
     {
-        [OneWay]
-        Task Move(Guid entityId, (float X, float Y) speed);
-
-        [OneWay]
-        Task Stop(Guid entityId);
+        IAtlas GetAtlas((int X, int Y) position);
+        Task<Tile> GeTile((int X, int Y) position);
+        Task<Terrain> GetTerrain((int X, int Y) position);
+        Task<float> GetEntityActualMaxSpeed(IEntity entity);
     }
 }

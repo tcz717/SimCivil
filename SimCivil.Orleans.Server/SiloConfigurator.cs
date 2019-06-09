@@ -19,8 +19,8 @@
 // SOFTWARE.
 // 
 // SimCivil - SimCivil.Orleans.Server - SiloConfigurator.cs
-// Create Date: 2019/04/14
-// Update Date: 2019/04/14
+// Create Date: 2019/05/08
+// Update Date: 2019/05/31
 
 using System;
 using System.Net;
@@ -45,35 +45,38 @@ namespace SimCivil.Orleans.Server
 {
     public class SiloConfigurator
     {
-        private const string Dsn = "https://c091709188504c39a331cc91794fa4f4@sentry.io/216217";
-        public string[] Args { get; }
+        private const string   Dsn = "https://c091709188504c39a331cc91794fa4f4@sentry.io/216217";
+        public        string[] Args { get; }
 
         [UsedImplicitly]
         public SiloConfigurator() : this(new string[] { }) { }
 
-        public SiloConfigurator(string[] args) => Args = args;
+        public SiloConfigurator(string[] args)
+        {
+            Args = args;
+        }
 
         /// <summary>Configures the host builder.</summary>
         public void Configure(ISiloHostBuilder hostBuilder)
         {
             hostBuilder
-                .AddMemoryGrainStorageAsDefault()
-                .ConfigureAppConfiguration(
+               .AddMemoryGrainStorageAsDefault()
+               .ConfigureAppConfiguration(
                     (context, configure) => configure
-                        .AddJsonFile(
-                            "appsettings.json",
-                            optional: false)
-                        .AddJsonFile(
-                            $"appsettings.{context.HostingEnvironment}.json",
-                            optional: true)
-                        .AddEnvironmentVariables("SC_")
-                        .AddCommandLine(Args))
-                .AddStartupTask(
+                                           .AddJsonFile(
+                                                "appsettings.json",
+                                                false)
+                                           .AddJsonFile(
+                                                $"appsettings.{context.HostingEnvironment}.json",
+                                                true)
+                                           .AddEnvironmentVariables("SC_")
+                                           .AddCommandLine(Args))
+               .AddStartupTask(
                     (provider, token) => provider.GetRequiredService<IGrainFactory>()
-                        .GetGrain<IGame>(0)
-                        .InitGame())
-                .ConfigureLogging(ConfigureLogging)
-                .ConfigureServices(ConfigureServices);
+                                                 .GetGrain<IGame>(0)
+                                                 .InitGame())
+               .ConfigureLogging(ConfigureLogging)
+               .ConfigureServices(ConfigureServices);
         }
 
         protected virtual void ConfigureServices(HostBuilderContext context, IServiceCollection services)
@@ -81,28 +84,29 @@ namespace SimCivil.Orleans.Server
             IConfiguration configuration = context.Configuration;
 
             services
-                .Configure<EndpointOptions>(configuration.GetSection("Endpoint"))
-                .Configure<ClusterOptions>(configuration.GetSection("Cluster"))
-                .Configure<GameOptions>(configuration.GetSection("Game"))
-                .Configure<SyncOptions>(configuration.GetSection("Sync"));
+               .Configure<EndpointOptions>(configuration.GetSection("Endpoint"))
+               .Configure<ClusterOptions>(configuration.GetSection("Cluster"))
+               .Configure<GameOptions>(configuration.GetSection("Game"))
+               .Configure<SyncOptions>(configuration.GetSection("Sync"));
 
             services.PostConfigure<EndpointOptions>(
                 options =>
                 {
                     options.GatewayListeningEndpoint = new IPEndPoint(IPAddress.Any, options.GatewayPort);
-                    options.SiloListeningEndpoint = new IPEndPoint(IPAddress.Any, options.SiloPort);
+                    options.SiloListeningEndpoint    = new IPEndPoint(IPAddress.Any, options.SiloPort);
                 });
 
             services.AddSingleton<IMapGenerator, RandomMapGen>()
-                .AddSingleton<ITerrainRepository, TestTerrainRepository>()
-                .AddTransient<IUnitGenerator, TestUnitGenerator>();
+                    .AddSingleton<ITerrainRepository, TestTerrainRepository>()
+                    .AddTransient<IUnitGenerator, TestUnitGenerator>()
+                    .AddTransient<IMapService, MapService>();
         }
 
         protected virtual void ConfigureLogging(HostBuilderContext context, ILoggingBuilder logging)
         {
             logging.AddConsole()
-                .AddSentry(Dsn)
-                .AddConfiguration(context.Configuration.GetSection("Logging"));
+                   .AddSentry(Dsn)
+                   .AddConfiguration(context.Configuration.GetSection("Logging"));
         }
     }
 }

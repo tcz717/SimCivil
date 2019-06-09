@@ -33,22 +33,12 @@ namespace SimCivil.Orleans.Interfaces.Component
     public interface IUnitController : IComponent
     {
         /// <summary>
-        /// Moves the specified direction.
-        /// </summary>
-        /// <param name="direction">The direction.</param>
-        /// <param name="speed">The speed.</param>
-        /// <returns></returns>
-        Task Move((float X, float Y) direction, float speed);
-
-        /// <summary>
         /// Moves to specified position.
         /// </summary>
         /// <param name="position">The position.</param>
         /// <param name="timestamp"></param>
         /// <returns></returns>
-        Task MoveTo(PositionState position, DateTime timestamp);
-
-        Task Stop();
+        Task<PositionState> MoveTo(PositionState position, DateTime timestamp);
 
         Task Drop(IEntity target);
 
@@ -57,6 +47,5 @@ namespace SimCivil.Orleans.Interfaces.Component
         Task Use(IEntity target);
 
         Task<InspectionResult> InspectEntity(IEntity target);
-        Task<(float X, float Y)> GetSpeed();
     }
 }
