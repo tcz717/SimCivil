@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
@@ -65,7 +65,8 @@
   <ProjectExtensions><VisualStudio><UserProperties /></VisualStudio></ProjectExtensions>
 
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
-    <Exec Command="dotnet build $(SolutionDir)SimCivil.Tool.PrebuildTasks\SimCivil.Tool.PrebuildTasks.csproj -c $(ConfigurationName) &amp;&amp; dotnet $(SolutionDir)SimCivil.Tool.PrebuildTasks\bin\$(ConfigurationName)\netcoreapp2.1\SimCivil.Tool.PrebuildTasks.dll $(ProjectDir)" />
+    <Exec Command="dotnet build $(SolutionDir)SimCivil.Tool.PrebuildTasks\SimCivil.Tool.PrebuildTasks.csproj -c $(ConfigurationName) -v quiet" />
+    <Exec Command="dotnet $(SolutionDir)SimCivil.Tool.PrebuildTasks\bin\$(ConfigurationName)\netcoreapp2.1\SimCivil.Tool.PrebuildTasks.dll $(ProjectDir)"></Exec>
   </Target>
 
 </Project>
