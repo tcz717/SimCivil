@@ -8,10 +8,11 @@ using System.Text;
 
 namespace SimCivil.Tool.PrebuildTasks.Prebuilders
 {
-    [Prebuild(ProjectName = "SimCivil.Concept")]
     public class ConceptPrebuilder : IPrebuilder
     {
-        public void Build(string projPath, string projName)
+        public string ProjectName => "SimCivil.Concept";
+
+        public void Build(string projPath)
         {
             foreach (string fileFullName in Directory.GetFiles(Path.Combine(projPath, "ItemModel", "Component", "State")).Where(s => s.EndsWith("State.cs")))
             {

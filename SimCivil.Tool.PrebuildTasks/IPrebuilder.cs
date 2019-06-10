@@ -6,6 +6,8 @@ namespace SimCivil.Tool.PrebuildTasks
 {
     public interface IPrebuilder
     {
-        void Build(string projPath, string projName);
+        string ProjectName { get; }
+
+        void Build(string projPath);
     }
 }

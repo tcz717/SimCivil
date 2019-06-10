@@ -8,10 +8,9 @@ namespace SimCivil.Tool.PrebuildTasks
     {
         static void Main(string[] args)
         {
-            string projName = Path.GetFileName(Path.GetDirectoryName(args[0]));
-            Console.WriteLine("Project Name: " + projName);
+            Console.WriteLine("Project Path: " + args[0]);
 
-            new BuilderDispatcher().Prebuild(args[0], projName);
+            new BuilderDispatcher().Prebuild(args[0]);
         }
     }
 }
