@@ -41,5 +41,5 @@ A C# game server simulating a civilization world allowing roles free interacting
 - **SimCivil.Utilities** 通用辅助代码，例如服务和选项的自动配置
 - **SimCivil.Test** 服务端单元测试
 - **SimCivil.IntegrationTest** 基于WPF的集成测试工具
-- ~~~SimCivil.SimpleClient~~~ 简单测试用客户端，已弃用
+- ~~SimCivil.SimpleClient~~ 简单测试用客户端，已弃用
 - **SimCivil.Scripts** 计划中，存储游戏逻辑的脚本代码
