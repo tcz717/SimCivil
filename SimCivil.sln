@@ -28,8 +28,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		xunit.bash = xunit.bash
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SimCivil.Concept", "SimCivil.Concept\SimCivil.Concept.csproj", "{52816E12-9D1B-4C81-B178-42305C28726D}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tool", "Tool", "{3701C471-6EA8-4854-8C63-531631D0E371}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SimCivil.Tool.PrebuildTasks", "SimCivil.Tool.PrebuildTasks\SimCivil.Tool.PrebuildTasks.csproj", "{74E940ED-DF80-4217-8E03-D34D7BDE4B54}"
@@ -74,10 +72,6 @@ Global
 		{337C9797-D3A4-450C-A600-56BAF53CB131}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{337C9797-D3A4-450C-A600-56BAF53CB131}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{337C9797-D3A4-450C-A600-56BAF53CB131}.Release|Any CPU.Build.0 = Release|Any CPU
-		{52816E12-9D1B-4C81-B178-42305C28726D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{52816E12-9D1B-4C81-B178-42305C28726D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{52816E12-9D1B-4C81-B178-42305C28726D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{52816E12-9D1B-4C81-B178-42305C28726D}.Release|Any CPU.Build.0 = Release|Any CPU
 		{74E940ED-DF80-4217-8E03-D34D7BDE4B54}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{74E940ED-DF80-4217-8E03-D34D7BDE4B54}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{74E940ED-DF80-4217-8E03-D34D7BDE4B54}.Release|Any CPU.ActiveCfg = Release|Any CPU
