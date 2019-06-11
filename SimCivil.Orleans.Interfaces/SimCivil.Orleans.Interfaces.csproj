@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
@@ -16,5 +16,20 @@
     <ProjectReference Include="..\SimCivil.Contract\SimCivil.Contract.csproj" />
     <ProjectReference Include="..\SimCivil.Utilities\SimCivil.Utilities.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <State Include="$(ProjectDir)Component\Item\State\*"></State>
+  </ItemGroup>
+  
+  <!-- Prebuild Tool -->
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+    <PrebuildToolProj>SimCivil.Tool.PrebuildTasks</PrebuildToolProj>
+  </PropertyGroup>
+
+  <Import Condition="'$(Configuration)' == 'Debug'" Project="$(SolutionDir)$(PrebuildToolProj)\extension.csproj" />
+
+  <Target Name="PreBuild" BeforeTargets="PreBuildEvent" Inputs="@(State)" Outputs="$(ProjectDir)Component\Item\IBuildable.cs" Condition="'$(Configuration)' == 'Debug'">
+    <CallTarget Targets="PrebuildTool"></CallTarget>
+  </Target>
 
 </Project>
