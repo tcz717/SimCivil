@@ -19,8 +19,8 @@
 // SOFTWARE.
 // 
 // SimCivil - SimCivil.Orleans.Server - Program.cs
-// Create Date: 2019/05/31
-// Update Date: 2019/05/31
+// Create Date: 2019/06/04
+// Update Date: 2019/06/05
 
 using System;
 using System.Net;
@@ -40,10 +40,9 @@ using Orleans.Runtime;
 
 using Sentry;
 
-using SimCivil.Orleans.Grains.Service;
+using SimCivil.Orleans.Grains;
 using SimCivil.Orleans.Interfaces;
-using SimCivil.Orleans.Interfaces.Option;
-using SimCivil.Orleans.Interfaces.Service;
+using SimCivil.Utilities.AutoService;
 
 using EnvironmentName = Microsoft.Extensions.Hosting.EnvironmentName;
 using HostBuilderContext = Microsoft.Extensions.Hosting.HostBuilderContext;
@@ -87,8 +86,16 @@ namespace SimCivil.Orleans.Server
                                         .AddEnvironmentVariables("SC_")
                                         .AddCommandLine(args))
                             .ConfigureLogging(ConfigureLogging)
-                            .ConfigureServices(ConfigureOption)
-                            .ConfigureServices(ConfigureServices)
+                            .ConfigureServices(
+                                 (context, collection) =>
+                                     collection.AutoService(typeof(GameGrain).Assembly)
+                                               .AutoOptions(typeof(GameGrain).Assembly, context.Configuration)
+                                               .Configure<EndpointOptions>(
+                                                    context.Configuration.GetSection("Endpoint"))
+                                               .Configure<ClusterOptions>(
+                                                    context.Configuration.GetSection("Cluster"))
+                                               .Configure<DynamoDBClusteringOptions>(
+                                                    context.Configuration.GetSection("DynamoDBClustering")))
                             .Build();
 
                 try
@@ -103,26 +110,6 @@ namespace SimCivil.Orleans.Server
                         .LogCritical(configurationException, "Configuration missing");
                 }
             }
-        }
-
-        private static void ConfigureServices(HostBuilderContext context, IServiceCollection services)
-        {
-            services.AddSingleton<IMapGenerator, RandomMapGen>()
-                    .AddSingleton<ITerrainRepository, TestTerrainRepository>()
-                    .AddTransient<IUnitGenerator, TestUnitGenerator>()
-                    .AddTransient<IMapService, MapService>();
-        }
-
-        private static void ConfigureOption(HostBuilderContext context, IServiceCollection services)
-        {
-            IConfiguration configuration = context.Configuration;
-
-            services
-               .Configure<EndpointOptions>(configuration.GetSection("Endpoint"))
-               .Configure<ClusterOptions>(configuration.GetSection("Cluster"))
-               .Configure<GameOptions>(configuration.GetSection("Game"))
-               .Configure<SyncOptions>(configuration.GetSection("Sync"))
-               .Configure<DynamoDBClusteringOptions>(configuration.GetSection("DynamoDBClustering"));
         }
 
         private static void ConfigureLogging(HostBuilderContext context, ILoggingBuilder builder)

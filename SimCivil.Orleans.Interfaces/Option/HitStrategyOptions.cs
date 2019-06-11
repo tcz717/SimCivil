@@ -18,53 +18,44 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// SimCivil - SimCivil.Test - TestServiceA.cs
-// Create Date: 2019/05/05
-// Update Date: 2019/06/05
+// SimCivil - SimCivil.Orleans.Interfaces - HitStrategyOptions.cs
+// Create Date: 2019/05/27
+// Update Date: 2019/05/27
 
 using System;
 using System.Text;
 
-using Microsoft.Extensions.DependencyInjection;
-
-using SimCivil.Rpc.Session;
+using SimCivil.Orleans.Interfaces.Component.State;
 using SimCivil.Utilities.AutoService;
 
-namespace SimCivil.Test
+namespace SimCivil.Orleans.Interfaces.Option
 {
-    [AutoService(ServiceLifetime.Transient)]
-    public class TestServiceA : ITestServiceA
+    [AutoOptions("HitStrategy")]
+    public class HitStrategyOptions
     {
-        public IRpcSession Session { get; }
-        public string      Name    { get; set; }
-
-        public TestServiceA(IRpcSession session)
-        {
-            Session = session;
-        }
-
-        public string GetName() => Name;
-
-        public string HelloWorld(string name)
-        {
-            Name = name;
-
-            return $"Hello {name}!";
-        }
-
-        public int NotImplementedFuc(int i) => throw new NotImplementedException();
-
-        public string GetSession(string key) => Session[key].ToString();
-
-        public void Echo(string str, Action<string> callback)
-        {
-            callback(str);
-        }
-
-        public (double, double) TupleEcho((double, double) dump) => dump;
-
-        public PropertyTuple PropertyTupleEcho(PropertyTuple dump) => dump;
-
-        public DateTime EchoTime(DateTime time) => time;
+        public float[] BodyHitBaseProbability { get; set; }
+        // ReSharper disable once RedundantExplicitArraySize
+            = new float [(int) BodyPartIndex.BodyPartCount]
+            {
+                0.1f,
+                0.1f,
+                0.1f,
+                0.1f,
+                0.1f,
+                0.1f,
+                0.1f,
+                0.1f,
+                0.1f,
+                0.1f,
+                0.1f,
+                0.1f,
+                0.1f,
+                0.1f,
+                0.1f,
+                0.1f,
+                0.1f,
+                0.1f,
+                0.1f,
+            };
     }
 }

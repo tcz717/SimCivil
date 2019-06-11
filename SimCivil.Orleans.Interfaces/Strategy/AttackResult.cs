@@ -18,53 +18,38 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// SimCivil - SimCivil.Test - TestServiceA.cs
-// Create Date: 2019/05/05
+// SimCivil - SimCivil.Orleans.Interfaces - AttackResult.cs
+// Create Date: 2019/06/04
 // Update Date: 2019/06/05
 
 using System;
+using System.Collections.Immutable;
 using System.Text;
 
-using Microsoft.Extensions.DependencyInjection;
+using Orleans.Concurrency;
 
-using SimCivil.Rpc.Session;
-using SimCivil.Utilities.AutoService;
+using SimCivil.Orleans.Interfaces.Component.State;
 
-namespace SimCivil.Test
+namespace SimCivil.Orleans.Interfaces.Strategy
 {
-    [AutoService(ServiceLifetime.Transient)]
-    public class TestServiceA : ITestServiceA
+    [Immutable]
+    public class AttackResult
     {
-        public IRpcSession Session { get; }
-        public string      Name    { get; set; }
+        public IImmutableDictionary<BodyPartIndex, Wound> Wounds { get; set; }
+        public AttackResultType                           Result { get; set; }
 
-        public TestServiceA(IRpcSession session)
-        {
-            Session = session;
-        }
+        public static AttackResult Miss() => new AttackResult {Result = AttackResultType.Miss};
 
-        public string GetName() => Name;
+        public static AttackResult Hit(IImmutableDictionary<BodyPartIndex, Wound> wounds)
+            => new AttackResult {Result = AttackResultType.Hit, Wounds = wounds};
 
-        public string HelloWorld(string name)
-        {
-            Name = name;
+        public static AttackResult OutOfRange() => new AttackResult {Result = AttackResultType.OutOfRange};
+    }
 
-            return $"Hello {name}!";
-        }
-
-        public int NotImplementedFuc(int i) => throw new NotImplementedException();
-
-        public string GetSession(string key) => Session[key].ToString();
-
-        public void Echo(string str, Action<string> callback)
-        {
-            callback(str);
-        }
-
-        public (double, double) TupleEcho((double, double) dump) => dump;
-
-        public PropertyTuple PropertyTupleEcho(PropertyTuple dump) => dump;
-
-        public DateTime EchoTime(DateTime time) => time;
+    public enum AttackResultType
+    {
+        Hit,
+        Miss,
+        OutOfRange,
     }
 }

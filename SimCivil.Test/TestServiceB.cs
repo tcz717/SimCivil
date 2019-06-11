@@ -19,8 +19,8 @@
 // SOFTWARE.
 // 
 // SimCivil - SimCivil.Test - TestServiceB.cs
-// Create Date: 2018/01/07
-// Update Date: 2018/12/10
+// Create Date: 2019/05/05
+// Update Date: 2019/06/05
 
 using System;
 using System.Net;
@@ -28,14 +28,18 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
+using Microsoft.Extensions.DependencyInjection;
+
 using SimCivil.Gate;
 using SimCivil.Rpc.Session;
+using SimCivil.Utilities.AutoService;
 
 using Xunit;
 
 namespace SimCivil.Test
 {
-    class TestServiceB : ITestServiceB, ISessionRequired
+    [AutoService(ServiceLifetime.Singleton)]
+    public class TestServiceB : ITestServiceB, ISessionRequired
     {
         public AsyncLocal<IRpcSession> Session { get; } = new AsyncLocal<IRpcSession>();
 
@@ -44,15 +48,12 @@ namespace SimCivil.Test
             Session.Value[key] = value;
         }
 
-        public Task<string> EchoAsync(string s)
-        {
-            return Task.FromResult(s);
-        }
+        public Task<string> EchoAsync(string s) => Task.FromResult(s);
 
         public async Task<IPEndPoint> CheckAsync()
         {
             Assert.NotNull(Session.Value);
-            var session = Session.Value;
+            IRpcSession session = Session.Value;
             await Task.Delay(500);
             Assert.NotNull(session);
 
@@ -62,9 +63,6 @@ namespace SimCivil.Test
         [LoginFilter]
         public void DeniedAction() { }
 
-        public Task<(double, double)> TupleEchoAsync((double, double) dump)
-        {
-            return Task.FromResult(dump);
-        }
+        public Task<(double, double)> TupleEchoAsync((double, double) dump) => Task.FromResult(dump);
     }
 }

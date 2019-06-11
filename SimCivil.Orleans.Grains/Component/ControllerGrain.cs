@@ -19,11 +19,12 @@
 // SOFTWARE.
 // 
 // SimCivil - SimCivil.Orleans.Grains - ControllerGrain.cs
-// Create Date: 2019/05/25
-// Update Date: 2019/06/01
+// Create Date: 2019/06/04
+// Update Date: 2019/06/04
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -32,20 +33,24 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 using Orleans;
+using Orleans.Concurrency;
 
 using SimCivil.Contract;
 using SimCivil.Orleans.Interfaces;
 using SimCivil.Orleans.Interfaces.Component;
+using SimCivil.Orleans.Interfaces.Component.State;
 using SimCivil.Orleans.Interfaces.Option;
 using SimCivil.Orleans.Interfaces.Service;
+using SimCivil.Orleans.Interfaces.Strategy;
 
 namespace SimCivil.Orleans.Grains.Component
 {
     public class ControllerGrain : Grain, IUnitController
     {
-        private readonly IMapService _mapService;
-        private          double      _lagPredict;
-        private          DateTime    _lastUpdateTime;
+        private readonly IMapService  _mapService;
+        private readonly IHitStrategy _hitStrategy;
+        private          double       _lagPredict;
+        private          DateTime     _lastUpdateTime;
 
         public TimeSpan UpdatePeriod { get; set; }
 
@@ -56,6 +61,7 @@ namespace SimCivil.Orleans.Grains.Component
         public ControllerGrain(
             ILogger<ControllerGrain> logger,
             IMapService              mapService,
+            IHitStrategy             hitStrategy,
             IOptions<GameOptions>    gameOptions,
             IOptions<SyncOptions>    syncOptions)
         {
@@ -63,6 +69,7 @@ namespace SimCivil.Orleans.Grains.Component
             GameOptions     = gameOptions;
             SyncOptions     = syncOptions;
             _mapService     = mapService;
+            _hitStrategy    = hitStrategy;
             UpdatePeriod    = TimeSpan.FromMilliseconds(syncOptions.Value.UpdatePeriod);
             _lastUpdateTime = DateTime.Now - UpdatePeriod - UpdatePeriod;
         }
@@ -127,7 +134,16 @@ namespace SimCivil.Orleans.Grains.Component
 
         public Task Drop(IEntity target) => throw new NotImplementedException();
 
-        public Task Attack(IEntity target) => throw new NotImplementedException();
+        public async Task<AttackResult> Attack(IEntity target, IEntity injurant, HitMethod hitMethod)
+        {
+            // TODO check distance
+            var attackResult = await _hitStrategy.HitCalculateAsync(
+                                            GrainFactory.GetEntity(this).AsImmutable(),
+                                            target.AsImmutable(),
+                                            injurant.AsImmutable(),
+                                            hitMethod);
+            return attackResult.IsEmpty ? AttackResult.Miss() : AttackResult.Hit(attackResult);
+        }
 
         public Task Use(IEntity target) => throw new NotImplementedException();
 

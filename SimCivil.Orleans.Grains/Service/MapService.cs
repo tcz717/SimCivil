@@ -26,6 +26,7 @@ using System;
 using System.Text;
 using System.Threading.Tasks;
 
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
 using Orleans;
@@ -34,9 +35,11 @@ using SimCivil.Orleans.Interfaces;
 using SimCivil.Orleans.Interfaces.Component;
 using SimCivil.Orleans.Interfaces.Option;
 using SimCivil.Orleans.Interfaces.Service;
+using SimCivil.Utilities.AutoService;
 
 namespace SimCivil.Orleans.Grains.Service
 {
+    [AutoService(ServiceLifetime.Transient)]
     public class MapService : IMapService
     {
         public IGrainFactory         GrainFactory      { get; }
