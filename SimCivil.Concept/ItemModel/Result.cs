@@ -11,16 +11,28 @@ namespace SimCivil.Concept.ItemModel
         InvalidOperation,
     }
 
-    public struct Result
+    public interface IResult
     {
-        public ErrorCode Err;
-        public string ErrMsg;
+        ErrorCode Err { get; }
+
+        string ErrMsg { get; }
+    }
+
+
+
+    public struct Result : IResult
+    {
+        public ErrorCode Err { get; set; }
+
+        public string ErrMsg { get; set; }
     }
 
     public struct Result<T>
     {
-        public ErrorCode Err;
-        public string ErrMsg;
-        public T value;
+        public ErrorCode Err { get; set; }
+
+        public string ErrMsg { get; set; }
+
+        public T Value { get; set; }
     }
 }

@@ -1,13 +1,6 @@
 ﻿using System;
-using System.Linq;
-using System.Reflection;
-using System.CodeDom;
-using System.CodeDom.Compiler;
 using System.IO;
-using Microsoft.CSharp;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using System.Collections.Generic;
+using System.Linq;
 
 namespace SimCivil.Tool.PrebuildTasks
 {
