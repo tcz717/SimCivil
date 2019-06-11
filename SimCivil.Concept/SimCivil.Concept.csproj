@@ -61,12 +61,22 @@
       <LastGenOutput>compound-schema.gen.json</LastGenOutput>
     </None>
   </ItemGroup>
+  
+  <ItemGroup>
+    <State Include="$(ProjectDir)ItemModel\Component\State\*"></State>
+  </ItemGroup>
 
   <ProjectExtensions><VisualStudio><UserProperties /></VisualStudio></ProjectExtensions>
+  
+  <!-- Prebuild Tool -->
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+    <PrebuildToolProj>SimCivil.Tool.PrebuildTasks</PrebuildToolProj>
+  </PropertyGroup>
 
-  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
-    <Exec Command="dotnet build $(SolutionDir)SimCivil.Tool.PrebuildTasks\SimCivil.Tool.PrebuildTasks.csproj -c $(ConfigurationName) -v quiet" />
-    <Exec Command="dotnet $(SolutionDir)SimCivil.Tool.PrebuildTasks\bin\$(ConfigurationName)\netcoreapp2.1\SimCivil.Tool.PrebuildTasks.dll $(ProjectDir)"></Exec>
+  <Import Condition="'$(Configuration)' == 'Debug'" Project="$(SolutionDir)$(PrebuildToolProj)\extension.csproj" />
+  
+  <Target Name="PreBuild" BeforeTargets="PreBuildEvent" Inputs="@(State)" Outputs="$(ProjectDir)ItemModel\Component\IBuildable.cs" Condition="'$(Configuration)' == 'Debug'">
+    <CallTarget Targets="PrebuildTool"></CallTarget>
   </Target>
 
 </Project>

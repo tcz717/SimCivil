@@ -6,6 +6,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Include="extension.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.CodeAnalysis" Version="3.1.0" />
     <PackageReference Include="Microsoft.Net.Compilers" Version="3.1.1">
       <PrivateAssets>all</PrivateAssets>
