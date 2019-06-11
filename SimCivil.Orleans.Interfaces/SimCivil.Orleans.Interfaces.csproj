@@ -14,6 +14,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\SimCivil.Contract\SimCivil.Contract.csproj" />
+    <ProjectReference Include="..\SimCivil.Utilities\SimCivil.Utilities.csproj" />
   </ItemGroup>
 
 </Project>

@@ -15,6 +15,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\SimCivil.Orleans.Interfaces\SimCivil.Orleans.Interfaces.csproj" />
+    <ProjectReference Include="..\SimCivil.Utilities\SimCivil.Utilities.csproj" />
   </ItemGroup>
 
   <ItemGroup>

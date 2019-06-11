@@ -18,9 +18,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// SimCivil - SimCivil.Orleans.Interfaces - Unit.cs
-// Create Date: 2019/05/08
-// Update Date: 2019/05/12
+// SimCivil - SimCivil.Orleans.Interfaces - UnitState.cs
+// Create Date: 2019/05/13
+// Update Date: 2019/05/28
 
 using System;
 using System.Collections.Generic;
@@ -524,6 +524,26 @@ namespace SimCivil.Orleans.Interfaces.Component.State
         public override string ToString() => $"Hp: {Hp}/{MaxHp} ({Efficiency}), P: {Potentiality}, W: {Wounds.Count}";
     }
 
-    // TODO Wound
-    public class Wound { }
+    public class Wound
+    {
+        /// <summary>Initializes a new instance of the <see cref="T:System.Object"></see> class.</summary>
+        public Wound(uint damage, WoundType type, bool permanent = false)
+        {
+            Damage    = damage;
+            Type      = type;
+            Permanent = permanent;
+        }
+
+        public uint      Damage    { get; set; }
+        public WoundType Type      { get; set; }
+        public bool      Permanent { get; set; }
+    }
+
+    public enum WoundType
+    {
+        /// <summary>
+        /// 瘀伤
+        /// </summary>
+        Bruise
+    }
 }

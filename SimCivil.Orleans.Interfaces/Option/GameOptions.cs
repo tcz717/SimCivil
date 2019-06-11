@@ -25,8 +25,11 @@
 using System;
 using System.Text;
 
+using SimCivil.Utilities.AutoService;
+
 namespace SimCivil.Orleans.Interfaces.Option
 {
+    [AutoOptions("Game")]
     public class GameOptions
     {
         /// <summary>

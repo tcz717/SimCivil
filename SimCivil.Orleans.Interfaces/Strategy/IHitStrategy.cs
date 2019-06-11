@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2017 TPDT
+// Copyright (c) 2017 TPDT
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -18,40 +18,39 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// SimCivil - SimCivil.Orleans.Grains - TestTerrainRepository.cs
-// Create Date: 2018/10/17
-// Update Date: 2019/04/27
+// SimCivil - SimCivil.Orleans.Interfaces - IHitStrategy.cs
+// Create Date: 2019/05/26
+// Update Date: 2019/05/27
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Text;
+using System.Threading.Tasks;
 
-using Microsoft.Extensions.DependencyInjection;
+using Orleans.Concurrency;
 
-using SimCivil.Orleans.Interfaces.Service;
-using SimCivil.Utilities.AutoService;
+using SimCivil.Orleans.Interfaces.Component.State;
 
-namespace SimCivil.Orleans.Grains.Service
+namespace SimCivil.Orleans.Interfaces.Strategy
 {
-    [AutoService(ServiceLifetime.Singleton)]
-    public class TestTerrainRepository : ITerrainRepository
+    public interface IHitStrategy
     {
-        private readonly IReadOnlyList<Terrain> _initTerrains;
+        Task<ImmutableDictionary<BodyPartIndex, Wound>> HitCalculateAsync(
+            Immutable<IEntity> attacker,
+            Immutable<IEntity> defender,
+            Immutable<IEntity> injurant,
+            HitMethod          hitMethod);
+    }
 
-        public TestTerrainRepository()
-        {
-            _initTerrains = new List<Terrain>
-            {
-                new Terrain(0, "grass", 1.0f)
-            };
-        }
-
-        public Terrain GetTerrain(int id)
-        {
-            if (id >= _initTerrains.Count)
-                throw new ArgumentOutOfRangeException($"{nameof(id)}", id, "");
-
-            return _initTerrains[id];
-        }
+    public enum HitMethod
+    {
+        Fist,
+        Foot,
+        Melee,
+        Magic,
+        Projectile,
+        Temperature,
+        Trap
     }
 }

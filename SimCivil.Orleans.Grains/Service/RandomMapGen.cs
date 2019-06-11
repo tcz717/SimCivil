@@ -25,11 +25,13 @@
 using System;
 using System.Text;
 
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
 using SimCivil.Orleans.Interfaces;
 using SimCivil.Orleans.Interfaces.Option;
 using SimCivil.Orleans.Interfaces.Service;
+using SimCivil.Utilities.AutoService;
 
 namespace SimCivil.Orleans.Grains.Service
 {
@@ -37,6 +39,7 @@ namespace SimCivil.Orleans.Grains.Service
     /// <summary>
     /// Random map generator used for test.
     /// </summary>
+    [AutoService(ServiceLifetime.Transient)]
     public class RandomMapGen : IMapGenerator
     {
         public IOptions<GameOptions> GameOptions { get; }

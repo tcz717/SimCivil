@@ -27,6 +27,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 using SimCivil.Contract;
+using SimCivil.Orleans.Interfaces.Strategy;
 
 namespace SimCivil.Orleans.Interfaces.Component
 {
@@ -42,7 +43,7 @@ namespace SimCivil.Orleans.Interfaces.Component
 
         Task Drop(IEntity target);
 
-        Task Attack(IEntity target);
+        Task<AttackResult> Attack(IEntity target, IEntity injurant, HitMethod hitMethod);
 
         Task Use(IEntity target);
 

@@ -40,6 +40,7 @@
     <ProjectReference Include="..\SimCivil.Orleans.Interfaces\SimCivil.Orleans.Interfaces.csproj" />
     <ProjectReference Include="..\SimCivil.Orleans.Server\SimCivil.Orleans.Server.csproj" />
     <ProjectReference Include="..\SimCivil.Rpc\SimCivil.Rpc.csproj" />
+    <ProjectReference Include="..\SimCivil.Utilities\SimCivil.Utilities.csproj" />
   </ItemGroup>
 
   <ItemGroup>

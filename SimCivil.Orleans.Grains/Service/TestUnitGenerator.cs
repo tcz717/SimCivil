@@ -19,19 +19,22 @@
 // SOFTWARE.
 // 
 // SimCivil - SimCivil.Orleans.Grains - TestUnitGenerator.cs
-// Create Date: 2019/05/08
-// Update Date: 2019/05/11
+// Create Date: 2019/05/27
+// Update Date: 2019/06/05
 
 using System;
 using System.Text;
 
+using Microsoft.Extensions.DependencyInjection;
+
 using SimCivil.Contract;
-using SimCivil.Orleans.Interfaces.Component;
 using SimCivil.Orleans.Interfaces.Component.State;
 using SimCivil.Orleans.Interfaces.Service;
+using SimCivil.Utilities.AutoService;
 
 namespace SimCivil.Orleans.Grains.Service
 {
+    [AutoService(ServiceLifetime.Transient)]
     public class TestUnitGenerator : IUnitGenerator
     {
         public UnitState GenerateInitiateUnit(CreateRoleOption option)

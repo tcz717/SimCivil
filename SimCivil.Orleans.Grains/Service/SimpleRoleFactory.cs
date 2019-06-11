@@ -25,14 +25,17 @@
 using System;
 using System.Text;
 
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 using SimCivil.Contract;
 using SimCivil.Orleans.Interfaces;
 using SimCivil.Orleans.Interfaces.Service;
+using SimCivil.Utilities.AutoService;
 
 namespace SimCivil.Orleans.Grains.Service
 {
+    [AutoService(ServiceLifetime.Transient)]
     public class SimpleRoleFactory : IRoleFactory
     {
         public IUnitGenerator UnitGenerator { get; }

@@ -24,8 +24,11 @@
 
 using System;
 
+using SimCivil.Utilities.AutoService;
+
 namespace SimCivil.Orleans.Interfaces.Option
 {
+    [AutoOptions("Sync")]
     public class SyncOptions
     {
         /// <summary>
