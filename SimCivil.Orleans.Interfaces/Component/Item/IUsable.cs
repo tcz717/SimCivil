@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace SimCivil.Orleans.Interfaces.Component
 {
-    interface IUsable : IItemComponent<UsableState>
+    public partial interface IUsable : IItemComponent<UsableState>
     {
         #region StateProperty
 

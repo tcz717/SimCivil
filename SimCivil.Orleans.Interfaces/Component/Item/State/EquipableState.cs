@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using SimCivil.Orleans.Interfaces.Component.State;
-
-namespace SimCivil.Orleans.Interfaces.Component.State
+﻿namespace SimCivil.Orleans.Interfaces.Component.State
 {
     public class EquipableState
     {

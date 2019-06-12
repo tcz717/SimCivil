@@ -1,11 +1,10 @@
 using SimCivil.Orleans.Interfaces.Component.State;
-using SimCivil.Orleans.Interfaces.Item;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace SimCivil.Orleans.Interfaces.Component
 {
-    public interface IMagical : IItemComponent<MagicalState>
+    public partial interface IMagical : IItemComponent<MagicalState>
     {
         #region StateProperty
 

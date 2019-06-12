@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace SimCivil.Orleans.Interfaces.Component
 {
-    public interface IContainer : IItemComponent<ContainerState>
+    public partial interface IContainer : IItemComponent<ContainerState>
     {
         #region StateProperty
 

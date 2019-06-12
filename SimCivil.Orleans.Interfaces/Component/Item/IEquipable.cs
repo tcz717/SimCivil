@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace SimCivil.Orleans.Interfaces.Component
 {
-    public interface IEquipable : IItemComponent<EquipableState>
+    public partial interface IEquipable : IItemComponent<EquipableState>
     {
         #region StateProperty
 

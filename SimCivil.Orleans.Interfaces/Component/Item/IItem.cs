@@ -7,7 +7,7 @@ namespace SimCivil.Orleans.Interfaces.Component
     /// Item that can be held and used by a player
     /// </summary>
     /// <seealso cref="SimCivil.Orleans.Interfaces.IComponent{T}" />
-    public interface IItem : IItemComponent<ItemState>
+    public partial interface IItem : IItemComponent<ItemState>
     {
         #region StateProperty
 

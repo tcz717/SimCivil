@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using SimCivil.Orleans.Interfaces.Component.State;
-
-namespace SimCivil.Orleans.Interfaces.Component.State
+﻿namespace SimCivil.Orleans.Interfaces.Component.State
 {
     public class BuildableState
     {
@@ -13,7 +8,7 @@ namespace SimCivil.Orleans.Interfaces.Component.State
         /// <value>
         ///   <c>true</c> if this instance is deployed; otherwise, <c>false</c>.
         /// </value>
-        bool IsDeployed { get; set; }
+        public bool IsDeployed { get; set; }
 
         /// <summary>
         /// Gets or sets the type of the structure. eg. road, table, workstation, furnace etc.

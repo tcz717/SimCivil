@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using SimCivil.Orleans.Interfaces.Component.State;
+﻿using System.Collections.Generic;
 
 namespace SimCivil.Orleans.Interfaces.Component.State
 {

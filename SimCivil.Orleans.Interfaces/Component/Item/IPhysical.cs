@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace SimCivil.Orleans.Interfaces.Component
 {
-    public interface IPhysical : IItemComponent<PhysicalState>
+    public partial interface IPhysical : IItemComponent<PhysicalState>
     {
         /// <summary>
         /// Clears compounds or sub physical parts.
