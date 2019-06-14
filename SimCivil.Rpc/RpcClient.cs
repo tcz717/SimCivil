@@ -53,7 +53,6 @@ namespace SimCivil.Rpc
         private readonly ProxyGenerator _generator = new ProxyGenerator();
         private readonly IChannelHandler _resolver;
         private readonly IConnectionControl _connectionControl;
-        private readonly IHeartbeatGenerator _heartbeatGenerator;
         private int _nextCallbackId;
 
         private long _nextSeq;
@@ -84,7 +83,6 @@ namespace SimCivil.Rpc
             _resolver = new RpcClientResolver(this);
             _callbackResolver = new RpcCallbackResolver(this);
             _connectionControl = Import<IConnectionControl>();
-            _heartbeatGenerator = new DummyHeartbeatGenerator(this);
         }
 
         /// <summary>
@@ -94,7 +92,6 @@ namespace SimCivil.Rpc
         {
             if (Channel?.Open ?? false)
                 Channel.CloseAsync().Wait();
-            _heartbeatGenerator.Dispose();
         }
 
         public event EventHandler<EventArgs<string>> DecodeFail;
@@ -140,9 +137,7 @@ namespace SimCivil.Rpc
 
                 throw;
             }
-
-            _heartbeatGenerator.Start();
-            _heartbeatGenerator.HeartbeatNeeded += (sender, args) => SendHeartbeat();
+            
             Connected = true;
         }
 
@@ -164,7 +159,6 @@ namespace SimCivil.Rpc
         {
             if (Connected)
             {
-                _heartbeatGenerator.Stop();
                 Channel?.DisconnectAsync();
                 Connected = false;
                 Channel = null;
@@ -227,8 +221,6 @@ namespace SimCivil.Rpc
         {
             if (!Connected)
                 throw new InvalidOperationException("Rpc Client is disconnected");
-
-            _heartbeatGenerator.NotifyPacketSent();
         }
     }
 

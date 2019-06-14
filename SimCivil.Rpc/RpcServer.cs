@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
@@ -53,7 +54,6 @@ namespace SimCivil.Rpc
         public IPEndPoint EndPoint { get; set; }
         public IChannel ServerChannel { get; private set; }
         public IContainer Container { get; }
-        public ITimeoutDaemon TimeoutDaemon { get; }
         public bool SupportSession { get; }
         public RpcSessionManager Sessions { get; } = new RpcSessionManager();
         public bool Debug { get; set; } = false;
@@ -71,11 +71,6 @@ namespace SimCivil.Rpc
             }
 
             Logger = GetLogger<RpcServer>();
-
-            // Create Timeout daemon
-            TimeoutDaemon = new DummyTimeoutDaemon(this, GetLogger<SimpleTimeoutDaemon>(), 5000);
-            TimeoutDaemon.ClientTimeout += (sender, args) => CloseChannel(args.Channel);
-
             Logger.LogInformation("RpcServer initialized");
         }
 
@@ -147,13 +142,11 @@ namespace SimCivil.Rpc
 
                 IChannel serverChannel = await bootstrap.BindAsync(EndPoint);
                 ServerChannel = serverChannel;
-                TimeoutDaemon.Start();
             }
             catch (Exception ex)
             {
                 Logger.LogCritical("Server fatal error while running", ex.Message);
                 Task.WaitAll(bossGroup.ShutdownGracefullyAsync(), _workerGroup.ShutdownGracefullyAsync());
-                TimeoutDaemon.Stop();
 
                 throw;
             }
@@ -175,14 +168,14 @@ namespace SimCivil.Rpc
 
         public void Stop()
         {
-            TimeoutDaemon.Stop();
             _workerGroup.ShutdownGracefullyAsync().Wait();
             ServerChannel?.CloseAsync().Wait();
-            TimeoutDaemon.Dispose();
         }
 
-        public virtual void OnRemoteCalling(RpcRequest e)
+        public virtual void OnRemoteCalling(IChannel channel, RpcRequest e)
         {
+            string args = string.Join(", ", e.Arguments.Select(arg => arg.ToString()));
+            Logger.LogDebug($"Remote requesting: {channel.RemoteAddress}: {e.MethodName}({args})");
             RemoteCalling?.Invoke(this, new EventArgs<RpcRequest>(e));
         }
     }
