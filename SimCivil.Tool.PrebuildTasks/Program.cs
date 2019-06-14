@@ -4,13 +4,14 @@ using System.IO;
 
 namespace SimCivil.Tool.PrebuildTasks
 {
-    class Program
+    public class Program
     {
-        static void Main(string[] args)
+        public static void Main(string[] args)
         {
-            Console.WriteLine("Project Path: " + args[0]);
+            Console.WriteLine("Solution Path: " + args[0]);
+            Console.WriteLine("Project Name: " + args[1]);
 
-            new BuilderDispatcher().Prebuild(args[0]);
+            new BuilderDispatcher().Prebuild(args[0], args[1]);
         }
     }
 }

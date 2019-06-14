@@ -39,7 +39,5 @@ namespace SimCivil.Orleans.Interfaces.Component
         Task SetContainer(Orleans.Interfaces.IEntity value);
 
         #endregion
-
-        Task<Result> Destroy();
     }
 }
