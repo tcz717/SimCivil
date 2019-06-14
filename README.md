@@ -30,21 +30,16 @@ A C# game server simulating a civilization world allowing roles free interacting
 ## 配置开发环境
 - [参考wiki](https://github.com/tcz717/SimCivil/wiki/%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE)
 
-## 主要模块
+## Package说明
 
-- 游戏核心逻辑
-- 服务器网络通讯
-- 数据持久化（存档读档）
-- 图形化工具，包括数据编辑器，简易地图查看器
-- 其他辅助算法如A*寻路算法、Perlin地图生成算法等
-
-## 主要概念
-- [参考Wiki](https://github.com/tcz717/SimCivil/wiki)
-
-## 项目依赖
-
-- [.net core 2.0](https://github.com/dotnet/core/blob/master/release-notes/2.0/2.0.0.md)
-- [Newtonsoft.Json 10.0.3](https://www.newtonsoft.com/json)
-- [Autofac 4.6.1](http://docs.autofac.org/en/latest/index.html)
-- [Log4net](http://logging.apache.org/log4net/)
-- System.ValueType 4.4.0
+- **SimCivil.Orleans.Grains** 服务端主要逻辑架构，存放所有actor的实现
+- **SimCivil.Orleans.Interfaces** 定义actor的接口
+- **SimCivil.Orleans.Server** 服务端启动的载体，读取配置并启动silo
+- **SimCivil.Gate** 游戏网关，用于协调客户端和silo的通信
+- **SimCivil.Contract** 定义客户端可用的服务接口和游戏数据结构
+- **SimCivil.Rpc** 自定义简单Rpc库，为游戏客户端专门设计
+- **SimCivil.Utilities** 通用辅助代码，例如服务和选项的自动配置
+- **SimCivil.Test** 服务端单元测试
+- **SimCivil.IntegrationTest** 基于WPF的集成测试工具
+- ~~SimCivil.SimpleClient~~ 简单测试用客户端，已弃用
+- **SimCivil.Scripts** 计划中，存储游戏逻辑的脚本代码
