@@ -31,6 +31,7 @@ using System.Threading.Tasks;
 using Autofac;
 
 using DotNetty.Codecs;
+using DotNetty.Handlers.Timeout;
 using DotNetty.Transport.Bootstrapping;
 using DotNetty.Transport.Channels;
 using DotNetty.Transport.Channels.Sockets;
@@ -47,21 +48,21 @@ namespace SimCivil.Rpc
 {
     public class RpcServer
     {
-        private readonly IEventLoopGroup          _workerGroup = new MultithreadEventLoopGroup();
-        public           Dictionary<string, Type> Services       { get; } = new Dictionary<string, Type>();
-        public           IPEndPoint               EndPoint       { get; set; }
-        public           IChannel                 ServerChannel  { get; private set; }
-        public           IContainer               Container      { get; }
-        public           ITimeoutDaemon           TimeoutDaemon  { get; }
-        public           bool                     SupportSession { get; }
-        public           RpcSessionManager        Sessions       { get; }      = new RpcSessionManager();
-        public           bool                     Debug          { get; set; } = false;
+        private readonly IEventLoopGroup _workerGroup = new MultithreadEventLoopGroup();
+        public Dictionary<string, Type> Services { get; } = new Dictionary<string, Type>();
+        public IPEndPoint EndPoint { get; set; }
+        public IChannel ServerChannel { get; private set; }
+        public IContainer Container { get; }
+        public ITimeoutDaemon TimeoutDaemon { get; }
+        public bool SupportSession { get; }
+        public RpcSessionManager Sessions { get; } = new RpcSessionManager();
+        public bool Debug { get; set; } = false;
 
         protected ILogger Logger;
 
         public RpcServer(IContainer container)
         {
-            Container      = container ?? throw new ArgumentNullException(nameof(container));
+            Container = container ?? throw new ArgumentNullException(nameof(container));
             SupportSession = container.IsRegistered<IRpcSession>();
             foreach (Type serviceType in container.GetRpcServiceTypes())
             {
@@ -72,7 +73,7 @@ namespace SimCivil.Rpc
             Logger = GetLogger<RpcServer>();
 
             // Create Timeout daemon
-            TimeoutDaemon               =  new SimpleTimeoutDaemon(this, GetLogger<SimpleTimeoutDaemon>(), 5000);
+            TimeoutDaemon = new DummyTimeoutDaemon(this, GetLogger<SimpleTimeoutDaemon>(), 5000);
             TimeoutDaemon.ClientTimeout += (sender, args) => CloseChannel(args.Channel);
 
             Logger.LogInformation("RpcServer initialized");
@@ -138,7 +139,7 @@ namespace SimCivil.Rpc
                    .Group(bossGroup, _workerGroup)
                    .Channel<TcpServerSocketChannel>()
                    .Option(ChannelOption.SoBacklog, 100)
-                   .ChildOption(ChannelOption.TcpNodelay,  true)
+                   .ChildOption(ChannelOption.TcpNodelay, true)
                    .ChildOption(ChannelOption.SoKeepalive, true)
                    .ChildHandler(
                         new ActionChannelInitializer<IChannel>(
@@ -161,6 +162,8 @@ namespace SimCivil.Rpc
         protected virtual void ChildChannelInit(IChannel channel)
         {
             channel.Pipeline.AddLast(new HttpRequestHandler())
+                   .AddLast(new IdleStateHandler(10, 0, 0))
+                   .AddLast(new ServerIdleHandler(Logger))
                    .AddLast(new LengthFieldPrepender(2))
                    .AddLast(new Log4NetHandler())
                    .AddLast(new LengthFieldBasedFrameDecoder(ushort.MaxValue, 0, 2, 0, 2))

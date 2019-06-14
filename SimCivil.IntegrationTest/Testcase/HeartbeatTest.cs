@@ -107,7 +107,7 @@ namespace SimCivil.IntegrationTest.Testcase
             rm = Client.Import<IRoleManager>();
             await rm.UseRole((await rm.GetRoleList()).First().Id);
 
-            await Task.Delay(10000);
+            await Task.Delay(15000);
             Client.Disconnect();
             Client.Dispose();
             Logger.LogInformation($"{RoleName} client disconnected");
