@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.CodeAnalysis.CSharp.Syntax;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -9,6 +10,8 @@ namespace SimCivil.Tool.PrebuildTasks
 {
     public class BuilderDispatcher
     {
+        public static IReadOnlyDictionary<string, string> ProjectDirs { get; private set; }
+
         public void Prebuild(string solutionPath, string projName)
         {
             var projDirs = GetProjects(solutionPath);
@@ -51,6 +54,7 @@ namespace SimCivil.Tool.PrebuildTasks
                 projDirs[match.Groups[1].Value] = dir;
             }
 
+            ProjectDirs = projDirs;
             return projDirs;
         }
     }

@@ -104,13 +104,19 @@ namespace SimCivil.Orleans.Interfaces.Component
         /// </summary>
         /// <param name="partName">Name of the part.</param>
         /// <returns></returns>
-        Task<Result> RemovePhysicalPart(string partName);
+        Task<Result> RemovePhysicalPart(IEnumerable<string> partNames);
 
         /// <summary>
         /// Determines whether this item is assembly.
         /// </summary>
         /// <returns><c>true</c> if this item is Assembly, else <c>false</c></returns>
         Task<bool> IsAssembly();
+
+        /// <summary>
+        /// Determines whether this item is single part.
+        /// </summary>
+        /// <returns><c>true</c> if this item is SinglePart, else <c>false</c></returns>
+        Task<bool> IsSinglePart();
 
         /// <summary>
         /// Converts to assembly. Convertable iff this item is an Assembly.

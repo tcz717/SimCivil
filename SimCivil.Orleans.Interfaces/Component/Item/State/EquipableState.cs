@@ -31,7 +31,7 @@ namespace SimCivil.Orleans.Interfaces.Component.State
         /// <value>
         /// The type.
         /// </value>
-        public EquipmentSlot Type { get; set; }
+        public EquipmentSlot Slot { get; set; }
 
         /// <summary>
         /// Gets or sets the effect function identifier. The effect takes place on the moment a player wear the equipment.

@@ -30,9 +30,9 @@ namespace SimCivil.Orleans.Interfaces.Component
     {
         #region StateProperty
 
-        Task<EquipmentSlot> GetType();
+        Task<EquipmentSlot> GetSlot();
 
-        Task SetType(EquipmentSlot value);
+        Task SetSlot(EquipmentSlot value);
 
         Task<EffectInvocation> GetEffect();
 

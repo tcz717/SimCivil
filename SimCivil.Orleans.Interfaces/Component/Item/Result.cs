@@ -26,6 +26,7 @@ namespace SimCivil.Orleans.Interfaces.Component
     public enum ErrorCode
     {
         Success = 0,
+        PartiallyComplete,
         ItemNotFound,
         InvalidOperation,
     }
@@ -41,6 +42,12 @@ namespace SimCivil.Orleans.Interfaces.Component
 
     public struct Result : IResult
     {
+        public Result(ErrorCode code, string message)
+        {
+            Err = code;
+            ErrMsg = message;
+        }
+
         public ErrorCode Err { get; set; }
 
         public string ErrMsg { get; set; }
@@ -48,6 +55,27 @@ namespace SimCivil.Orleans.Interfaces.Component
 
     public struct Result<T>
     {
+        public Result(ErrorCode code, string message, T value)
+        {
+            Err = code;
+            ErrMsg = message;
+            Value = value;
+        }
+
+        public Result(ErrorCode code, string message)
+        {
+            Err = code;
+            ErrMsg = message;
+            Value = default;
+        }
+
+        public Result(T value)
+        {
+            Err = ErrorCode.Success;
+            ErrMsg = default;
+            Value = value;
+        }
+
         public ErrorCode Err { get; set; }
 
         public string ErrMsg { get; set; }

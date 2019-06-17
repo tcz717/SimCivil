@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 using SimCivil.Orleans.Interfaces;
 using SimCivil.Orleans.Interfaces.Component;
 using SimCivil.Orleans.Interfaces.Component.State;
@@ -13,20 +13,22 @@ namespace SimCivil.Orleans.Grains.Component
     {
         public ItemGrain(ILoggerFactory factory) : base(factory)
         {
+            // Default
         }
 
         #region StateProperty
-        #endregion
 
-        public Task<IEntity> GetContainer()
+        public Task<Orleans.Interfaces.IEntity> GetContainer()
         {
             return Task.FromResult(State.Container);
         }
 
-        public Task SetContainer(IEntity value)
+        public Task SetContainer(Orleans.Interfaces.IEntity value)
         {
             State.Container = value;
             return WriteStateAsync();
         }
+
+        #endregion
     }
 }

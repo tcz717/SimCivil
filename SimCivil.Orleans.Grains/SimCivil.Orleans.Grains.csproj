@@ -22,4 +22,15 @@
     <Folder Include="System\" />
   </ItemGroup>
 
+  <!-- Prebuild Tool -->
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+    <PrebuildToolProj>SimCivil.Tool.PrebuildTasks</PrebuildToolProj>
+  </PropertyGroup>
+
+  <Import Condition="'$(Configuration)' == 'Debug'" Project="$(SolutionDir)$(PrebuildToolProj)\extension.csproj" />
+
+  <Target Name="PreBuild" BeforeTargets="PreBuildEvent" Condition="'$(Configuration)' == 'Debug'">
+    <CallTarget Targets="PrebuildTool"></CallTarget>
+  </Target>
+
 </Project>
