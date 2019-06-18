@@ -7,6 +7,6 @@
     <Message Text="--- Building Prebuild Tool ---" Importance="high"></Message>
     <Exec Command="dotnet build $(SolDir)$(PrebuildToolProj)/$(PrebuildToolProj).csproj -c $(ConfigurationName) -v quiet" />
     <Message Text="--- Running Prebuild Tool ---" Importance="high"></Message>
-    <Exec Command="dotnet $(SolDir)$(PrebuildToolProj)/bin/$(ConfigurationName)/netcoreapp2.1/$(PrebuildToolProj).dll $(ProjectDir)"></Exec>
+    <Exec Command="dotnet $(SolDir)$(PrebuildToolProj)/bin/$(ConfigurationName)/netcoreapp2.1/$(PrebuildToolProj).dll $(SolutionDir)\SimCivil.sln $(ProjectName)"></Exec>
   </Target>
 </Project>

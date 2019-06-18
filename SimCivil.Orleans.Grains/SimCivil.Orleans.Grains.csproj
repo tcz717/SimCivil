@@ -23,13 +23,14 @@
   </ItemGroup>
 
   <!-- Prebuild Tool -->
-  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+  <PropertyGroup>
     <PrebuildToolProj>SimCivil.Tool.PrebuildTasks</PrebuildToolProj>
+    <SolDir>$(ProjectDir)../</SolDir>
   </PropertyGroup>
 
-  <Import Condition="'$(Configuration)' == 'Debug'" Project="$(SolutionDir)$(PrebuildToolProj)\extension.csproj" />
+  <Import Project="../$(PrebuildToolProj)/extension.csproj" />
 
-  <Target Name="PreBuild" BeforeTargets="PreBuildEvent" Condition="'$(Configuration)' == 'Debug'">
+  <Target Name="PreBuild" BeforeTargets="PreBuildEvent" Condition="'$(RunTool)' == 'true'">
     <CallTarget Targets="PrebuildTool"></CallTarget>
   </Target>
 
