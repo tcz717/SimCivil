@@ -11,7 +11,7 @@ RUN dotnet restore SimCivil.Gate
 
 FROM restore AS build
 COPY . .
-RUN dotnet publish -f netcoreapp2.0 SimCivil.Gate
+RUN dotnet publish -f netcoreapp2.0 SimCivil.Gate -p:RunTool=false
 
 FROM mcr.microsoft.com/dotnet/core/runtime:2.2 AS entry
 EXPOSE 20170
