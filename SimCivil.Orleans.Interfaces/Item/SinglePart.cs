@@ -36,7 +36,7 @@ namespace SimCivil.Orleans.Interfaces.Item
         /// </value>
         public string Name { get; set; }
 
-        public IDictionary<string, double> CompoundWeights { get; set; }
+        public IDictionary<string, double> CompoundWeights { get; set; } = new Dictionary<string, double>();
 
         /// <summary>
         /// Gets the weight of all compounds.

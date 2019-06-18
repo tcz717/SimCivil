@@ -1,16 +1,22 @@
 using Microsoft.Extensions.Logging;
+using SimCivil.Orleans.Grains.Strategy;
 using SimCivil.Orleans.Interfaces.Component;
 using SimCivil.Orleans.Interfaces.Component.State;
 using SimCivil.Orleans.Interfaces.Item;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
+using System.Reflection.Metadata;
 using System.Threading.Tasks;
 
 namespace SimCivil.Orleans.Grains.Component
 {
     public class PhysicalGrain : BaseGrain<PhysicalState>, IPhysical
     {
+        public const string NotSinglePart = "The part is not a single part.";
+        public const string NotAssemblyPart = "The part is not an assembly part.";
+
         public PhysicalGrain(ILoggerFactory factory) : base(factory)
         {
             // Default
@@ -33,7 +39,7 @@ namespace SimCivil.Orleans.Grains.Component
             }
             else
             {
-                return new Result(ErrorCode.InvalidOperation, "The part is not a single part.");
+                return new Result(ErrorCode.InvalidOperation, NotSinglePart);
             }
 
             await WriteStateAsync();
@@ -63,7 +69,7 @@ namespace SimCivil.Orleans.Grains.Component
             }
             else
             {
-                return new Result(ErrorCode.InvalidOperation, "The part is not an assembly part.");
+                return new Result(ErrorCode.InvalidOperation, NotAssemblyPart);
             }
 
             await WriteStateAsync();
@@ -93,7 +99,7 @@ namespace SimCivil.Orleans.Grains.Component
                 return Task.FromResult(new Result<IDictionary<string, double>>(new Dictionary<string, double>()));
             }
 
-            return Task.FromResult(new Result<IDictionary<string, double>>(ErrorCode.InvalidOperation, "The part is not a single part."));
+            return Task.FromResult(new Result<IDictionary<string, double>>(ErrorCode.InvalidOperation, NotSinglePart));
         }
 
         public Task<Result<IDictionary<string, IPhysicalPart>>> GetPhysicalParts()
@@ -107,7 +113,7 @@ namespace SimCivil.Orleans.Grains.Component
                 return Task.FromResult(new Result<IDictionary<string, IPhysicalPart>>(new Dictionary<string, IPhysicalPart>()));
             }
 
-            return Task.FromResult(new Result<IDictionary<string, IPhysicalPart>>(ErrorCode.InvalidOperation, "The part is not an assembly part."));
+            return Task.FromResult(new Result<IDictionary<string, IPhysicalPart>>(ErrorCode.InvalidOperation, NotAssemblyPart));
         }
 
         public Task<double> GetVolume()
@@ -157,7 +163,7 @@ namespace SimCivil.Orleans.Grains.Component
             }
             else
             {
-                return Task.FromResult(new Result(ErrorCode.InvalidOperation, "The part is not a single part."));
+                return Task.FromResult(new Result(ErrorCode.InvalidOperation, NotSinglePart));
             }
 
             if (conflicts.Count > 0)
@@ -195,7 +201,7 @@ namespace SimCivil.Orleans.Grains.Component
             }
             else
             {
-                return Task.FromResult(new Result(ErrorCode.InvalidOperation, "The part is not an assembly part."));
+                return Task.FromResult(new Result(ErrorCode.InvalidOperation, NotAssemblyPart));
             }
 
             if (conflicts.Count > 0)
@@ -206,34 +212,124 @@ namespace SimCivil.Orleans.Grains.Component
             return Task.FromResult(new Result());
         }
 
-        public Task<Result> SetCompounds(IDictionary<string, double> compounds)
+        public async Task<Result> SetCompounds(IDictionary<string, double> compounds)
         {
-            throw new NotImplementedException();
+            if (State.Part is null || State.Part is SinglePart)
+            {
+                State.Part = new SinglePart()
+                {
+                    CompoundWeights = compounds
+                };
+
+                await WriteStateAsync();
+                return new Result();
+            }
+
+            return new Result(ErrorCode.InvalidOperation, NotSinglePart);
         }
 
-        public Task<Result> SetPhysicalParts(IDictionary<string, IPhysicalPart> subparts)
+        public async Task<Result> SetPhysicalParts(IDictionary<string, IPhysicalPart> subparts)
         {
-            throw new NotImplementedException();
+            if (State.Part is null || State.Part is AssemblyPart)
+            {
+                State.Part = new AssemblyPart()
+                {
+                    Parts = subparts
+                };
+
+                await WriteStateAsync();
+                return new Result();
+            }
+
+            return new Result(ErrorCode.InvalidOperation, NotAssemblyPart);
         }
 
         public Task<Result<AssemblyPart>> ToAssemblyPart()
         {
-            throw new NotImplementedException();
+            if (State.Part is AssemblyPart part)
+            {
+                return Task.FromResult(new Result<AssemblyPart>(part));
+            }
+            else if (State.Part is null)
+            {
+                return Task.FromResult(new Result<AssemblyPart>(new AssemblyPart()));
+            }
+
+            return Task.FromResult(new Result<AssemblyPart>(ErrorCode.InvalidOperation, NotAssemblyPart));
         }
 
         public Task<Result<SinglePart>> ToSinglePart()
         {
-            throw new NotImplementedException();
+            if (State.Part is SinglePart part)
+            {
+                return Task.FromResult(new Result<SinglePart>(part));
+            }
+            else if (State.Part is null)
+            {
+                return Task.FromResult(new Result<SinglePart>(new SinglePart()));
+            }
+
+            return Task.FromResult(new Result<SinglePart>(ErrorCode.InvalidOperation, NotSinglePart));
         }
 
-        public Task<Result> UpdateCompounds(IDictionary<string, double> compounds)
+        public async Task<Result> UpdateCompounds(IDictionary<string, double> compounds)
         {
-            throw new NotImplementedException();
+            if (State.Part is null)
+            {
+                State.Part = new SinglePart();
+            }
+
+            if (State.Part is SinglePart part)
+            {
+                foreach (var comp in compounds)
+                {
+                    if (comp.Value == 0)
+                    {
+                        part.CompoundWeights.Remove(comp.Key);
+                    }
+                    else
+                    {
+                        part.CompoundWeights[comp.Key] = comp.Value;
+                    }
+                }
+            }
+            else
+            {
+                return new Result(ErrorCode.InvalidOperation, NotSinglePart);
+            }
+
+            await WriteStateAsync();
+            return new Result();
         }
 
-        public Task<Result> UpdatePhysicalPart(IDictionary<string, IPhysicalPart> subparts)
+        public async Task<Result> UpdatePhysicalPart(IDictionary<string, IPhysicalPart> subparts)
         {
-            throw new NotImplementedException();
+            if (State.Part is null)
+            {
+                State.Part = new AssemblyPart();
+            }
+
+            if (State.Part is AssemblyPart part)
+            {
+                foreach (var subpart in subparts)
+                {
+                    if (subpart.Value is null)
+                    {
+                        part.Parts.Remove(subpart.Key);
+                    }
+                    else
+                    {
+                        part.Parts[subpart.Key] = subpart.Value;
+                    }
+                }
+            }
+            else
+            {
+                return new Result(ErrorCode.InvalidOperation, NotAssemblyPart);
+            }
+
+            await WriteStateAsync();
+            return new Result();
         }
     }
 }

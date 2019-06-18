@@ -48,7 +48,7 @@ namespace SimCivil.Orleans.Interfaces.Item
         /// <value>
         /// The subparts.
         /// </value>
-        public IDictionary<string, IPhysicalPart> Parts { get; set; }
+        public IDictionary<string, IPhysicalPart> Parts { get; set; } = new Dictionary<string, IPhysicalPart>();
 
         /// <summary>
         /// Gets the total weight.
