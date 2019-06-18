@@ -27,6 +27,6 @@ namespace SimCivil.Orleans.Interfaces.Component.State
 {
     public class ContainerState
     {
-        public IEnumerable<IEntity> Contents { get; set; }
+        public IList<IEntity> Contents { get; set; } = new List<IEntity>();
     }
 }
