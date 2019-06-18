@@ -1,8 +1,8 @@
 ﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Target Name="PrebuildTool">
     <Message Text="--- Building Prebuild Tool ---" Importance="high"></Message>
-    <Exec Command="dotnet build $(SolDir)$(PrebuildToolProj)\$(PrebuildToolProj).csproj -c $(ConfigurationName) -v quiet" />
+    <Exec Command="dotnet build $(SolDir)$(PrebuildToolProj)/$(PrebuildToolProj).csproj -c $(ConfigurationName) -v quiet" />
     <Message Text="--- Running Prebuild Tool ---" Importance="high"></Message>
-    <Exec Command="dotnet $(SolDir)$(PrebuildToolProj)\bin\$(ConfigurationName)\netcoreapp2.1\$(PrebuildToolProj).dll $(ProjectDir)"></Exec>
+    <Exec Command="dotnet $(SolDir)$(PrebuildToolProj)/bin/$(ConfigurationName)/netcoreapp2.1/$(PrebuildToolProj).dll $(ProjectDir)"></Exec>
   </Target>
 </Project>
