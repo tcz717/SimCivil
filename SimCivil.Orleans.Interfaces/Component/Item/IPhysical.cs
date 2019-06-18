@@ -59,6 +59,7 @@ namespace SimCivil.Orleans.Interfaces.Component
 
         /// <summary>
         /// Update the compounds weight in this item if the item is single part.
+        /// If value of compounds is 0, then remove the slot.
         /// </summary>
         /// <param name="compounds">The compound types and weights.</param>
         /// <returns></returns>
@@ -87,6 +88,7 @@ namespace SimCivil.Orleans.Interfaces.Component
 
         /// <summary>
         /// Inserts the physical part. This item must be an Assembly.
+        /// If the subpart slot already exists, then skip.
         /// </summary>
         /// <param name="subparts">The physical part names and parts.</param>
         /// <returns></returns>
@@ -94,6 +96,7 @@ namespace SimCivil.Orleans.Interfaces.Component
 
         /// <summary>
         /// Update the sub physical parts weight in this item if the item is assembly.
+        /// If value of subparts is null, then remove the slot.
         /// </summary>
         /// <param name="subparts">The physical part names and parts.</param>
         /// <returns></returns>

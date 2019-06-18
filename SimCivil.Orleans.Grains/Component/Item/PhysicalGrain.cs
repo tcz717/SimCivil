@@ -136,7 +136,7 @@ namespace SimCivil.Orleans.Grains.Component
             return Task.FromResult(State.Part is SinglePart || State.Part is null);
         }
 
-        public Task<Result> RemoveCompound(IEnumerable<string> compounds)
+        public async Task<Result> RemoveCompound(IEnumerable<string> compounds)
         {
             var conflicts = new List<string>();
             if (State.Part is SinglePart part)
@@ -156,25 +156,26 @@ namespace SimCivil.Orleans.Grains.Component
             {
                 if (compounds.Any())
                 {
-                    return Task.FromResult(new Result(ErrorCode.PartiallyComplete, "The part is empty."));
+                    return new Result(ErrorCode.PartiallyComplete, "The part is empty.");
                 }
 
-                return Task.FromResult(new Result());
+                return new Result();
             }
             else
             {
-                return Task.FromResult(new Result(ErrorCode.InvalidOperation, NotSinglePart));
+                return new Result(ErrorCode.InvalidOperation, NotSinglePart);
             }
 
             if (conflicts.Count > 0)
             {
-                return Task.FromResult(new Result(ErrorCode.PartiallyComplete, $"Cannot find components: [{string.Join(','.ToString(), conflicts)}]"));
+                return new Result(ErrorCode.PartiallyComplete, $"Cannot find components: [{string.Join(','.ToString(), conflicts)}]");
             }
 
-            return Task.FromResult(new Result());
+            await WriteStateAsync();
+            return new Result();
         }
 
-        public Task<Result> RemovePhysicalPart(IEnumerable<string> partNames)
+        public async Task<Result> RemovePhysicalPart(IEnumerable<string> partNames)
         {
             var conflicts = new List<string>();
             if (State.Part is AssemblyPart part)
@@ -194,22 +195,23 @@ namespace SimCivil.Orleans.Grains.Component
             {
                 if (partNames.Any())
                 {
-                    return Task.FromResult(new Result(ErrorCode.PartiallyComplete, "The part is empty."));
+                    return new Result(ErrorCode.PartiallyComplete, "The part is empty.");
                 }
 
-                return Task.FromResult(new Result());
+                return new Result();
             }
             else
             {
-                return Task.FromResult(new Result(ErrorCode.InvalidOperation, NotAssemblyPart));
+                return new Result(ErrorCode.InvalidOperation, NotAssemblyPart);
             }
 
             if (conflicts.Count > 0)
             {
-                return Task.FromResult(new Result(ErrorCode.PartiallyComplete, $"Cannot find parts: [{string.Join(','.ToString(), conflicts)}]"));
+                return new Result(ErrorCode.PartiallyComplete, $"Cannot find parts: [{string.Join(','.ToString(), conflicts)}]");
             }
 
-            return Task.FromResult(new Result());
+            await WriteStateAsync();
+            return new Result();
         }
 
         public async Task<Result> SetCompounds(IDictionary<string, double> compounds)
