@@ -11,7 +11,7 @@ RUN dotnet restore SimCivil.Orleans.Server
 
 FROM restore AS build
 COPY . .
-RUN dotnet publish -f netcoreapp2.0 SimCivil.Orleans.Server
+RUN dotnet publish -f netcoreapp2.0 SimCivil.Orleans.Server -p:RunTool=false
 
 FROM mcr.microsoft.com/dotnet/core/runtime:2.2 AS entry
 EXPOSE 30000 11111
