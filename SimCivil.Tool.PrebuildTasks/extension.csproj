@@ -1,4 +1,8 @@
 ﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup Condition="!Exists('$(RunTool)')">
+    <RunTool>true</RunTool>
+  </PropertyGroup>
+  
   <Target Name="PrebuildTool">
     <Message Text="--- Building Prebuild Tool ---" Importance="high"></Message>
     <Exec Command="dotnet build $(SolDir)$(PrebuildToolProj)/$(PrebuildToolProj).csproj -c $(ConfigurationName) -v quiet" />
