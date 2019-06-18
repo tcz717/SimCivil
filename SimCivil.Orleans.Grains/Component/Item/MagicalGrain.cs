@@ -3,7 +3,6 @@ using SimCivil.Orleans.Interfaces.Component;
 using SimCivil.Orleans.Interfaces.Component.State;
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace SimCivil.Orleans.Grains.Component
@@ -15,23 +14,62 @@ namespace SimCivil.Orleans.Grains.Component
             // Default
         }
 
-        public Task AddElements(IDictionary<string, double> elements)
+        public async Task AddElements(IDictionary<string, double> elements)
         {
-            throw new NotImplementedException();
+            foreach (var ele in elements)
+            {
+                if (ele.Value > 0)
+                {
+                    State.ElementQuantities[ele.Key] = (State.ElementQuantities.TryGetValue(ele.Key, out double val) ? val : 0) + ele.Value;
+                }
+            }
+
+            await WriteStateAsync();
+            return;
         }
 
-        public Task<Result> Clear()
+        public async Task Clear()
         {
-            throw new NotImplementedException();
-        }
-        public Task UpdateElements(IDictionary<string, double> elements)
-        {
-            throw new NotImplementedException();
+            State = new MagicalState();
+            await WriteStateAsync();
         }
 
-        public Task<Result> RemoveElements(IEnumerable<string> elements)
+        public async Task UpdateElements(IDictionary<string, double> elements)
         {
-            throw new NotImplementedException();
+            foreach (var ele in elements)
+            {
+                if (ele.Value > 0)
+                {
+                    State.ElementQuantities[ele.Key] = ele.Value;
+                }
+                else
+                {
+                    State.ElementQuantities.Remove(ele.Key);
+                }
+            }
+
+            await WriteStateAsync();
+            return;
+        }
+
+        public async Task<Result> RemoveElements(IEnumerable<string> elements)
+        {
+            var conflicts = new List<string>();
+            foreach (var ele in elements)
+            {
+                if (!State.ElementQuantities.Remove(ele))
+                {
+                    conflicts.Add(ele);
+                }
+            }
+
+            await WriteStateAsync();
+            if (conflicts.Count > 0)
+            {
+                return new Result(ErrorCode.PartiallyComplete, $"Elements not found: [{string.Join(",", conflicts)}]");
+            }
+
+            return new Result();
         }
 
         #region StateProperty

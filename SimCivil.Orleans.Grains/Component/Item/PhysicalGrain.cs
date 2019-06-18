@@ -33,8 +33,11 @@ namespace SimCivil.Orleans.Grains.Component
             {
                 foreach (var compound in compounds)
                 {
-                    singlePart.CompoundWeights[compound.Key] =
-                        (singlePart.CompoundWeights.TryGetValue(compound.Key, out double val) ? val : 0) + compound.Value;
+                    if (compound.Value > 0)
+                    {
+                        singlePart.CompoundWeights[compound.Key] =
+                            (singlePart.CompoundWeights.TryGetValue(compound.Key, out double val) ? val : 0) + compound.Value;
+                    }
                 }
             }
             else
@@ -58,13 +61,16 @@ namespace SimCivil.Orleans.Grains.Component
             {
                 foreach (var part in subparts)
                 {
-                    if (assemblyPart.Parts.TryGetValue(part.Key, out IPhysicalPart val))
+                    if (part.Value != null)
                     {
-                        conflicts.Add(part.Key);
-                        continue;
-                    }
+                        if (assemblyPart.Parts.TryGetValue(part.Key, out IPhysicalPart val))
+                        {
+                            conflicts.Add(part.Key);
+                            continue;
+                        }
 
-                    assemblyPart.Parts[part.Key] = part.Value;
+                        assemblyPart.Parts[part.Key] = part.Value;
+                    }
                 }
             }
             else
@@ -77,7 +83,7 @@ namespace SimCivil.Orleans.Grains.Component
             if (conflicts.Count > 0)
             {
                 ret.Err = ErrorCode.PartiallyComplete;
-                ret.ErrMsg = $"Parts already exist: [{string.Join(','.ToString(), conflicts)}]";
+                ret.ErrMsg = $"Parts already exist: [{string.Join(",", conflicts)}]";
             }
             return new Result();
         }
@@ -168,7 +174,7 @@ namespace SimCivil.Orleans.Grains.Component
 
             if (conflicts.Count > 0)
             {
-                return new Result(ErrorCode.PartiallyComplete, $"Cannot find components: [{string.Join(','.ToString(), conflicts)}]");
+                return new Result(ErrorCode.PartiallyComplete, $"Cannot find components: [{string.Join(",", conflicts)}]");
             }
 
             await WriteStateAsync();
@@ -207,7 +213,7 @@ namespace SimCivil.Orleans.Grains.Component
 
             if (conflicts.Count > 0)
             {
-                return new Result(ErrorCode.PartiallyComplete, $"Cannot find parts: [{string.Join(','.ToString(), conflicts)}]");
+                return new Result(ErrorCode.PartiallyComplete, $"Cannot find parts: [{string.Join(",", conflicts)}]");
             }
 
             await WriteStateAsync();
