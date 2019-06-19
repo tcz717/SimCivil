@@ -1,12 +1,24 @@
 ﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup Condition="!Exists('$(RunTool)')">
     <RunTool>true</RunTool>
+
+    <ConfigurationName Condition="$(ConfigurationName) == ''">Debug</ConfigurationName>
+    <PrebuildOutputPath>$(SolDir)$(PrebuildToolProj)/bin/$(ConfigurationName)/netcoreapp2.1/$(PrebuildToolProj).dll</PrebuildOutputPath>
   </PropertyGroup>
-  
-  <Target Name="PrebuildTool">
+
+  <ItemGroup>
+    <PrebuildCode Include="$(SolDir)$(PrebuildToolProj)/*.cs"></PrebuildCode>
+  </ItemGroup>
+
+  <Target Name="CompilePrebuildTool" Inputs="@(PrebuildCode)" Outputs="$(PrebuildOutputPath)">
     <Message Text="--- Building Prebuild Tool ---" Importance="high"></Message>
     <Exec Command="dotnet build $(SolDir)$(PrebuildToolProj)/$(PrebuildToolProj).csproj -c $(ConfigurationName) -v quiet" />
+  </Target>
+
+  <Target Name="PrebuildTool">
+    <CallTarget Targets="CompilePrebuildTool"></CallTarget>
     <Message Text="--- Running Prebuild Tool ---" Importance="high"></Message>
-    <Exec Command="dotnet $(SolDir)$(PrebuildToolProj)/bin/$(ConfigurationName)/netcoreapp2.1/$(PrebuildToolProj).dll $(SolutionDir)\SimCivil.sln $(ProjectName)"></Exec>
+    <Exec Command="dotnet $(PrebuildOutputPath) $(SolutionDir)\SimCivil.sln $(ProjectName)"></Exec>
+    <Message Text="--- Finished Prebuild Tool ---" Importance="high"></Message>
   </Target>
 </Project>

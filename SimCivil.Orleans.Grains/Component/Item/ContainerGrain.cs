@@ -15,6 +15,7 @@ namespace SimCivil.Orleans.Grains.Component
 
         public ContainerGrain(ILoggerFactory factory, IGrainFactory grainFactory) : base(factory)
         {
+            // Default
         }
 
         public async Task PutItem(IEntity item)

@@ -28,6 +28,17 @@ namespace SimCivil.Orleans.Interfaces.Item
 {
     public class SinglePart : IPhysicalPart
     {
+        private SinglePart() { }
+
+        public SinglePart(string name = "N/A", IDictionary<string, double> compoundWeights = null, double quality = 1, double volume = 1)
+        {
+            Name = name;
+            if (compoundWeights != null)
+                CompoundWeights = compoundWeights;
+            Quality = quality;
+            Volume = volume;
+        }
+
         /// <summary>
         /// Gets or sets the name.
         /// </summary>
@@ -49,7 +60,7 @@ namespace SimCivil.Orleans.Interfaces.Item
 
         /// <summary>
         /// Gets or sets the volume. This volume has no (or not too much) relation with Weight and Density,
-        /// because CompoundPart has its own shape
+        /// because SinglePart has its own shape
         /// </summary>
         /// <value>
         /// The volume.

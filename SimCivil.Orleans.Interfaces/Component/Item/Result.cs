@@ -21,14 +21,18 @@
 // SimCivil - SimCivil.Orleans.Interfaces - Result.cs
 // Update Date: 2019/6/12
 
+using System;
+
 namespace SimCivil.Orleans.Interfaces.Component
 {
+    [Flags]
     public enum ErrorCode
     {
-        Success = 0,
-        PartiallyComplete,
-        ItemNotFound,
-        InvalidOperation,
+        // FIX: Default bug
+        Success = 0x01,
+        PartiallyComplete = 0x02 | Success,
+        ItemNotFound = 0x04,
+        InvalidOperation = 0x08,
     }
 
     public interface IResult
