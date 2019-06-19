@@ -19,19 +19,24 @@
 // SOFTWARE.
 // 
 // SimCivil - SimCivil.Gate - OrleansPlayerController.cs
-// Create Date: 2019/05/13
-// Update Date: 2019/05/31
+// Create Date: 2019/06/14
+// Update Date: 2019/06/17
 
 using System;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
+using AutoMapper;
+
 using Orleans;
 
 using SimCivil.Contract;
+using SimCivil.Contract.Model;
 using SimCivil.Orleans.Interfaces;
 using SimCivil.Orleans.Interfaces.Component;
+using SimCivil.Orleans.Interfaces.Strategy;
 using SimCivil.Rpc;
 using SimCivil.Rpc.Session;
 
@@ -40,6 +45,17 @@ namespace SimCivil.Gate
     [LoginFilter]
     public class OrleansPlayerController : IPlayerController, ISessionRequired
     {
+        private static readonly IMapper DtoMapper =
+            new Mapper(
+                new MapperConfiguration(
+                    cfg =>
+                    {
+                        cfg.CreateMap<AttackResult, AttackResultDto>()
+                           .ForMember(
+                                dest => dest.HitBodyParts,
+                                opt => opt.MapFrom(src => src.Wounds.Keys.Select(i => i.ToString())));
+                    }));
+
         public IGrainFactory Factory { get; }
 
         public OrleansPlayerController(IGrainFactory factory)
@@ -61,6 +77,17 @@ namespace SimCivil.Gate
             var controller = Factory.GetGrain<IUnitController>(Session.Value.Get<IEntity>().GetPrimaryKey());
 
             return await controller.InspectEntity(Factory.GetEntity(entityId));
+        }
+
+        public async Task<AttackResultDto> Attack(Guid target, Guid injurant, HitMethod hitMethod)
+        {
+            var controller = Factory.GetGrain<IUnitController>(Session.Value.Get<IEntity>().GetPrimaryKey());
+
+            return DtoMapper.Map<AttackResultDto>(
+                await controller.Attack(
+                    Factory.GetEntity(target),
+                    injurant == Guid.Empty ? null : Factory.GetEntity(injurant),
+                    hitMethod));
         }
     }
 }

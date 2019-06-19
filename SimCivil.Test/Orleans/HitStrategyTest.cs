@@ -19,21 +19,18 @@
 // SOFTWARE.
 // 
 // SimCivil - SimCivil.Test - HitStrategyTest.cs
-// Create Date: 2019/06/03
-// Update Date: 2019/06/03
+// Create Date: 2019/06/14
+// Update Date: 2019/06/18
 
 using System;
-using System.Collections.Immutable;
 using System.Text;
 using System.Threading.Tasks;
 
 using Microsoft.Extensions.Options;
 
-using Orleans.Concurrency;
-
+using SimCivil.Contract.Model;
 using SimCivil.Orleans.Grains.Strategy;
 using SimCivil.Orleans.Interfaces;
-using SimCivil.Orleans.Interfaces.Component.State;
 using SimCivil.Orleans.Interfaces.Option;
 using SimCivil.Orleans.Interfaces.Strategy;
 
@@ -83,16 +80,13 @@ namespace SimCivil.Test.Orleans
                     }));
 
             var attackResult = await hitStrategy.HitCalculateAsync(
-                                            new Immutable<IEntity>(attackerEntity),
-                                            new Immutable<IEntity>(defenderEntity),
-                                            new Immutable<IEntity>(),
-                                            HitMethod.Fist);
+                                   attackerEntity,
+                                   defenderEntity,
+                                   null,
+                                   HitMethod.Fist);
 
             Assert.NotNull(attackResult);
-            if (!attackResult.IsEmpty)
-            {
-                Assert.Single(attackResult);
-            }
+            if (!attackResult.IsEmpty) Assert.Single(attackResult);
         }
     }
 }

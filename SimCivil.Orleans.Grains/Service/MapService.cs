@@ -70,5 +70,14 @@ namespace SimCivil.Orleans.Grains.Service
             var unit = GrainFactory.Get<IUnit>(entity);
             return await unit.GetMoveSpeed() * (await GetTerrain(position.Tile)).BaseMoveSpeed;
         }
+
+        public async Task<float> CalculateDistance(IEntity entity1, IEntity entity2)
+        {
+            var positions = await Task.WhenAll(GrainFactory.Get<IPosition>(entity1).GetData(), GrainFactory.Get<IPosition>(entity2).GetData());
+            float d2 = (positions[0].X - positions[1].X) * (positions[0].X - positions[1].X) +
+                       (positions[0].Y - positions[1].Y) * (positions[0].Y - positions[1].Y);
+
+            return (float) Math.Sqrt(d2);
+        }
     }
 }

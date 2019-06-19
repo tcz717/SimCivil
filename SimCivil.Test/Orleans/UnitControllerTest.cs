@@ -19,8 +19,8 @@
 // SOFTWARE.
 // 
 // SimCivil - SimCivil.Test - UnitControllerTest.cs
-// Create Date: 2019/04/25
-// Update Date: 2019/04/29
+// Create Date: 2019/06/14
+// Update Date: 2019/06/18
 
 using System;
 using System.Diagnostics.CodeAnalysis;
@@ -31,9 +31,12 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
+using SimCivil.Contract.Model;
+using SimCivil.Orleans.Grains.Component;
 using SimCivil.Orleans.Interfaces;
 using SimCivil.Orleans.Interfaces.Component;
 using SimCivil.Orleans.Interfaces.Option;
+using SimCivil.Orleans.Interfaces.Strategy;
 
 using Xunit;
 using Xunit.Abstractions;
@@ -45,6 +48,47 @@ namespace SimCivil.Test.Orleans
     public class UnitControllerTest : OrleansBaseTest
     {
         public UnitControllerTest(OrleansFixture fixture, ITestOutputHelper output) : base(fixture, output) { }
+
+        [Fact]
+        public async Task CallFilterTest()
+        {
+            await Assert.ThrowsAsync<EntityInvalidException>(
+                async () =>
+                    await Cluster.GrainFactory.GetGrain<IUnitController>(Guid.NewGuid()).Drop(null));
+        }
+
+        [Fact]
+        public async Task AttackTest()
+        {
+            IEntity attacker = await GetNewRoleAsync();
+            IEntity defender = await GetNewRoleAsync();
+
+            AttackResult attackResult =
+                await Cluster.GrainFactory.Get<IUnitController>(attacker).Attack(defender, null, HitMethod.Fist);
+
+            Assert.NotEqual(HitResult.InvalidedTarget, attackResult.Result);
+            Assert.NotEqual(HitResult.OutOfRange,      attackResult.Result);
+            Assert.NotEqual(HitResult.Cooldown,        attackResult.Result);
+        }
+
+        [Fact]
+        public async Task AttackCoolDownTask()
+        {
+            IEntity attacker = await GetNewRoleAsync();
+            IEntity defender = await GetNewRoleAsync();
+
+            var controller = Cluster.GrainFactory.Get<IUnitController>(attacker);
+            AttackResult attackResult =
+                await controller.Attack(defender, null, HitMethod.Fist);
+
+            Assert.NotEqual(HitResult.InvalidedTarget, attackResult.Result);
+            Assert.NotEqual(HitResult.OutOfRange,      attackResult.Result);
+            Assert.NotEqual(HitResult.Cooldown,        attackResult.Result);
+
+            await Task.Delay(500);
+
+            Assert.Equal(HitResult.Cooldown, (await controller.Attack(defender, null, HitMethod.Fist)).Result);
+        }
 
         [Theory]
         [InlineData(1)]
@@ -64,25 +108,25 @@ namespace SimCivil.Test.Orleans
             var units = roles.Select(Cluster.GrainFactory.Get<IUnit>).ToArray();
             var unitControllers = roles.Select(Cluster.GrainFactory.Get<IUnitController>).ToArray();
 
-            float[] deltas = await Task.WhenAll(
-                units.Select(async u => await u.GetMoveSpeed() * syncOptions.Value.UpdatePeriod / 1000));
+            var deltas = await Task.WhenAll(
+                             units.Select(async u => await u.GetMoveSpeed() * syncOptions.Value.UpdatePeriod / 1000));
             Assert.All(deltas, d => Assert.True(d > 0));
 
-            PositionState[] initPos = await Task.WhenAll(positions.Select(s => s.GetData()));
-            for (int i = 0; i < steps; i++)
+            var initPos = await Task.WhenAll(positions.Select(s => s.GetData()));
+            for (var i = 0; i < steps; i++)
             {
-                PositionState[] posArr = new PositionState[roleNum];
-                Task[] tasks = new Task[roleNum];
-                for (int j = 0; j < roleNum; j++)
+                var posArr = new PositionState[roleNum];
+                var tasks = new Task[roleNum];
+                for (var j = 0; j < roleNum; j++)
                 {
                     posArr[j] = initPos[j] + (i * deltas[j], 0);
-                    tasks[j] = unitControllers[j].MoveTo(posArr[j], DateTime.UtcNow);
+                    tasks[j]  = unitControllers[j].MoveTo(posArr[j], DateTime.UtcNow);
                 }
 
                 await Task.WhenAll(tasks);
                 await Task.Delay(syncOptions.Value.UpdatePeriod);
 
-                for (int j = 0; j < roleNum; j++)
+                for (var j = 0; j < roleNum; j++)
                 {
                     (float actualX, float actualY) = await positions[j].GetData();
                     Assert.InRange(posArr[j].X - actualX, -eps, eps);

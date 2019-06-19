@@ -105,7 +105,7 @@ namespace SimCivil.IntegrationTest
 
             var types = Assembly.GetEntryAssembly()
                 .GetTypes()
-                .Where(type => typeof(IIntegrationTest).IsAssignableFrom(type) && type.IsClass)
+                .Where(type => typeof(IIntegrationTest).IsAssignableFrom(type) && type.IsClass && !type.IsAbstract)
                 .ToArray();
 
             foreach (Type type in types)

@@ -18,22 +18,25 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// SimCivil - SimCivil.Orleans.Interfaces - IMapSystem.cs
-// Create Date: 2019/05/31
-// Update Date: 2019/05/31
+// SimCivil - SimCivil.Orleans.Interfaces - IBattleService.cs
+// Create Date: 2019/06/10
+// Update Date: 2019/06/10
 
 using System;
 using System.Text;
 using System.Threading.Tasks;
 
+using SimCivil.Contract.Model;
+using SimCivil.Orleans.Interfaces.Strategy;
+
 namespace SimCivil.Orleans.Interfaces.Service
 {
-    public interface IMapService
+    public interface IDamageService
     {
-        IAtlas GetAtlas((int X, int Y) position);
-        Task<Tile> GeTile((int X, int Y) position);
-        Task<Terrain> GetTerrain((int X, int Y) position);
-        Task<float> GetEntityActualMaxSpeed(IEntity entity);
-        Task<float> CalculateDistance(IEntity entity1, IEntity entity2);
+        Task<AttackResult> Attack(
+            IEntity   attacker,
+            IEntity   defender,
+            IEntity   injurant,
+            HitMethod hitMethod);
     }
 }

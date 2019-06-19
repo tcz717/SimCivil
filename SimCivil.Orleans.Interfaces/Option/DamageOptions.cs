@@ -1,4 +1,4 @@
-// Copyright (c) 2017 TPDT
+﻿// Copyright (c) 2017 TPDT
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -18,36 +18,24 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// SimCivil - SimCivil.Orleans.Interfaces - BodyPartIndex.cs
-// Create Date: 2019/05/13
-// Update Date: 2019/05/13
+// SimCivil - SimCivil.Orleans.Interfaces - BattleOptions.cs
+// Create Date: 2019/06/11
+// Update Date: 2019/06/12
 
 using System;
 using System.Text;
 
-namespace SimCivil.Orleans.Interfaces.Component.State
+using SimCivil.Contract.Model;
+using SimCivil.Utilities.AutoService;
+
+namespace SimCivil.Orleans.Interfaces.Option
 {
-    public enum BodyPartIndex
+    [AutoOptions]
+    public class DamageOptions
     {
-        Soul,
-        LeftEye,
-        RightEye,
-        Brain,
-        LeftEar,
-        RightEar,
-        Mouth,
-        Digestive,
-        Lung,
-        Heart,
-        Immunity,
-        LeftArm,
-        RightArm,
-        LeftHand,
-        RightHand,
-        LeftLeg,
-        RightLeg,
-        LeftFoot,
-        RightFoot,
-        BodyPartCount
+        public BodyPartIndex[] DeadlyBodyParts { get; set; } =
+            {BodyPartIndex.Brain, BodyPartIndex.Heart, BodyPartIndex.Soul};
+        public float LowerBaseAttackRange { get; set; } = 0.5f;
+        public float UpperBaseAttackRange { get; set; } = 0.5f;
     }
 }

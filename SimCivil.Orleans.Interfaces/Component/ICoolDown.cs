@@ -18,22 +18,21 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// SimCivil - SimCivil.Orleans.Interfaces - IMapSystem.cs
-// Create Date: 2019/05/31
-// Update Date: 2019/05/31
+// SimCivil - SimCivil.Orleans.Interfaces - ICoolDown.cs
+// Create Date: 2019/06/14
+// Update Date: 2019/06/14
 
 using System;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SimCivil.Orleans.Interfaces.Service
+namespace SimCivil.Orleans.Interfaces.Component
 {
-    public interface IMapService
+    public interface ICooldown : IComponent<CooldownState>
     {
-        IAtlas GetAtlas((int X, int Y) position);
-        Task<Tile> GeTile((int X, int Y) position);
-        Task<Terrain> GetTerrain((int X, int Y) position);
-        Task<float> GetEntityActualMaxSpeed(IEntity entity);
-        Task<float> CalculateDistance(IEntity entity1, IEntity entity2);
+        Task<bool>     TryDo(string action, TimeSpan cooldown);
+        Task           Reset();
+        Task<DateTime> GetLastDoneTime(string      action);
+        Task<DateTime> GetNextAvailableTime(string action);
     }
 }

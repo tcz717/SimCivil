@@ -19,8 +19,8 @@
 // SOFTWARE.
 // 
 // SimCivil - SimCivil.Orleans.Grains - TestHitStrategy.cs
-// Create Date: 2019/06/04
-// Update Date: 2019/06/05
+// Create Date: 2019/06/06
+// Update Date: 2019/06/06
 
 using System;
 using System.Collections.Generic;
@@ -34,8 +34,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
 using Orleans;
-using Orleans.Concurrency;
 
+using SimCivil.Contract.Model;
 using SimCivil.Orleans.Interfaces;
 using SimCivil.Orleans.Interfaces.Component;
 using SimCivil.Orleans.Interfaces.Component.State;
@@ -60,18 +60,18 @@ namespace SimCivil.Orleans.Grains.Strategy
         public HitStrategyOptions Options      { get; }
 
         public async Task<ImmutableDictionary<BodyPartIndex, Wound>> HitCalculateAsync(
-            Immutable<IEntity> attacker,
-            Immutable<IEntity> defender,
-            Immutable<IEntity> injurant,
-            HitMethod          hitMethod)
+            IEntity   attacker,
+            IEntity   defender,
+            IEntity   injurant,
+            HitMethod hitMethod)
         {
             switch (hitMethod)
             {
                 case HitMethod.Fist:
                 case HitMethod.Foot:
                 {
-                    if (injurant.Value == null)
-                        return await HitCalculateWithoutInjurantAsync(attacker.Value, defender.Value, hitMethod);
+                    if (injurant == null)
+                        return await HitCalculateWithoutInjurantAsync(attacker, defender, hitMethod);
 
                     throw new NotSupportedException();
                 }
@@ -115,7 +115,7 @@ namespace SimCivil.Orleans.Grains.Strategy
                     throw new ArgumentOutOfRangeException(nameof(hitMethod), hitMethod, null);
             }
 
-            double hitP = 1 - Math.Exp(hitRate / dodgeRate);
+            double hitP = Math.Atan(hitRate / dodgeRate) * 2 / Math.PI;
 
             if (Rand.NextDouble() > hitP) return ImmutableDictionary<BodyPartIndex, Wound>.Empty;
 

@@ -30,6 +30,7 @@ using System.Threading.Tasks;
 
 using Orleans.Concurrency;
 
+using SimCivil.Contract.Model;
 using SimCivil.Orleans.Interfaces.Component.State;
 
 namespace SimCivil.Orleans.Interfaces.Strategy
@@ -37,20 +38,9 @@ namespace SimCivil.Orleans.Interfaces.Strategy
     public interface IHitStrategy
     {
         Task<ImmutableDictionary<BodyPartIndex, Wound>> HitCalculateAsync(
-            Immutable<IEntity> attacker,
-            Immutable<IEntity> defender,
-            Immutable<IEntity> injurant,
-            HitMethod          hitMethod);
-    }
-
-    public enum HitMethod
-    {
-        Fist,
-        Foot,
-        Melee,
-        Magic,
-        Projectile,
-        Temperature,
-        Trap
+            IEntity   attacker,
+            IEntity   defender,
+            IEntity   injurant,
+            HitMethod hitMethod);
     }
 }

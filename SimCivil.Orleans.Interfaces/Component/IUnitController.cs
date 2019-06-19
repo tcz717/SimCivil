@@ -27,6 +27,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 using SimCivil.Contract;
+using SimCivil.Contract.Model;
 using SimCivil.Orleans.Interfaces.Strategy;
 
 namespace SimCivil.Orleans.Interfaces.Component

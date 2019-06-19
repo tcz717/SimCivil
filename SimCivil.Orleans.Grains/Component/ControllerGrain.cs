@@ -19,12 +19,11 @@
 // SOFTWARE.
 // 
 // SimCivil - SimCivil.Orleans.Grains - ControllerGrain.cs
-// Create Date: 2019/06/04
-// Update Date: 2019/06/04
+// Create Date: 2019/06/10
+// Update Date: 2019/06/14
 
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -33,24 +32,23 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 using Orleans;
-using Orleans.Concurrency;
 
 using SimCivil.Contract;
+using SimCivil.Contract.Model;
 using SimCivil.Orleans.Interfaces;
 using SimCivil.Orleans.Interfaces.Component;
-using SimCivil.Orleans.Interfaces.Component.State;
 using SimCivil.Orleans.Interfaces.Option;
 using SimCivil.Orleans.Interfaces.Service;
 using SimCivil.Orleans.Interfaces.Strategy;
 
 namespace SimCivil.Orleans.Grains.Component
 {
-    public class ControllerGrain : Grain, IUnitController
+    public class ControllerGrain : Grain, IUnitController, IIncomingGrainCallFilter
     {
-        private readonly IMapService  _mapService;
-        private readonly IHitStrategy _hitStrategy;
-        private          double       _lagPredict;
-        private          DateTime     _lastUpdateTime;
+        private readonly IMapService    _mapService;
+        private readonly IDamageService _damageService;
+        private          double         _lagPredict;
+        private          DateTime       _lastUpdateTime;
 
         public TimeSpan UpdatePeriod { get; set; }
 
@@ -61,7 +59,7 @@ namespace SimCivil.Orleans.Grains.Component
         public ControllerGrain(
             ILogger<ControllerGrain> logger,
             IMapService              mapService,
-            IHitStrategy             hitStrategy,
+            IDamageService           damageService,
             IOptions<GameOptions>    gameOptions,
             IOptions<SyncOptions>    syncOptions)
         {
@@ -69,7 +67,7 @@ namespace SimCivil.Orleans.Grains.Component
             GameOptions     = gameOptions;
             SyncOptions     = syncOptions;
             _mapService     = mapService;
-            _hitStrategy    = hitStrategy;
+            _damageService  = damageService;
             UpdatePeriod    = TimeSpan.FromMilliseconds(syncOptions.Value.UpdatePeriod);
             _lastUpdateTime = DateTime.Now - UpdatePeriod - UpdatePeriod;
         }
@@ -136,13 +134,10 @@ namespace SimCivil.Orleans.Grains.Component
 
         public async Task<AttackResult> Attack(IEntity target, IEntity injurant, HitMethod hitMethod)
         {
-            // TODO check distance
-            var attackResult = await _hitStrategy.HitCalculateAsync(
-                                            GrainFactory.GetEntity(this).AsImmutable(),
-                                            target.AsImmutable(),
-                                            injurant.AsImmutable(),
-                                            hitMethod);
-            return attackResult.IsEmpty ? AttackResult.Miss() : AttackResult.Hit(attackResult);
+            if (!await GrainFactory.Get<IUnit>(target).IsLive())
+                return AttackResult.InvalidTarget();
+
+            return await _damageService.Attack(GrainFactory.GetEntity(this), target, injurant, hitMethod);
         }
 
         public Task Use(IEntity target) => throw new NotImplementedException();
@@ -179,6 +174,29 @@ namespace SimCivil.Orleans.Grains.Component
             DeactivateOnIdle();
 
             return Task.CompletedTask;
+        }
+
+        /// <summary>Invokes this filter.</summary>
+        /// <param name="context">The grain call context.</param>
+        /// <exception cref="EntityInvalidException"></exception>
+        /// <returns>A <see cref="T:System.Threading.Tasks.Task" /> representing the work performed.</returns>
+        public async Task Invoke(IIncomingGrainCallContext context)
+        {
+            if (context.InterfaceMethod.DeclaringType == typeof(IUnitController))
+                if (!await GrainFactory.Get<IUnit>(context.Grain.GetPrimaryKey()).IsLive())
+                    throw new EntityInvalidException(this.GetPrimaryKey(), "Unit is disabled or died");
+
+            await context.Invoke();
+        }
+    }
+
+    public class EntityInvalidException : Exception
+    {
+        public Guid EntityGuid { get; }
+
+        public EntityInvalidException(Guid entityGuid, string message) : base(message)
+        {
+            EntityGuid = entityGuid;
         }
     }
 }

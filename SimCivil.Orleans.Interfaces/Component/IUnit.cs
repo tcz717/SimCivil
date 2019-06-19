@@ -19,13 +19,15 @@
 // SOFTWARE.
 // 
 // SimCivil - SimCivil.Orleans.Interfaces - IUnit.cs
-// Create Date: 2019/05/31
-// Update Date: 2019/05/31
+// Create Date: 2019/06/06
+// Update Date: 2019/06/14
 
 using System;
+using System.Collections.Immutable;
 using System.Text;
 using System.Threading.Tasks;
 
+using SimCivil.Contract.Model;
 using SimCivil.Orleans.Interfaces.Component.State;
 
 namespace SimCivil.Orleans.Interfaces.Component
@@ -47,6 +49,11 @@ namespace SimCivil.Orleans.Interfaces.Component
         Task<UnitProperty> GetEffect(EffectIndex     effectIndex);
         Task<UnitProperty> GetAbility(AbilityIndex   abilityIndex);
         Task<BodyPart>     GetBodyPart(BodyPartIndex bodyPartIndex);
+
+        Task<UnitState> ApplyWounds(ImmutableDictionary<BodyPartIndex, Wound> wounds);
+
+        Task       MarkDead(IEntity attacker = null);
+        Task<bool> IsLive();
     }
 
     public static class UnitExtension

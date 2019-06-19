@@ -19,11 +19,10 @@
 // SOFTWARE.
 // 
 // SimCivil - SimCivil.Test - ObserverTest.cs
-// Create Date: 2019/05/05
-// Update Date: 2019/05/31
+// Create Date: 2019/06/04
+// Update Date: 2019/06/18
 
 using System;
-using System.Diagnostics;
 using System.Text;
 using System.Threading.Tasks;
 

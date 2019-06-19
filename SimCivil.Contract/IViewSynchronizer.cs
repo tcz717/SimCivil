@@ -19,8 +19,8 @@
 // SOFTWARE.
 // 
 // SimCivil - SimCivil.Contract - IViewSynchronizer.cs
-// Create Date: 2019/05/08
-// Update Date: 2019/05/31
+// Create Date: 2019/06/10
+// Update Date: 2019/06/18
 
 using System;
 using System.Text;
@@ -122,7 +122,7 @@ namespace SimCivil.Contract
         /// <summary>Returns a string that represents the current object.</summary>
         /// <returns>A string that represents the current object.</returns>
         public override string ToString()
-            => $"{nameof(TickCount)}: {TickCount}, {nameof(Position)}: {Position}, {nameof(Speed)}: {Speed}";
+            => $"{nameof(TickCount)}: {TickCount}, {nameof(Position)}: {Position}, {nameof(Speed)}: {Speed}, Entities: {EntityChange?.Length ?? 0}";
     }
 
     public class ViewEvent

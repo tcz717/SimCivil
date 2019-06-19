@@ -19,8 +19,8 @@
 // SOFTWARE.
 // 
 // SimCivil - SimCivil.IntegrationTest - LogViewer.xaml.cs
-// Create Date: 2018/10/05
-// Update Date: 2018/10/05
+// Create Date: 2019/05/05
+// Update Date: 2019/06/19
 
 using System;
 using System.Collections.ObjectModel;
@@ -49,20 +49,16 @@ namespace SimCivil.IntegrationTest
         private void ScrollViewer_OnScrollChanged(object sender, ScrollChangedEventArgs e)
         {
             var scrollViewer = (ScrollViewer) sender;
-            if (Math.Abs(e.ExtentHeightChange) > 0.01 &&
+            if (Math.Abs(e.ExtentHeightChange)                              > 0.01 &&
                 scrollViewer.ScrollableHeight - scrollViewer.VerticalOffset < 10)
-            {
                 scrollViewer.ScrollToEnd();
-            }
         }
     }
 
     public static class WpfLogExtension
     {
         public static ILoggingBuilder AddLogViewer(this ILoggingBuilder builder, LogViewer logViewer)
-        {
-            return builder.AddProvider(new WpfLogProvider(logViewer));
-        }
+            => builder.AddProvider(new WpfLogProvider(logViewer));
     }
 
     public class WpfLogProvider : ILoggerProvider
@@ -82,30 +78,27 @@ namespace SimCivil.IntegrationTest
         /// </summary>
         /// <param name="categoryName">The category name for messages produced by the logger.</param>
         /// <returns>The <see cref="T:Microsoft.Extensions.Logging.ILogger" />.</returns>
-        public ILogger CreateLogger(string categoryName)
-        {
-            return new WpfLogger(LogViewer, categoryName);
-        }
+        public ILogger CreateLogger(string categoryName) => new WpfLogger(LogViewer, categoryName);
     }
 
     public class WpfLogCollection : ObservableCollection<WpfLogEntry> { }
 
     public class WpfLogEntry
     {
-        public LogLevel LogLevel { get; set; }
+        public LogLevel  LogLevel  { get; set; }
         public Exception Exception { get; set; }
-        public string Category { get; set; }
-        public string Content { get; }
-        public DateTime TimeStamp { get; set; }
+        public string    Category  { get; set; }
+        public string    Content   { get; }
+        public DateTime  TimeStamp { get; set; }
 
         /// <summary>
         ///   初始化 <see cref="T:System.Object" /> 类的新实例。
         /// </summary>
         public WpfLogEntry(LogLevel logLevel, string category, string content)
         {
-            LogLevel = logLevel;
-            Category = category;
-            Content = content;
+            LogLevel  = logLevel;
+            Category  = category;
+            Content   = content;
             TimeStamp = DateTime.Now;
         }
     }
@@ -113,12 +106,12 @@ namespace SimCivil.IntegrationTest
     public class WpfLogger : ILogger
     {
         public LogViewer LogViewer { get; }
-        public string Category { get; }
+        public string    Category  { get; }
 
         public WpfLogger(LogViewer logViewer, string category)
         {
             LogViewer = logViewer;
-            Category = category;
+            Category  = category;
         }
 
         /// <summary>Writes a log entry.</summary>
@@ -128,14 +121,15 @@ namespace SimCivil.IntegrationTest
         /// <param name="exception">The exception related to this entry.</param>
         /// <param name="formatter">Function to create a <c>string</c> message of the <paramref name="state" /> and <paramref name="exception" />.</param>
         public void Log<TState>(
-            LogLevel logLevel,
-            EventId eventId,
-            TState state,
-            Exception exception,
+            LogLevel                        logLevel,
+            EventId                         eventId,
+            TState                          state,
+            Exception                       exception,
             Func<TState, Exception, string> formatter)
         {
             LogViewer.Dispatcher.InvokeAsync(
-                () => LogViewer.LogCollection.Add(new WpfLogEntry(logLevel, Category, formatter(state, exception))));
+                () => LogViewer.LogCollection.Add(
+                    new WpfLogEntry(logLevel, Category, state.ToString() + exception)));
         }
 
         /// <summary>
@@ -143,17 +137,11 @@ namespace SimCivil.IntegrationTest
         /// </summary>
         /// <param name="logLevel">level to be checked.</param>
         /// <returns><c>true</c> if enabled.</returns>
-        public bool IsEnabled(LogLevel logLevel)
-        {
-            return logLevel != LogLevel.None;
-        }
+        public bool IsEnabled(LogLevel logLevel) => logLevel != LogLevel.None;
 
         /// <summary>Begins a logical operation scope.</summary>
         /// <param name="state">The identifier for the scope.</param>
         /// <returns>An IDisposable that ends the logical operation scope on dispose.</returns>
-        public IDisposable BeginScope<TState>(TState state)
-        {
-            return null;
-        }
+        public IDisposable BeginScope<TState>(TState state) => null;
     }
 }

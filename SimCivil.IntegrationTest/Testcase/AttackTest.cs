@@ -18,9 +18,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// SimCivil - SimCivil.IntegrationTest - MovementTest.cs
-// Create Date: 2019/05/26
-// Update Date: 2019/06/18
+// SimCivil - SimCivil.IntegrationTest - AttackTest.cs
+// Create Date: 2019/06/18
+// Update Date: 2019/06/19
 
 using System;
 using System.Linq;
@@ -32,49 +32,49 @@ using Microsoft.Extensions.Logging;
 using Orleans;
 
 using SimCivil.Contract;
+using SimCivil.Contract.Model;
 
 namespace SimCivil.IntegrationTest.Testcase
 {
-    public class MovementTest : EntityTestBase
+    public class AttackTest : EntityTestBase
     {
-        public MovementTest(ILogger<MovementTest> logger, IClusterClient cluster) : base(logger, cluster) { }
+        public AttackTest(ILogger<AttackTest> logger, IClusterClient cluster) : base(logger, cluster) { }
 
         public override async Task Test()
         {
-            var synced = false;
             IsRunning = true;
             await UseRole();
 
             var sync = Client.Import<IViewSynchronizer>();
-            (float x, float y) pos = (0, 0);
-            float speed = 0;
+            var controller = Client.Import<IPlayerController>();
+
+            // This is used to put unit into chunk
+            // TODO: Automatically add unit to chunk after login
+            await controller.MoveTo((0, 0.01f), DateTime.UtcNow);
             sync.RegisterViewSync(
                 vc =>
                 {
-                    synced = true;
-                    pos    = vc.Position;
-                    speed  = vc.Speed;
-                    if (vc.EntityChange?.Any() ?? false)
-                        Logger.LogInformation(vc.EntityChange.First().ToString());
-                    else
-                        Logger.LogDebug(vc.ToString());
+                    var id = vc.EntityChange?.FirstOrDefault(e => Distance(e.Pos, vc.Position) < 1)?.Id;
+                    if ((vc.EntityChange?.Length ?? 0) > 0)
+                        Logger.LogInformation(vc.ToString());
+
+                    if (id == null) return;
+
+                    controller.Attack((Guid) id, Guid.Empty, HitMethod.Fist)
+                              .ContinueWith(
+                                   t => Logger.LogInformation(
+                                       "Attack {0}",
+                                       t.Result.ToString()));
                 });
+        }
 
-            var controller = Client.Import<IPlayerController>();
+        private float Distance((float X, float Y) aPos, (float X, float Y) bPos)
+        {
+            var d = (float) Math.Sqrt(
+                (aPos.X - bPos.X) * (aPos.X - bPos.X) + (aPos.Y - bPos.Y) * (aPos.Y - bPos.Y));
+            Logger.LogDebug("Distance: {0}", d);
 
-            await Task.Delay(500);
-            for (var i = 0; i < 100; i++)
-            {
-                await controller.MoveTo((pos.x + speed * 0.05f, pos.y), DateTime.UtcNow);
-
-                await Task.Delay(50);
-
-                if (!synced)
-                    Logger.LogWarning("no view sync received");
-                synced = false;
-            }
-
-            Logger.LogInformation($"{RoleName} test end");
+            return d;
         }
     }
 }

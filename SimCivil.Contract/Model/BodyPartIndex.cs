@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2017 TPDT
+// Copyright (c) 2017 TPDT
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -18,22 +18,36 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// SimCivil - SimCivil.Orleans.Interfaces - IMapSystem.cs
-// Create Date: 2019/05/31
-// Update Date: 2019/05/31
+// SimCivil - SimCivil.Orleans.Interfaces - BodyPartIndex.cs
+// Create Date: 2019/05/13
+// Update Date: 2019/05/13
 
 using System;
 using System.Text;
-using System.Threading.Tasks;
 
-namespace SimCivil.Orleans.Interfaces.Service
+namespace SimCivil.Contract.Model
 {
-    public interface IMapService
+    public enum BodyPartIndex
     {
-        IAtlas GetAtlas((int X, int Y) position);
-        Task<Tile> GeTile((int X, int Y) position);
-        Task<Terrain> GetTerrain((int X, int Y) position);
-        Task<float> GetEntityActualMaxSpeed(IEntity entity);
-        Task<float> CalculateDistance(IEntity entity1, IEntity entity2);
+        Soul,
+        LeftEye,
+        RightEye,
+        Brain,
+        LeftEar,
+        RightEar,
+        Mouth,
+        Digestive,
+        Lung,
+        Heart,
+        Immunity,
+        LeftArm,
+        RightArm,
+        LeftHand,
+        RightHand,
+        LeftLeg,
+        RightLeg,
+        LeftFoot,
+        RightFoot,
+        BodyPartCount
     }
 }

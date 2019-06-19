@@ -28,6 +28,7 @@ using System.Text;
 using Microsoft.Extensions.DependencyInjection;
 
 using SimCivil.Contract;
+using SimCivil.Contract.Model;
 using SimCivil.Orleans.Interfaces.Component.State;
 using SimCivil.Orleans.Interfaces.Service;
 using SimCivil.Utilities.AutoService;
@@ -43,6 +44,7 @@ namespace SimCivil.Orleans.Grains.Service
             {
                 Race   = option.Race,
                 Gender = option.Gender,
+                Dead = false,
             };
 
             for (var i = 0; i < (int) BodyPartIndex.BodyPartCount; i++)

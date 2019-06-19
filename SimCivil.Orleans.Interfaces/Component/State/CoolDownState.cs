@@ -18,22 +18,38 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// SimCivil - SimCivil.Orleans.Interfaces - IMapSystem.cs
-// Create Date: 2019/05/31
-// Update Date: 2019/05/31
+// SimCivil - SimCivil.Orleans.Interfaces - CoolDownState.cs
+// Create Date: 2019/06/14
+// Update Date: 2019/06/15
 
 using System;
+using System.Collections.Generic;
 using System.Text;
-using System.Threading.Tasks;
 
-namespace SimCivil.Orleans.Interfaces.Service
+namespace SimCivil.Orleans.Interfaces.Component
 {
-    public interface IMapService
+    public class CooldownState
     {
-        IAtlas GetAtlas((int X, int Y) position);
-        Task<Tile> GeTile((int X, int Y) position);
-        Task<Terrain> GetTerrain((int X, int Y) position);
-        Task<float> GetEntityActualMaxSpeed(IEntity entity);
-        Task<float> CalculateDistance(IEntity entity1, IEntity entity2);
+        public Dictionary<string, CooldownItem> CooldownItems { get; set; } = new Dictionary<string, CooldownItem>();
+    }
+
+    public struct CooldownItem
+    {
+        /// <summary>Initializes a new instance of the <see cref="T:System.Object"></see> class.</summary>
+        public CooldownItem(string action, DateTime startTime, DateTime endTime)
+        {
+            Action    = action;
+            EndTime   = endTime;
+            StartTime = startTime;
+        }
+
+        public CooldownItem(string action, TimeSpan cooldown) : this(
+            action,
+            DateTime.UtcNow,
+            DateTime.UtcNow + cooldown) { }
+
+        public DateTime StartTime { get; set; }
+        public DateTime EndTime   { get; set; }
+        public string   Action    { get; set; }
     }
 }

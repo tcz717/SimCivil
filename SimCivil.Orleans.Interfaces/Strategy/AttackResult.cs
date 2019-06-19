@@ -19,8 +19,8 @@
 // SOFTWARE.
 // 
 // SimCivil - SimCivil.Orleans.Interfaces - AttackResult.cs
-// Create Date: 2019/06/04
-// Update Date: 2019/06/05
+// Create Date: 2019/06/10
+// Update Date: 2019/06/10
 
 using System;
 using System.Collections.Immutable;
@@ -28,6 +28,7 @@ using System.Text;
 
 using Orleans.Concurrency;
 
+using SimCivil.Contract.Model;
 using SimCivil.Orleans.Interfaces.Component.State;
 
 namespace SimCivil.Orleans.Interfaces.Strategy
@@ -36,20 +37,25 @@ namespace SimCivil.Orleans.Interfaces.Strategy
     public class AttackResult
     {
         public IImmutableDictionary<BodyPartIndex, Wound> Wounds { get; set; }
-        public AttackResultType                           Result { get; set; }
+        public HitResult                                  Result { get; set; }
 
-        public static AttackResult Miss() => new AttackResult {Result = AttackResultType.Miss};
+        public static AttackResult Miss() => new AttackResult {Result = HitResult.Missed};
 
         public static AttackResult Hit(IImmutableDictionary<BodyPartIndex, Wound> wounds)
-            => new AttackResult {Result = AttackResultType.Hit, Wounds = wounds};
+            => new AttackResult {Result = HitResult.Hit, Wounds = wounds};
 
-        public static AttackResult OutOfRange() => new AttackResult {Result = AttackResultType.OutOfRange};
-    }
+        public static AttackResult OutOfRange() => new AttackResult {Result = HitResult.OutOfRange};
 
-    public enum AttackResultType
-    {
-        Hit,
-        Miss,
-        OutOfRange,
+        public static AttackResult InvalidTarget()
+        {
+            return new AttackResult {Result = HitResult.InvalidedTarget};
+        }
+
+        public static AttackResult Dead(IImmutableDictionary<BodyPartIndex, Wound> wounds)
+        {
+            return new AttackResult {Result = HitResult.Deadly, Wounds = wounds};
+        }
+
+        public static AttackResult Cooldown() => new AttackResult { Result = HitResult.Cooldown };
     }
 }

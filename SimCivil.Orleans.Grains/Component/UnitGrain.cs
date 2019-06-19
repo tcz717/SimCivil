@@ -19,11 +19,12 @@
 // SOFTWARE.
 // 
 // SimCivil - SimCivil.Orleans.Grains - UnitGrain.cs
-// Create Date: 2019/05/25
-// Update Date: 2019/05/25
+// Create Date: 2019/05/27
+// Update Date: 2019/06/14
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -32,6 +33,9 @@ using JetBrains.Annotations;
 
 using Microsoft.Extensions.Logging;
 
+using Orleans;
+
+using SimCivil.Contract.Model;
 using SimCivil.Orleans.Interfaces;
 using SimCivil.Orleans.Interfaces.Component;
 using SimCivil.Orleans.Interfaces.Component.State;
@@ -66,6 +70,41 @@ namespace SimCivil.Orleans.Grains.Component
 
         public Task<BodyPart> GetBodyPart(BodyPartIndex bodyPartIndex)
             => Task.FromResult(State.BodyParts[(int) bodyPartIndex]);
+
+        public async Task<UnitState> ApplyWounds(ImmutableDictionary<BodyPartIndex, Wound> wounds)
+        {
+            foreach (var woundPair in wounds)
+            {
+                BodyPart body = State.BodyParts[(int) woundPair.Key];
+                body.Wounds.Add(woundPair.Value);
+                if (body.Hp < woundPair.Value.Damage)
+                    body.Hp = 0;
+                else
+                    body.Hp -= woundPair.Value.Damage;
+            }
+
+            await UpdateAbilities();
+
+            return State;
+        }
+
+        public async Task MarkDead(IEntity murderer)
+        {
+            State.Dead     = true;
+            State.Murderer = murderer;
+
+            foreach (BodyPart bodyPart in State.BodyParts) bodyPart.Hp = 0;
+
+            Logger.LogInformation(
+                "Unit {Entity} ({Name}) is dead because {Murderer}",
+                this.GetPrimaryKey(),
+                await GrainFactory.GetEntity(this).GetName(),
+                murderer?.GetPrimaryKey().ToString() ?? "None");
+
+            await WriteStateAsync();
+        }
+
+        public Task<bool> IsLive() => Task.FromResult(!State.Dead);
 
         public Task UpdateAbilities()
         {

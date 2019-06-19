@@ -19,8 +19,8 @@
 // SOFTWARE.
 // 
 // SimCivil - SimCivil.Orleans.Interfaces - UnitState.cs
-// Create Date: 2019/05/13
-// Update Date: 2019/05/28
+// Create Date: 2019/06/06
+// Update Date: 2019/06/14
 
 using System;
 using System.Collections.Generic;
@@ -46,6 +46,9 @@ namespace SimCivil.Orleans.Interfaces.Component.State
         /// <summary>Gets or sets the equipments.</summary>
         /// <value>The equipments.</value>
         public IEntity[] Equipments { get; set; } = new IEntity[MaxSlotCount];
+
+        public bool    Dead     { get; set; } = true;
+        public IEntity Murderer { get; set; }
 
         #region BodyPart
 

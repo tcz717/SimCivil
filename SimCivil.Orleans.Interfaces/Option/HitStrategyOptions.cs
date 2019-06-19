@@ -25,6 +25,7 @@
 using System;
 using System.Text;
 
+using SimCivil.Contract.Model;
 using SimCivil.Orleans.Interfaces.Component.State;
 using SimCivil.Utilities.AutoService;
 
