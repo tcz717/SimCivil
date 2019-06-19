@@ -19,8 +19,8 @@
 // SOFTWARE.
 // 
 // SimCivil - SimCivil.Gate - OrleansPlayerController.cs
-// Create Date: 2019/06/14
-// Update Date: 2019/06/17
+// Create Date: 2019/06/19
+// Update Date: 2019/06/19
 
 using System;
 using System.Linq;
@@ -53,7 +53,8 @@ namespace SimCivil.Gate
                         cfg.CreateMap<AttackResult, AttackResultDto>()
                            .ForMember(
                                 dest => dest.HitBodyParts,
-                                opt => opt.MapFrom(src => src.Wounds.Keys.Select(i => i.ToString())));
+                                opt => opt.MapFrom(src => src.Wounds.Keys.Select(i => i.ToString())))
+                           .ForMember(dest => dest.HitResult, opt => opt.MapFrom(src => src.Result));
                     }));
 
         public IGrainFactory Factory { get; }
