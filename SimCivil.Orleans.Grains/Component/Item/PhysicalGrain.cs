@@ -49,7 +49,7 @@ namespace SimCivil.Orleans.Grains.Component
             return new Result();
         }
 
-        public async Task<Result> AddPhysicalPart(IDictionary<string, IPhysicalPart> subparts)
+        public async Task<Result> AddPhysicalParts(IDictionary<string, IPhysicalPart> subparts)
         {
             if (State.Part is null)
             {
@@ -142,7 +142,7 @@ namespace SimCivil.Orleans.Grains.Component
             return Task.FromResult(State.Part is SinglePart || State.Part is null);
         }
 
-        public async Task<Result> RemoveCompound(IEnumerable<string> compounds)
+        public async Task<Result> RemoveCompounds(IEnumerable<string> compounds)
         {
             var conflicts = new List<string>();
             if (State.Part is SinglePart part)
@@ -181,7 +181,7 @@ namespace SimCivil.Orleans.Grains.Component
             return new Result();
         }
 
-        public async Task<Result> RemovePhysicalPart(IEnumerable<string> partNames)
+        public async Task<Result> RemovePhysicalParts(IEnumerable<string> partNames)
         {
             var conflicts = new List<string>();
             if (State.Part is AssemblyPart part)
@@ -310,7 +310,7 @@ namespace SimCivil.Orleans.Grains.Component
             return new Result();
         }
 
-        public async Task<Result> UpdatePhysicalPart(IDictionary<string, IPhysicalPart> subparts)
+        public async Task<Result> UpdatePhysicalParts(IDictionary<string, IPhysicalPart> subparts)
         {
             if (State.Part is null)
             {

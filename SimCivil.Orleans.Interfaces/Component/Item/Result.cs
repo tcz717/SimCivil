@@ -28,11 +28,25 @@ namespace SimCivil.Orleans.Interfaces.Component
     [Flags]
     public enum ErrorCode
     {
-        // FIX: Default bug
-        Success = 0x01,
-        PartiallyComplete = 0x02 | Success,
+        Success = 0x00,
+        PartiallyComplete = 0x01,
         ItemNotFound = 0x04,
         InvalidOperation = 0x08,
+    }
+
+    public static class ErrorCodeExtension
+    {
+        public static bool NoError(this IResult res)
+            => res.Err.NoError();
+
+        public static bool NoError(this ErrorCode err)
+            => err == ErrorCode.Success || err == ErrorCode.PartiallyComplete;
+
+        public static bool Successful(this IResult res)
+            => res.Err.Successful();
+
+        public static bool Successful(this ErrorCode err)
+            => err == ErrorCode.Success;
     }
 
     public interface IResult
@@ -41,8 +55,6 @@ namespace SimCivil.Orleans.Interfaces.Component
 
         string ErrMsg { get; }
     }
-
-
 
     public struct Result : IResult
     {
@@ -57,7 +69,7 @@ namespace SimCivil.Orleans.Interfaces.Component
         public string ErrMsg { get; set; }
     }
 
-    public struct Result<T>
+    public struct Result<T> : IResult
     {
         public Result(ErrorCode code, string message, T value)
         {

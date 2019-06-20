@@ -71,7 +71,7 @@ namespace SimCivil.Orleans.Interfaces.Component
         /// </summary>
         /// <param name="compounds">The compounds to be removed.</param>
         /// <returns></returns>
-        Task<Result> RemoveCompound(IEnumerable<string> compounds);
+        Task<Result> RemoveCompounds(IEnumerable<string> compounds);
 
         /// <summary>
         /// Gets the sub physical parts of this item if the item is assembly.
@@ -92,7 +92,7 @@ namespace SimCivil.Orleans.Interfaces.Component
         /// </summary>
         /// <param name="subparts">The physical part names and parts.</param>
         /// <returns></returns>
-        Task<Result> AddPhysicalPart(IDictionary<string, IPhysicalPart> subparts);
+        Task<Result> AddPhysicalParts(IDictionary<string, IPhysicalPart> subparts);
 
         /// <summary>
         /// Update the sub physical parts weight in this item if the item is assembly.
@@ -100,14 +100,14 @@ namespace SimCivil.Orleans.Interfaces.Component
         /// </summary>
         /// <param name="subparts">The physical part names and parts.</param>
         /// <returns></returns>
-        Task<Result> UpdatePhysicalPart(IDictionary<string, IPhysicalPart> subparts);
+        Task<Result> UpdatePhysicalParts(IDictionary<string, IPhysicalPart> subparts);
 
         /// <summary>
         /// Removes the physical part. This item must be an Assembly.
         /// </summary>
         /// <param name="partName">Name of the part.</param>
         /// <returns></returns>
-        Task<Result> RemovePhysicalPart(IEnumerable<string> partNames);
+        Task<Result> RemovePhysicalParts(IEnumerable<string> partNames);
 
         /// <summary>
         /// Determines whether this item is assembly.

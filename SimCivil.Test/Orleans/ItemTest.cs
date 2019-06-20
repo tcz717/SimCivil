@@ -1,5 +1,6 @@
 ﻿using Orleans;
 using Orleans.TestingHost;
+using SimCivil.Orleans.Grains.Component;
 using SimCivil.Orleans.Interfaces;
 using SimCivil.Orleans.Interfaces.Component;
 using SimCivil.Orleans.Interfaces.Item;
@@ -8,7 +9,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
-using Xunit.Sdk;
 
 namespace SimCivil.Test.Orleans
 {
@@ -17,15 +17,13 @@ namespace SimCivil.Test.Orleans
     {
         public static readonly Dictionary<string, double> TestWater = new Dictionary<string, double>()
         {
-            { "Oxygen" , 2.0 },
-            { "Hydrogen" , 4.0 }
+            { "Water" , 2.0 },
+            { "Dirt" , 0.1 },
         };
 
         public static readonly Dictionary<string, double> TestWood = new Dictionary<string, double>()
         {
-            { "Carbon" , 3.0 },
-            { "Oxygen" , 2.0 },
-            { "Hydrogen" , 4.0 }
+            { "Wood" , 3.0 },
         };
 
         public static readonly Dictionary<string, IPhysicalPart> TestCupBody = new Dictionary<string, IPhysicalPart>()
@@ -70,7 +68,7 @@ namespace SimCivil.Test.Orleans
             await ct.PutItem(item1);
             Assert.Equal(1, ct.GetContents().Result.Count);
             Assert.Equal(itemGuid, ct.GetContents().Result.First().GetPrimaryKey());
-            AssertFullSuccess(ct.TakeItem(item1).Result);
+            AssertSuccess(ct.TakeItem(item1).Result);
             Assert.Equal(0, ct.GetContents().Result.Count);
 
             var items = new List<IEntity>();
@@ -82,7 +80,7 @@ namespace SimCivil.Test.Orleans
             await ct.PutItem(item1);
             await ct.PutItems(items);
             Assert.Equal(items.Count + 1, ct.GetContents().Result.Count);
-            AssertFullSuccess(await ct.TakeItem(item1));
+            AssertSuccess(await ct.TakeItem(item1));
             Assert.Equal(items.Count, ct.GetContents().Result.Count);
             Assert.Equal(items.Count, ct.TakeAll().Result.Count);
             Assert.Equal(0, ct.GetContents().Result.Count);
@@ -97,8 +95,22 @@ namespace SimCivil.Test.Orleans
             Assert.True(await phy.IsAssembly());
             Assert.True(await phy.IsSinglePart());
 
-            AssertFullSuccess(await phy.AddCompounds(TestWater));
-            AssertFail(await phy.AddPhysicalPart(TestCup));
+            var water = TestWater["Water"];
+            var dirt = TestWater["Dirt"];
+
+            AssertSuccess(await phy.AddCompounds(new Dictionary<string, double>(TestWater)));
+            AssertFail(await phy.AddPhysicalParts(TestCup));
+            AssertSuccess(await phy.AddCompounds(new Dictionary<string, double>(TestWater)));
+            Assert.Equal(2 * water, (await phy.GetCompounds()).Value["Water"]);
+            AssertSuccess(await phy.RemoveCompounds(new string[] { "Dirt" }));
+            AssertPartialComplete(await phy.RemoveCompounds(new string[] { "Dirt" }));
+            AssertSuccess(await phy.UpdateCompounds(new Dictionary<string, double>(TestWater)));
+            Assert.Equal(water, (await phy.GetCompounds()).Value["Water"]);
+            Assert.Equal(dirt, (await phy.GetCompounds()).Value["Dirt"]);
+            AssertFail(await phy.GetPhysicalParts(), PhysicalGrain.NotAssemblyPart);
+            await phy.Clear();
+            Assert.Empty((await phy.GetCompounds()).Value);
+            Assert.Empty((await phy.GetPhysicalParts()).Value);
         }
 
         private async Task<IEntity> CreateContainer()
@@ -130,15 +142,14 @@ namespace SimCivil.Test.Orleans
             return item1;
         }
 
-        private void AssertFullSuccess(IResult result)
-        {
-            Assert.Equal(ErrorCode.Success, result.Err);
-            Assert.NotEqual(ErrorCode.PartiallyComplete, result.Err);
-        }
-
         private void AssertSuccess(IResult result)
         {
             Assert.Equal(ErrorCode.Success, result.Err);
+        }
+
+        private void AssertPartialComplete(IResult result)
+        {
+            Assert.Equal(ErrorCode.PartiallyComplete, result.Err);
         }
 
         private void AssertFail(IResult result)
