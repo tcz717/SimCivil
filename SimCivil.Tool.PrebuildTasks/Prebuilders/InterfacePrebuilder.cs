@@ -18,7 +18,6 @@ namespace SimCivil.Tool.PrebuildTasks.Prebuilders
             foreach (string fileFullName in Directory.GetFiles(Path.Combine(projPath, "Component", "Item", "State")).Where(s => s.EndsWith("State.cs")))
             {
                 var fileNameWithoutExtension = Path.GetFileNameWithoutExtension(fileFullName);
-                Console.WriteLine($"Updating {fileNameWithoutExtension}.");
 
                 string file = File.ReadAllText(fileFullName);
                 var tree = CSharpSyntaxTree.ParseText(file);
@@ -39,14 +38,26 @@ namespace SimCivil.Tool.PrebuildTasks.Prebuilders
                 res.Add(string.Empty);
 
                 string target = Path.Combine(projPath, "Component", "Item", "I" + fileNameWithoutExtension.Substring(0, fileNameWithoutExtension.Length - "State".Length) + ".cs");
-                List<string> lines = File.ReadAllLines(target).ToList();
+                var targetFile = new FileModifier(target);
+                List<string> lines = targetFile.Read();
 
-                if (!TryInsertLinesToRegion(lines, res, "StateProperty"))
+                try
                 {
-                    continue;
+                    TryInsertLinesToRegion(lines, res, "StateProperty");
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine($"In interface of {fileNameWithoutExtension}, {e.Message}");
                 }
 
-                File.WriteAllLines(target, lines);
+                if (targetFile.Write(lines))
+                {
+                    Console.WriteLine($"Updated interface of {fileNameWithoutExtension}.");
+                }
+                else 
+                {
+                    Console.WriteLine($"Skipped update interface of {fileNameWithoutExtension}, file has no change.");
+                }
             }
         }
     }

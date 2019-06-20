@@ -19,7 +19,6 @@ namespace SimCivil.Tool.PrebuildTasks.Prebuilders
             foreach (string fileFullName in Directory.GetFiles(Path.Combine(BuilderDispatcher.ProjectDirs["SimCivil.Orleans.Interfaces"], "Component", "Item", "State")).Where(s => s.EndsWith("State.cs")))
             {
                 var fileNameWithoutExtension = Path.GetFileNameWithoutExtension(fileFullName);
-                Console.WriteLine($"Updating {fileNameWithoutExtension}.");
 
                 string file = File.ReadAllText(fileFullName);
                 var tree = CSharpSyntaxTree.ParseText(file);
@@ -47,20 +46,37 @@ namespace SimCivil.Tool.PrebuildTasks.Prebuilders
                 res.Add(string.Empty);
 
                 string target = Path.Combine(projPath, "Component", "Item", fileNameWithoutExtension.Substring(0, fileNameWithoutExtension.Length - "State".Length) + "Grain.cs");
-                if (!File.Exists(target))
+
+                FileModifier targetFile;
+                try
                 {
-                    Console.WriteLine("No Grain file found, skipped.");
+                    targetFile = new FileModifier(target, false);
+                }
+                catch
+                {
+                    Console.WriteLine($"No Grain file of {fileNameWithoutExtension} found, skipped.");
                     continue;
                 }
 
-                List<string> lines = File.ReadAllLines(target).ToList();
 
-                if (!TryInsertLinesToRegion(lines, res, "StateProperty"))
+                List<string> lines = targetFile.Read();
+                try
                 {
-                    continue;
+                    TryInsertLinesToRegion(lines, res, "StateProperty");
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine($"In {fileNameWithoutExtension}Grain, {e.Message}");
                 }
 
-                File.WriteAllLines(target, lines);
+                if (targetFile.Write(lines))
+                {
+                    Console.WriteLine($"Updated grain of {fileNameWithoutExtension}.");
+                }
+                else
+                {
+                    Console.WriteLine($"Skipped update grain of {fileNameWithoutExtension}, file has no change.");
+                }
             }
         }
     }
