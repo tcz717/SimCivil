@@ -24,6 +24,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 
 namespace SimCivil.Orleans.Interfaces.Item
 {
@@ -34,6 +35,16 @@ namespace SimCivil.Orleans.Interfaces.Item
     /// <seealso cref="SimCivil.Orleans.Interfaces.Item.IPhysicalPart" />
     public class AssemblyPart : IPhysicalPart
     {
+        private AssemblyPart() { }
+
+        public AssemblyPart(string name = "N/A", IDictionary<string, IPhysicalPart> parts = null, double volume = 1)
+        {
+            Name = name;
+            if (parts != null)
+                Parts = parts;
+            Volume = volume;
+        }
+
         /// <summary>
         /// Gets or sets the name.
         /// </summary>
@@ -48,7 +59,7 @@ namespace SimCivil.Orleans.Interfaces.Item
         /// <value>
         /// The subparts.
         /// </value>
-        public IDictionary<string, IPhysicalPart> Parts { get; set; }
+        public IDictionary<string, IPhysicalPart> Parts { get; set; } = new Dictionary<string, IPhysicalPart>();
 
         /// <summary>
         /// Gets the total weight.

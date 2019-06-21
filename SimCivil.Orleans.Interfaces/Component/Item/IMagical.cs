@@ -41,7 +41,7 @@ namespace SimCivil.Orleans.Interfaces.Component
         /// Clears elements.
         /// </summary>
         /// <returns></returns>
-        Task<Result> Clear();
+        Task Clear();
 
         /// <summary>
         /// Adds the magic elements.

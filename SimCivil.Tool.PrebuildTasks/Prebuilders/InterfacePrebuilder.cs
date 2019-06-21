@@ -1,13 +1,15 @@
 ﻿using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using SimCivil.Tool.PrebuildTasks;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using static SimCivil.Tool.PrebuildTasks.FileUtils;
 
 namespace SimCivil.Tool.PrebuildTasks.Prebuilders
 {
-    public class ConceptPrebuilder : IPrebuilder
+    public class InterfacePrebuilder : IPrebuilder
     {
         public string ProjectName => "SimCivil.Orleans.Interfaces";
 
@@ -16,7 +18,6 @@ namespace SimCivil.Tool.PrebuildTasks.Prebuilders
             foreach (string fileFullName in Directory.GetFiles(Path.Combine(projPath, "Component", "Item", "State")).Where(s => s.EndsWith("State.cs")))
             {
                 var fileNameWithoutExtension = Path.GetFileNameWithoutExtension(fileFullName);
-                Console.WriteLine($"Updating {fileNameWithoutExtension}.");
 
                 string file = File.ReadAllText(fileFullName);
                 var tree = CSharpSyntaxTree.ParseText(file);
@@ -29,59 +30,34 @@ namespace SimCivil.Tool.PrebuildTasks.Prebuilders
                 List<string> res = new List<string>();
                 foreach (var prop in props)
                 {
+                    res.Add(string.Empty);
                     res.Add($"Task<{prop.Type}> Get{prop.Identifier}();");
+                    res.Add(string.Empty);
                     res.Add($"Task Set{prop.Identifier}({prop.Type} value);");
                 }
+                res.Add(string.Empty);
 
                 string target = Path.Combine(projPath, "Component", "Item", "I" + fileNameWithoutExtension.Substring(0, fileNameWithoutExtension.Length - "State".Length) + ".cs");
-                List<string> lines = File.ReadAllLines(target).ToList();
+                var targetFile = new FileModifier(target);
+                List<string> lines = targetFile.Read();
 
-                int start = 0;
-                foreach (var line in lines)
+                try
                 {
-                    if (line.Contains("#region StateProperty"))
-                    {
-                        break;
-                    }
-                    start++;
+                    TryInsertLinesToRegion(lines, res, "StateProperty");
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine($"In interface of {fileNameWithoutExtension}, {e.Message}");
                 }
 
-                if (start == lines.Count)
+                if (targetFile.Write(lines))
                 {
-                    Console.WriteLine($"No region to modify for Component of {fileNameWithoutExtension}.");
-                    continue;
+                    Console.WriteLine($"Updated interface of {fileNameWithoutExtension}.");
                 }
-
-                int end;
-                for (end = start; end < lines.Count; end++)
+                else 
                 {
-                    if (lines[end].Contains("#endregion"))
-                    {
-                        break;
-                    }
+                    Console.WriteLine($"Skipped update interface of {fileNameWithoutExtension}, file has no change.");
                 }
-
-                if (end == lines.Count)
-                {
-                    Console.WriteLine($"No region end for Component of {fileNameWithoutExtension}.");
-                    continue;
-                }
-
-                lines.RemoveRange(start + 1, end - start - 1);
-
-                var indent = lines[start].Length - lines[start].TrimStart().Length;
-
-                var output = new List<string>();
-                for (int i = 0; i < res.Count; i++)
-                {
-                    output.Add(string.Empty);
-                    output.Add(new string(' ', indent) + res[i]);
-                }
-                output.Add(string.Empty);
-
-                lines.InsertRange(start + 1, output);
-
-                File.WriteAllLines(target, lines);
             }
         }
     }

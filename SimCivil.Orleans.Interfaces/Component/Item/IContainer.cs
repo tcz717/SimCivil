@@ -32,9 +32,9 @@ namespace SimCivil.Orleans.Interfaces.Component
     {
         #region StateProperty
 
-        Task<IEnumerable<IEntity>> GetContents();
+        Task<IList<IEntity>> GetContents();
 
-        Task SetContents(IEnumerable<IEntity> value);
+        Task SetContents(IList<IEntity> value);
 
         #endregion
 
@@ -43,14 +43,14 @@ namespace SimCivil.Orleans.Interfaces.Component
         /// </summary>
         /// <param name="itemName">Name of the item.</param>
         /// <returns></returns>
-        Task<IEnumerable<IEntity>> SearchItemsByName(string itemName);
+        Task<IList<IEntity>> SearchItemsByName(string itemName);
 
         /// <summary>
         /// Searches the item by the component.
         /// </summary>
         /// <typeparam name="IComponent">Type of component.</typeparam>
         /// <returns></returns>
-        Task<IEnumerable<IEntity>> SearchItemsByComponent<TComponennt>()
+        Task<IList<IEntity>> SearchItemsByComponent<TComponennt>()
             where TComponennt : IComponent;
 
         /// <summary>
@@ -78,7 +78,7 @@ namespace SimCivil.Orleans.Interfaces.Component
         /// Takes all the items out of the container.
         /// </summary>
         /// <returns></returns>
-        Task<IEnumerable<IEntity>> TakeAll();
+        Task<IList<IEntity>> TakeAll();
 
         /// <summary>
         /// Puts the item into the container.

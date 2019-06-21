@@ -22,4 +22,16 @@
     <Folder Include="System\" />
   </ItemGroup>
 
+  <!-- Prebuild Tool -->
+  <PropertyGroup>
+    <PrebuildToolProj>SimCivil.Tool.PrebuildTasks</PrebuildToolProj>
+    <SolDir>$(ProjectDir)../</SolDir>
+  </PropertyGroup>
+
+  <Import Project="../$(PrebuildToolProj)/extension.csproj" />
+
+  <Target Name="PreBuild" BeforeTargets="PreBuildEvent" Condition="'$(RunTool)' == 'true'">
+    <CallTarget Targets="PrebuildTool"></CallTarget>
+  </Target>
+
 </Project>

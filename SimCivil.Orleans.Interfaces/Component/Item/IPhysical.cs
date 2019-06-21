@@ -59,6 +59,7 @@ namespace SimCivil.Orleans.Interfaces.Component
 
         /// <summary>
         /// Update the compounds weight in this item if the item is single part.
+        /// If value of compounds is 0, then remove the slot.
         /// </summary>
         /// <param name="compounds">The compound types and weights.</param>
         /// <returns></returns>
@@ -70,7 +71,7 @@ namespace SimCivil.Orleans.Interfaces.Component
         /// </summary>
         /// <param name="compounds">The compounds to be removed.</param>
         /// <returns></returns>
-        Task<Result> RemoveCompound(IEnumerable<string> compounds);
+        Task<Result> RemoveCompounds(IEnumerable<string> compounds);
 
         /// <summary>
         /// Gets the sub physical parts of this item if the item is assembly.
@@ -87,30 +88,38 @@ namespace SimCivil.Orleans.Interfaces.Component
 
         /// <summary>
         /// Inserts the physical part. This item must be an Assembly.
+        /// If the subpart slot already exists, then skip.
         /// </summary>
         /// <param name="subparts">The physical part names and parts.</param>
         /// <returns></returns>
-        Task<Result> AddPhysicalPart(IDictionary<string, IPhysicalPart> subparts);
+        Task<Result> AddPhysicalParts(IDictionary<string, IPhysicalPart> subparts);
 
         /// <summary>
         /// Update the sub physical parts weight in this item if the item is assembly.
+        /// If value of subparts is null, then remove the slot.
         /// </summary>
         /// <param name="subparts">The physical part names and parts.</param>
         /// <returns></returns>
-        Task<Result> UpdatePhysicalPart(IDictionary<string, IPhysicalPart> subparts);
+        Task<Result> UpdatePhysicalParts(IDictionary<string, IPhysicalPart> subparts);
 
         /// <summary>
         /// Removes the physical part. This item must be an Assembly.
         /// </summary>
         /// <param name="partName">Name of the part.</param>
         /// <returns></returns>
-        Task<Result> RemovePhysicalPart(string partName);
+        Task<Result> RemovePhysicalParts(IEnumerable<string> partNames);
 
         /// <summary>
         /// Determines whether this item is assembly.
         /// </summary>
         /// <returns><c>true</c> if this item is Assembly, else <c>false</c></returns>
         Task<bool> IsAssembly();
+
+        /// <summary>
+        /// Determines whether this item is single part.
+        /// </summary>
+        /// <returns><c>true</c> if this item is SinglePart, else <c>false</c></returns>
+        Task<bool> IsSinglePart();
 
         /// <summary>
         /// Converts to assembly. Convertable iff this item is an Assembly.
