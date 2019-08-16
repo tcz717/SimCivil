@@ -6,7 +6,7 @@ SimCivil
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/8378da8892a947d1be1bafa316bd378e)](https://www.codacy.com/app/tcz717/SimCivil?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=tcz717/SimCivil&amp;utm_campaign=Badge_Grade)
 ![](https://img.shields.io/github/downloads/tcz717/SimCivil/total.svg)
 ![](https://img.shields.io/github/license/tcz717/SimCivil.svg)
-[![Sentery](https://img.shields.io/badge/sentery-enabled-blue.svg)](https://sentry.io/tpdt/simcivil/)
+[![Sentry](https://img.shields.io/badge/sentry-enabled-blue.svg)](https://sentry.io/tpdt/simcivil/)
 
 此项目主要是游戏的服务端，负责核心逻辑处理
 
