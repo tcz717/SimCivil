@@ -31,7 +31,7 @@ namespace SimCivil.Orleans.Interfaces.Service
     public interface IMapService
     {
         IAtlas GetAtlas((int X, int Y) position);
-        Task<Tile> GeTile((int X, int Y) position);
+        Task<Tile> GetTile((int X, int Y) position);
         Task<Terrain> GetTerrain((int X, int Y) position);
         Task<float> GetEntityActualMaxSpeed(IEntity entity);
     }

@@ -39,7 +39,7 @@ namespace SimCivil.Orleans.Interfaces.Service
         /// <param name="x">The x.</param>
         /// <param name="y">The y.</param>
         /// <param name="size">The size.</param>
-        /// <returns></returns>
+        /// <returns>The generated tiles with size of [<paramref name="size"/>, <paramref name="size"/>]</returns>
         Tile[,] Generate(int seed, int x, int y, int size);
     }
 }

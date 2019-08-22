@@ -59,10 +59,10 @@ namespace SimCivil.Orleans.Grains.Service
         public IAtlas GetAtlas((int X, int Y) position)
             => GrainFactory.GetGrain<IAtlas>(position.DivDown(GameOptions.Value.AtlasSize));
 
-        public Task<Tile> GeTile((int X, int Y) position) => GetAtlas(position).GetTile(position);
+        public Task<Tile> GetTile((int X, int Y) position) => GetAtlas(position).GetTile(position);
 
         public async Task<Terrain> GetTerrain((int X, int Y) position)
-            => TerrainRepository.GetTerrain((await GeTile(position)).Terrain);
+            => TerrainRepository.GetTerrain((await GetTile(position)).Terrain);
 
         public async Task<float> GetEntityActualMaxSpeed(IEntity entity)
         {

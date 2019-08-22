@@ -49,7 +49,7 @@ namespace SimCivil.Orleans.Interfaces
         public (int X, int Y) Position { get; set; }
 
         /// <summary>
-        /// Gets or sets the item unique identifier.
+        /// Gets or sets the unique identifier of the item on the tile.
         /// </summary>
         /// <value>
         /// The item unique identifier.
