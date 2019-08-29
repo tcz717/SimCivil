@@ -39,6 +39,7 @@ using SimCivil.Orleans.Interfaces;
 using SimCivil.Orleans.Interfaces.Component;
 using SimCivil.Orleans.Interfaces.Option;
 using SimCivil.Orleans.Interfaces.Service;
+using SimCivil.Orleans.Interfaces.Skill;
 using SimCivil.Orleans.Interfaces.Strategy;
 
 namespace SimCivil.Orleans.Grains.Component
@@ -138,6 +139,16 @@ namespace SimCivil.Orleans.Grains.Component
                 return AttackResult.InvalidTarget();
 
             return await _damageService.Attack(GrainFactory.GetEntity(this), target, injurant, hitMethod);
+        }
+
+        public async Task<DoResult> Do(ISkill skill, SkillParameter parameter)
+        {
+            if (!await GrainFactory.Get<ISkillContainer>(this).Has(skill))
+            {
+                return DoResult.NotLearned();
+            }
+
+            return await skill.Do(new SkillContext(GrainFactory.GetEntity(this), parameter));
         }
 
         public Task Use(IEntity target) => throw new NotImplementedException();

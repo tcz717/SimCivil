@@ -18,24 +18,39 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// SimCivil - SimCivil.Orleans.Interfaces - BattleOptions.cs
-// Create Date: 2019/06/11
-// Update Date: 2019/06/12
+// SimCivil - SimCivil.Orleans.Grains - CoolDownService.cs
+// Create Date: 2019/08/12
+// Update Date: 2019/08/12
 
 using System;
 using System.Text;
+using System.Threading.Tasks;
 
-using SimCivil.Contract.Model;
+using Microsoft.Extensions.DependencyInjection;
+
+using Orleans;
+
+using SimCivil.Orleans.Interfaces;
+using SimCivil.Orleans.Interfaces.Component;
+using SimCivil.Orleans.Interfaces.Service;
 using SimCivil.Utilities.AutoService;
 
-namespace SimCivil.Orleans.Interfaces.Option
+namespace SimCivil.Orleans.Grains.Service
 {
-    [AutoOptions]
-    public class BattleOptions
+    [AutoService(ServiceLifetime.Transient)]
+    public class CoolDownService : ICoolDownService
     {
-        public BodyPartIndex[] DeadlyBodyParts { get; set; } =
-            {BodyPartIndex.Brain, BodyPartIndex.Heart, BodyPartIndex.Soul};
-        public float LowerBaseAttackRange { get; set; } = 0.5f;
-        public float UpperBaseAttackRange { get; set; } = 0.5f;
+        private readonly IGrainFactory _grainFactory;
+
+        public CoolDownService(IGrainFactory grainFactory)
+        {
+            _grainFactory = grainFactory;
+        }
+
+        public async Task<bool> TryDo(IEntity doer, string coolDownName, float period)
+        {
+            return !await _grainFactory.Get<ICooldown>(doer)
+                                      .TryDo(coolDownName, TimeSpan.FromSeconds(period))
+        }
     }
 }

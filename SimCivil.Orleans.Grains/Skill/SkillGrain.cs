@@ -18,24 +18,37 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// SimCivil - SimCivil.Orleans.Interfaces - BattleOptions.cs
-// Create Date: 2019/06/11
-// Update Date: 2019/06/12
+// SimCivil - SimCivil.Orleans.Grains - SkillGrain.cs
+// Create Date: 2019/08/07
+// Update Date: 2019/08/07
 
 using System;
 using System.Text;
+using System.Threading.Tasks;
 
-using SimCivil.Contract.Model;
-using SimCivil.Utilities.AutoService;
+using Orleans;
 
-namespace SimCivil.Orleans.Interfaces.Option
+using SimCivil.Orleans.Interfaces.Skill;
+
+namespace SimCivil.Orleans.Grains.Skill
 {
-    [AutoOptions]
-    public class BattleOptions
+    public class SkillGrain : Grain<SkillState>, ISkill
     {
-        public BodyPartIndex[] DeadlyBodyParts { get; set; } =
-            {BodyPartIndex.Brain, BodyPartIndex.Heart, BodyPartIndex.Soul};
-        public float LowerBaseAttackRange { get; set; } = 0.5f;
-        public float UpperBaseAttackRange { get; set; } = 0.5f;
+        public Task<string> GetName() => Task.FromResult(State.Name);
+
+        public Task<DoResult> Do(SkillContext context)
+            => GrainFactory.GetGrain<ISkillExecutor>(0, State.ScriptType.ToString()).Do(context, State);
+
+        public Task SetState(SkillState state)
+        {
+            if (state.Name != this.GetPrimaryKeyString())
+                throw new ArgumentException("Skill name inconsistent", nameof(state));
+
+            State = state;
+
+            return WriteStateAsync();
+        }
+
+        public Task<SkillState> GetState() => Task.FromResult(State);
     }
 }

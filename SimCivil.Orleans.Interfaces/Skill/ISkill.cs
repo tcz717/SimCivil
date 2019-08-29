@@ -18,24 +18,23 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// SimCivil - SimCivil.Orleans.Interfaces - BattleOptions.cs
-// Create Date: 2019/06/11
-// Update Date: 2019/06/12
+// SimCivil - SimCivil.Orleans.Interfaces - ISkill.cs
+// Create Date: 2019/08/06
+// Update Date: 2019/08/07
 
 using System;
 using System.Text;
+using System.Threading.Tasks;
 
-using SimCivil.Contract.Model;
-using SimCivil.Utilities.AutoService;
+using Orleans;
 
-namespace SimCivil.Orleans.Interfaces.Option
+namespace SimCivil.Orleans.Interfaces.Skill
 {
-    [AutoOptions]
-    public class BattleOptions
+    public interface ISkill : IGrainWithStringKey
     {
-        public BodyPartIndex[] DeadlyBodyParts { get; set; } =
-            {BodyPartIndex.Brain, BodyPartIndex.Heart, BodyPartIndex.Soul};
-        public float LowerBaseAttackRange { get; set; } = 0.5f;
-        public float UpperBaseAttackRange { get; set; } = 0.5f;
+        Task<string>     GetName();
+        Task<DoResult>   Do(SkillContext     context);
+        Task             SetState(SkillState state);
+        Task<SkillState> GetState();
     }
 }

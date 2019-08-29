@@ -51,7 +51,7 @@ namespace SimCivil.Orleans.Grains.Service
         public           ILogger<SimpleDamageService>      Logger { get; }
         private readonly IMapService                       _map;
         private readonly IHitStrategy                      _hitStrategy;
-        private readonly IOptions<DamageOptions>           _options;
+        private readonly IOptions<BattleOptions>           _options;
         private readonly IGrainFactory                     _grainFactory;
         private readonly ReadOnlyCollection<BodyPartIndex> _deadlyParts;
 
@@ -59,7 +59,7 @@ namespace SimCivil.Orleans.Grains.Service
             IMapService                  map,
             IHitStrategy                 hitStrategy,
             ILogger<SimpleDamageService> logger,
-            IOptions<DamageOptions>      options,
+            IOptions<BattleOptions>      options,
             IGrainFactory                grainFactory)
         {
             Logger        = logger;

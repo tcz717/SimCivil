@@ -19,8 +19,8 @@
 // SOFTWARE.
 // 
 // SimCivil - SimCivil.Gate - OrleansChunkViewSynchronizer.cs
-// Create Date: 2019/05/08
-// Update Date: 2019/05/25
+// Create Date: 2019/06/10
+// Update Date: 2019/06/19
 
 using System;
 using System.Collections.Generic;
@@ -106,7 +106,7 @@ namespace SimCivil.Gate
 
         public void StartSync(RpcServer server)
         {
-            Task SyncLoop()
+            void SyncLoop()
             {
                 try
                 {
@@ -115,18 +115,26 @@ namespace SimCivil.Gate
                         var sessions = server.Sessions.Where(s => s.IsSet<Action<ViewChange>>()).ToArray();
                         Logger.LogDebug($"Start updating {sessions.Length} clients");
                         foreach (IRpcSession session in sessions)
-                        {
-                            ViewChange viewChange =
-                                GrainFactory.Get<IObserver>(session.Get<IEntity>()).UpdateView().Result;
-                            session.Get<Action<ViewChange>>()(viewChange);
-                        }
+                            GrainFactory.Get<IObserver>(session.Get<IEntity>())
+                                        .UpdateView()
+                                        .ContinueWith(
+                                             t =>
+                                             {
+                                                 if (t.IsFaulted)
+                                                     Logger.LogError(
+                                                         t.Exception,
+                                                         "View change update fails on {0}",
+                                                         session.RemoteEndPoint);
+                                                 else
+                                                     session.Get<Action<ViewChange>>()(t.Result);
+                                             });
 
                         Thread.Sleep(50);
                     }
                 }
                 catch (Exception ex)
                 {
-                    Logger.LogError(ex, "SyncLoop occured a exception");
+                    Logger.LogCritical(ex, "SyncLoop occured a exception");
 
                     throw;
                 }
@@ -136,7 +144,7 @@ namespace SimCivil.Gate
                 }
             }
 
-            Task.Run(SyncLoop);
+            Task.Factory.StartNew(SyncLoop,TaskCreationOptions.LongRunning);
         }
     }
 }

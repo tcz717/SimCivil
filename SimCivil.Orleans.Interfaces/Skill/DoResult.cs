@@ -18,24 +18,36 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// SimCivil - SimCivil.Orleans.Interfaces - BattleOptions.cs
-// Create Date: 2019/06/11
-// Update Date: 2019/06/12
+// SimCivil - SimCivil.Orleans.Interfaces - DoResult.cs
+// Create Date: 2019/08/04
+// Update Date: 2019/08/12
 
 using System;
 using System.Text;
 
-using SimCivil.Contract.Model;
-using SimCivil.Utilities.AutoService;
-
-namespace SimCivil.Orleans.Interfaces.Option
+namespace SimCivil.Orleans.Interfaces.Skill
 {
-    [AutoOptions]
-    public class BattleOptions
+    public class DoResult
     {
-        public BodyPartIndex[] DeadlyBodyParts { get; set; } =
-            {BodyPartIndex.Brain, BodyPartIndex.Heart, BodyPartIndex.Soul};
-        public float LowerBaseAttackRange { get; set; } = 0.5f;
-        public float UpperBaseAttackRange { get; set; } = 0.5f;
+        public enum DoResultKind
+        {
+            NotLearned,
+            Success,
+            OutOfRange,
+            CoolingDown
+        }
+
+        /// <summary>Initializes a new instance of the <see cref="T:System.Object"></see> class.</summary>
+        public DoResult(DoResultKind kind)
+        {
+            Kind = kind;
+        }
+
+        public DoResultKind Kind { get; set; }
+
+        public static DoResult NotLearned()  => new DoResult(DoResultKind.NotLearned);
+        public static DoResult Success()     => new DoResult(DoResultKind.Success);
+        public static DoResult OutOfRange()  => new DoResult(DoResultKind.OutOfRange);
+        public static DoResult CoolingDown() => new DoResult(DoResultKind.CoolingDown);
     }
 }

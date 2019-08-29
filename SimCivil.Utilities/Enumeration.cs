@@ -28,36 +28,26 @@ using System.Text;
 
 namespace SimCivil.Utilities
 {
-    public abstract class Enumeration<T> : IEquatable<Enumeration<T>>, IComparable<Enumeration<T>>
-        where T : struct, IComparable
+    public abstract class Enumeration : IEquatable<Enumeration>, IComparable<Enumeration>
     {
-        public int CompareTo(Enumeration<T> other)
+        public int CompareTo(Enumeration other)
         {
             if (ReferenceEquals(this, other)) return 0;
             if (ReferenceEquals(null, other)) return 1;
 
-            return Value.CompareTo(other.Value);
+            return String.Compare(Name, other.Name, StringComparison.Ordinal);
         }
-
-        /// <summary>Initializes a new instance of the <see cref="T:System.Object"></see> class.</summary>
-        protected Enumeration(T value, [CallerMemberName] string name = default)
-        {
-            Name  = name;
-            Value = value;
-        }
-
-        public T      Value { get; }
-        public string Name  { get; }
+        public string Name { get; protected set; }
 
         /// <summary>Indicates whether the current object is equal to another object of the same type.</summary>
         /// <param name="other">An object to compare with this object.</param>
         /// <returns>true if the current object is equal to the <paramref name="other">other</paramref> parameter; otherwise, false.</returns>
-        public bool Equals(Enumeration<T> other)
+        public bool Equals(Enumeration other)
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
 
-            return Value.Equals(other.Value);
+            return Name.Equals(other.Name);
         }
 
         /// <summary>Determines whether the specified object is equal to the current object.</summary>
@@ -69,33 +59,40 @@ namespace SimCivil.Utilities
             if (ReferenceEquals(this, obj)) return true;
             if (obj.GetType() != GetType()) return false;
 
-            return Equals((Enumeration<T>) obj);
+            return Equals((Enumeration) obj);
         }
 
         /// <summary>Serves as the default hash function.</summary>
         /// <returns>A hash code for the current object.</returns>
-        public override int GetHashCode() => Value.GetHashCode();
+        public override int GetHashCode() => Name.GetHashCode();
 
         /// <summary>Returns a value that indicates whether the values of two <see cref="T:SimCivil.Utilities.Enumeration`1" /> objects are equal.</summary>
         /// <param name="left">The first value to compare.</param>
         /// <param name="right">The second value to compare.</param>
         /// <returns>true if the <paramref name="left" /> and <paramref name="right" /> parameters have the same value; otherwise, false.</returns>
-        public static bool operator ==(Enumeration<T> left, Enumeration<T> right) => Equals(left, right);
+        public static bool operator ==(Enumeration left, Enumeration right) => Equals(left, right);
 
         /// <summary>Returns a value that indicates whether two <see cref="T:SimCivil.Utilities.Enumeration`1" /> objects have different values.</summary>
         /// <param name="left">The first value to compare.</param>
         /// <param name="right">The second value to compare.</param>
         /// <returns>true if <paramref name="left" /> and <paramref name="right" /> are not equal; otherwise, false.</returns>
-        public static bool operator !=(Enumeration<T> left, Enumeration<T> right) => !Equals(left, right);
+        public static bool operator !=(Enumeration left, Enumeration right) => !Equals(left, right);
 
         public int CompareTo(object obj)
         {
             if (ReferenceEquals(null, obj)) return 1;
             if (ReferenceEquals(this, obj)) return 0;
 
-            return obj is Enumeration<T> other
+            return obj is Enumeration other
                        ? CompareTo(other)
-                       : throw new ArgumentException($"Object must be of type {nameof(Enumeration<T>)}");
+                       : throw new ArgumentException($"Object must be of type {nameof(Enumeration)}");
+        }
+
+        protected static T Member<T>([CallerMemberName] string name = null) where T : Enumeration, new()
+        {
+            var member = new T {Name = name};
+
+            return member;
         }
     }
 }

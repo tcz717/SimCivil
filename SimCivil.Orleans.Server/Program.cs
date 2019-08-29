@@ -88,7 +88,7 @@ namespace SimCivil.Orleans.Server
                             .ConfigureLogging(ConfigureLogging)
                             .ConfigureServices(
                                  (context, collection) =>
-                                     collection.AutoService(typeof(GameGrain).Assembly)
+                                     collection.AutoService(typeof(GameGrain).Assembly).AddTransientNamedService()
                                                .AutoOptions(typeof(GameGrain).Assembly, context.Configuration)
                                                .Configure<EndpointOptions>(
                                                     context.Configuration.GetSection("Endpoint"))

@@ -18,24 +18,38 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// SimCivil - SimCivil.Orleans.Interfaces - BattleOptions.cs
-// Create Date: 2019/06/11
-// Update Date: 2019/06/12
+// SimCivil - SimCivil.Orleans.Grains - CSharpSkillExecutor.cs
+// Create Date: 2019/08/07
+// Update Date: 2019/08/08
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
-using SimCivil.Contract.Model;
-using SimCivil.Utilities.AutoService;
+using Orleans;
+using Orleans.Concurrency;
 
-namespace SimCivil.Orleans.Interfaces.Option
+using SimCivil.Orleans.Interfaces.Skill;
+
+namespace SimCivil.Orleans.Grains.Skill
 {
-    [AutoOptions]
-    public class BattleOptions
+    [StatelessWorker]
+    public class CSharpSkillExecutor : Grain, ISkillExecutor
     {
-        public BodyPartIndex[] DeadlyBodyParts { get; set; } =
-            {BodyPartIndex.Brain, BodyPartIndex.Heart, BodyPartIndex.Soul};
-        public float LowerBaseAttackRange { get; set; } = 0.5f;
-        public float UpperBaseAttackRange { get; set; } = 0.5f;
+        private readonly Dictionary<string, ISkillScript> _skillScripts;
+
+        public CSharpSkillExecutor(IEnumerable<ISkillScript> skillScripts)
+        {
+            _skillScripts = skillScripts.ToDictionary(s => s.Name, s => s);
+        }
+
+        public Task<DoResult> Do(SkillContext context, SkillState state)
+        {
+            ISkillScript skillScript = _skillScripts[state.ScriptName];
+
+            return skillScript.Do(context, state);
+        }
     }
 }

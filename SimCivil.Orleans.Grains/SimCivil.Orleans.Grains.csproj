@@ -5,6 +5,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="System\**" />
+    <EmbeddedResource Remove="System\**" />
+    <None Remove="System\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="2.2.0" />
     <PackageReference Include="Microsoft.Orleans.CodeGenerator.MSBuild" Version="2.3.0">
       <PrivateAssets>all</PrivateAssets>
@@ -17,21 +23,5 @@
     <ProjectReference Include="..\SimCivil.Orleans.Interfaces\SimCivil.Orleans.Interfaces.csproj" />
     <ProjectReference Include="..\SimCivil.Utilities\SimCivil.Utilities.csproj" />
   </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="System\" />
-  </ItemGroup>
-
-  <!-- Prebuild Tool -->
-  <PropertyGroup>
-    <PrebuildToolProj>SimCivil.Tool.PrebuildTasks</PrebuildToolProj>
-    <SolDir>$(ProjectDir)../</SolDir>
-  </PropertyGroup>
-
-  <Import Project="../$(PrebuildToolProj)/extension.csproj" />
-
-  <Target Name="PreBuild" BeforeTargets="PreBuildEvent" Condition="'$(RunTool)' == 'true'">
-    <CallTarget Targets="PrebuildTool"></CallTarget>
-  </Target>
 
 </Project>

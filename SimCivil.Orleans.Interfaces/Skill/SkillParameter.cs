@@ -18,24 +18,20 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// SimCivil - SimCivil.Orleans.Interfaces - BattleOptions.cs
-// Create Date: 2019/06/11
-// Update Date: 2019/06/12
+// SimCivil - SimCivil.Orleans.Interfaces - SkillParameter.cs
+// Create Date: 2019/08/03
+// Update Date: 2019/08/06
 
 using System;
 using System.Text;
 
-using SimCivil.Contract.Model;
-using SimCivil.Utilities.AutoService;
-
-namespace SimCivil.Orleans.Interfaces.Option
+namespace SimCivil.Orleans.Interfaces.Skill
 {
-    [AutoOptions]
-    public class BattleOptions
+    public class SkillParameter
     {
-        public BodyPartIndex[] DeadlyBodyParts { get; set; } =
-            {BodyPartIndex.Brain, BodyPartIndex.Heart, BodyPartIndex.Soul};
-        public float LowerBaseAttackRange { get; set; } = 0.5f;
-        public float UpperBaseAttackRange { get; set; } = 0.5f;
+        public IEntity TargetEntity { get; set; }
+        public (float X,float Y) TargetPos { get; set; }
+        public float TargetDirection { get; set; }
+        public IEntity[] Resources { get; set; }
     }
 }

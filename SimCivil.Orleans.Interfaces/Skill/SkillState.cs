@@ -18,24 +18,25 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// SimCivil - SimCivil.Orleans.Interfaces - BattleOptions.cs
-// Create Date: 2019/06/11
-// Update Date: 2019/06/12
+// SimCivil - SimCivil.Orleans.Interfaces - SkillState.cs
+// Create Date: 2019/08/07
+// Update Date: 2019/08/07
 
 using System;
+using System.Collections.Generic;
 using System.Text;
 
-using SimCivil.Contract.Model;
-using SimCivil.Utilities.AutoService;
-
-namespace SimCivil.Orleans.Interfaces.Option
+namespace SimCivil.Orleans.Interfaces.Skill
 {
-    [AutoOptions]
-    public class BattleOptions
+    public class SkillState
     {
-        public BodyPartIndex[] DeadlyBodyParts { get; set; } =
-            {BodyPartIndex.Brain, BodyPartIndex.Heart, BodyPartIndex.Soul};
-        public float LowerBaseAttackRange { get; set; } = 0.5f;
-        public float UpperBaseAttackRange { get; set; } = 0.5f;
+        public string                     Name         { get; set; }
+        public string                     ScriptName   { get; set; }
+        public IEntity                    Inventor     { get; set; }
+        public DateTime                   InventTime   { get; set; }
+        public bool                       Doable       { get; set; }
+        public SkillRequirement[]         Requirements { get; set; }
+        public Dictionary<string, object> ScriptVar    { get; set; }
+        public ScriptType                 ScriptType   { get; set; }
     }
 }

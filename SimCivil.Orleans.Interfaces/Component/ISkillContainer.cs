@@ -18,24 +18,23 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// SimCivil - SimCivil.Orleans.Interfaces - BattleOptions.cs
-// Create Date: 2019/06/11
-// Update Date: 2019/06/12
+// SimCivil - SimCivil.Orleans.Interfaces - ISkillContainer.cs
+// Create Date: 2019/08/04
+// Update Date: 2019/08/06
 
 using System;
 using System.Text;
+using System.Threading.Tasks;
 
-using SimCivil.Contract.Model;
-using SimCivil.Utilities.AutoService;
+using SimCivil.Orleans.Interfaces.Skill;
 
-namespace SimCivil.Orleans.Interfaces.Option
+namespace SimCivil.Orleans.Interfaces.Component
 {
-    [AutoOptions]
-    public class BattleOptions
+    public interface ISkillContainer : IComponent
     {
-        public BodyPartIndex[] DeadlyBodyParts { get; set; } =
-            {BodyPartIndex.Brain, BodyPartIndex.Heart, BodyPartIndex.Soul};
-        public float LowerBaseAttackRange { get; set; } = 0.5f;
-        public float UpperBaseAttackRange { get; set; } = 0.5f;
+        Task<bool> Has(ISkill skill);
+        Task Learn(ISkill skill);
+        Task<bool> Forget(ISkill skill);
+        Task<int> GetProficiency(ISkill skill);
     }
 }
