@@ -24,4 +24,8 @@
     <ProjectReference Include="..\SimCivil.Utilities\SimCivil.Utilities.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Strategy\" />
+  </ItemGroup>
+
 </Project>

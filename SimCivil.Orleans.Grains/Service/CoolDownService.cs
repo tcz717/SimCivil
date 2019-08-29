@@ -50,7 +50,7 @@ namespace SimCivil.Orleans.Grains.Service
         public async Task<bool> TryDo(IEntity doer, string coolDownName, float period)
         {
             return !await _grainFactory.Get<ICooldown>(doer)
-                                      .TryDo(coolDownName, TimeSpan.FromSeconds(period))
+                                       .TryDo(coolDownName, TimeSpan.FromSeconds(period));
         }
     }
 }

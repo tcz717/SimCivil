@@ -19,10 +19,12 @@
 // SOFTWARE.
 // 
 // SimCivil - SimCivil.Script - MeleeSkillScript.cs
-// Create Date: 2019/08/08
-// Update Date: 2019/08/12
+// Create Date: 2019/08/29
+// Update Date: 2019/08/29
 
 using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using System.Text;
 using System.Threading.Tasks;
@@ -34,6 +36,8 @@ using Orleans;
 
 using SimCivil.Contract.Model;
 using SimCivil.Orleans.Interfaces;
+using SimCivil.Orleans.Interfaces.Component;
+using SimCivil.Orleans.Interfaces.Component.State;
 using SimCivil.Orleans.Interfaces.Option;
 using SimCivil.Orleans.Interfaces.Service;
 using SimCivil.Orleans.Interfaces.Skill;
@@ -49,9 +53,10 @@ namespace SimCivil.Script.Skill
         private readonly IMapService                       _map;
         private          ILogger<MeleeSkillScript>         _logger;
         private readonly IOptions<BattleOptions>           _options;
-        private          IGrainFactory                     _grainFactory;
+        private readonly IGrainFactory                     _grainFactory;
         private readonly ICoolDownService                  _coolDown;
-        private          ReadOnlyCollection<BodyPartIndex> _deadlyParts;
+        private readonly ReadOnlyCollection<BodyPartIndex> _deadlyParts;
+        public           Random                            Rand { get; } = new Random();
 
         public string Name { get; } = "Melee";
 
@@ -80,7 +85,39 @@ namespace SimCivil.Script.Skill
             if (!await _coolDown.TryDo(context.Doer, CoolDownUpper, (float) state.ScriptVar[CoolDown]))
                 return DoResult.CoolingDown();
 
-            return DoResult.Success();
+            // TODO get attacker weapon
+
+            var defenderUnit = _grainFactory.Get<IUnit>(context.Parameter.TargetEntity);
+            UnitState attackerState = await _grainFactory.Get<IUnit>(context.Doer).GetData();
+            UnitState defenderState = await defenderUnit.GetData();
+
+            UnitProperty dodgeRate = defenderState.DodgeRate;
+            UnitProperty hitRate = attackerState.UpperAttackHitRate;
+            UnitProperty attackEfficiency = attackerState.UpperAttackEfficiency;
+
+            double hitP = Math.Atan(hitRate / dodgeRate) * 2 / Math.PI;
+
+            if (Rand.NextDouble() > hitP) return DoResult.Missed();
+
+            // TODO use a better hit check
+            var bodyPartIndex = (BodyPartIndex) Rand.Next((int) BodyPartIndex.BodyPartCount);
+            var wound = new Wound((uint) attackEfficiency, WoundType.Bruise);
+
+            defenderState = await defenderUnit
+                               .ApplyWounds(
+                                    new Dictionary<BodyPartIndex, Wound> {[bodyPartIndex] = wound}
+                                       .ToImmutableDictionary());
+
+            for (var i = 0; i < defenderState.BodyParts.Length; i++)
+            {
+                if (defenderState.BodyParts[i].Hp != 0 || !_deadlyParts.Contains((BodyPartIndex) i)) continue;
+
+                await defenderUnit.MarkDead(context.Doer);
+
+                return DoResult.Dead(new[] {(BodyPartIndex) i});
+            }
+
+            return DoResult.HitBody(new[] {bodyPartIndex});
         }
 
         public void OnLearned(IEntity learner, SkillState state) { }

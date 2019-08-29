@@ -27,8 +27,6 @@ using System.Text;
 using System.Threading.Tasks;
 
 using SimCivil.Contract;
-using SimCivil.Contract.Model;
-using SimCivil.Orleans.Interfaces.Strategy;
 
 namespace SimCivil.Orleans.Interfaces.Component
 {
@@ -43,8 +41,6 @@ namespace SimCivil.Orleans.Interfaces.Component
         Task<PositionState> MoveTo(PositionState position, DateTime timestamp);
 
         Task Drop(IEntity target);
-
-        Task<AttackResult> Attack(IEntity target, IEntity injurant, HitMethod hitMethod);
 
         Task Use(IEntity target);
 

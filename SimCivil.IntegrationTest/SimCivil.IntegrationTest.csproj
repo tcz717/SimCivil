@@ -256,7 +256,6 @@
     <Compile Include="ServerConfigWindow.xaml.cs">
       <DependentUpon>ServerConfigWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Testcase\AttackTest.cs" />
     <Compile Include="Testcase\EntityTestBase.cs" />
     <Compile Include="Testcase\HeartbeatTest.cs" />
     <Compile Include="Testcase\MovementTest.cs" />

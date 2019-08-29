@@ -25,13 +25,17 @@
 using System;
 using System.Text;
 
+using JetBrains.Annotations;
+
 namespace SimCivil.Orleans.Interfaces.Skill
 {
     public class SkillParameter
     {
+        [CanBeNull]
         public IEntity TargetEntity { get; set; }
-        public (float X,float Y) TargetPos { get; set; }
-        public float TargetDirection { get; set; }
+        public (float X,float Y)? TargetPos { get; set; }
+        public float? TargetDirection { get; set; }
+        [CanBeNull]
         public IEntity[] Resources { get; set; }
     }
 }

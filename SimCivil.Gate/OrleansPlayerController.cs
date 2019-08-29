@@ -79,16 +79,5 @@ namespace SimCivil.Gate
 
             return await controller.InspectEntity(Factory.GetEntity(entityId));
         }
-
-        public async Task<AttackResultDto> Attack(Guid target, Guid injurant, HitMethod hitMethod)
-        {
-            var controller = Factory.GetGrain<IUnitController>(Session.Value.Get<IEntity>().GetPrimaryKey());
-
-            return DtoMapper.Map<AttackResultDto>(
-                await controller.Attack(
-                    Factory.GetEntity(target),
-                    injurant == Guid.Empty ? null : Factory.GetEntity(injurant),
-                    hitMethod));
-        }
     }
 }

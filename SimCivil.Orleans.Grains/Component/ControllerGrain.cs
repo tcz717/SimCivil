@@ -34,20 +34,17 @@ using Microsoft.Extensions.Options;
 using Orleans;
 
 using SimCivil.Contract;
-using SimCivil.Contract.Model;
 using SimCivil.Orleans.Interfaces;
 using SimCivil.Orleans.Interfaces.Component;
 using SimCivil.Orleans.Interfaces.Option;
 using SimCivil.Orleans.Interfaces.Service;
 using SimCivil.Orleans.Interfaces.Skill;
-using SimCivil.Orleans.Interfaces.Strategy;
 
 namespace SimCivil.Orleans.Grains.Component
 {
     public class ControllerGrain : Grain, IUnitController, IIncomingGrainCallFilter
     {
         private readonly IMapService    _mapService;
-        private readonly IDamageService _damageService;
         private          double         _lagPredict;
         private          DateTime       _lastUpdateTime;
 
@@ -60,7 +57,6 @@ namespace SimCivil.Orleans.Grains.Component
         public ControllerGrain(
             ILogger<ControllerGrain> logger,
             IMapService              mapService,
-            IDamageService           damageService,
             IOptions<GameOptions>    gameOptions,
             IOptions<SyncOptions>    syncOptions)
         {
@@ -68,7 +64,6 @@ namespace SimCivil.Orleans.Grains.Component
             GameOptions     = gameOptions;
             SyncOptions     = syncOptions;
             _mapService     = mapService;
-            _damageService  = damageService;
             UpdatePeriod    = TimeSpan.FromMilliseconds(syncOptions.Value.UpdatePeriod);
             _lastUpdateTime = DateTime.Now - UpdatePeriod - UpdatePeriod;
         }
@@ -132,14 +127,6 @@ namespace SimCivil.Orleans.Grains.Component
         }
 
         public Task Drop(IEntity target) => throw new NotImplementedException();
-
-        public async Task<AttackResult> Attack(IEntity target, IEntity injurant, HitMethod hitMethod)
-        {
-            if (!await GrainFactory.Get<IUnit>(target).IsLive())
-                return AttackResult.InvalidTarget();
-
-            return await _damageService.Attack(GrainFactory.GetEntity(this), target, injurant, hitMethod);
-        }
 
         public async Task<DoResult> Do(ISkill skill, SkillParameter parameter)
         {

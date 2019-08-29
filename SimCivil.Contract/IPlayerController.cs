@@ -29,8 +29,6 @@ using System.Threading.Tasks;
 
 using JetBrains.Annotations;
 
-using SimCivil.Contract.Model;
-
 namespace SimCivil.Contract
 {
     [PublicAPI]
@@ -39,6 +37,5 @@ namespace SimCivil.Contract
         Task<(float X, float Y)> MoveTo((float X, float Y) position, DateTime timestamp);
 
         Task<InspectionResult> Inspect(Guid entityId);
-        Task<AttackResultDto> Attack(Guid target, Guid injurant, HitMethod hitMethod);
     }
 }

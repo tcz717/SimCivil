@@ -19,11 +19,14 @@
 // SOFTWARE.
 // 
 // SimCivil - SimCivil.Orleans.Interfaces - DoResult.cs
-// Create Date: 2019/08/04
-// Update Date: 2019/08/12
+// Create Date: 2019/08/29
+// Update Date: 2019/08/29
 
 using System;
+using System.Collections.Generic;
 using System.Text;
+
+using SimCivil.Contract.Model;
 
 namespace SimCivil.Orleans.Interfaces.Skill
 {
@@ -31,10 +34,11 @@ namespace SimCivil.Orleans.Interfaces.Skill
     {
         public enum DoResultKind
         {
-            NotLearned,
             Success,
+            NotLearned,
             OutOfRange,
-            CoolingDown
+            CoolingDown,
+            Missed
         }
 
         /// <summary>Initializes a new instance of the <see cref="T:System.Object"></see> class.</summary>
@@ -43,11 +47,34 @@ namespace SimCivil.Orleans.Interfaces.Skill
             Kind = kind;
         }
 
-        public DoResultKind Kind { get; set; }
+        private DoResult(DoResultKind kind, IEnumerable<BodyPartIndex> bodyPartIndices)
+        {
+            Kind            = kind;
+            BodyPartIndices = bodyPartIndices;
+        }
+
+        private DoResult(DoResultKind kind, IEnumerable<BodyPartIndex> bodyPartIndices, bool isDead)
+        {
+            Kind = kind;
+            BodyPartIndices = bodyPartIndices;
+            IsDead = isDead;
+        }
+
+        public DoResultKind               Kind            { get; set; }
+        public IEnumerable<BodyPartIndex> BodyPartIndices { get; set; }
+        public bool IsDead { get; set; }
 
         public static DoResult NotLearned()  => new DoResult(DoResultKind.NotLearned);
         public static DoResult Success()     => new DoResult(DoResultKind.Success);
         public static DoResult OutOfRange()  => new DoResult(DoResultKind.OutOfRange);
         public static DoResult CoolingDown() => new DoResult(DoResultKind.CoolingDown);
+
+        public static DoResult HitBody(IEnumerable<BodyPartIndex> bodyPartIndices)
+            => new DoResult(DoResultKind.Success, bodyPartIndices);
+
+        public static DoResult Missed() => new DoResult(DoResultKind.Missed);
+
+        public static DoResult Dead(IEnumerable<BodyPartIndex> bodyPartIndices)
+            => new DoResult(DoResultKind.Success, bodyPartIndices, false);
     }
 }

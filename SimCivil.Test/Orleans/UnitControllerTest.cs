@@ -31,12 +31,10 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
-using SimCivil.Contract.Model;
 using SimCivil.Orleans.Grains.Component;
 using SimCivil.Orleans.Interfaces;
 using SimCivil.Orleans.Interfaces.Component;
 using SimCivil.Orleans.Interfaces.Option;
-using SimCivil.Orleans.Interfaces.Strategy;
 
 using Xunit;
 using Xunit.Abstractions;
@@ -55,39 +53,6 @@ namespace SimCivil.Test.Orleans
             await Assert.ThrowsAsync<EntityInvalidException>(
                 async () =>
                     await Cluster.GrainFactory.GetGrain<IUnitController>(Guid.NewGuid()).Drop(null));
-        }
-
-        [Fact]
-        public async Task AttackTest()
-        {
-            IEntity attacker = await GetNewRoleAsync();
-            IEntity defender = await GetNewRoleAsync();
-
-            AttackResult attackResult =
-                await Cluster.GrainFactory.Get<IUnitController>(attacker).Attack(defender, null, HitMethod.Fist);
-
-            Assert.NotEqual(HitResult.InvalidedTarget, attackResult.Result);
-            Assert.NotEqual(HitResult.OutOfRange,      attackResult.Result);
-            Assert.NotEqual(HitResult.Cooldown,        attackResult.Result);
-        }
-
-        [Fact]
-        public async Task AttackCoolDownTask()
-        {
-            IEntity attacker = await GetNewRoleAsync();
-            IEntity defender = await GetNewRoleAsync();
-
-            var controller = Cluster.GrainFactory.Get<IUnitController>(attacker);
-            AttackResult attackResult =
-                await controller.Attack(defender, null, HitMethod.Fist);
-
-            Assert.NotEqual(HitResult.InvalidedTarget, attackResult.Result);
-            Assert.NotEqual(HitResult.OutOfRange,      attackResult.Result);
-            Assert.NotEqual(HitResult.Cooldown,        attackResult.Result);
-
-            await Task.Delay(500);
-
-            Assert.Equal(HitResult.Cooldown, (await controller.Attack(defender, null, HitMethod.Fist)).Result);
         }
 
         [Theory]
