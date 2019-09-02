@@ -1,13 +1,16 @@
-﻿using Microsoft.Extensions.Options;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using SimCivil.Orleans.Interfaces;
 using SimCivil.Orleans.Interfaces.Option;
 using SimCivil.Orleans.Interfaces.Service;
+using SimCivil.Utilities.AutoService;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace SimCivil.Orleans.Grains.Service
 {
+    [AutoService(ServiceLifetime.Transient)]
     public class PerlinMapGen : IMapGenerator
     {
         public PerlinMapGen(IOptions<GameOptions> gameOptions, IOptions<PerlinMapGenOptions> mapGenOptions, SimplexNoiseGenerator simplexNoiseGenerator)
@@ -42,7 +45,7 @@ namespace SimCivil.Orleans.Grains.Service
 
         private int GetHeight(int x, int y)
         {
-            var h = SimplexNoiseGenerator.CalcPixel2D(x, y, 10);
+            var h = SimplexNoiseGenerator.CalcPixel2D(x, y, 0.1f) * 10 + GameOptions.Value.SeaLevel;
             return (int) h;
         }
     }

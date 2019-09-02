@@ -51,7 +51,7 @@ namespace SimCivil.Orleans.Grains.Service
         {
             var values = new float[width];
             for (var i = widthOffset; i < widthOffset + width; i++)
-                values[i] = Generate(i * scale) * 128 + 128;
+                values[i] = Generate(i * scale);
             return values;
         }
 
@@ -60,7 +60,7 @@ namespace SimCivil.Orleans.Grains.Service
             var values = new float[width, height];
             for (var i = widthOffset; i < widthOffset + width; i++)
                 for (var j = heightOffset; j < heightOffset + height; j++)
-                    values[i, j] = Generate(i * scale, j * scale) * 128 + 128;
+                    values[i, j] = Generate(i * scale, j * scale);
             return values;
         }
 
@@ -70,23 +70,23 @@ namespace SimCivil.Orleans.Grains.Service
             for (var i = widthOffset; i < widthOffset + width; i++)
                 for (var j = heightOffset; j < heightOffset + height; j++)
                     for (var k = lengthOffset; k < lengthOffset + length; k++)
-                        values[i, j, k] = Generate(i * scale, j * scale, k * scale) * 128 + 128;
+                        values[i, j, k] = Generate(i * scale, j * scale, k * scale);
             return values;
         }
 
         public float CalcPixel1D(int x, float scale)
         {
-            return Generate(x * scale) * 128 + 128;
+            return Generate(x * scale);
         }
 
         public float CalcPixel2D(int x, int y, float scale)
         {
-            return Generate(x * scale, y * scale) * 128 + 128;
+            return Generate(x * scale, y * scale);
         }
 
         public float CalcPixel3D(int x, int y, int z, float scale)
         {
-            return Generate(x * scale, y * scale, z * scale) * 128 + 128;
+            return Generate(x * scale, y * scale, z * scale);
         }
 
         public SimplexNoiseGenerator()

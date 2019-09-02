@@ -39,7 +39,6 @@ namespace SimCivil.Orleans.Grains.Service
     /// <summary>
     /// Random map generator used for test.
     /// </summary>
-    [AutoService(ServiceLifetime.Transient)]
     public class RandomMapGen : IMapGenerator
     {
         public IOptions<GameOptions> GameOptions { get; }
