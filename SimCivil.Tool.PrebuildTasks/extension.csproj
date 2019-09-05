@@ -1,6 +1,6 @@
 ﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup Condition="!Exists('$(RunTool)')">
-    <RunTool>true</RunTool>
+    <RunTool>false</RunTool>
 
     <ConfigurationName Condition="$(ConfigurationName) == ''">Debug</ConfigurationName>
     <PrebuildOutputPath>$(SolDir)$(PrebuildToolProj)/bin/$(ConfigurationName)/netcoreapp2.1/$(PrebuildToolProj).dll</PrebuildOutputPath>
